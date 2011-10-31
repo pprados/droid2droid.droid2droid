@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="expose">Expose</string>
+    <string name="expose_title">Expose the device</string>
+	<string name="expose_summary">For connect with another</string>
+	<string name="expose_dialog_title">Select exposition</string>
+	<string name="expose_qrcode">QRCode</string>
+	<string name="expose_sms">SMS</string>
+	<string name="expose_sound">Sound</string>
+	<string name="expose_input">Input</string>
+
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+  xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+>
+    <string name="ask_pairing_title">Remote android pairing request</string>
+    <string name="ask_pairing_describe">To pair with \u0022<xliff:g id="device_name">%1$s</xliff:g>\u0022, confirm that it is showing the passkey: <xliff:g id="passkey">%2$s</xliff:g>.</string>
+    
+    <string name="ask_pairing_accept">Pair</string>
+    <string name="ask_pairing_decline">Don\'t pair</string>
+    
+</resources>

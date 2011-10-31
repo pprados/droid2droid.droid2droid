@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+  xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+>
+	<string name="incoming_apk_toast_backup">TODO: extraire des sources incoming_apk_toast en plusieurs langues</string>
+
+	<!--  Dialogue affiché lors de la proposition du téléchargement d'un APK -->
+    <string name="ask_download_apk_title">Remote Android</string>
+    <string name="ask_download_apk_describe_wifi">\u0022<xliff:g id="sender">%1$s</xliff:g>\u0022 wants to install <xliff:g id="apk">%2$s</xliff:g> (<xliff:g id="size">%3$s</xliff:g>). \n\nAccept to download the application ? </string>
+    <string name="ask_download_apk_describe">\u0022<xliff:g id="sender">%1$s</xliff:g>\u0022 wants to install <xliff:g id="apk">%2$s</xliff:g> (<xliff:g id="size">%3$s</xliff:g>). Download now may shorten your battery life and/or result in excessive usage of your mobile data connection, which can lead to charges by your mobile operator, depending on your data plan.\n\nAccept to download the application ? </string>
+    <string name="ask_download_apk_accept">Accept</string>    
+    <string name="ask_download_apk_decline">Decline</string>    
+
+	<!-- Dialog affiché lors du détail d'un téléchargement de APK -->    
+    <string name="download_title">Download application</string>
+    <string name="download_line1">From: \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="download_line2">Name: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_line3">File size: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="download_line4"></string>
+    <string name="download_line5">Receiving file\u2026</string>
+    <string name="download_succ_line5">File received</string>
+    <string name="download_apk_cancel">Cancel</string>
+    <string name="download_apk_hide">Hide</string>
+    
+    <!-- File Transfer Acceptance -->
+    <string name="incoming_apk_toast">There is an incoming application from another device, please confirm that you want to receive this application.</string>
+    <string name="incoming_apk_confirm_title">Incoming application %1$s</string>
+    <string name="incoming_apk_confirm_caption">Please confirm you want to receive</string>
+
+	<!-- TODO Alert download -->
+	<string name="incoming_apk_alert">The application download. Check the status bare to see the progression.</string>
+	
+	<!-- Update currents downloads -->
+    <string name="update_download_title">Install: %1$s</string>
+    <string name="update_download_ticket">Download %1$s</string>
+
+    <!-- Notification: Finish download  -->
+    <string name="finish_download_title">Received applications</string>
+    <string name="finish_download_ok_ticket">%1$s is downloaded.</string>
+    <string name="finish_download_fail_ticket">%1$s is not downloaded.</string>
+    <string name="finish_download_caption"> <xliff:g id="successful_number">%1$s</xliff:g> successful, <xliff:g id="unsuccessful_number">%2$s</xliff:g> failed.</string>
+    
+</resources>

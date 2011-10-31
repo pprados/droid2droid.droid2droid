@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+  xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+>
+    <declare-styleable name="IconPreferenceScreen">
+        <attr name="icon" format="reference" />
+    </declare-styleable>
+	<string name="editpreference_label">Edit preference</string>
+	<string name="editpreference_description">Accept or refuse some connection from others
+		devices.</string>
+
+	<string name="settings_label">Remote Android Settings</string>
+	<string name="settings_remote_android">Remote Android</string>
+
+    <string name="remote_control">Accept remote control</string>
+    <string name="explain">Share this device with others Android.\nAnother device can use it for a better experience.</string>
+
+	<string name="device_name">Device name</string>
+    <string name="device_name_title">Device Name</string>
+	<string name="device_name_message">Enter the device name</string>
+
+	<string name="anonymous">Anonymous</string>
+    <string name="proximity_active_title">Share with proximity</string>
+    <string name="proximity_active_summary">Accept anonymous connections from same WIFI network or bluetooths devices.</string>
+    <string name="dialog_title_wifi_preference">Only some WIFI Network</string>
+    <string name="all_key">&lt;all&gt;</string>
+    
+    <string name="host_summary">Use one of this host name to connect to this device.</string>
+
+    <string name="remote_control_title">Share this device</string>
+    <string name="remote_control_summary">Accept to share this device. Another Android can invoke local application.</string>
+
+    <string name="accept_all_title">Applications</string>
+    <string name="accept_all_summary">Accept to download all proposed applications before check to install.</string>
+    <string name="accept_all_3G_summary">Accept to download all proposed applications before check to install. Can consume data bandwith.</string>
+
+    <string name="select_wifi_title">Select WIFI network</string>
+    <string name="select_wifi_summary">Accept only for selected WIFI network.</string>
+
+	<string name="known">Known devices</string>
+    <string name="known_active_title">Accept</string>
+    <string name="known_active_summary">Accept connection from any device.</string>
+    
+	<string name="detected_devices">Detected and known devices</string>
+	
+    <!-- text that appears in heading bar when scanning for devices. Recuperer versions dans les differentes langues dans les sources Android -->
+    <string name="progress_scanning">Scanning</string>
+	
+	<!-- The title of the preference (list item) that initiates a scan for devices. (bluetooth_preference_scan_title) -->
+    <string name="preference_scan_title">Scan for devices</string>
+    
+    <!-- Network type show when discover device -->
+    <string name="network_ip">Network</string>
+    <!-- Network type show when discover device -->
+    <string name="network_bt">Bluetooth</string>
+    
+    <string name="scan_context_title">Select scan mode</string>
+    <string name="scan_context_all">Scan</string>
+    <string name="scan_context_bt">Scan with Bluetooth</string>
+    <string name="scan_context_wifi">Scan with Wifi</string>
+    
+    <string name="device_paired">Paired. </string>
+    <string name="device_not_paired">Pair with this device. </string>
+    <string name="device_pairing_summary">Pairing... </string>
+    <string name="device_context_pair">Pair</string>
+    <string name="device_context_unpair">Unpair</string>
+    
+    <string name="err_pairing_aborted">Pairing aborted</string>
+
+</resources>

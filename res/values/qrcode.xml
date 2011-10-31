@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- Messages IDs -->
+  <item type="id" name="auto_focus"/>
+  <item type="id" name="start_decode"/>
+  <item type="id" name="current_decode"/>
+  <item type="id" name="decode"/>
+  <item type="id" name="decode_failed"/>
+  <item type="id" name="decode_succeeded"/>
+  <item type="id" name="quit"/>
+<!--   <item type="id" name="restart_preview"/> -->
+
+	<string name="msg_default_status">Place a qrcode from Remote Android inside the viewfinder rectangle to scan it.</string>
+	<string name="qrcode_msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
+	<string name="button_ok">OK</string>
+    <string name="qrcode_context_title">Select scan mode</string>
+    <string name="qrcode_flash">Flash</string>
+
+	<!-- Color -->
+	<color name="transparent">#00000000</color>
+	<color name="qrcode_result_color">#b0000000</color>
+	<color name="qrcode_status_text">#ffffffff</color>
+	<!-- <color name="qrcode_possible_result_points">#c0ffff00</color> -->
+	<color name="qrcode_possible_result_points">#c0ff0000</color>
+<!-- 	<color name="qrcode_result_points">#c000ff00</color> -->
+	<color name="qrcode_result_points">#c0ff0000</color>
+	<color name="qrcode_frame_color">#ff000000</color>
+	<color name="qrcode_laser">#ffff0000</color>
+	<color name="qrcode_result_image_border">#ffffffff</color>
+	<color name="qrcode_mask">#60000000</color>
+</resources>

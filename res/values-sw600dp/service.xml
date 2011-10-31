@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Start service -->
+    <string name="service_start_ticker">Remote Android : Ready to be shared</string>
+    <string name="service_start_title">Remote Android : Share this device</string>
+
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permission_discover_desc">Discover other remote android.</string>
+    <string name="permission_discover_label">Discover other remote android.</string>
+
+    <string name="permission_private_desc">Protected from others applications.</string>
+    <string name="permission_private_label">Protected from others applications.</string>
+
+</resources>

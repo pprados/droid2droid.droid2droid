@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+  xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+>
+    <!-- If system/app, signal download is finish -->
+    <string name="autoinstall_caption">Installing...</string>
+    <string name="autoinstall_ticket">Installing %1$s.</string>
+    
+    <!-- If system/app, signal application is successufull installed -->
+    <string name="installed_success_caption">Installed.</string>
+    <string name="installed_success_ticket">%1$s installed.</string>
+    
+    <!-- If system/app, signal application is not installed -->
+    <string name="installed_fail_caption">Not installed.</string>
+    <string name="installed_fail_ticket">%1$s not installed.</string>
+    
+</resources>
