@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.SupportActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,7 +83,7 @@ public class TechnologiesFragment extends ListFragment
 		
 	}
 	@Override
-	public void onAttach(Activity activity)
+	public void onAttach(SupportActivity activity)
 	{
 		try
 		{

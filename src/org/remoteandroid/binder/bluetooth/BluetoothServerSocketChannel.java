@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.UpstreamHandler;
+import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -152,7 +153,7 @@ public class BluetoothServerSocketChannel implements Runnable
 //				// TODO Auto-generated catch block
 //				if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"BT Error when start server",e1);
 //			}
-        	if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=9/*Build.VERSION_CODES.GINGERBREAD_MR1*/)
+        	if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
         	{
         		try
 				{

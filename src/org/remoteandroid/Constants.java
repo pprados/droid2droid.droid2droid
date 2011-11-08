@@ -92,12 +92,18 @@ public class Constants
     	= "android.intent.extra.INSTALLER_PACKAGE_NAME";
 	
 	//-----------------------------------------------------------------------------
-	public static final boolean CONNECT_FORCE_FRAGMENTS=false;
+	/** For debug, force to use fragments in horizontal view. */
+	public static final boolean CONNECT_FORCE_FRAGMENTS=true;
+	/** For debug, use classic exception. */ 
 	public static final boolean QRCODE_DEBUG=true;
-	public static final boolean QRCODE_AUTOFOCUS=true;
-	public static final boolean QRCODE_REPEAT_AUTOFOCUS=false;
-	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS	= 2000L;
+	/** Show the current bitmap to analyse. */
 	public static final boolean	QRCODE_SHOW_CURRENT_DECODE	= true;
+	/** Force auto-focus before analyse bitmap. */
+	public static final boolean QRCODE_AUTOFOCUS=true;
+	/** Re-ask autofocus after each analyse. */
+	public static final boolean QRCODE_REPEAT_AUTOFOCUS=false;
+	/** Interval between autofocus. */
+	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS	= 2000L;
 	
 	
 	//-----------------------------------------------------------------------------

@@ -125,6 +125,7 @@
         	android:label="@string/app_name" 
         	android:description="@string/editpreference_description" 
         	android:icon="@drawable/ic_launcher_remoteandroid"
+			android:configChanges="orientation|screenSize"
         	>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -161,6 +162,7 @@
 			android:noHistory="true"
 			android:launchMode="singleTop"
 			android:icon="@drawable/ic_launcher_remoteandroid"
+			android:configChanges="orientation|screenSize"
 	        />
 
         <activity 
@@ -173,6 +175,7 @@
 			android:excludeFromRecents="true"
 			android:multiprocess="false"
 			android:taskAffinity=""
+			android:configChanges="orientation|screenSize"
 	        />
         
 		<!--  Activity to accept to download an APK -->
@@ -186,6 +189,7 @@
 			android:excludeFromRecents="true"
 			android:multiprocess="false"
 			android:taskAffinity=""
+			android:configChanges="orientation|screenSize"
 	        />
 
 		<!--  Activity to download an APK -->
@@ -199,6 +203,7 @@
 			android:excludeFromRecents="true"
 			android:multiprocess="false"
 			android:taskAffinity=""
+			android:configChanges="orientation|screenSize"
         />
         
         
@@ -208,6 +213,7 @@
 			android:launchMode="standard" 
 			android:taskAffinity=""
 			android:exported="true"
+			android:configChanges=""
 		>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -221,8 +227,10 @@
          <activity 
         	android:name=".ui.connect.qrcode.TestQRCode" 
 			android:exported="false" 
-        	android:launchMode="standard">
-        </activity>
+        	android:launchMode="standard"
+			android:configChanges="orientation|screenSize"
+         >
+         </activity>
         <activity 
         	  android:name=".ui.connect.qrcode.CaptureQRCodeActivity" 
 			  android:exported="true" 

@@ -32,6 +32,7 @@
 	Then, select one discovered device to connect and/or pairing.
     </string>
 
+	<string name="connect_try">Connect...</string>
 	<string name="connect_qrcode">QRCode</string>
 	<string name="connect_qrcode_description">Scan QRCode from remote device.</string>
 	<string name="connect_qrcode_help">In the remote device\n
