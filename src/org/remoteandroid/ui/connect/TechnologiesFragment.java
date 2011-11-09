@@ -2,14 +2,12 @@ package org.remoteandroid.ui.connect;
 
 import org.remoteandroid.R;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.SupportActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -114,12 +112,12 @@ public class TechnologiesFragment extends ListFragment
 		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 	}
 	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-	{
-		return super.onCreateView(inflater, container, savedInstanceState);
-		
-	}
+//	@Override
+//	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+//	{
+//		return super.onCreateView(inflater, container, savedInstanceState);
+//		
+//	}
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{

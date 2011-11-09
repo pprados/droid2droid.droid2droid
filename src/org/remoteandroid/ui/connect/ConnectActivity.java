@@ -1,15 +1,14 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.CONNECT_FORCE_FRAGMENTS;
+import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.ui.StyleFragmentActivity;
 
@@ -24,23 +23,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 
 public class ConnectActivity extends StyleFragmentActivity 
 implements TechnologiesFragment.Listener
 {
-	private static final String STACKNAME="stack";
 	static final int DIALOG_TRY_CONNECTION=1;
-	enum State { MERGE,TECHNOLOGIES,BODY};
-	private State mState;
-	private static TryConnection sTryHandler;
+	private static TryConnection sTryConnections;
 	
+	FragmentManager mFragmentManager;
 	TechnologiesFragment mTechnologiesFragment;
 	AbstractBodyFragment mBodyFragment;
-	FragmentManager mFragmentManager;
 
 	Technology[] mTechnologies;
-	Technology mTechnology=Technology.sDefault;
+	
+	private boolean mMerge;
+	
 	
 	/*
 	 * Use two strategie:
@@ -58,119 +56,108 @@ implements TechnologiesFragment.Listener
 		super.onCreate(savedInstanceState);
 		
 		mFragmentManager=getSupportFragmentManager();
-		mFragmentManager.findFragmentById(android.R.id.content); // FIXME
 		mTechnologies=Technology.initTechnologies(this);
 		
-		boolean merge=getResources().getBoolean(R.bool.connect_merge);
-		mState=State.MERGE;
+		mMerge=getResources().getBoolean(R.bool.connect_merge);
 		
-		if (savedInstanceState != null) 
-		{
-            mState= State.values()[savedInstanceState.getInt("state", State.TECHNOLOGIES.ordinal())];
-            Technology.Type type=Technology.Type.values()[savedInstanceState.getInt("technology", 0)];
-            for (int i=0;i<mTechnologies.length;++i)
-            {
-            	if (mTechnologies[i].mId==type)
-            	{
-            		mTechnology=mTechnologies[i];
-            		break;
-            	}
-            }
-        }
-		// FIXME: Hook for simulate large screen
+		// Hack to simulate merger in landscape, and not merged in portrait
 		if (CONNECT_FORCE_FRAGMENTS)
 		{
 			if (getResources().getConfiguration().orientation  == Configuration.ORIENTATION_LANDSCAPE)
-				merge=true;
+				mMerge=true;
 		}
-		
-		if (merge)
-		{
-			// If change orientation in second or more page
-			//http://stackoverflow.com/questions/7431516/how-to-change-fragments-class-dynamically
-			
-			FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
 
+		FragmentTransaction transaction=mFragmentManager.beginTransaction();
+		mTechnologiesFragment=(TechnologiesFragment)mFragmentManager.findFragmentById(R.id.technologies);
+		Fragment f=(Fragment)mFragmentManager.findFragmentById(R.id.body);
+		if (mTechnologiesFragment!=null) transaction.remove(mTechnologiesFragment);
+		if (f!=null) transaction.remove(f);
+		if (f instanceof AbstractBodyFragment)
+			mBodyFragment=(AbstractBodyFragment)f;
+		else
+			mTechnologiesFragment=(TechnologiesFragment)f;
+		transaction.commit(); // remove all fragments
+		mFragmentManager.executePendingTransactions();
+		
+		transaction=mFragmentManager.beginTransaction();
+		if (mMerge)
+		{
 			setContentView(R.layout.connect_frames);
-			Technology technology=(mTechnology==null ) ? Technology.sDefault : mTechnology;
-			mBodyFragment=technology.makeFragment();
-			fragmentTransaction.replace(R.id.body, mBodyFragment);
-			mFragmentManager.popBackStack(STACKNAME,FragmentManager.POP_BACK_STACK_INCLUSIVE);
-			
-			
-			mTechnologiesFragment=(TechnologiesFragment)mFragmentManager.findFragmentById(R.id.technologies);
-			mTechnologiesFragment.setTechnologies(mTechnologies);
-			mTechnologiesFragment.enabledPersistentSelection();
-			
-			mBodyFragment=(AbstractBodyFragment)mFragmentManager.findFragmentById(R.id.body);
-			if (mBodyFragment==null)
-			{
-				mBodyFragment=mTechnology.makeFragment();
-				fragmentTransaction.replace(R.id.body, mBodyFragment);
-			}
-			Fragment f=mFragmentManager.findFragmentById(android.R.id.content);
-			if (f!=null)
-				fragmentTransaction.remove(f);
-			fragmentTransaction.commit();
-			mState=State.MERGE;
+			if (mBodyFragment==null) mBodyFragment=new EmptyBodyFragment();
+			if (mTechnologiesFragment==null) mTechnologiesFragment=new TechnologiesFragment();
+			transaction.replace(R.id.technologies, mTechnologiesFragment);
+			transaction.replace(R.id.body, mBodyFragment);
+			transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 		}
 		else
 		{
-			if ((mState==State.MERGE) || (mState==State.TECHNOLOGIES)) 
+			setContentView(R.layout.connect_noframes);
+			if (mTechnologiesFragment==null)
 			{
+				mTechnologiesFragment=new TechnologiesFragment();
 				// Restore state after changed the orientation
-				mState=State.TECHNOLOGIES;
-				mFragmentManager.popBackStack(STACKNAME,FragmentManager.POP_BACK_STACK_INCLUSIVE);
-				mFragmentManager.beginTransaction()
-					.add(android.R.id.content, mTechnologiesFragment=new TechnologiesFragment()).commit();
-				mTechnologiesFragment.setTechnologies(mTechnologies);
-				//mBodyFragment.setTechnology(mTechnology);
+				if (mBodyFragment==null || mBodyFragment instanceof EmptyBodyFragment)
+				{
+					//Log.d("TTT","add in body, techno "+mTechnologiesFragment.mIndex);
+					transaction.replace(R.id.body, mTechnologiesFragment);
+				}
 			}
+			else
+			{
+				if (mBodyFragment instanceof EmptyBodyFragment)
+					transaction.replace(R.id.body, mTechnologiesFragment);
+				else
+					transaction.replace(R.id.body, mBodyFragment);
+			}
+				
+			transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 		}
-		// Reconnect background thread after rotation
-		TryConnection tryHandler=sTryHandler;
-		if (tryHandler!=null)
-		{
-			tryHandler.mProgressDialog=(ConnectDialogFragment)getSupportFragmentManager().findFragmentByTag("dialog");
-		}
+		transaction.commit();
 
+		if (mTechnologiesFragment!=null)
+			mTechnologiesFragment.setTechnologies(mTechnologies); // FIXME
+		// Reconnect background thread after rotation
+		TryConnection tryConnections=sTryConnections;
+		if (tryConnections!=null)
+		{
+			tryConnections.mProgressDialog=(ConnectDialogFragment)mFragmentManager.findFragmentByTag("dialog");
+		}
 	}
 	
 	@Override
-    public void onSaveInstanceState(Bundle outState) 
+	public void onBackPressed()
 	{
-        super.onSaveInstanceState(outState);
-        outState.putInt("state", mState.ordinal());
-        outState.putInt("technology", mTechnology.mId.ordinal());
-    }
+		if (!mMerge)
+		{
+			Fragment f=mFragmentManager.findFragmentById(R.id.body);
+			if (!(f instanceof TechnologiesFragment))
+			{
+				FragmentTransaction transaction=mFragmentManager.beginTransaction();
+				transaction.replace(R.id.body, mTechnologiesFragment);
+				transaction.setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+				transaction.commit();
+			}
+			else
+				super.onBackPressed();
+		}
+		else
+			super.onBackPressed();
+	}
 	
 	@Override
 	public void onTechnologieSelected(Technology technology)
 	{
+		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
 		FragmentTransaction transaction;
-		if (mTechnology==technology)
-			return;
-		mTechnology=technology;
-		switch (mState)
-		{
-			case MERGE:
-				transaction=mFragmentManager.beginTransaction();
-				mBodyFragment=mTechnology.makeFragment();
-				transaction.replace(R.id.body, mBodyFragment);
-				transaction.commit();
-				break;
-				
-			case TECHNOLOGIES:
-				mBodyFragment=mTechnology.makeFragment();
-				mState=State.BODY;
-				Fragment f=mFragmentManager.findFragmentById(android.R.id.content);
-				Log.d("TTT","f="+f);
-				transaction=mFragmentManager.beginTransaction();
-				transaction.replace(android.R.id.content, mBodyFragment);
-				transaction.addToBackStack(STACKNAME);
-				transaction.commit();
-				break;
-		}
+		transaction=mFragmentManager.beginTransaction();
+		mBodyFragment=technology.makeFragment();
+		transaction.replace(R.id.body, mBodyFragment);
+		if (!mMerge)
+			transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		else
+			transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		transaction.commit();
 		mFragmentManager.executePendingTransactions();
 	}
 	
@@ -178,35 +165,21 @@ implements TechnologiesFragment.Listener
 	protected void onPause()
 	{
 		super.onPause();
-		TryConnection tryHandler=sTryHandler;
+		TryConnection tryHandler=sTryConnections;
 		if (tryHandler!=null)
 		{
 			tryHandler.mProgressDialog=null;
 		}
 	}
 
-	@Override
-	public void onBackPressed()
-	{
-		super.onBackPressed();
-		switch (mState)
-		{
-//			case BODY:
-//				mState=State.TECHNOLOGIES;
-//				break;
-			case BODY:
-				mState=State.TECHNOLOGIES;
-				break;
-		}
-	}
+	
 	public void tryConnect(final Runnable firstStep)
 	{
-		if (sTryHandler==null)
+		if (sTryConnections==null)
 		{
-			Log.d("TTT","create try handler");
 			final ConnectDialogFragment dlg=ConnectDialogFragment.newInstance();
-			dlg.show(getSupportFragmentManager(), "dialog");
-			sTryHandler=new TryConnection();
+			dlg.show(mFragmentManager, "dialog");
+			sTryConnections=new TryConnection();
 			ConnectMessages.Candidates candidates=null;
 			try
 			{
@@ -223,17 +196,13 @@ implements TechnologiesFragment.Listener
 				e1.printStackTrace();
 			}
 			
-			TryConnection tryHandler=sTryHandler;
+			TryConnection tryHandler=sTryConnections;
 			if (tryHandler!=null)
 			{
 				tryHandler.init(firstStep,ConnectionCandidats.make(ConnectActivity.this,candidates));
 				tryHandler.mProgressDialog = dlg;
 				tryHandler.execute();
 			}
-		}
-		else
-		{
-			Log.d("TTT","allready created");
 		}
 	}
 
@@ -252,10 +221,10 @@ implements TechnologiesFragment.Listener
 		public void onCancel(DialogInterface dialog)
 		{
 			super.onCancel(dialog);
-			TryConnection tryHandler=sTryHandler;
+			TryConnection tryHandler=sTryConnections;
 			if (tryHandler!=null)
 			{
-				sTryHandler=null;
+				sTryConnections=null;
 				if (tryHandler.mProgressDialog!=null && tryHandler.mProgressDialog.isVisible())
 				{
 					tryHandler.mProgressDialog.dismiss();
@@ -278,7 +247,7 @@ implements TechnologiesFragment.Listener
 		}
 
 	}	
-	public static class TryConnection extends AsyncTask<Void, Integer, Boolean>
+	private static class TryConnection extends AsyncTask<Void, Integer, Boolean>
 	{
 		private Runnable mFirstStep;
 		public ConnectDialogFragment mProgressDialog=null;
@@ -350,7 +319,7 @@ implements TechnologiesFragment.Listener
 				}
 			}, 1000);
 			Log.d("TTT","tryhandler=null cause onPostExecute");
-			sTryHandler=null;
+			sTryConnections=null;
 		}
 		@Override
 		protected void onCancelled()

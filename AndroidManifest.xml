@@ -223,7 +223,22 @@
             </intent-filter>
         </activity>
 
-        <!--  QRCode : TODO : Remove -->
+        <activity 
+        	android:name=".ui.connect.SampleActivity" 
+			android:launchMode="standard" 
+			android:taskAffinity=""
+			android:exported="true"
+			android:configChanges=""
+		>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="org.remoteandroid.action.Connect" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+            <!--  QRCode : TODO : Remove -->
          <activity 
         	android:name=".ui.connect.qrcode.TestQRCode" 
 			android:exported="false" 

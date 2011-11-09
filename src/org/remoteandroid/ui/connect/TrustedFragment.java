@@ -7,7 +7,6 @@ import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.ListRemoteAndroidInfoAdapter;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.SupportActivity;
 import android.view.LayoutInflater;

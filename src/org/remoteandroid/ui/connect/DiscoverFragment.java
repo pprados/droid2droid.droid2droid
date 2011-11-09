@@ -9,7 +9,6 @@ import org.remoteandroid.ui.ListRemoteAndroidInfoAdapter;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.SupportActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,7 +69,7 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 	@Override
 	public void onDiscoverStart()
 	{
-		FragmentActivity activity=(FragmentActivity)getActivity();
+		/*FragmentActivity*/Activity activity=/*(FragmentActivity)FIXME*/getActivity();
 		if (activity!=null)
 			activity.setProgressBarIndeterminateVisibility(true);
 	}
@@ -78,7 +77,7 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 	@Override
 	public void onDiscoverStop()
 	{
-		FragmentActivity activity=(FragmentActivity)getActivity();
+		/*FragmentActivity*/Activity activity=/*(FragmentActivity)FIXME*/getActivity();
 		if (activity!=null)
 			activity.setProgressBarIndeterminateVisibility(false);
 	}

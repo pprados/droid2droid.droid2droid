@@ -7,14 +7,13 @@
 	android:layout_weight="70"
 >
 
-	<fragment
+	<FrameLayout
 		android:id="@+id/technologies"
-		android:name="org.remoteandroid.ui.connect.TechnologiesFragment"
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
 		android:layout_weight="30"
-	>
-	</fragment>
+		android:layout_marginLeft="30dp"
+	/>
 
 	<FrameLayout
 		android:id="@+id/body"
@@ -25,5 +24,4 @@
 	</FrameLayout>
 
 </LinearLayout>
-
 

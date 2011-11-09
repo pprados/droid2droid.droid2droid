@@ -2,8 +2,9 @@ package org.remoteandroid.ui.connect;
 
 import org.remoteandroid.R;
 
+import android.app.Fragment;
 import android.content.Context;
-import android.support.v4.app.Fragment;
+//import android.support.v4.app.Fragment;
 
 class Technology
 {
