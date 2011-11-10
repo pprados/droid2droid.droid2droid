@@ -1,8 +1,21 @@
 package org.remoteandroid.ui.connect;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+
 import org.remoteandroid.R;
+import org.remoteandroid.internal.Base64;
+import org.remoteandroid.ui.connect.ConnectActivity.TryConnection;
+import org.remoteandroid.ui.expose.InputExpose;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.internal.Constants.*;
+
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +30,6 @@ public class InputIdFragment extends AbstractBodyFragment
 {
 	View mViewer;
 	EditText mEdit;
-	Runnable mFirstStep=new Runnable()
-	{
-		public void run() 
-		{
-			// TODO: Convert code to datas
-		}
-	};
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -38,23 +44,13 @@ public class InputIdFragment extends AbstractBodyFragment
 			{
 				if (actionId==EditorInfo.IME_ACTION_DONE)
 				{
-					ConnectActivity activity=(ConnectActivity)getActivity();
-					activity.tryConnect(mFirstStep);
+					doConnect();
 					return true;
 				}
 				return false;
 			}
 			
 		});
-//		mEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//		    @Override
-//		    public void onFocusChange(View v, boolean hasFocus) {
-//		        if (hasFocus) 
-//		        {
-//		            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-//		        }
-//		    }
-//		});
 		Button button=(Button)mViewer.findViewById(android.R.id.button1);
 		button.setOnClickListener(new Button.OnClickListener()
 		{
@@ -62,11 +58,59 @@ public class InputIdFragment extends AbstractBodyFragment
 			@Override
 			public void onClick(View v)
 			{
-				ConnectActivity activity=(ConnectActivity)getActivity();
-				activity.tryConnect(mFirstStep);
+				doConnect();
 			}
+
 		});
 		return mViewer;
+	}
+	private void doConnect()
+	{
+		final String ticket=mEdit.getText().toString();
+		ConnectActivity activity=(ConnectActivity)getActivity();
+		activity.tryConnect(new ConnectActivity.FirstStep()
+		{
+			public int run(ConnectActivity.TryConnection tryConn) 
+			{
+				try
+				{
+					URL url=new URL(InputExpose.GOOGLE_SHORTEN+ticket);
+					HttpURLConnection conn=(HttpURLConnection)url.openConnection();// VyyjR dB2fJ
+					conn.setInstanceFollowRedirects(false);
+					int responsecode=conn.getResponseCode();
+					String loc=conn.getHeaderField("location");
+					if (responsecode==HttpURLConnection.HTTP_MOVED_PERM)
+					{
+						if (loc.startsWith(InputExpose.BASE_SHORTEN))
+						{
+							loc=loc.substring(InputExpose.BASE_SHORTEN.length());
+							if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Retrive "+loc);
+							byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
+							ConnectMessages.Candidates candidates=ConnectMessages.Candidates.parseFrom(bytes);
+							ArrayList<CharSequence> urls=ConnectionCandidats.make(mViewer.getContext(), candidates);
+							tryConn.setUrls(urls);
+						}
+						else
+						{
+							if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Shorten response must start with "+InputExpose.BASE_SHORTEN+" ("+loc+")");
+							return R.string.connect_input_message_error_get_format;
+						}
+					}
+					else
+					{
+						if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Shorten response must be "+HttpURLConnection.HTTP_MOVED_PERM+" ("+responsecode+")");
+						return R.string.connect_input_message_error_get_format;
+					}
+					return 0;
+					
+				}
+				catch (Exception e)
+				{
+					if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket",e);
+					return R.string.connect_input_message_error_get_internet;
+				}
+			}
+		},new ArrayList<CharSequence>());
 	}
 	@Override
 	public void onResume()

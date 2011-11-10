@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.remoteandroid.ConnectionType;
+import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.DiscoverAndroids;
 import org.remoteandroid.internal.Messages.Msg;
@@ -51,6 +52,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -152,6 +154,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 					if (D) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT Discovery "+device.getName()+". Try to use...");
 					if (V && deviceClass) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT compatible with device classe");
 					if (V && majorClass) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT compatible with major classe");
+					final RemoteAndroidInfoImpl myInfo=mBoss.getInfo(ConnectionType.BT);
 					for (BluetoothDevice device2:BluetoothAdapter.getDefaultAdapter().getBondedDevices())
 					{
 						if (device.getAddress().equals(device2.getAddress()))
@@ -164,7 +167,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 						public void run() 
 						{
 							if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"BT Try to connection anonymously to "+device.getAddress()+" ("+device.getName()+")");
-							RemoteAndroidInfoImpl info=tryConnect(device,true);
+							RemoteAndroidInfoImpl info=tryConnect(device,myInfo,true);
 							if (info!=null)
 							{
 								info.isDiscoverBT=true;
@@ -267,6 +270,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 						if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT Discover in parallel...");
 						jobs=new ArrayList<Callable<Void>>();
 					}
+					final RemoteAndroidInfoImpl myInfo=mBoss.getInfo(ConnectionType.BT);
 					for (final BluetoothDevice device:adapter.getBondedDevices())
 					{
 						if ((device.getBluetoothClass().getDeviceClass()==BluetoothClass.Device.PHONE_SMART)
@@ -278,7 +282,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 								public Void call() 
 								{
 									final String name=((device.getName()==null) ? device.getAddress() : device.getName());
-									RemoteAndroidInfoImpl info=tryConnect(device,false);
+									RemoteAndroidInfoImpl info=tryConnect(device,myInfo,false);
 							    	if (info!=null)
 							    	{
 							    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT discover bonded "+name+" with a connection.");
@@ -376,8 +380,12 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT All unknown devices detected.");
 	}
 
-
-	private RemoteAndroidInfoImpl tryConnect(BluetoothDevice device,boolean anno)
+	public static RemoteAndroidInfoImpl tryConnect(Uri uri)
+	{
+		// TODO
+		return null;
+	}
+	private static RemoteAndroidInfoImpl tryConnect(BluetoothDevice device,RemoteAndroidInfo myInfo,boolean anno)
 	{
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT Try to connect "+((anno) ? "anonymously " : "") +"to "+device.getName()+"...");
 		BluetoothSocket socket=connect(device,anno);
@@ -391,7 +399,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 				Msg msg = Msg.newBuilder()
 					.setType(Type.CONNECT_FOR_DISCOVERING)
 					.setThreadid(threadid)
-					.setIdentity(ProtobufConvs.toIdentity(mBoss.getInfo(ConnectionType.BT)))
+					.setIdentity(ProtobufConvs.toIdentity(myInfo))
 					.build();
 				Channel.writeMsg(msg, socket.getOutputStream());
 		
@@ -481,7 +489,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 	 * @param anno Use anonyme connection if true
 	 * @return
 	 */
-	private BluetoothSocket connect(BluetoothDevice device,boolean anno)
+	public static BluetoothSocket connect(BluetoothDevice device,boolean anno)
 	{
     	UUID uuid=null;
     	BluetoothSocket socket=null;

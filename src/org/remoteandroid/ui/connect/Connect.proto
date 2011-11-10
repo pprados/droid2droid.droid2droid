@@ -1,0 +1,23 @@
+package org.remoteandroid.ui.connect;
+
+option java_package = "org.remoteandroid.ui.connect";
+option java_outer_classname = "ConnectMessages";
+option optimize_for = LITE_RUNTIME;
+
+
+message Candidates 
+{
+	// Public ip
+	repeated fixed32 internetIpv4 	= 10;
+	repeated bytes   internetIpv6 	= 11;
+	repeated fixed32 intranetIpv4	= 21;
+	repeated bytes   intranetIpv6	= 22;
+	
+	// Wifi id
+	optional bytes bssid 			= 20;
+
+	// Bluetooth	
+	optional fixed32 bluetoothMac			= 30;
+	optional bool bluetoothAnonmymous		= 31;
+}
+

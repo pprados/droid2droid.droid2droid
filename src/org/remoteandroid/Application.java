@@ -250,6 +250,9 @@ public class Application extends android.app.Application
 		}
 
 		enableStrictMode();
+		enableHttpResponseCache();
+		disableConnectionReuseIfNecessary();
+		
 		sIPName = getResources().getText(R.string.network_ip);
 		sBTName = getResources().getText(R.string.network_bt);
 		sPaired = getResources().getText(R.string.device_paired);
@@ -301,6 +304,29 @@ public class Application extends android.app.Application
 		}
 		
 	}
+	
+	private void disableConnectionReuseIfNecessary() 
+	{
+	    // HTTP connection reuse which was buggy pre-froyo
+	    if (Compatibility.VERSION_SDK_INT < Compatibility.VERSION_FROYO) 
+	    {
+	        System.setProperty("http.keepAlive", "false");
+	    }
+	}
+	private void enableHttpResponseCache() 
+	{
+	    try 
+	    {
+	        long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+	        File httpCacheDir = new File(getCacheDir(), "http");
+	        Class.forName("android.net.http.HttpResponseCache")
+	            .getMethod("install", File.class, long.class)
+	            .invoke(null, httpCacheDir, httpCacheSize);
+	    } catch (Exception httpResponseCacheNotAvailable) 
+	    {
+	    	if (V) Log.v(TAG,PREFIX_LOG+"Failed to enable http cache");
+	    }
+	}	
 	// TODO: invoquer dans on boot ?
 	private void initShareLibrary()
 	{

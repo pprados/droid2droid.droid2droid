@@ -1,20 +1,27 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.CONNECT_FORCE_FRAGMENTS;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.*;
 
+import java.lang.ref.WeakReference;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.ConnectionType;
 import org.remoteandroid.R;
+import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
+import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.StyleFragmentActivity;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -101,9 +108,12 @@ implements TechnologiesFragment.Listener
 					//Log.d("TTT","add in body, techno "+mTechnologiesFragment.mIndex);
 					transaction.replace(R.id.body, mTechnologiesFragment);
 				}
+				else
+					transaction.replace(R.id.body, mBodyFragment);
 			}
 			else
 			{
+				if (mBodyFragment==null) mBodyFragment=new EmptyBodyFragment();
 				if (mBodyFragment instanceof EmptyBodyFragment)
 					transaction.replace(R.id.body, mTechnologiesFragment);
 				else
@@ -113,13 +123,14 @@ implements TechnologiesFragment.Listener
 			transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 		}
 		transaction.commit();
-
+		
 		if (mTechnologiesFragment!=null)
 			mTechnologiesFragment.setTechnologies(mTechnologies); // FIXME
 		// Reconnect background thread after rotation
 		TryConnection tryConnections=sTryConnections;
 		if (tryConnections!=null)
 		{
+			tryConnections.mActivity=new WeakReference<ConnectActivity>(this);
 			tryConnections.mProgressDialog=(ConnectDialogFragment)mFragmentManager.findFragmentByTag("dialog");
 		}
 	}
@@ -173,48 +184,84 @@ implements TechnologiesFragment.Listener
 	}
 
 	
-	public void tryConnect(final Runnable firstStep)
+	public void tryConnect(final FirstStep firstStep,ArrayList<CharSequence> urls)
 	{
+		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
 		if (sTryConnections==null)
 		{
+//			if (urls==null)
+//			{
+//				 DialogFragment alert = AlertDialogFragment.newInstance(android.R.drawable.ic_dialog_alert, 
+//					 R.string.connect_alert_title, 
+//					 R.string.connect_alert_connection_impossible);
+//				 alert.show(mFragmentManager, "dialog");
+//				 return;
+//			}
 			final ConnectDialogFragment dlg=ConnectDialogFragment.newInstance();
 			dlg.show(mFragmentManager, "dialog");
 			sTryConnections=new TryConnection();
-			ConnectMessages.Candidates candidates=null;
-			try
-			{
-				candidates=ConnectionCandidats.getConnectMessage(ConnectActivity.this);
-			}
-			catch (UnknownHostException e1)
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			catch (SocketException e1)
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
 			TryConnection tryHandler=sTryConnections;
 			if (tryHandler!=null)
 			{
-				tryHandler.init(firstStep,ConnectionCandidats.make(ConnectActivity.this,candidates));
+				tryHandler.mActivity=new WeakReference<ConnectActivity>(this);
+				tryHandler.init(firstStep,urls);
 				tryHandler.mProgressDialog = dlg;
 				tryHandler.execute();
 			}
 		}
 	}
-
+	
+	private void finishWithOk(RemoteAndroidInfoImpl info)
+	{
+		Intent result=new Intent();
+		result.putExtra("info", info);
+		setResult(RESULT_OK,result);
+		finish();
+	}
+	
+	public static class AlertDialogFragment extends DialogFragment 
+	{
+		public static AlertDialogFragment newInstance(int icon,int title,int message)
+		{
+			AlertDialogFragment frag=new AlertDialogFragment();
+			Bundle args = new Bundle();
+	        if (icon!=-1) args.putInt("icon", icon);
+	        if (title!=-1) args.putInt("title", title);
+	        if (message!=-1)
+	        	args.putInt("message",message);
+	        frag.setArguments(args);
+	        return frag;
+		}
+	    @Override
+	    public Dialog onCreateDialog(Bundle savedInstanceState) 
+	    {
+	    	int icon=getArguments().getInt("icon");
+	    	int title=getArguments().getInt("title");
+	    	int message=getArguments().getInt("message");
+	    	
+	        AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
+	        if (icon!=-1) builder.setIcon(icon);
+	        if (title!=-1) builder.setTitle(title);
+	        if (message!=-1) builder.setMessage(message);
+	        builder.setPositiveButton(android.R.string.ok,
+		            new DialogInterface.OnClickListener() 
+		        	{
+		                public void onClick(DialogInterface dialog, int whichButton) 
+		                {
+		                    //((FragmentAlertDialog)getActivity()).doPositiveClick();
+		                }
+		            }
+		        );
+		     return builder.create();
+	    }
+	};
 	public static class ConnectDialogFragment extends DialogFragment
 	{
 
 		public static ConnectDialogFragment newInstance()
 		{
-			ConnectDialogFragment frag = new ConnectDialogFragment();
-//			Bundle args = new Bundle();
-//			frag.setArguments(args);
-			return frag;
+			return new ConnectDialogFragment();
 		}
 
 		@Override
@@ -247,41 +294,65 @@ implements TechnologiesFragment.Listener
 		}
 
 	}	
-	private static class TryConnection extends AsyncTask<Void, Integer, Boolean>
+	public interface FirstStep
 	{
-		private Runnable mFirstStep;
+		int run(TryConnection connection);
+	}
+	public static class TryConnection extends AsyncTask<Void, Integer, Object>
+	{
+		private FirstStep mFirstStep;
 		public ConnectDialogFragment mProgressDialog=null;
 		private ArrayList<CharSequence> mUrls;
-
+		private WeakReference<ConnectActivity> mActivity=new WeakReference<ConnectActivity>(null);
+		
 		TryConnection()
 		{
 			
 		}
-		void init(Runnable runnable,ArrayList<CharSequence> urls)
+		void init(FirstStep firstStep,ArrayList<CharSequence> urls)
 		{
-			mFirstStep=runnable;
+			mFirstStep=firstStep;
+			mUrls=urls;
+		}
+		void setUrls(ArrayList<CharSequence> urls)
+		{
 			mUrls=urls;
 		}
 		@Override
-		protected Boolean doInBackground(Void...params)
+		protected Object doInBackground(Void...params)
 		{
 			int firststep=0;
 			if (mFirstStep!=null)
 			{
-				mFirstStep.run();
+				int msg=mFirstStep.run(this);
+				if (msg!=0) // Error
+				{
+					return msg;
+				}
 				firststep=1;
 			}
 			for (int i=0;i<mUrls.size();++i)
 			{
 				if (isCancelled())
-					return false;
-				CharSequence url=mUrls.get(i);
+					return null;
+				String uri=mUrls.get(i).toString();
 				publishProgress(i+firststep);
-				// TODO: try to connect
-				try  { Thread.sleep(2000); } catch (Exception e) {}
-				Log.d(TAG_CONNECT,PREFIX_LOG+"try "+url+"...");
+				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
+				RemoteAndroidInfoImpl info=null;
+				if (uri.startsWith(SCHEME_BT) || uri.startsWith(SCHEME_BTS))
+				{
+					// TODO
+					//BluetoothDiscoverAndroids.tryConnect(uri);
+				}
+				else
+					info=IPDiscoverAndroids.tryConnect(uri, false/*FIXME*/);
+				if (info!=null) // Cool
+				{
+					return info;
+				}
+				
 			}
-			return false;
+			return R.string.connect_alert_connection_impossible;
 		}
 		@Override
 		protected void onProgressUpdate(Integer... values)
@@ -298,27 +369,48 @@ implements TechnologiesFragment.Listener
 			}
 		}
 		
+		/**
+		 * @param result Integer with message or RemoteAndroidInfo
+		 */
 		@Override
-		protected void onPostExecute(Boolean result)
+		protected void onPostExecute(final Object result)
 		{
+			final ConnectActivity activity=mActivity.get();
+			if (activity==null)
+				return;
 			final DialogFragment dlg=mProgressDialog;
-			if (dlg!=null)
+			if (result instanceof RemoteAndroidInfoImpl)
 			{
-				ProgressDialog d=(ProgressDialog)dlg.getDialog();
-				d.setProgress(100);
-			}
-			Application.sHandler.postDelayed(new Runnable()
-			{
-				@Override
-				public void run()
+				final RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)result;
+				if (result!=null)
 				{
-					if (dlg!=null && dlg.getFragmentManager()!=null)
+					Application.sHandler.postDelayed(new Runnable()
 					{
-						dlg.dismiss();
-					}
+						@Override
+						public void run()
+						{
+							if (dlg!=null && dlg.getFragmentManager()!=null)
+							{
+								dlg.dismiss();
+								activity.finishWithOk(info);
+							}
+						}
+					}, 500);
 				}
-			}, 1000);
-			Log.d("TTT","tryhandler=null cause onPostExecute");
+				if (dlg!=null && result!=null)
+				{
+					ProgressDialog d=(ProgressDialog)dlg.getDialog();
+					d.setProgress(100);
+				}
+			}
+			else
+			{
+				if (dlg!=null)
+					dlg.dismiss();
+				AlertDialogFragment.newInstance(android.R.drawable.ic_dialog_alert, 
+					R.string.connect_alert_title, (Integer)result)
+					.show(activity.mFragmentManager, "dialog");;
+			}
 			sTryConnections=null;
 		}
 		@Override
@@ -328,5 +420,4 @@ implements TechnologiesFragment.Listener
 			Log.d("TTT","onCancelled");
 		}
 	}
-	
 }

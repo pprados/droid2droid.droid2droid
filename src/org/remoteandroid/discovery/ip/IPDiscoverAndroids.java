@@ -39,6 +39,7 @@ import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.socket.Channel;
+import org.remoteandroid.internal.Tools;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.service.RemoteAndroidService;
@@ -428,18 +429,19 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	}
 
 	// Try to connect to remote android with IP
-	private static RemoteAndroidInfoImpl tryConnect(String uri,boolean anno)
+	public static RemoteAndroidInfoImpl tryConnect(String uri,boolean anno)
 	{
 		Socket socket=null;
 		try
 		{
 			if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP Try to connect to "+uri+"...");
 			final Uri u=Uri.parse(uri);
-			final InetAddress address=InetAddress.getByName(u.getHost());
-			final int port=u.getPort();
+			final InetAddress address=InetAddress.getByName(Tools.uriGetHostIPV6(u));
+			int port=Tools.uriGetPortIPV6(u);
+			if (port==-1) port=RemoteAndroidManager.DEFAULT_PORT;
 			socket=new Socket(address,port);
 			socket.setTcpNoDelay(true);
-			socket.setSoTimeout(ETHERNET_TRY_TIMEOUT);
+			socket.setSoTimeout(ETHERNET_TRY_TIMEOUT); // FIXME: Pas toujours ethernet !
 			if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" connected. Ask info...");
 			// Ask remote android info
 			final long threadid = Thread.currentThread().getId();
@@ -490,7 +492,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 		}
 		catch (Exception e)
 		{
-			if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error",e);
+			if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error ("+e.getMessage()+")");
 			return null;
 		}
 		finally

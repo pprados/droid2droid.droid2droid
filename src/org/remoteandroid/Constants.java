@@ -93,7 +93,7 @@ public class Constants
 	
 	//-----------------------------------------------------------------------------
 	/** For debug, force to use fragments in horizontal view. */
-	public static final boolean CONNECT_FORCE_FRAGMENTS=true;
+	public static final boolean CONNECT_FORCE_FRAGMENTS=false;
 	/** For debug, use classic exception. */ 
 	public static final boolean QRCODE_DEBUG=true;
 	/** Show the current bitmap to analyse. */
@@ -167,7 +167,9 @@ public class Constants
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT	=500L; // Timeout for try to receive mDNS infos.
 
     /** Fix bug in Xoom ? */
-    public static final boolean ETHERNET_ONLY_IPV4 = true; // Xoom: No route to host
+    public static final boolean ETHERNET_ONLY_IPV4 = false; // FIXME: Xoom: No route to host
+	// Orginaze the ip candidates with IPV4 first, then IPV6 ?
+	public static final boolean ETHERNET_IPV4_FIRST=false;
     
 	/** Size of UDP buffer. */
 	public static final int UDP_BUFFER_LENGTH=1024; // FIXME Buffer length pour UDP

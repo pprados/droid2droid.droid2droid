@@ -5,7 +5,11 @@
 	<style name="activated"/>
 
 	<bool name="connect_merge">false</bool>
-	
+
+	<string name="connect_alert_title">Alert</string>
+	<string name="connect_alert_connection_impossible">Connection to remote device impossible!</string>
+	    	
+	    	
 	<string name="connect_empty_help">Select an approach to detect a remote device\n\n
         <li><font fgcolor="#ffffffff"><b>Discovers devices</b></font> propose to search a devices at proximity (same WIFI or Bluetooth).\n\n</li>
         <li><font fgcolor="#ffffffff"><b>Bounded devices</b></font> present a list of bounded devices.\n\n</li>
@@ -64,6 +68,12 @@
 	<string name="connect_sound_help">Listen a sound with the connection informations.
     </string>
 
+	<string name="connect_input_expose_title">Expose</string>
+	<string name="connect_input_message">Ticket number: &lt;b&gt;%1$s&lt;/b&gt;</string>
+	<string name="connect_input_message_error_set_internet">Impossible to access Internet to generate a ticket.</string>
+	<string name="connect_input_message_error_get_internet">Impossible to access Internet to check the ticket.</string>
+	<string name="connect_input_message_error_get_format">Invalid ticket. Check case and try again.</string>
+	    	    	    	
 	<string name="connect_input">Manual id</string>
 	<string name="connect_input_description">Enter published id from remote device.</string>
 	<string name="connect_input_help">In the remote device\n
