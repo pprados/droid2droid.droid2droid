@@ -16,6 +16,7 @@
 	<string name="button_ok">OK</string>
     <string name="qrcode_context_title">Select scan mode</string>
     <string name="qrcode_flash">Flash</string>
+    <string name="camera_switch">Switch camera</string>
 
 	<!-- Color -->
 	<color name="transparent">#00000000</color>

@@ -25,31 +25,41 @@ import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 
 /**
- * This class is used to activate the weak light on some camera phones (not flash) in order to
- * illuminate surfaces for scanning. There is no official way to do this, but, classes which allow
- * access to this function still exist on some devices. This therefore proceeds through a great deal
- * of reflection. See
- * http://almondmendoza.com/2009/01/05/changing-the-screen-brightness-programatically/ and
- * http://code.google.com/p/droidled/source/browse/trunk/src/com/droidled/demo/DroidLED.java .
- * Thanks to Ryan Alford for pointing out the availability of this class.
+ * This class is used to activate the weak light on some camera phones (not
+ * flash) in order to illuminate surfaces for scanning. There is no official way
+ * to do this, but, classes which allow access to this function still exist on
+ * some devices. This therefore proceeds through a great deal of reflection. See
+ * http://almondmendoza.com/2009/01/05/changing-the-screen-brightness-
+ * programatically/ and
+ * http://code.google.com/p/droidled/source/browse/trunk/src
+ * /com/droidled/demo/DroidLED.java . Thanks to Ryan Alford for pointing out the
+ * availability of this class.
+ * 
+ * @author Yohann Melo
  */
 final public class FlashlightManager
 {
 
-	private static final Object	sIHardwareService;
+	private static final Object sIHardwareService;
 
-	private static final Method	sSetFlashEnabledMethod;
+	private static final Method sSetFlashEnabledMethod;
 	static
 	{
 		sIHardwareService = getHardwareService();
 		sSetFlashEnabledMethod = getSetFlashEnabledMethod(sIHardwareService);
 		if (sIHardwareService == null)
 		{
-			if (V) Log.v(TAG_CONNECT, "This device does supports control of a flashlight");
+			if (V)
+				Log.v(
+					TAG_CONNECT,
+					"This device does supports control of a flashlight");
 		}
 		else
 		{
-			if (V) Log.v(TAG_CONNECT, "This device does not support control of a flashlight");
+			if (V)
+				Log.v(
+					TAG_CONNECT,
+					"This device does not support control of a flashlight");
 		}
 	}
 
@@ -65,13 +75,15 @@ final public class FlashlightManager
 			return null;
 		}
 
-		Method getServiceMethod = maybeGetMethod(serviceManagerClass, "getService", String.class);
+		Method getServiceMethod = maybeGetMethod(
+			serviceManagerClass, "getService", String.class);
 		if (getServiceMethod == null)
 		{
 			return null;
 		}
 
-		Object hardwareService = invoke(getServiceMethod, null, "hardware");
+		Object hardwareService = invoke(
+			getServiceMethod, null, "hardware");
 		if (hardwareService == null)
 		{
 			return null;
@@ -83,14 +95,15 @@ final public class FlashlightManager
 			return null;
 		}
 
-		Method asInterfaceMethod = maybeGetMethod(iHardwareServiceStubClass, "asInterface",
-				IBinder.class);
+		Method asInterfaceMethod = maybeGetMethod(
+			iHardwareServiceStubClass, "asInterface", IBinder.class);
 		if (asInterfaceMethod == null)
 		{
 			return null;
 		}
 
-		return invoke(asInterfaceMethod, null, hardwareService);
+		return invoke(
+			asInterfaceMethod, null, hardwareService);
 	}
 
 	private static Method getSetFlashEnabledMethod(Object iHardwareService)
@@ -100,7 +113,8 @@ final public class FlashlightManager
 			return null;
 		}
 		Class<?> proxyClass = iHardwareService.getClass();
-		return maybeGetMethod(proxyClass, "setFlashlightEnabled", boolean.class);
+		return maybeGetMethod(
+			proxyClass, "setFlashlightEnabled", boolean.class);
 	}
 
 	private static Class<?> maybeForName(String name)
@@ -116,16 +130,21 @@ final public class FlashlightManager
 		}
 		catch (RuntimeException re)
 		{
-			if (W) Log.w(TAG_CONNECT, "Unexpected error while finding class " + name, re);
+			if (W)
+				Log.w(
+					TAG_CONNECT,
+					"Unexpected error while finding class " + name, re);
 			return null;
 		}
 	}
 
-	private static Method maybeGetMethod(Class<?> clazz, String name, Class<?>... argClasses)
+	private static Method maybeGetMethod(Class<?> clazz, String name,
+			Class<?>... argClasses)
 	{
 		try
 		{
-			return clazz.getMethod(name, argClasses);
+			return clazz.getMethod(
+				name, argClasses);
 		}
 		catch (NoSuchMethodException nsme)
 		{
@@ -134,7 +153,10 @@ final public class FlashlightManager
 		}
 		catch (RuntimeException re)
 		{
-			if (W) Log.w(TAG_CONNECT, "Unexpected error while finding method " + name, re);
+			if (W)
+				Log.w(
+					TAG_CONNECT, "Unexpected error while finding method "
+							+ name, re);
 			return null;
 		}
 	}
@@ -143,21 +165,30 @@ final public class FlashlightManager
 	{
 		try
 		{
-			return method.invoke(instance, args);
+			return method.invoke(
+				instance, args);
 		}
 		catch (IllegalAccessException e)
 		{
-			if (W) Log.w(TAG_CONNECT, "Unexpected error while invoking " + method, e);
+			if (W)
+				Log.w(
+					TAG_CONNECT, "Unexpected error while invoking " + method, e);
 			return null;
 		}
 		catch (InvocationTargetException e)
 		{
-			if (W) Log.w(TAG_CONNECT, "Unexpected error while invoking " + method, e.getCause());
+			if (W)
+				Log.w(
+					TAG_CONNECT, "Unexpected error while invoking " + method,
+					e.getCause());
 			return null;
 		}
 		catch (RuntimeException re)
 		{
-			if (W) Log.w(TAG_CONNECT, "Unexpected error while invoking " + method, re);
+			if (W)
+				Log.w(
+					TAG_CONNECT, "Unexpected error while invoking " + method,
+					re);
 			return null;
 		}
 	}
@@ -176,7 +207,8 @@ final public class FlashlightManager
 	{
 		if (sIHardwareService != null)
 		{
-			invoke(sSetFlashEnabledMethod, sIHardwareService, active);
+			invoke(
+				sSetFlashEnabledMethod, sIHardwareService, active);
 		}
 	}
 

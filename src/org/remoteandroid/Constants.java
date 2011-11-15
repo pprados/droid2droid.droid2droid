@@ -97,7 +97,7 @@ public class Constants
 	/** For debug, use classic exception. */ 
 	public static final boolean QRCODE_DEBUG=true;
 	/** Show the current bitmap to analyse. */
-	public static final boolean	QRCODE_SHOW_CURRENT_DECODE	= true;
+	public static final boolean	QRCODE_SHOW_CURRENT_DECODE	= false;
 	/** Force auto-focus before analyse bitmap. */
 	public static final boolean QRCODE_AUTOFOCUS=true;
 	/** Re-ask autofocus after each analyse. */

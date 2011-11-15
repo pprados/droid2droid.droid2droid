@@ -30,21 +30,24 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 /**
- * Finishes an activity after a period of inactivity if the device is on battery power.
+ * Finishes an activity after a period of inactivity if the device is on battery
+ * power.
+ * 
+ * @author Yohann Melo
  */
 public final class InactivityTimer
 {
 
-	private static final int				INACTIVITY_DELAY_SECONDS	= 5 * 60;
+	private static final int INACTIVITY_DELAY_SECONDS = 5 * 60;
 
-	private final ScheduledExecutorService	mInactivityTimer				= Executors
-																				.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+	private final ScheduledExecutorService mInactivityTimer = Executors
+			.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
 
-	private volatile Activity				mActivity;
+	private volatile Activity mActivity;
 
-	private ScheduledFuture<?>				mInactivityFuture			= null;
+	private ScheduledFuture<?> mInactivityFuture = null;
 
-	private final PowerStatusReceiver		mPowerStatusReceiver			= new PowerStatusReceiver();
+	private final PowerStatusReceiver mPowerStatusReceiver = new PowerStatusReceiver();
 
 	public InactivityTimer(Activity activity)
 	{
@@ -54,9 +57,9 @@ public final class InactivityTimer
 
 	public void setActivity(Activity activity)
 	{
-		mActivity=activity;
+		mActivity = activity;
 	}
-	
+
 	public void onActivity()
 	{
 		cancel();
@@ -64,14 +67,17 @@ public final class InactivityTimer
 		{
 			try
 			{
-				mInactivityFuture = mInactivityTimer.schedule(new FinishListener(mActivity),
-						INACTIVITY_DELAY_SECONDS, TimeUnit.SECONDS);
+				mInactivityFuture = mInactivityTimer.schedule(
+					new FinishListener(mActivity), INACTIVITY_DELAY_SECONDS,
+					TimeUnit.SECONDS);
 			}
 			catch (RejectedExecutionException ree)
 			{
-				// surprising, but could be normal if for some reason the implementation just
+				// surprising, but could be normal if for some reason the
+				// implementation just
 				// doesn't
-				// think it can shcedule again. Since this time-out is non-essential, just forget it
+				// think it can shcedule again. Since this time-out is
+				// non-essential, just forget it
 			}
 		}
 	}
@@ -83,8 +89,8 @@ public final class InactivityTimer
 
 	public void onResume()
 	{
-		mActivity.registerReceiver(mPowerStatusReceiver, new IntentFilter(
-				Intent.ACTION_BATTERY_CHANGED));
+		mActivity.registerReceiver(mPowerStatusReceiver,
+			new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	}
 
 	private void cancel()
@@ -121,7 +127,8 @@ public final class InactivityTimer
 			{
 				// 0 indicates that we're on battery
 				// In Android 2.0+, use BatteryManager.EXTRA_PLUGGED
-				if (intent.getIntExtra("plugged", -1) == 0)
+				if (intent.getIntExtra(
+					"plugged", -1) == 0)
 				{
 					InactivityTimer.this.onActivity();
 				}

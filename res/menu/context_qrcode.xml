@@ -3,4 +3,7 @@
    <item
         android:id="@+id/context_qrcode_flash"
         android:title="@string/qrcode_flash" />
+   <item
+        android:id="@+id/context_qrcode_camera"
+        android:title="@string/camera_switch" />
  </menu>

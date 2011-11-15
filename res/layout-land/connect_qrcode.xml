@@ -62,7 +62,16 @@
 			android:background="@color/transparent"
 			android:text="@string/msg_default_status"
 			android:textColor="@color/qrcode_status_text"
-			android:textSize="14sp" />
+			android:textSize="14sp" 
+			android:layout_alignParentBottom="true"
+			/>
+			
+			<ImageButton
+        android:id="@+id/connect_qrcode_btn_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/switch_camera" 
+        android:layout_gravity="bottom|center_horizontal"/>
 	</RelativeLayout>
 
 

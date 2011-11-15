@@ -69,8 +69,11 @@ public class ConnectionCandidats
 					}
 					else
 					{
-						all.add(add);
-						ipv6.add( ByteString.copyFrom(add.getAddress()));
+						if (!ETHERNET_ONLY_IPV4)
+						{
+							all.add(add);
+							ipv6.add( ByteString.copyFrom(add.getAddress()));
+						}
 					}
 				}
 			}
@@ -130,7 +133,8 @@ public class ConnectionCandidats
 			switch (prio)
 			{
 				case 0:
-					tryIpv6(candidates, results, localNetwork);
+					if (ETHERNET_ONLY_IPV4)
+						tryIpv6(candidates, results, localNetwork);
 					break;
 				case 1:
 					tryIpv4(candidates, results, localNetwork);
@@ -144,9 +148,9 @@ public class ConnectionCandidats
 			int i=candidates.getBluetoothMac();
 			String btmac=Integer.toHexString(i);
 			if (candidates.hasBluetoothAnonmymous())
-				results.add(SCHEME_BT+btmac);
+				results.add(SCHEME_BT+btmac+'/');
 			else
-				results.add(SCHEME_BTS+btmac);
+				results.add(SCHEME_BTS+btmac+'/');
 		}
 // FIXME: gérer le cas du results vide !
 		return results;
@@ -163,7 +167,7 @@ public class ConnectionCandidats
 					continue;
 				if (add.isLinkLocalAddress() && !localNetwork) 
 					continue;
-				results.add(SCHEME_TCP4+add.getHostAddress());
+				results.add(SCHEME_TCP4+add.getHostAddress()+'/');
 			}
 			catch (UnknownHostException e)
 			{
@@ -183,7 +187,7 @@ public class ConnectionCandidats
 					continue;
 				if (add.isLinkLocalAddress() && !localNetwork) 
 					continue;
-				results.add(SCHEME_TCP6+'['+add.getHostAddress()+']');
+				results.add(SCHEME_TCP6+'['+add.getHostAddress()+"]/");
 			}
 			catch (UnknownHostException e)
 			{

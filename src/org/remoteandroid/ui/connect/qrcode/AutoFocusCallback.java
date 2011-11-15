@@ -24,13 +24,19 @@ import android.os.Message;
 import android.util.Log;
 import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
+
+/**
+ * 
+ * @author Yohann Melo
+ * 
+ */
 final class AutoFocusCallback implements Camera.AutoFocusCallback
 {
 
-	private Handler				mAutoFocusHandler;
+	private Handler mAutoFocusHandler;
 
-	private int					mAutoFocusMessage;
-	
+	private int mAutoFocusMessage;
+
 	void setHandler(Handler autoFocusHandler, int autoFocusMessage)
 	{
 		this.mAutoFocusHandler = autoFocusHandler;
@@ -41,19 +47,26 @@ final class AutoFocusCallback implements Camera.AutoFocusCallback
 	{
 		if (mAutoFocusHandler != null)
 		{
-			if (V) Log.v(TAG_CONNECT, "Got auto-focus callback");
+			if (V)
+				Log.v(
+					TAG_CONNECT, "Got auto-focus callback");
 			mAutoFocusHandler.sendEmptyMessage(R.id.start_decode);
-			
+
 			if (QRCODE_REPEAT_AUTOFOCUS)
 			{
-				Message message = mAutoFocusHandler.obtainMessage(mAutoFocusMessage, success);
-				mAutoFocusHandler.sendMessageDelayed(message, QRCODE_AUTOFOCUS_INTERVAL_MS);
+				Message message = mAutoFocusHandler.obtainMessage(
+					mAutoFocusMessage, success);
+				mAutoFocusHandler.sendMessageDelayed(
+					message, QRCODE_AUTOFOCUS_INTERVAL_MS);
 			}
 			mAutoFocusHandler = null;
 		}
 		else
 		{
-			if (V) Log.v(TAG_CONNECT, "Got auto-focus callback, but no handler for it");
+			if (V)
+				Log.v(
+					TAG_CONNECT,
+					"Got auto-focus callback, but no handler for it");
 		}
 	}
 

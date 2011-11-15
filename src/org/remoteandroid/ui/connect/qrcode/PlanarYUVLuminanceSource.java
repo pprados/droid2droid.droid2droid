@@ -18,38 +18,54 @@ package org.remoteandroid.ui.connect.qrcode;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.hardware.Camera;
 
 import com.google.zxing.LuminanceSource;
 
 /**
- * This object extends LuminanceSource around an array of YUV data returned from the camera driver,
- * with the option to crop to a rectangle within the full data. This can be used to exclude
- * superfluous pixels around the perimeter and speed up decoding. It works for any pixel format
- * where the Y channel is planar and appears first, including YCbCr_420_SP and YCbCr_422_SP.
+ * This object extends LuminanceSource around an array of YUV data returned from
+ * the camera driver, with the option to crop to a rectangle within the full
+ * data. This can be used to exclude superfluous pixels around the perimeter and
+ * speed up decoding. It works for any pixel format where the Y channel is
+ * planar and appears first, including YCbCr_420_SP and YCbCr_422_SP.
  * 
  * @author dswitkin@google.com (Daniel Switkin)
+ * @author Yohann Melo
  */
 public final class PlanarYUVLuminanceSource extends LuminanceSource
 {
 
-	private final byte[]	mYuvData;
+	private final byte[] mYuvData;
 
-	private final int		mDataWidth;
+	private final int mDataWidth;
 
-	private final int		mDataHeight;
+	private final int mDataHeight;
 
-	private final int		mLeft;
+	private final int mLeft;
 
-	private final int		mTop;
+	private final int mTop;
 
-	public PlanarYUVLuminanceSource(byte[] yuvData, int dataWidth, int dataHeight, int left,
-			int top, int width, int height, boolean reverseHorizontal)
+//	private final int mHeight;
+//
+//	private final int mWidth;
+
+	// private final int[] matrix;
+	public PlanarYUVLuminanceSource(byte[] yuvData, int dataWidth,
+			int dataHeight, int left, int top, int width, int height,
+			boolean reverseHorizontal)
 	{
 		super(width, height);
-
+		// FIXME: remove logs
+		// Log.e("camera", "data len: "+yuvData.length +
+		// " width: "+dataWidth+" height: " + dataHeight + " left: " + left +
+		// " width: " + width + " top: " + top + " height: " + height);
+		// Log.e("camera", "left + width > dataWidth: " + (left + width) + " > "
+		// + dataWidth + " top + height > dataHeight: " + (top + height) + " > "
+		// + dataHeight);
 		if (left + width > dataWidth || top + height > dataHeight)
 		{
-			throw new IllegalArgumentException("Crop rectangle does not fit within image data.");
+			throw new IllegalArgumentException(
+					"Crop rectangle does not fit within image data.");
 		}
 
 		this.mYuvData = yuvData;
@@ -57,10 +73,18 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		this.mDataHeight = dataHeight;
 		this.mLeft = left;
 		this.mTop = top;
+//		this.mHeight = height;
+//		this.mWidth = width;
 		if (reverseHorizontal)
 		{
 			reverseHorizontal(width, height);
 		}
+
+		// int[] m = {mLeft, (this.mDataHeight - this.mHeight - mTop),
+		// (this.mDataWidth - this.mWidth - mLeft), mTop, (this.mDataWidth -
+		// this.mWidth - mLeft), (this.mDataHeight - this.mHeight - mTop),
+		// mLeft, mTop } ;
+		// matrix = m;
 	}
 
 	@Override
@@ -68,7 +92,8 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 	{
 		if (y < 0 || y >= getHeight())
 		{
-			throw new IllegalArgumentException("Requested row is outside the image: " + y);
+			throw new IllegalArgumentException(
+					"Requested row is outside the image: " + y);
 		}
 		int width = getWidth();
 		if (row == null || row.length < width)
@@ -76,7 +101,8 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 			row = new byte[width];
 		}
 		int offset = (y + mTop) * mDataWidth + mLeft;
-		System.arraycopy(mYuvData, offset, row, 0, width);
+		System.arraycopy(
+			mYuvData, offset, row, 0, width);
 		return row;
 	}
 
@@ -86,8 +112,10 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		int width = getWidth();
 		int height = getHeight();
 
-		// If the caller asks for the entire underlying image, save the copy and give them the
-		// original data. The docs specifically warn that result.length must be ignored.
+		// If the caller asks for the entire underlying image, save the copy and
+		// give them the
+		// original data. The docs specifically warn that result.length must be
+		// ignored.
 		if (width == mDataWidth && height == mDataHeight)
 		{
 			return mYuvData;
@@ -97,10 +125,12 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		byte[] matrix = new byte[area];
 		int inputOffset = mTop * mDataWidth + mLeft;
 
-		// If the width matches the full width of the underlying data, perform a single copy.
+		// If the width matches the full width of the underlying data, perform a
+		// single copy.
 		if (width == mDataWidth)
 		{
-			System.arraycopy(mYuvData, inputOffset, matrix, 0, area);
+			System.arraycopy(
+				mYuvData, inputOffset, matrix, 0, area);
 			return matrix;
 		}
 
@@ -109,7 +139,8 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		for (int y = 0; y < height; y++)
 		{
 			int outputOffset = y * width;
-			System.arraycopy(yuv, inputOffset, matrix, outputOffset, width);
+			System.arraycopy(
+				yuv, inputOffset, matrix, outputOffset, width);
 			inputOffset += mDataWidth;
 		}
 		return matrix;
@@ -123,32 +154,113 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 
 	public Bitmap renderCroppedGreyscaleBitmap()
 	{
+
 		int width = getWidth();
 		int height = getHeight();
+
 		int[] pixels = new int[width * height];
 		byte[] yuv = mYuvData;
-		int inputOffset = mTop * mDataWidth + mLeft;
+		int offsetX, offsetY;
 
-		for (int y = 0; y < height; y++)
+		int i = 0;
+
+		if (CameraManager.CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK)
 		{
-			int outputOffset = y * width;
-			for (int x = 0; x < width; x++)
-			{
-				int grey = yuv[inputOffset + x] & 0xff;
-				pixels[outputOffset + x] = 0xFF000000 | (grey * 0x00010101);
+
+			offsetX = (mLeft);
+			offsetY = mTop;
+			if (false || CameraManager.CAMERA_ORIENTATION != 0
+					&& CameraManager.CAMERA_ORIENTATION != 1)
+			{// || (Application.CAMERA == Camera.CameraInfo.CAMERA_FACING_FRONT
+				// && (Application.CAMERA_ORIENTATION == 0 ||
+				// Application.CAMERA_ORIENTATION == 3))){
+				// i = width * height - 1;
+				i = 0;
+				for (int y = height + offsetY; y > offsetY; y--)
+				{
+					int outputOffset = y * mDataWidth;
+					for (int x = width + offsetX; x > offsetX; x--)
+					{
+						int grey = yuv[outputOffset + x] & 0xff;
+						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+
+					}
+				}
 			}
-			inputOffset += mDataWidth;
+			else
+			{
+				for (int y = offsetY; y < height + offsetY; y++)
+				{
+					int outputOffset = y * mDataWidth;
+					for (int x = offsetX; x < width + offsetX; x++)
+					{
+						int grey = yuv[outputOffset + x] & 0xff;
+						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+
+					}
+				}
+
+			}
+
+		}
+		else
+		{// camera facing front
+
+			offsetX = mLeft;
+			offsetY = (mTop);
+			if ((CameraManager.CAMERA_ORIENTATION == 0 || CameraManager.CAMERA_ORIENTATION == 1))
+			{
+				i = 0;
+				for (int y = offsetY; y < (height + offsetY); y++)
+				{
+					int outputOffset = y * mDataWidth;
+					for (int x = width + offsetX; (x - offsetX) > 0; x--)
+					{
+						int grey = yuv[outputOffset + x] & 0xff;
+						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+
+					}
+				}
+			}
+			else if (CameraManager.CAMERA_ORIENTATION == 3)
+			{
+				i = 0;
+
+				for (int y = height + offsetY; (y - offsetY) > 0; y--)
+				{
+					int outputOffset = y * mDataWidth;
+					for (int x = offsetX; x < (width + offsetX); x++)
+					{
+						int grey = yuv[outputOffset + x] & 0xff;
+						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+
+					}
+				}
+			}
+			else
+			{
+				i = 0;
+				for (int y = (height + offsetY); (y - offsetY) > 0; y--)
+				{
+					int outputOffset = y * mDataWidth;
+					for (int x = (width + offsetX); (x - offsetX) > 0; x--)
+					{
+						int grey = yuv[outputOffset + x] & 0xff;
+						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+
+					}
+				}
+			}
 		}
 
-		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+		Bitmap bitmap = Bitmap.createBitmap(
+			width, height, Bitmap.Config.ARGB_8888);
+		bitmap.setPixels(
+			pixels, 0, width, 0, 0, width, height);
 		Matrix matrix = new Matrix();
-		if (CameraManager.HACK_ROTATE)
-		{
-			//matrix.setRotate(90,0,0);//barcode.getWidth(),barcode.getHeight());
-		}
-		bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-		
+		bitmap = Bitmap.createBitmap(
+			bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
 		return bitmap;
 	}
 

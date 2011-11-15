@@ -9,7 +9,6 @@
                android:layout_width="fill_parent"
                android:layout_height="fill_parent"
                />
-
   <org.remoteandroid.ui.connect.qrcode.ViewfinderView
       android:id="@+id/viewfinder_view"
       android:layout_width="fill_parent"
@@ -26,5 +25,11 @@
             android:text="@string/msg_default_status"
             android:textColor="@color/qrcode_status_text"
             android:textSize="14sp"/>
-
+            
+	<ImageButton
+        android:id="@+id/connect_qrcode_btn_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/switch_camera" />
+        <!--         android:background="@color/transparent" -->
 </FrameLayout>

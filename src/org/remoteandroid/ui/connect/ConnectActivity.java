@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import org.remoteandroid.Application;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
 
 import android.app.AlertDialog;
@@ -215,7 +217,7 @@ implements TechnologiesFragment.Listener
 	private void finishWithOk(RemoteAndroidInfoImpl info)
 	{
 		Intent result=new Intent();
-		result.putExtra("info", info);
+		result.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
 		setResult(RESULT_OK,result);
 		finish();
 	}
@@ -348,7 +350,13 @@ implements TechnologiesFragment.Listener
 					info=IPDiscoverAndroids.tryConnect(uri, false/*FIXME*/);
 				if (info!=null) // Cool
 				{
-					return info;
+					if (new Trusted(Application.sAppContext, Application.sHandler)
+							.pairWith(info))
+					{
+						return info;
+					}
+					else
+						return R.string.connect_alert_pairing_impossible;
 				}
 				
 			}
@@ -417,7 +425,7 @@ implements TechnologiesFragment.Listener
 		protected void onCancelled()
 		{
 			super.onCancelled();
-			Log.d("TTT","onCancelled");
+			// FIXME
 		}
 	}
 }

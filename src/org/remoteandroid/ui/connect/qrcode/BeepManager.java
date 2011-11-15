@@ -33,22 +33,25 @@ import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 
 /**
- * Manages beeps and vibrations for {@link CaptureQRCodeActivity}.
+ * 
+ * @author Yohann Melo
+ * 
  */
+
 public final class BeepManager
 {
 
-	private static final float	BEEP_VOLUME			= 0.10f;
+	private static final float BEEP_VOLUME = 0.10f;
 
-	private static final long	VIBRATE_DURATION	= 200L;
+	private static final long VIBRATE_DURATION = 200L;
 
-	private Activity		mActivity;
+	private Activity mActivity;
 
-	private MediaPlayer			mMediaPlayer;
+	private MediaPlayer mMediaPlayer;
 
-	private boolean				mPlayBeep;
+	private boolean mPlayBeep;
 
-	private boolean				mVibrate;
+	private boolean mVibrate;
 
 	public BeepManager(Activity activity)
 	{
@@ -59,16 +62,20 @@ public final class BeepManager
 
 	public void setActivity(Activity activity)
 	{
-		mActivity=activity;
+		mActivity = activity;
 	}
+
 	public void updatePrefs()
 	{
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mActivity);
-		mPlayBeep = shouldBeep(prefs, mActivity);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(mActivity);
+		mPlayBeep = shouldBeep(
+			prefs, mActivity);
 		// vibrate = prefs.getBoolean(PreferencesActivity.KEY_VIBRATE, false);
 		if (mPlayBeep && mMediaPlayer == null)
 		{
-			// The volume on STREAM_SYSTEM is not adjustable, and users found it too loud,
+			// The volume on STREAM_SYSTEM is not adjustable, and users found it
+			// too loud,
 			// so we now play on the music stream.
 			mActivity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 			mMediaPlayer = buildMediaPlayer(mActivity);
@@ -83,7 +90,8 @@ public final class BeepManager
 		}
 		if (mVibrate)
 		{
-			Vibrator vibrator = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+			Vibrator vibrator = (Vibrator) mActivity
+					.getSystemService(Context.VIBRATOR_SERVICE);
 			vibrator.vibrate(VIBRATE_DURATION);
 		}
 	}
@@ -110,26 +118,32 @@ public final class BeepManager
 		MediaPlayer mediaPlayer = new MediaPlayer();
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		// When the beep has finished playing, rewind to queue up another one.
-		mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
-		{
-			public void onCompletion(MediaPlayer player)
-			{
-				player.seekTo(0);
-			}
-		});
+		mediaPlayer
+				.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
+				{
+					public void onCompletion(MediaPlayer player)
+					{
+						player.seekTo(0);
+					}
+				});
 
-		AssetFileDescriptor file = activity.getResources().openRawResourceFd(R.raw.beep);
+		AssetFileDescriptor file = activity.getResources().openRawResourceFd(
+			R.raw.beep);
 		try
 		{
-			mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(),
-					file.getLength());
+			mediaPlayer.setDataSource(
+				file.getFileDescriptor(), file.getStartOffset(),
+				file.getLength());
 			file.close();
-			mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
+			mediaPlayer.setVolume(
+				BEEP_VOLUME, BEEP_VOLUME);
 			mediaPlayer.prepare();
 		}
 		catch (IOException ioe)
 		{
-			if (W) Log.w(TAG_CONNECT, ioe);
+			if (W)
+				Log.w(
+					TAG_CONNECT, ioe);
 			mediaPlayer = null;
 		}
 		return mediaPlayer;

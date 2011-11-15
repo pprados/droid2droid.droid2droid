@@ -17,14 +17,11 @@
 package org.remoteandroid.ui.connect.qrcode;
 
 import java.util.Hashtable;
-import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;
 
@@ -32,19 +29,20 @@ import com.google.zxing.ResultPointCallback;
  * This thread does all the heavy lifting of decoding the images.
  * 
  * @author dswitkin@google.com (Daniel Switkin)
+ * @author Yohann Melo
  */
 final class DecodeThread extends Thread
 {
 
-	public static final String						BARCODE_BITMAP	= "barcode_bitmap";
+	public static final String BARCODE_BITMAP = "barcode_bitmap";
 
-	private volatile Wrapper				mWrapper;
+	private volatile Wrapper mWrapper;
 
-	private final Hashtable<DecodeHintType, Object>	mHints;
+	private final Hashtable<DecodeHintType, Object> mHints;
 
-	private Handler									mHandler;
+	private Handler mHandler;
 
-	private final CountDownLatch					mHandlerInitLatch;
+	private final CountDownLatch mHandlerInitLatch;
 
 	DecodeThread(Wrapper wrapper, ResultPointCallback resultPointCallback)
 	{
@@ -53,17 +51,20 @@ final class DecodeThread extends Thread
 		mHandlerInitLatch = new CountDownLatch(1);
 
 		mHints = new Hashtable<DecodeHintType, Object>(1);
-//		if (characterSet != null)
-//		{
-//			hints.put(DecodeHintType.CHARACTER_SET, characterSet);
-//		}
-		mHints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, resultPointCallback);
-		//mHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+		// if (characterSet != null)
+		// {
+		// hints.put(DecodeHintType.CHARACTER_SET, characterSet);
+		// }
+		mHints.put(
+			DecodeHintType.NEED_RESULT_POINT_CALLBACK, resultPointCallback);
+		// mHints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
 	}
+
 	void setActivity(Wrapper wrapper) // FIXME: Le nom de la methode
 	{
-		mWrapper=wrapper;
+		mWrapper = wrapper;
 	}
+
 	Handler getHandler()
 	{
 		try
@@ -81,7 +82,8 @@ final class DecodeThread extends Thread
 	public void run()
 	{
 		Looper.prepare();
-		Thread.currentThread().setPriority(NORM_PRIORITY+1); // FIXME: A confirmer ?
+		Thread.currentThread().setPriority(
+			NORM_PRIORITY - 1); // FIXME: A confirmer ?
 		mHandler = new DecodeHandler(mWrapper, mHints);
 		mHandlerInitLatch.countDown();
 		Looper.loop();

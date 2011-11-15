@@ -130,7 +130,7 @@ public class Trusted
 		return info;
 	}
 	public static  InetAddress getLocalIpAddress() 
-	{
+	{   // FIXME: Multiple adresses
 	    try 
 	    {
 	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) 

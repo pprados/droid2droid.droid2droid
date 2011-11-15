@@ -24,15 +24,19 @@ import android.util.Log;
 import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 
+/**
+ * 
+ * @author Yohann Melo
+ * 
+ */
 final class PreviewCallback implements Camera.PreviewCallback
 {
 
+	private final CameraConfigurationManager mConfigManager;
 
-	private final CameraConfigurationManager	mConfigManager;
+	private Handler mPreviewHandler;
 
-	private Handler								mPreviewHandler;
-
-	private int									mPreviewMessage;
+	private int mPreviewMessage;
 
 	PreviewCallback(CameraConfigurationManager configManager)
 	{
@@ -51,16 +55,16 @@ final class PreviewCallback implements Camera.PreviewCallback
 		Point cameraResolution = mConfigManager.getCameraResolution();
 		if (mPreviewHandler != null)
 		{
-			Message message = mPreviewHandler.obtainMessage(mPreviewMessage, 
-					cameraResolution.x,
-					cameraResolution.y, 
-					data);
+			Message message = mPreviewHandler.obtainMessage(
+				mPreviewMessage, cameraResolution.x, cameraResolution.y, data);
 			message.sendToTarget();
 			mPreviewHandler = null;
 		}
 		else
 		{
-			if (D) Log.d(TAG_CONNECT, "Got preview callback, but no handler for it");
+			if (D)
+				Log.d(
+					TAG_CONNECT, "Got preview callback, but no handler for it");
 		}
 	}
 

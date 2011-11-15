@@ -57,9 +57,9 @@ public class InputExpose extends Expose
 			.setMessage(Html.fromHtml(message))
 			.setPositiveButton(android.R.string.ok, null)
 			.create();
-		mAlertDialog.show();
 		mShortenURL=new ShortenURL();
 		mShortenURL.execute();
+		mAlertDialog.show();
 	}
 	static final Pattern sPattern=Pattern.compile(" *\"(.*)\": *\"(.*)\".*");
 	//http://code.google.com/intl/fr-FR/apis/urlshortener/v1/getting_started.html#APIKey

@@ -54,6 +54,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;

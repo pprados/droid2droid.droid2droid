@@ -24,29 +24,42 @@ import java.util.regex.Pattern;
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.Camera;
-import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+/**
+ * 
+ * @author Yohann Melo
+ * 
+ */
 final class CameraConfigurationManager
 {
 
-	private static final int		TEN_DESIRED_ZOOM	= 27;
+	private static final int TEN_DESIRED_ZOOM = 27;
 
-	private static final Pattern	COMMA_PATTERN		= Pattern.compile(",");
+	private static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
-	private final Context			mContext;
+	private final Context mContext;
 
-	private Point					mScreenResolution;
+	private Point mScreenResolution;
 
-	private Point					mCameraResolution;
+	private Point mCameraResolution;
 
-	private int						mPreviewFormat;
-	
-	private String					mPreviewFormatString;
+	private Point mSurfaceResolution;
 
-	private static final String TAG_CONNECT="";
+	private int mPreviewFormat;
+
+	private String mPreviewFormatString;
+
+	private static final int MIN_CAMERA_RESOLUTION_WIDTH = 176;
+
+	private static final int MIN_CAMERA_RESOLUTION_HEIGHT = 144;
+
+	private static final int TARGET_CAMERA_RESOLUTION = 320 * 240;
+
+	private static final String TAG_CONNECT = "";
+
 	CameraConfigurationManager(Context context)
 	{
 		this.mContext = context.getApplicationContext();
@@ -60,36 +73,50 @@ final class CameraConfigurationManager
 		Camera.Parameters parameters = camera.getParameters();
 		mPreviewFormat = parameters.getPreviewFormat();
 		mPreviewFormatString = parameters.get("preview-format");
-		if (D) Log.d(TAG_CONNECT, "Default preview format: " + mPreviewFormat + '/' + mPreviewFormatString);
-		WindowManager manager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+		if (D)
+			Log.d(
+				TAG_CONNECT, "Default preview format: " + mPreviewFormat + '/'
+						+ mPreviewFormatString);
+		WindowManager manager = (WindowManager) mContext
+				.getSystemService(Context.WINDOW_SERVICE);
 		Display display = manager.getDefaultDisplay();
+
 		mScreenResolution = new Point(display.getWidth(), display.getHeight());
-		mCameraResolution = getCameraResolution(parameters, mScreenResolution);
-//		if (mScreenResolution.x<mScreenResolution.y) 
-//			mScreenResolution=CameraManager.rotatePoint(mScreenResolution);
-//		if (mCameraResolution.x<mCameraResolution.y) 
-//			mCameraResolution=CameraManager.rotatePoint(mCameraResolution);
-		if (D) Log.d(TAG_CONNECT, "Screen resolution: " + mScreenResolution);
-		if (D) Log.d(TAG_CONNECT, "Camera resolution: " + mCameraResolution);
+		mCameraResolution = getCameraResolution(
+			parameters, mScreenResolution);
+		// if (mScreenResolution.x<mScreenResolution.y)
+		// mScreenResolution=CameraManager.rotatePoint(mScreenResolution);
+		// if (mCameraResolution.x<mCameraResolution.y)
+		// mCameraResolution=CameraManager.rotatePoint(mCameraResolution);
+		if (D)
+			Log.d(
+				TAG_CONNECT, "Screen resolution: " + mScreenResolution);
+		if (D)
+			Log.d(
+				TAG_CONNECT, "Camera resolution: " + mCameraResolution);
 	}
 
 	/**
-	 * Sets the camera up to take preview images which are used for both preview and decoding. We
-	 * detect the preview format here so that buildLuminanceSource() can build an appropriate
-	 * LuminanceSource subclass. In the future we may want to force YUV420SP as it's the smallest,
-	 * and the planar Y can be used for barcode scanning without a copy in some cases.
+	 * Sets the camera up to take preview images which are used for both preview
+	 * and decoding. We detect the preview format here so that
+	 * buildLuminanceSource() can build an appropriate LuminanceSource subclass.
+	 * In the future we may want to force YUV420SP as it's the smallest, and the
+	 * planar Y can be used for barcode scanning without a copy in some cases.
 	 */
 	void setDesiredCameraParameters(Camera camera)
 	{
 		Camera.Parameters parameters = camera.getParameters();
-		if (D) Log.d(TAG_CONNECT, "Setting preview size: " + mCameraResolution);
-		parameters.setPreviewSize(mCameraResolution.x, mCameraResolution.y);
-
+		if (D)
+			Log.d(
+				TAG_CONNECT, "Setting preview size: " + mCameraResolution);
+		parameters.setPreviewSize(
+			mCameraResolution.x, mCameraResolution.y);
 
 		setFlash(parameters);
 		setZoom(parameters);
 		camera.setParameters(parameters);
 	}
+
 	Point getCameraResolution()
 	{
 		return mCameraResolution;
@@ -110,7 +137,8 @@ final class CameraConfigurationManager
 		return mPreviewFormatString;
 	}
 
-	private static Point getCameraResolution(Camera.Parameters parameters, Point screenResolution)
+	private static Point getCameraResolution(Camera.Parameters parameters,
+			Point screenResolution)
 	{
 		String previewSizeValueString = parameters.get("preview-size-values");
 		// saw this on Xperia
@@ -123,13 +151,30 @@ final class CameraConfigurationManager
 
 		if (previewSizeValueString != null)
 		{
-			if (D) Log.d(TAG_CONNECT, "preview-size-values parameter: " + previewSizeValueString);
-			cameraResolution = findBestPreviewSizeValue(previewSizeValueString, screenResolution);
+			if (D)
+				Log.d(
+					TAG_CONNECT, "preview-size-values parameter: "
+							+ previewSizeValueString);
+			cameraResolution = findBestPreviewSizeValue(
+				previewSizeValueString, screenResolution);
+			Log.d(
+				TAG_CONNECT, "preview-size-values best: " + cameraResolution);
 		}
-
+		if (cameraResolution != null
+				&& (cameraResolution.x < MIN_CAMERA_RESOLUTION_WIDTH || cameraResolution.y < MIN_CAMERA_RESOLUTION_HEIGHT))
+		{
+			Log.w(
+				"camera",
+				"Camera resolution was too small and has been resized to "
+						+ MIN_CAMERA_RESOLUTION_WIDTH + "*"
+						+ MIN_CAMERA_RESOLUTION_HEIGHT);
+			cameraResolution = new Point(MIN_CAMERA_RESOLUTION_WIDTH,
+					MIN_CAMERA_RESOLUTION_HEIGHT);
+		}
 		if (cameraResolution == null)
 		{
-			// Ensure that the camera resolution is a multiple of 8, as the screen may not be.
+			// Ensure that the camera resolution is a multiple of 8, as the
+			// screen may not be.
 			cameraResolution = new Point((screenResolution.x >> 3) << 3,
 					(screenResolution.y >> 3) << 3);
 		}
@@ -137,9 +182,12 @@ final class CameraConfigurationManager
 		return cameraResolution;
 	}
 
-	private static Point findBestPreviewSizeValue(CharSequence previewSizeValueString,
-			Point screenResolution)
+	private static Point findBestPreviewSizeValue(
+			CharSequence previewSizeValueString, Point screenResolution)
 	{
+
+		// return new Point(176, 144);
+
 		int bestX = 0;
 		int bestY = 0;
 		int diff = Integer.MAX_VALUE;
@@ -150,7 +198,9 @@ final class CameraConfigurationManager
 			int dimPosition = previewSize.indexOf('x');
 			if (dimPosition < 0)
 			{
-				if (W) Log.w(TAG_CONNECT, "Bad preview-size: " + previewSize);
+				if (W)
+					Log.w(
+						TAG_CONNECT, "Bad preview-size: " + previewSize);
 				continue;
 			}
 
@@ -158,28 +208,52 @@ final class CameraConfigurationManager
 			int newY;
 			try
 			{
-				newX = Integer.parseInt(previewSize.substring(0, dimPosition));
+				newX = Integer.parseInt(previewSize.substring(
+					0, dimPosition));
 				newY = Integer.parseInt(previewSize.substring(dimPosition + 1));
 			}
 			catch (NumberFormatException nfe)
 			{
-				if (W) Log.w(TAG_CONNECT, "Bad preview-size: " + previewSize);
+				if (W)
+					Log.w(
+						TAG_CONNECT, "Bad preview-size: " + previewSize);
 				continue;
 			}
+			int newDiff;
+			// FIXME: screen orientation matters!
+			// Maybe something like (newX + newY) - (screenResolution.x +
+			// screenResolution.y)
+			// if(screenResolution.x > screenResolution.y)
+			// newDiff = Math.abs(newX - screenResolution.x) + Math.abs(newY -
+			// screenResolution.y);
+			// else
+			// newDiff = Math.abs(newX - screenResolution.y) + Math.abs(newY -
+			// screenResolution.x);
+			if (newX >= MIN_CAMERA_RESOLUTION_WIDTH
+					&& newY >= MIN_CAMERA_RESOLUTION_HEIGHT)
+			{
+				newDiff = Math.abs((newX * newY) - TARGET_CAMERA_RESOLUTION);
+				if (newDiff < diff)
+				{
+					bestX = newX;
+					bestY = newY;
+					diff = newDiff;
+				}
+			}
 
-			int newDiff = Math.abs(newX - screenResolution.x) + Math.abs(newY - screenResolution.y);
-			if (newDiff == 0)
-			{
-				bestX = newX;
-				bestY = newY;
-				break;
-			}
-			else if (newDiff < diff)
-			{
-				bestX = newX;
-				bestY = newY;
-				diff = newDiff;
-			}
+			// if (newDiff == 0)
+			// {
+			// bestX = newX;
+			// bestY = newY;
+			//
+			// break;
+			// }
+			// else if (newDiff < diff)
+			// {
+			// bestX = newX;
+			// bestY = newY;
+			// diff = newDiff;
+			// }
 
 		}
 
@@ -188,9 +262,11 @@ final class CameraConfigurationManager
 			return new Point(bestX, bestY);
 		}
 		return null;
+		// */
 	}
 
-	private static int findBestMotZoomValue(CharSequence stringValues, int tenDesiredZoom)
+	private static int findBestMotZoomValue(CharSequence stringValues,
+			int tenDesiredZoom)
 	{
 		int tenBestValue = 0;
 		for (String stringValue : COMMA_PATTERN.split(stringValues))
@@ -206,7 +282,8 @@ final class CameraConfigurationManager
 				return tenDesiredZoom;
 			}
 			int tenValue = (int) (10.0 * value);
-			if (Math.abs(tenDesiredZoom - value) < Math.abs(tenDesiredZoom - tenBestValue))
+			if (Math.abs(tenDesiredZoom - value) < Math.abs(tenDesiredZoom
+					- tenBestValue))
 			{
 				tenBestValue = tenValue;
 			}
@@ -216,24 +293,30 @@ final class CameraConfigurationManager
 
 	private void setFlash(Camera.Parameters parameters)
 	{
-		// This is a hack to turn the flash off on the Samsung Galaxy and the Behold II
-		// as advised by Samsung, neither of which respected the official parameter.
-//		if (Build.MODEL.contains("Behold II") && CameraManager.SDK_INT == 3)
-//		{ // 3 = Cupcake
-//			parameters.set("flash-value", 1);
-//		}
-//		else
-//		{
-			parameters.set("flash-value", 2);
-//		}
-		// This is the standard setting to turn the flash off that all devices should honor.
-		parameters.set("flash-mode", "off");
+		// This is a hack to turn the flash off on the Samsung Galaxy and the
+		// Behold II
+		// as advised by Samsung, neither of which respected the official
+		// parameter.
+		// if (Build.MODEL.contains("Behold II") && CameraManager.SDK_INT == 3)
+		// { // 3 = Cupcake
+		// parameters.set("flash-value", 1);
+		// }
+		// else
+		// {
+		parameters.set(
+			"flash-value", 2);
+		// }
+		// This is the standard setting to turn the flash off that all devices
+		// should honor.
+		parameters.set(
+			"flash-mode", "off");
 	}
 
 	private void setZoom(Camera.Parameters parameters)
 	{
 		String zoomSupportedString = parameters.get("zoom-supported");
-		if (zoomSupportedString != null && !Boolean.parseBoolean(zoomSupportedString))
+		if (zoomSupportedString != null
+				&& !Boolean.parseBoolean(zoomSupportedString))
 		{
 			return;
 		}
@@ -245,7 +328,8 @@ final class CameraConfigurationManager
 		{
 			try
 			{
-				int tenMaxZoom = (int) (10.0 * Double.parseDouble(maxZoomString));
+				int tenMaxZoom = (int) (10.0 * Double
+						.parseDouble(maxZoomString));
 				if (tenDesiredZoom > tenMaxZoom)
 				{
 					tenDesiredZoom = tenMaxZoom;
@@ -253,11 +337,14 @@ final class CameraConfigurationManager
 			}
 			catch (NumberFormatException nfe)
 			{
-				if (W) Log.w(TAG_CONNECT, "Bad max-zoom: " + maxZoomString);
+				if (W)
+					Log.w(
+						TAG_CONNECT, "Bad max-zoom: " + maxZoomString);
 			}
 		}
 
-		String takingPictureZoomMaxString = parameters.get("taking-picture-zoom-max");
+		String takingPictureZoomMaxString = parameters
+				.get("taking-picture-zoom-max");
 		if (takingPictureZoomMaxString != null)
 		{
 			try
@@ -270,14 +357,18 @@ final class CameraConfigurationManager
 			}
 			catch (NumberFormatException nfe)
 			{
-				if (W) Log.w(TAG_CONNECT, "Bad taking-picture-zoom-max: " + takingPictureZoomMaxString);
+				if (W)
+					Log.w(
+						TAG_CONNECT, "Bad taking-picture-zoom-max: "
+								+ takingPictureZoomMaxString);
 			}
 		}
 
 		String motZoomValuesString = parameters.get("mot-zoom-values");
 		if (motZoomValuesString != null)
 		{
-			tenDesiredZoom = findBestMotZoomValue(motZoomValuesString, tenDesiredZoom);
+			tenDesiredZoom = findBestMotZoomValue(
+				motZoomValuesString, tenDesiredZoom);
 		}
 
 		String motZoomStepString = parameters.get("mot-zoom-step");
@@ -285,7 +376,8 @@ final class CameraConfigurationManager
 		{
 			try
 			{
-				double motZoomStep = Double.parseDouble(motZoomStepString.trim());
+				double motZoomStep = Double.parseDouble(motZoomStepString
+						.trim());
 				int tenZoomStep = (int) (10.0 * motZoomStep);
 				if (tenZoomStep > 1)
 				{
@@ -302,15 +394,33 @@ final class CameraConfigurationManager
 		// Some devices like the Behold have a zoom parameter
 		if (maxZoomString != null || motZoomValuesString != null)
 		{
-			parameters.set("zoom", String.valueOf(tenDesiredZoom / 10.0));
+			parameters.set(
+				"zoom", String.valueOf(tenDesiredZoom / 10.0));
 		}
 
 		// Most devices, like the Hero, appear to expose this zoom parameter.
 		// It takes on values like "27" which appears to mean 2.7x zoom
 		if (takingPictureZoomMaxString != null)
 		{
-			parameters.set("taking-picture-zoom", tenDesiredZoom);
+			parameters.set(
+				"taking-picture-zoom", tenDesiredZoom);
 		}
 	}
 
+	public void setSurfaceResolutionValues(Point p)
+	{
+		if (p.x < p.y)
+		{
+			int tmp = p.x;
+			p.x = p.y;
+			p.y = tmp;
+		}
+
+		this.mSurfaceResolution = p;
+	}
+
+	public Point getSurfaceResolution()
+	{
+		return mSurfaceResolution;
+	}
 }

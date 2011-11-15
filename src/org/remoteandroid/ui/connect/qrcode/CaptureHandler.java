@@ -16,58 +16,60 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
+import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.V;
-
-import java.util.Vector;
 
 import org.remoteandroid.R;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.ResultPointCallback;
 
 /**
- * This class handles all the messaging which comprises the state machine for capture.
+ * This class handles all the messaging which comprises the state machine for
+ * capture.
  * 
  * @author dswitkin@google.com (Daniel Switkin)
+ * @author Yohann Melo
  */
 public final class CaptureHandler extends Handler
 {
 
-	private volatile Wrapper	mWrapper;
+	private volatile Wrapper mWrapper;
 
-	private final DecodeThread		mDecodeThread;
+	private final DecodeThread mDecodeThread;
 
-	private State					mState;
+	private State mState;
 
-	private enum State
-	{
+	private enum State {
 		AUTOFOCUS, DECODE, SUCCESS, DONE
 	}
-	ResultPointCallback mResultPointCallback=new ResultPointCallback()
+
+	ResultPointCallback mResultPointCallback = new ResultPointCallback()
 	{
 		public void foundPossibleResultPoint(ResultPoint point)
 		{
-			if (V) Log.v(TAG_CONNECT,"Found possible result point");
-			mWrapper.getViewfinderView().addPossibleResultPoint(point);
+			if (V)
+				Log.v(
+					TAG_CONNECT, "Found possible result point");
+			mWrapper.getViewfinderView().addPossibleResultPoint(
+				point);
 		}
 	};
 
 	public CaptureHandler(final Wrapper wrapper)
 	{
 		this.mWrapper = wrapper;
-		mDecodeThread = new DecodeThread(wrapper,mResultPointCallback);
+		mDecodeThread = new DecodeThread(wrapper, mResultPointCallback);
 		mDecodeThread.start();
 		mState = State.SUCCESS;
 
@@ -78,61 +80,79 @@ public final class CaptureHandler extends Handler
 
 	public void setWrapper(Wrapper wrapper)
 	{
-		mWrapper=wrapper;
+		mWrapper = wrapper;
 	}
-	
+
 	@Override
 	public void handleMessage(Message message)
 	{
 		switch (message.what)
 		{
 			case R.id.auto_focus:
-				if (V) Log.v(TAG_CONNECT, "Got auto-focus message");
-				// When one auto focus pass finishes, start another. This is the closest thing to
-				// continuous AF. It does seem to hunt a bit, but I'm not sure what else to do.
+				if (V)
+					Log.v(
+						TAG_CONNECT, "Got auto-focus message");
+				// When one auto focus pass finishes, start another. This is the
+				// closest thing to
+				// continuous AF. It does seem to hunt a bit, but I'm not sure
+				// what else to do.
 				if (mState == State.DECODE)
 				{
-					CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
+					CameraManager.get().requestAutoFocus(
+						this, R.id.auto_focus);
 				}
 				break;
-				
+
 			case R.id.start_decode:
-				if (V) Log.v(TAG_CONNECT, "Got start decode message");
-				if (mState!=State.DECODE)
+				if (V)
+					Log.v(
+						TAG_CONNECT, "Got start decode message");
+				if (mState != State.DECODE)
 				{
-					mState=State.DECODE;
-					CameraManager.get().requestPreviewFrame(mDecodeThread.getHandler(), R.id.decode);
+					mState = State.DECODE;
+					CameraManager.get().requestPreviewFrame(
+						mDecodeThread.getHandler(), R.id.decode);
 				}
-				else
-					if (E) Log.e(TAG_CONNECT,"allrealdy in decode state");
+				else if (E)
+					Log.e(
+						TAG_CONNECT, "allrealdy in decode state");
 				break;
-			
+
 			case R.id.current_decode:
 				if (QRCODE_SHOW_CURRENT_DECODE)
 				{
-					if (D) Log.d(TAG_CONNECT, "Got current decode message");
+					if (D)
+						Log.d(
+							TAG_CONNECT, "Got current decode message");
 					Bundle bundle = message.getData();
 					Bitmap barcode = bundle == null ? null : (Bitmap) bundle
 							.getParcelable(DecodeThread.BARCODE_BITMAP);
-					mWrapper.handlePrevious((Result) message.obj, barcode);
+					mWrapper.handlePrevious(
+						(Result) message.obj, barcode);
 				}
 				break;
-				
+
 			case R.id.decode_succeeded:
-				if (D) Log.d(TAG_CONNECT, "Got decode succeeded message");
+				if (D)
+					Log.d(
+						TAG_CONNECT, "Got decode succeeded message");
 				mState = State.SUCCESS;
 				Bundle bundle = message.getData();
 				Bitmap barcode = bundle == null ? null : (Bitmap) bundle
 						.getParcelable(DecodeThread.BARCODE_BITMAP);
-				mWrapper.handleDecode((Result) message.obj, barcode);
+				mWrapper.handleDecode(
+					(Result) message.obj, barcode);
 				break;
-				
+
 			case R.id.decode_failed:
-				if (V) Log.v(TAG_CONNECT, "Got decode failed message");
-				// We're decoding as fast as possible, so when one decode fails, start another.
+				if (V)
+					Log.v(
+						TAG_CONNECT, "Got decode failed message");
+				// We're decoding as fast as possible, so when one decode fails,
+				// start another.
 				restartPreviewAndDecode();
 				break;
-				
+
 		}
 	}
 
@@ -140,7 +160,8 @@ public final class CaptureHandler extends Handler
 	{
 		mState = State.DONE;
 		CameraManager.get().stopPreview();
-		Message quit = Message.obtain(mDecodeThread.getHandler(), R.id.quit);
+		Message quit = Message.obtain(
+			mDecodeThread.getHandler(), R.id.quit);
 		quit.sendToTarget();
 		try
 		{
@@ -158,9 +179,12 @@ public final class CaptureHandler extends Handler
 
 	private void restartPreviewAndDecode()
 	{
-		if (V) Log.v(TAG_CONNECT,"State.SUCESSS. restartPreviewAndDecode...");
+		if (V)
+			Log.v(
+				TAG_CONNECT, "State.SUCESSS. restartPreviewAndDecode...");
 		mState = State.AUTOFOCUS;
-		CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
+		CameraManager.get().requestAutoFocus(
+			this, R.id.auto_focus);
 		mWrapper.drawViewfinder();
 	}
 

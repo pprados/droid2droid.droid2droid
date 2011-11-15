@@ -21,27 +21,24 @@ import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 
 import org.remoteandroid.R;
-import org.remoteandroid.internal.Compatibility;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -50,8 +47,10 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
@@ -60,41 +59,47 @@ import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
 
 /**
- * The barcode reader activity itself. This is loosely based on the CameraPreview example included
- * in the Android SDK.
+ * The barcode reader activity itself. This is loosely based on the
+ * CameraPreview example included in the Android SDK.
  * 
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
+ * @author Yohann Melo
  */
-public final class CaptureQRCodeActivity extends Activity implements SurfaceHolder.Callback, KeyEvent.Callback, Wrapper
+public final class CaptureQRCodeActivity extends Activity implements
+		SurfaceHolder.Callback, KeyEvent.Callback, Wrapper
 {
-	private static final boolean NO_CAMERA=false;
-	
-	private static final Set<ResultMetadataType>	DISPLAYABLE_METADATA_TYPES;
+	private static final boolean NO_CAMERA = false;
+
+	private static final Set<ResultMetadataType> DISPLAYABLE_METADATA_TYPES;
 	static
 	{
 		DISPLAYABLE_METADATA_TYPES = new HashSet<ResultMetadataType>(5);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.ISSUE_NUMBER);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.SUGGESTED_PRICE);
-		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.ERROR_CORRECTION_LEVEL);
+		DISPLAYABLE_METADATA_TYPES
+				.add(ResultMetadataType.ERROR_CORRECTION_LEVEL);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.POSSIBLE_COUNTRY);
 	}
+
 	static class Cache
 	{
-		private CaptureHandler	mHandler;
-		private boolean 				mFlashState;
-		private Result					mLastResult;
-		private InactivityTimer			mInactivityTimer;
-		private BeepManager				mBeepManager;
+		private CaptureHandler mHandler;
+
+		private boolean mFlashState;
+
+		private InactivityTimer mInactivityTimer;
+
+		private BeepManager mBeepManager;
 	}
+
 	Cache mCache;
 
-	
-	private ViewfinderView			mViewfinderView;
+	private ViewfinderView mViewfinderView;
 
-	private TextView				mStatusView;
+	private TextView mStatusView;
 
-	private boolean					mHasSurface;
+	private boolean mHasSurface;
 
 	@Override
 	public ViewfinderView getViewfinderView()
@@ -107,29 +112,61 @@ public final class CaptureQRCodeActivity extends Activity implements SurfaceHold
 		return mCache.mHandler;
 	}
 
+	private void setParams()
+	{
+		CameraManager.CAMERA_ORIENTATION = getResources().getConfiguration().orientation;
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(
+			metrics);
+		CameraManager.HACK_DPI = metrics.xdpi;
+		CameraManager.x = metrics.widthPixels / metrics.xdpi;
+		CameraManager.y = metrics.heightPixels / metrics.ydpi;
+	}
+
 	@Override
 	public void onCreate(Bundle icicle)
 	{
 		super.onCreate(icicle);
-
+		Log.e(
+			"activity", "create");
 		Window window = getWindow();
-		
 		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.qrcode_capture);
+
+		setParams();
+
+		ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
+		if (Build.VERSION.SDK_INT >= 8)
+		{
+			btn.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					CameraManager.CAMERA = (CameraManager.CAMERA + 1)
+							% Camera.getNumberOfCameras();
+					onPause();
+					setParams();
+					onResume();
+				}
+			});
+		}
+		else
+			btn.setActivated(false);
 		mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		mStatusView = (TextView) findViewById(R.id.status_view);
-		mCache=(Cache)getLastNonConfigurationInstance();
+		mCache = (Cache) getLastNonConfigurationInstance();
 		mHasSurface = false;
-View v=findViewById(R.id.main_layout); // FIXME: remove id
-int[] location=new int[2];
-mViewfinderView.getLocationOnScreen(location);
-Rect r=new Rect();
-v.getLocalVisibleRect(r);
-		if (mCache==null)
+		View v = findViewById(R.id.main_layout); // FIXME: remove id
+		int[] location = new int[2];
+		mViewfinderView.getLocationOnScreen(location);
+		Rect r = new Rect();
+		v.getLocalVisibleRect(r);
+		if (mCache == null)
 		{
-			mCache=new Cache();
+			mCache = new Cache();
 			mCache.mHandler = null;
-			mCache.mLastResult = null;
 			mCache.mInactivityTimer = new InactivityTimer(this);
 			mCache.mBeepManager = new BeepManager(this);
 			if (!NO_CAMERA)
@@ -139,45 +176,53 @@ v.getLocalVisibleRect(r);
 		{
 			mCache.mInactivityTimer.setActivity(this);
 			mCache.mBeepManager.setActivity(this);
-			if (mCache.mHandler!=null)
+			if (mCache.mHandler != null)
 				mCache.mHandler.setWrapper(this);
 		}
 	}
-	
+
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
+
 		return mCache;
 	}
+
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus)
 	{
 		super.onWindowFocusChanged(hasFocus);
-		View v=findViewById(R.id.main_layout); // FIXME: remove id
-		int[] location=new int[2];
+		View v = findViewById(R.id.main_layout); // FIXME: remove id
+		int[] location = new int[2];
 		mViewfinderView.getLocationOnScreen(location);
-		Rect r=new Rect();
+		Rect r = new Rect();
 		v.getLocalVisibleRect(r);
-		Log.d(TAG_CONNECT,"rect="+r);
+		Log.d(
+			TAG_CONNECT, "rect=" + r);
 	}
+
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		resetStatusView();
-
+		Log.e(
+			"activity", "resume");
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (mHasSurface)
 		{
-			// The activity was paused but not stopped, so the surface still exists. Therefore
+			// The activity was paused but not stopped, so the surface still
+			// exists. Therefore
 			// surfaceCreated() won't be called, so init the camera here.
-			
-			initCamera(surfaceHolder,getRotation());
+
+			initCamera(
+				surfaceHolder, getRotation());
 		}
 		else
 		{
-			// Install the callback and wait for surfaceCreated() to init the camera.
+			// Install the callback and wait for surfaceCreated() to init the
+			// camera.
 			surfaceHolder.addCallback(this);
 			surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		}
@@ -185,29 +230,24 @@ v.getLocalVisibleRect(r);
 		mCache.mBeepManager.updatePrefs();
 		mCache.mInactivityTimer.onResume();
 	}
+
 	private int getRotation()
 	{
-		if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_FROYO)
-		{
-			// Verify wrapper
-			return new PrivilegedAction<Integer>()
-			{
-				@Override
-				public Integer run()
-				{
-					return getWindowManager().getDefaultDisplay().getRotation();
-				}
-			}.run();
-		}
+		if (Build.VERSION.SDK_INT >= 8)
+			return getWindowManager().getDefaultDisplay().getRotation();
 		else
 			return getWindowManager().getDefaultDisplay().getOrientation();
 	}
-	
+
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
-		if (I) Log.i(TAG_CONNECT,"onPause...");
+		Log.e(
+			"activity", "pause");
+		if (I)
+			Log.i(
+				TAG_CONNECT, "onPause...");
 		if (mCache.mHandler != null)
 		{
 			mCache.mHandler.quitSynchronously();
@@ -221,8 +261,13 @@ v.getLocalVisibleRect(r);
 	@Override
 	protected void onDestroy()
 	{
-		if (I) Log.i(TAG_CONNECT,"onDestroy...");
+		Log.e(
+			"activity", "pause");
+		if (I)
+			Log.i(
+				TAG_CONNECT, "onDestroy...");
 		mCache.mInactivityTimer.shutdown();
+		this.mViewfinderView.detachHandler();
 		super.onDestroy();
 	}
 
@@ -230,43 +275,55 @@ v.getLocalVisibleRect(r);
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+		Log.e(
+			"activity", "onconfigchanged");
+		CameraManager.init(this); // FIXME: Attention fuite mémoire sur le this !
 		CameraManager.get().closeDriver();
-		CameraManager.get().init(this);
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		CameraManager.get().closeDriver();
-		initCamera(surfaceHolder,getRotation());
+		initCamera(
+			surfaceHolder, getRotation());
 	}
-	
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (keyCode == KeyEvent.KEYCODE_FOCUS || keyCode == KeyEvent.KEYCODE_CAMERA)
+		if (keyCode == KeyEvent.KEYCODE_FOCUS
+				|| keyCode == KeyEvent.KEYCODE_CAMERA)
 		{
 			// Handle these events so they don't launch the Camera app
 			return true;
 		}
-		return super.onKeyDown(keyCode, event);
+		return super.onKeyDown(
+			keyCode, event);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-        MenuInflater inflater=getMenuInflater();
-        inflater.inflate(R.menu.context_qrcode, menu);    
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(
+			R.menu.context_qrcode, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		switch (item.getItemId())
 		{
 			case R.id.context_qrcode_flash:
-				mCache.mFlashState=!mCache.mFlashState;
+				mCache.mFlashState = !mCache.mFlashState;
 				FlashlightManager.setFlashlight(mCache.mFlashState);
 				return true;
-				
+			case R.id.context_qrcode_camera:
+				if (Build.VERSION.SDK_INT >= 8)
+					CameraManager.CAMERA = (CameraManager.CAMERA + 1)
+							% Camera.getNumberOfCameras();
+				this.onPause();
+				this.onResume();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -274,11 +331,19 @@ v.getLocalVisibleRect(r);
 
 	public void surfaceCreated(SurfaceHolder holder)
 	{
+		Log.e(
+			"activity", "surface created");
 		if (!mHasSurface)
 		{
+			Log.e(
+				"activity", "mHasSurface surface created");
+			CameraManager.get().setScreenResolutionValues(
+				new Point(mViewfinderView.getWidth(), mViewfinderView
+						.getHeight()));
 			mHasSurface = true;
 			if (!NO_CAMERA)
-				initCamera(holder,getRotation());
+				initCamera(
+					holder, getRotation());
 		}
 	}
 
@@ -287,44 +352,56 @@ v.getLocalVisibleRect(r);
 		mHasSurface = false;
 	}
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height)
 	{
-
+		Log.e(
+			"activity", "surface changed");
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(
+			metrics);
+		CameraManager.HACK_DPI = metrics.xdpi;
+		CameraManager.x = metrics.widthPixels / metrics.xdpi;
+		CameraManager.y = metrics.heightPixels / metrics.ydpi;
+		CameraManager.get().setScreenResolutionValues(
+			new Point(width, height));
 	}
 
 	/**
-	 * A valid qrcode has been found, so give an indication of success and show the results.
+	 * A valid qrcode has been found, so give an indication of success and show
+	 * the results.
 	 * 
-	 * @param rawResult
-	 *            The contents of the barcode.
-	 * @param barcode
-	 *            A greyscale bitmap of the camera data which was decoded.
+	 * @param rawResult The contents of the barcode.
+	 * @param barcode A greyscale bitmap of the camera data which was decoded.
 	 */
 	@Override
 	public void handleDecode(Result rawResult, Bitmap barcode)
 	{
-		if (I) Log.i(TAG_CONNECT,"handle valide decode "+rawResult);
+		if (I)
+			Log.i(
+				TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
-		mCache.mLastResult = rawResult;
 		mViewfinderView.drawResultBitmap(barcode);
 		mCache.mBeepManager.playBeepSoundAndVibrate();
-		drawResultPoints(barcode, rawResult);
+		drawResultPoints(
+			barcode, rawResult);
 	}
+
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		if (I) Log.i(TAG_CONNECT,"handle valide decode "+rawResult);
-		mCache.mLastResult = rawResult;
+		if (I)
+			Log.i(
+				TAG_CONNECT, "handle valide decode " + rawResult);
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}
 
 	/**
-	 * Superimpose a line for 1D or dots for 2D to highlight the key features of the barcode.
+	 * Superimpose a line for 1D or dots for 2D to highlight the key features of
+	 * the barcode.
 	 * 
-	 * @param barcode
-	 *            A bitmap of the captured image.
-	 * @param rawResult
-	 *            The decoded results which contains the points to draw.
+	 * @param barcode A bitmap of the captured image.
+	 * @param rawResult The decoded results which contains the points to draw.
 	 */
 	private void drawResultPoints(Bitmap barcode, Result rawResult)
 	{
@@ -333,48 +410,63 @@ v.getLocalVisibleRect(r);
 		{
 			Canvas canvas = new Canvas(barcode);
 			Paint paint = new Paint();
-			paint.setColor(getResources().getColor(R.color.qrcode_result_image_border));
+			paint.setColor(getResources().getColor(
+				R.color.qrcode_result_image_border));
 			paint.setStrokeWidth(3.0f);
 			paint.setStyle(Paint.Style.STROKE);
-			Rect border = new Rect(2, 2, barcode.getWidth() - 2, barcode.getHeight() - 2);
-			canvas.drawRect(border, paint);
+			Rect border = new Rect(2, 2, barcode.getWidth() - 2,
+					barcode.getHeight() - 2);
+			canvas.drawRect(
+				border, paint);
 
-			paint.setColor(getResources().getColor(R.color.qrcode_result_points));
+			paint.setColor(getResources().getColor(
+				R.color.qrcode_result_points));
 			if (points.length == 2)
 			{
 				paint.setStrokeWidth(4.0f);
-				drawLine(canvas, paint, points[0], points[1]);
+				drawLine(
+					canvas, paint, points[0], points[1]);
 			}
 			else if (points.length == 4
-					&& (rawResult.getBarcodeFormat().equals(BarcodeFormat.UPC_A) || rawResult
-							.getBarcodeFormat().equals(BarcodeFormat.EAN_13)))
+					&& (rawResult.getBarcodeFormat().equals(
+						BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat()
+							.equals(
+								BarcodeFormat.EAN_13)))
 			{
-				// Hacky special case -- draw two lines, for the barcode and metadata
-				drawLine(canvas, paint, points[0], points[1]);
-				drawLine(canvas, paint, points[2], points[3]);
+				// Hacky special case -- draw two lines, for the barcode and
+				// metadata
+				drawLine(
+					canvas, paint, points[0], points[1]);
+				drawLine(
+					canvas, paint, points[2], points[3]);
 			}
 			else
 			{
 				paint.setStrokeWidth(10.0f);
 				for (ResultPoint point : points)
 				{
-					canvas.drawPoint(point.getX(), point.getY(), paint);
+					canvas.drawPoint(
+						point.getX(), point.getY(), paint);
 				}
 			}
 		}
 	}
 
-	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a, ResultPoint b)
+	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
+			ResultPoint b)
 	{
-		canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
+		canvas.drawLine(
+			a.getX(), a.getY(), b.getX(), b.getY(), paint);
 	}
 
-	private void initCamera(SurfaceHolder surfaceHolder,int rotation)
+	private void initCamera(SurfaceHolder surfaceHolder, int rotation)
 	{
 		try
 		{
-			CameraManager.get().openDriver(surfaceHolder,rotation);
-			// Creating the handler starts the preview, which can also throw a RuntimeException.
+			CameraManager.get().openDriver(
+				surfaceHolder, rotation);
+			// Creating the handler starts the preview, which can also throw a
+			// RuntimeException.
 			if (mCache.mHandler == null)
 			{
 				mCache.mHandler = new CaptureHandler(this);
@@ -382,14 +474,18 @@ v.getLocalVisibleRect(r);
 		}
 		catch (IOException ioe)
 		{
-			if (W) Log.w(TAG_CONNECT, ioe);
+			if (W)
+				Log.w(
+					TAG_CONNECT, ioe);
 			displayFrameworkBugMessageAndExit();
 		}
 		catch (RuntimeException e)
 		{
 			// Barcode Scanner has seen crashes in the wild of this variety:
 			// java.?lang.?RuntimeException: Fail to connect to camera service
-			if (W) Log.w(TAG_CONNECT, "Unexpected error initializating camera", e);
+			if (W)
+				Log.w(
+					TAG_CONNECT, "Unexpected error initializating camera", e);
 			displayFrameworkBugMessageAndExit();
 		}
 	}
@@ -399,7 +495,8 @@ v.getLocalVisibleRect(r);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(getString(R.string.app_name));
 		builder.setMessage(getString(R.string.qrcode_msg_camera_framework_bug));
-		builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
+		builder.setPositiveButton(
+			R.string.button_ok, new FinishListener(this));
 		builder.setOnCancelListener(new FinishListener(this));
 		builder.show();
 	}
@@ -409,7 +506,6 @@ v.getLocalVisibleRect(r);
 		mStatusView.setText(R.string.msg_default_status);
 		mStatusView.setVisibility(View.VISIBLE);
 		mViewfinderView.setVisibility(View.VISIBLE);
-		mCache.mLastResult = null;
 	}
 
 	@Override
