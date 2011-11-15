@@ -4,7 +4,7 @@ import static org.remoteandroid.Constants.PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE;
 import static org.remoteandroid.Constants.PAIR_CHECK_ANONYMOUS;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
-import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 
 import org.remoteandroid.Application;
@@ -62,6 +62,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
     		long timeout=msg.getTimeout();
             if (type==Type.PING)
             {
+            	if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Ping");
     			return Msg.newBuilder()
 					.setType(type)
 					.setThreadid(msg.getThreadid())
@@ -69,19 +70,21 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             }
             else if (type==Type.CONNECT || type==Type.CONNECT_FOR_PAIRING || type==Type.CONNECT_FOR_COOKIE || type==Type.CONNECT_FOR_DISCOVERING)
             {
-            	// Differences kind of connection
+            	if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Connect for "+type.name()+"...");
+            	// Create a connection context ?
             	if (conContext==null)
             	{
-            		// Create a connection context
             		conContext=new ConnectionContext();
+            		// Save type
             		conContext.mType=getType();
+            		// and remote infos
             		conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(msg.getIdentity());
 		    		if (PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE)
 		    		{
                 		// Auto register binded bluetooth devices
                 		if (btsecure && !Trusted.isBonded(conContext.mClientInfo))
                 		{
-				    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT Auto register bonded "+conContext.mClientInfo.getName()+" with a connection.");
+				    		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"BT Auto register bonded "+conContext.mClientInfo.getName()+" with a connection.");
                 			Trusted.registerDevice(mContext, conContext);
                 		}
 		    		}
@@ -89,12 +92,12 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             	}
             	if (type==Type.CONNECT || type==Type.CONNECT_FOR_DISCOVERING || type==Type.CONNECT_FOR_COOKIE)
             	{
-            		// Would like to connect for using
+            		// Check connection with anonymous
 	    			final SharedPreferences preferences=Application.getPreferences();
 	    			boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
 	        		if (SECURITY && PAIR_CHECK_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
 	        		{
-	        			// Accept only from specific wifi network
+	        			// Accept anonymous only from specific wifi network
 	        			if (getType()==ConnectionType.ETHERNET)
 	        			{
 	        				WifiManager manager=(WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
@@ -125,6 +128,8 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 
 	        			}
 	        		}
+	        		
+	        		// Connect for cookie but refuse anonymous ?
         			if (SECURITY && (type==Type.CONNECT_FOR_COOKIE) && !acceptAnonymous)
         			{
         				if (!Trusted.isBonded(conContext.mClientInfo))
@@ -138,18 +143,12 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
         				}
         			}
             	}
+            	
         		if (SECURITY && type==Type.CONNECT_FOR_COOKIE)
         		{
         			// Connection to receive a cookie, then close. Must be called only from RemoteAndroid.apk
         			// Because the others applications can't known the private key.
-        			long cookie=Application.getCookie(conContext.mClientInfo.uuid.toString());
-        			if (cookie==0)
-        			{
-        				cookie=Application.sRandom.nextLong();
-        				if (cookie==0) cookie=1;
-        				Application.addCookie(conContext.mClientInfo.uuid.toString(), cookie);
-            			if (V) Log.v(TAG_SECURITY,PREFIX_LOG+"Set cookie for "+conContext.mClientInfo.uuid+" : "+cookie);
-        			}
+        			final long cookie=getCookie(conContext);
         			// TODO: Pas de chalenge si BT sécure
         			if (conContext.mLogin==null) 
         				conContext.mLogin=new LoginImpl();
@@ -200,7 +199,8 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		close();
             		return null;
             	}
-            	return transactPairingChalenge(connid,msg);
+    			final long cookie=getCookie(conContext);
+            	return transactPairingChalenge(connid,msg,cookie);
             }
             if (conContext==null)
             {
@@ -269,12 +269,26 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		
 	}
 
+    private long getCookie(ConnectionContext conContext)
+    {
+    	String strUUID=conContext.mClientInfo.uuid.toString();
+		long cookie=Application.getCookie(strUUID);
+		if (cookie==0)
+		{
+			cookie=Application.sRandom.nextLong();
+			if (cookie==0) cookie=1;
+			Application.addCookie(strUUID, cookie);
+			if (V) Log.v(TAG_SECURITY,PREFIX_LOG+"Set cookie for "+conContext.mClientInfo.uuid+" : "+cookie);
+		}
+    	return cookie;
+    }
+    
     protected ConnectionType getType()
     {
     	return ConnectionType.ETHERNET;
     }
 
-	private Msg transactPairingChalenge(int connid,Msg msg)
+	private Msg transactPairingChalenge(int connid,Msg msg,long cookie)
 	{
     	ConnectionContext context=getContext(connid);
     	
@@ -284,7 +298,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
     				Application.sManager.getInfos(),getType());
     	}
     	
-		return context.mPairing.server(context,msg);
+		return context.mPairing.server(context,msg,cookie);
 	}
 
 }

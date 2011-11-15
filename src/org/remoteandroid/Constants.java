@@ -57,7 +57,7 @@ public class Constants
 	/** Timeout to wait a user response when ask to validate the pairing process. */
 	public static final long TIMEOUT_ASK_PAIR					=45000L;
 	/** Timeout to wait a user response when ask to validate the pairing process. */
-	public static final long TIMEOUT_PAIR						=2000L;
+	public static final long TIMEOUT_PAIR						=20000L; // FIXME: 2000L;
 
 	public static final boolean PAIR_ANTI_SPOOF					=false; // TODO: PAIR_ANTI_SPOOF must be true
 	/** Save pairing devices. */

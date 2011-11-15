@@ -16,6 +16,9 @@ import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
+import org.remoteandroid.internal.Messages.Identity;
+import org.remoteandroid.internal.ProtobufConvs;
+import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
@@ -26,6 +29,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -33,6 +37,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 
 public class ConnectActivity extends StyleFragmentActivity 
@@ -346,25 +351,32 @@ implements TechnologiesFragment.Listener
 				publishProgress(i+firststep);
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
-				if (uri.startsWith(SCHEME_BT) || uri.startsWith(SCHEME_BTS))
+				
+				if (BLUETOOTH && uri.startsWith(SCHEME_BT) || uri.startsWith(SCHEME_BTS))
 				{
 					// TODO
-					//BluetoothDiscoverAndroids.tryConnect(uri);
+					//info=BluetoothDiscoverAndroids.tryConnect(uri);
 				}
-				else
-					info=IPDiscoverAndroids.tryConnect(uri, false/*FIXME*/);
-				if (info!=null) // Cool
+				else if (ETHERNET)
 				{
-					if (!mAcceptAnonymous && !Trusted.isBonded(info))
+					try
 					{
-						if (new Trusted(Application.sAppContext, Application.sHandler)
-							.pairWith(mUrls)==null)
+						info=tryConnectForCookie(uri);
+					}
+					catch (SecurityException e)
+					{
+						// Accept only bounded device.
+						info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUrls);
+						if (info==null)
 						{
 							if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");
 							return R.string.connect_alert_pairing_impossible;
 						}
+						if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Pairing successfull");
 					}
-					if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Pairing successfull");
+				}
+				if (info!=null) // Cool
+				{
 					return info;
 				}
 				
@@ -446,4 +458,13 @@ implements TechnologiesFragment.Listener
 	{
 		return mAcceptAnonymous;
 	}
+	public static RemoteAndroidInfoImpl tryConnectForCookie(String uri) throws SecurityException
+	{
+		Pair<RemoteAndroidInfoImpl,Long> msg=Application.sManager.askMsgCookie(Uri.parse(uri));
+		if (msg==null || msg.second==0)
+			throw new SecurityException();
+		return msg.first;
+		
+	}
+	
 }

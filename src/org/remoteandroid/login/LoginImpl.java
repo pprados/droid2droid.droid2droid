@@ -21,6 +21,7 @@ import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.protobuf.ByteString;
 
@@ -36,7 +37,7 @@ public class LoginImpl extends Login
 	 * @return 0 if error. Else, return cookie.
 	 */
 	@Override
-	public long client(
+	public Pair<RemoteAndroidInfoImpl,Long> client(
 			AbstractProtoBufRemoteAndroid android,
 			long timeout) throws UnknownHostException, IOException, RemoteException
 	{
@@ -94,7 +95,7 @@ public class LoginImpl extends Login
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Invalide challenge");
 				throw new SecurityException("Invalide challenge");
 			}
-			return cookie;
+			return new Pair<RemoteAndroidInfoImpl,Long>(remoteInfo,cookie);
 		}
 		catch (GeneralSecurityException e)
 		{

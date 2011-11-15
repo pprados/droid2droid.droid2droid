@@ -421,7 +421,7 @@ public class Trusted
 			try
 			{
 				final ConnectionType type=urlToType(uri);
-				if (pairing(mRemoteAndroid,type,TIMEOUT_PAIRING_ASK_CHALENGE))
+				if (pairing(mRemoteAndroid,type,uri,TIMEOUT_PAIRING_ASK_CHALENGE))
 				{
 					registerDevice(mAppContext,(RemoteAndroidInfoImpl)mRemoteAndroid.getInfos(),type);
 				}
@@ -514,12 +514,12 @@ public class Trusted
 	
 	//-----------------------------
 
-    public boolean pairing(AbstractRemoteAndroidImpl remoteandroid,ConnectionType type,long timeout) throws RemoteException
+    public boolean pairing(AbstractRemoteAndroidImpl remoteandroid,ConnectionType type,String uri,long timeout) throws RemoteException
 	{
 		SimplePairing pairing=new SimplePairing(
 				mAppContext,mHandler,remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
 		//mInitiatingPairingContext=...
-		return pairing.client((AbstractProtoBufRemoteAndroid)remoteandroid,timeout);
+		return pairing.client((AbstractProtoBufRemoteAndroid)remoteandroid,uri,timeout);
 	}
     public void unpairing(AbstractRemoteAndroidImpl remoteandroid,ConnectionType type,long timeout)
     {

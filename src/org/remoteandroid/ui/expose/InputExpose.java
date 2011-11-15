@@ -91,7 +91,7 @@ public class InputExpose extends Expose
 				writer.write(request);
 				writer.flush();
 				if (V) Log.v(TAG_EXPOSE,PREFIX_LOG+"Response code="+connection.getResponseCode());
-				reader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				reader=new BufferedReader(new InputStreamReader(connection.getInputStream()),8096);
 				
 				for (;;)
 				{

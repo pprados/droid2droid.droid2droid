@@ -52,7 +52,10 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 		}
 		return cookie;
 	}
-	
+	public void addCookie(String uri,long cookie)
+	{
+		mCookies.addCookie(uri, cookie);
+	}
 	public void removeCookie(String uri)
 	{
 		mCookies.removeCookie(uri);

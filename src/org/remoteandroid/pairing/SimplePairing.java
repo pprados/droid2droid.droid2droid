@@ -75,7 +75,7 @@ public class SimplePairing extends Pairing
 			throw new InternalError(e.getMessage());
 		}
 	}
-	public boolean client(AbstractProtoBufRemoteAndroid remoteAndroid,long timeout)
+	public boolean client(AbstractProtoBufRemoteAndroid remoteAndroid,String uri,long timeout)
 	{
 		try
 		{
@@ -151,6 +151,7 @@ public class SimplePairing extends Pairing
 			if ((resp.getType() != Type.PAIRING_CHALENGE) || resp.getPairingstep()!=6)
 				return false;
 			remoteAndroid.mInfo=ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
+			Application.sDiscover.addCookie(uri, resp.getCookie());
 			return accept && resp.getRc();
 		}
 		catch (RemoteException e)
@@ -164,9 +165,9 @@ public class SimplePairing extends Pairing
     byte[] mNonceA;
     byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
 
-	public Msg server(ConnectionContext connContext, Msg msg)
+	public Msg server(ConnectionContext connContext, Msg msg,long cookie)
 	{
-		Msg superMsg=super.server(connContext,msg);
+		Msg superMsg=super.server(connContext,msg,cookie);
 		if (superMsg!=null)
 			return superMsg;
 		int step=msg.getPairingstep();
@@ -250,6 +251,7 @@ public class SimplePairing extends Pairing
 	        		.setType(Type.PAIRING_CHALENGE)
 	        		.setThreadid(msg.getThreadid())
 	        		.setPairingstep(6)
+	        		.setCookie(cookie)
 	        		.setRc(rc)
 	        		.setIdentity(ProtobufConvs.toIdentity(Application.sManager.getInfos())) // Publish alls informations
 	        		.build();

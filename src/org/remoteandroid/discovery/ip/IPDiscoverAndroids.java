@@ -36,6 +36,7 @@ import org.remoteandroid.discovery.DiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
+import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.socket.Channel;
@@ -400,7 +401,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				String uri=urls[0];
 				try
 				{
-					return tryConnect(uri, true);
+					return tryConnectForDiscovering(uri);
 				}
 				catch (Exception e)
 				{
@@ -428,7 +429,8 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	}
 
 	// Try to connect to remote android with IP
-	public static RemoteAndroidInfoImpl tryConnect(String uri,boolean anno)
+	public static RemoteAndroidInfoImpl tryConnectForDiscovering(String uri)
+		throws SecurityException
 	{
 		Socket socket=null;
 		try
@@ -479,15 +481,24 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				l-=s;
 			} while (l>0);
 			Msg resp=(Msg)Channel.sPrototype.newBuilderForType().mergeFrom(buf, 4, length).build();
-
-			if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info.");
-			
-			RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
-			info.address=address;
-			info.isDiscoverEthernet=true;
-			// I find it !
-			//if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+info.getName()+" found ("+uri+")");
-			return info;
+			if (resp.getRc())
+			{
+				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info.");
+				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
+				info.address=address;
+				info.isDiscoverEthernet=true;
+				// I find it !
+				//if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+info.getName()+" found ("+uri+")");
+				return info;
+			}
+			else
+			{
+				if (resp.getStatus()==AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
+				{
+					throw new SecurityException(); // FIXME: Meilleur message ou type ?
+				}
+				return null;
+			}
 		}
 		catch (Exception e)
 		{
@@ -510,4 +521,5 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			}
 		}
 	}
+
 }

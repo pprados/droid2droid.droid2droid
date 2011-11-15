@@ -68,9 +68,9 @@ public abstract class Pairing
 		}
 	}
 	
-	abstract public boolean client(AbstractProtoBufRemoteAndroid remoteAndroid,long timeout);
+	abstract public boolean client(AbstractProtoBufRemoteAndroid remoteAndroid,String uri,long timeout);
 	
-	public Msg server(ConnectionContext context, Msg msg)
+	public Msg server(ConnectionContext context, Msg msg,long cookie)
 	{
 		int step=msg.getPairingstep();
 		if (step==-1) // Unpairing
