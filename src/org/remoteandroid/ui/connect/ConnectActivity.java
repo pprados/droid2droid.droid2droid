@@ -15,6 +15,7 @@ import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
+import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
@@ -48,6 +49,7 @@ implements TechnologiesFragment.Listener
 	
 	private boolean mMerge;
 	
+	private boolean mAcceptAnonymous;
 	
 	/*
 	 * Use two strategie:
@@ -64,6 +66,7 @@ implements TechnologiesFragment.Listener
 		// TODO: placer tous les styles dans des wrappers de style pour pouvoir les adapter
 		super.onCreate(savedInstanceState);
 		
+		mAcceptAnonymous=getIntent().getBooleanExtra(RemoteAndroidManager.EXTRA_ACCEPT_ANONYMOUS, false);
 		mFragmentManager=getSupportFragmentManager();
 		mTechnologies=Technology.initTechnologies(this);
 		
@@ -174,19 +177,19 @@ implements TechnologiesFragment.Listener
 		mFragmentManager.executePendingTransactions();
 	}
 	
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-		TryConnection tryHandler=sTryConnections;
-		if (tryHandler!=null)
-		{
-			tryHandler.mProgressDialog=null;
-		}
-	}
+//	@Override
+//	protected void onPause()
+//	{
+//		super.onPause();
+//		TryConnection tryHandler=sTryConnections;
+//		if (tryHandler!=null)
+//		{
+//			tryHandler.mProgressDialog=null;
+//		}
+//	}
 
 	
-	public void tryConnect(final FirstStep firstStep,ArrayList<CharSequence> urls)
+	public void tryConnect(final FirstStep firstStep,String[] urls,boolean acceptAnonymous)
 	{
 		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
@@ -202,7 +205,7 @@ implements TechnologiesFragment.Listener
 //			}
 			final ConnectDialogFragment dlg=ConnectDialogFragment.newInstance();
 			dlg.show(mFragmentManager, "dialog");
-			sTryConnections=new TryConnection();
+			sTryConnections=new TryConnection(acceptAnonymous);
 			TryConnection tryHandler=sTryConnections;
 			if (tryHandler!=null)
 			{
@@ -304,22 +307,24 @@ implements TechnologiesFragment.Listener
 	{
 		private FirstStep mFirstStep;
 		public ConnectDialogFragment mProgressDialog=null;
-		private ArrayList<CharSequence> mUrls;
+		private String[] mUrls;
 		private WeakReference<ConnectActivity> mActivity=new WeakReference<ConnectActivity>(null);
+		private boolean mAcceptAnonymous;
 		
-		TryConnection()
+		TryConnection(boolean acceptAnonymous)
 		{
-			
+			mAcceptAnonymous=acceptAnonymous;
 		}
-		void init(FirstStep firstStep,ArrayList<CharSequence> urls)
+		void init(FirstStep firstStep,String[] urls)
 		{
 			mFirstStep=firstStep;
 			mUrls=urls;
 		}
-		void setUrls(ArrayList<CharSequence> urls)
+		void setUrls(String[] urls)
 		{
 			mUrls=urls;
 		}
+
 		@Override
 		protected Object doInBackground(Void...params)
 		{
@@ -333,11 +338,11 @@ implements TechnologiesFragment.Listener
 				}
 				firststep=1;
 			}
-			for (int i=0;i<mUrls.size();++i)
+			for (int i=0;i<mUrls.length;++i)
 			{
 				if (isCancelled())
 					return null;
-				String uri=mUrls.get(i).toString();
+				String uri=mUrls[i];
 				publishProgress(i+firststep);
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
@@ -350,18 +355,23 @@ implements TechnologiesFragment.Listener
 					info=IPDiscoverAndroids.tryConnect(uri, false/*FIXME*/);
 				if (info!=null) // Cool
 				{
-					if (new Trusted(Application.sAppContext, Application.sHandler)
-							.pairWith(info))
+					if (!mAcceptAnonymous && !Trusted.isBonded(info))
 					{
-						return info;
+						if (new Trusted(Application.sAppContext, Application.sHandler)
+							.pairWith(mUrls)==null)
+						{
+							if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");
+							return R.string.connect_alert_pairing_impossible;
+						}
 					}
-					else
-						return R.string.connect_alert_pairing_impossible;
+					if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Pairing successfull");
+					return info;
 				}
 				
 			}
 			return R.string.connect_alert_connection_impossible;
 		}
+		
 		@Override
 		protected void onProgressUpdate(Integer... values)
 		{
@@ -372,7 +382,7 @@ implements TechnologiesFragment.Listener
 				if (d!=null)
 				{
 					int firststep=(mFirstStep==null) ? 0 : 1;
-					d.setProgress(values[0]*100/(mUrls.size()+firststep));
+					d.setProgress(values[0]*100/(mUrls.length+firststep));
 				}
 			}
 		}
@@ -400,8 +410,8 @@ implements TechnologiesFragment.Listener
 							if (dlg!=null && dlg.getFragmentManager()!=null)
 							{
 								dlg.dismiss();
-								activity.finishWithOk(info);
 							}
+							activity.finishWithOk(info);
 						}
 					}, 500);
 				}
@@ -425,7 +435,15 @@ implements TechnologiesFragment.Listener
 		protected void onCancelled()
 		{
 			super.onCancelled();
-			// FIXME
+			final DialogFragment dlg=mProgressDialog;
+			if (dlg!=null)
+				dlg.dismiss();
+			sTryConnections=null;
 		}
+	}
+	
+	protected boolean isAcceptAnonymous()
+	{
+		return mAcceptAnonymous;
 	}
 }

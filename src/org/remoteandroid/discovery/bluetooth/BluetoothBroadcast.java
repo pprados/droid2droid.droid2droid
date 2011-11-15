@@ -177,7 +177,7 @@ public class BluetoothBroadcast extends BroadcastReceiver
 									if (!"Service discovery failed".equals(e.getMessage()))
 									{
 										// "Unable to start Service Discovery" Unknown
-										if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"BT Impossible to submit my presence to "+name+" ("+e.getMessage()+")");
+										if (I && !D) Log.i(TAG_DISCOVERY,PREFIX_LOG+"BT Impossible to submit my presence to "+name+" ("+e.getMessage()+")");
 										if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"BT Impossible to submit my presence to "+name,e);
 										// Work around. Wait before retry with another connection
 										if (BT_HACK_WAIT_BEFORE_TRY_ANOTHER_CONNECTION)

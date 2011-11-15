@@ -27,6 +27,7 @@ import org.remoteandroid.internal.Base64;
 import org.remoteandroid.ui.connect.ConnectMessages;
 import org.remoteandroid.ui.connect.ConnectionCandidats;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -46,12 +47,14 @@ public class InputExpose extends Expose
 	}
 	private AlertDialog mAlertDialog;
 	private ShortenURL mShortenURL;
+	private Activity mActivity;
 	
 	@Override
-	public void startExposition(Context context)
+	public void startExposition(Activity activity)
 	{
-		final String message = String.format(context.getResources().getString(R.string.connect_input_message), "...");
-		mAlertDialog=new AlertDialog.Builder(context)
+		mActivity=activity;
+		final String message = String.format(activity.getResources().getString(R.string.connect_input_message), "...");
+		mAlertDialog=new AlertDialog.Builder(activity)
 			.setIcon(android.R.drawable.ic_dialog_info)
 			.setTitle(R.string.connect_input_expose_title)
 			.setMessage(Html.fromHtml(message))
@@ -118,16 +121,17 @@ public class InputExpose extends Expose
 		@Override
 		protected void onException(Throwable e)
 		{
-			Context context=mAlertDialog.getContext();
 			mAlertDialog.cancel();
+			if (mActivity.isFinishing()) 
+				return;
 			if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Error when load shorten url",e);
-			mAlertDialog=new AlertDialog.Builder(context)
+			mAlertDialog=new AlertDialog.Builder(mActivity)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setTitle(R.string.connect_input_expose_title)
 				.setMessage(R.string.connect_input_message_error_set_internet)
 				.setPositiveButton(android.R.string.ok, null)
 				.create();
-			mAlertDialog.show();
+			mAlertDialog.show(); // FIXME: BUG en cas d'arret de l'application. Unable to add window
 
 		}
 		@Override

@@ -2,6 +2,7 @@ package org.remoteandroid.ui.expose;
 
 import org.remoteandroid.R;
 
+import android.app.Activity;
 import android.content.Context;
 
 class SoundExpose extends Expose
@@ -12,7 +13,7 @@ class SoundExpose extends Expose
 	}
 
 	@Override
-	public void startExposition(Context context)
+	public void startExposition(Activity context)
 	{
 		
 	}

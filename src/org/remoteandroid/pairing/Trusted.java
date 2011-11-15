@@ -354,11 +354,10 @@ public class Trusted
 	
 	// ---------------------------------
 	private AbstractRemoteAndroidImpl mRemoteAndroid;
-	public boolean pairWith(RemoteAndroidInfo info)
+	public RemoteAndroidInfoImpl pairWith(String[] uris)
 	{
 		try
 		{
-			String[] uris=info.getUris();
 			String uri=null;
 			for (int i=0;i<uris.length;++i)
 			{
@@ -415,7 +414,7 @@ public class Trusted
 						Toast.makeText(mAppContext, R.string.err_pairing_aborted, Toast.LENGTH_LONG).show();
 					}
 				});
-				return false;
+				return null;
 			}
 	
 			// Now i'm connected to the remote device
@@ -426,7 +425,7 @@ public class Trusted
 				{
 					registerDevice(mAppContext,(RemoteAndroidInfoImpl)mRemoteAndroid.getInfos(),type);
 				}
-				return true;
+				return mRemoteAndroid.mInfo;
 			}
 			catch (RemoteException e)
 			{
@@ -439,7 +438,7 @@ public class Trusted
 						Toast.makeText(mAppContext, R.string.err_pairing_aborted, Toast.LENGTH_LONG).show();
 					}
 				});
-				return false;
+				return null;
 			}
 		}
 		finally

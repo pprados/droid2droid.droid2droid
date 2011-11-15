@@ -87,8 +87,7 @@ public class InputIdFragment extends AbstractBodyFragment
 							if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Retrive "+loc);
 							byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
 							ConnectMessages.Candidates candidates=ConnectMessages.Candidates.parseFrom(bytes);
-							ArrayList<CharSequence> urls=ConnectionCandidats.make(mViewer.getContext(), candidates);
-							tryConn.setUrls(urls);
+							tryConn.setUrls(ConnectionCandidats.make(mViewer.getContext(), candidates));
 						}
 						else
 						{
@@ -110,7 +109,7 @@ public class InputIdFragment extends AbstractBodyFragment
 					return R.string.connect_input_message_error_get_internet;
 				}
 			}
-		},new ArrayList<CharSequence>());
+		},new String[0],((ConnectActivity)getActivity()).isAcceptAnonymous());
 	}
 	@Override
 	public void onResume()

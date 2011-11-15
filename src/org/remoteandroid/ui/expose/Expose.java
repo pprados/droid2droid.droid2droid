@@ -1,5 +1,6 @@
 package org.remoteandroid.ui.expose;
 
+import android.app.Activity;
 import android.content.Context;
 
 public abstract class Expose
@@ -22,7 +23,7 @@ public abstract class Expose
 		mValue=value;
 		mKey=key;
 	}
-	public abstract void startExposition(Context context);
+	public abstract void startExposition(Activity context);
 	public int mValue;
 	public String mKey;
 }

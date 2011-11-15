@@ -140,7 +140,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             	}
         		if (SECURITY && type==Type.CONNECT_FOR_COOKIE)
         		{
-        			// Connection for receive a cookie, then close. Must be called only from RemoteAndroid.apk
+        			// Connection to receive a cookie, then close. Must be called only from RemoteAndroid.apk
         			// Because the others applications can't known the private key.
         			long cookie=Application.getCookie(conContext.mClientInfo.uuid.toString());
         			if (cookie==0)

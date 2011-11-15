@@ -287,7 +287,6 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			catch (IOException e)
 			{
 				if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS close error",e);
-				e.printStackTrace();
 			}
 			if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS closed");
 		}
@@ -492,7 +491,8 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 		}
 		catch (Exception e)
 		{
-			if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error ("+e.getMessage()+")");
+			if (E && !D) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error ("+e.getMessage()+")");
+			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error",e);
 			return null;
 		}
 		finally

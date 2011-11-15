@@ -190,7 +190,7 @@ public class DevicePreference extends Preference
 				try
 				{
 					new Trusted(getContext().getApplicationContext(), mHandler)
-							.pairWith(mInfo);
+							.pairWith(mInfo.getUris());
 				}
 				finally
 				{

@@ -385,7 +385,7 @@ public class BluetoothServerSocketChannel implements Runnable
 								}
 								catch (BindException e)
 								{
-									if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"BT local discover agent error ("+e.getMessage()+")");
+									if (E && !D) Log.e(TAG_DISCOVERY,PREFIX_LOG+"BT local discover agent error ("+e.getMessage()+")");
 									if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"BT local discover agent error",e);
 									return;
 								}

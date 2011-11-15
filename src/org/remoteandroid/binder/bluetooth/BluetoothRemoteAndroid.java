@@ -89,7 +89,7 @@ public class BluetoothRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 		public void exceptionCaught(int id,Throwable e)
 		{
 			if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Exception "+e.getMessage());
-            if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Exception",e); // FIXME: Gestion d'exception dans upstream handler
+            if (V && !D) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Exception",e); // FIXME: Gestion d'exception dans upstream handler
 		}
     	
     };
@@ -124,7 +124,7 @@ public class BluetoothRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 					}
 					catch (IOException e)
 					{
-						Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
+						if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
 					}
 				}
 			});
@@ -138,7 +138,7 @@ public class BluetoothRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 			}
 			catch (IOException e)
 			{
-				Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
+				if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
 			}
 		}
 	}

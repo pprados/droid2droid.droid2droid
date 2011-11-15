@@ -113,7 +113,7 @@ public class LoginImpl extends Login
 		    switch (msg.getChallengestep())
 			{
 				case 1 :
-					// Propose a challenge chiffré avec pubkey du caller
+					// Propose a cypher challenge with public key of the caller
 					return Msg.newBuilder()
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())
@@ -122,7 +122,7 @@ public class LoginImpl extends Login
 						.setChallengestep(2)
 						.build();
 				case 3:
-					// Receive the result chalenge and a new challenge
+					// Receive the result challenge and a new challenge
 					long resolvedChallenge=toLong(msg.getChallenge1().toByteArray());
 					if (mChallenge!=resolvedChallenge)
 						throw new GeneralSecurityException("Chalenge failed");

@@ -99,7 +99,7 @@ public class ConnectionCandidats
 		}
 		return builder.build();
 	}
-	public static ArrayList<CharSequence> make(Context context,ConnectMessages.Candidates candidates) 
+	public static String[] make(Context context,ConnectMessages.Candidates candidates) 
 	{
 		ArrayList<CharSequence> results=new ArrayList<CharSequence>();
 		ConnectivityManager conn=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -148,12 +148,12 @@ public class ConnectionCandidats
 			int i=candidates.getBluetoothMac();
 			String btmac=Integer.toHexString(i);
 			if (candidates.hasBluetoothAnonmymous())
-				results.add(SCHEME_BT+btmac+'/');
+				results.add(SCHEME_BT+"://"+btmac+'/');
 			else
-				results.add(SCHEME_BTS+btmac+'/');
+				results.add(SCHEME_BTS+"://"+btmac+'/');
 		}
 // FIXME: gérer le cas du results vide !
-		return results;
+		return results.toArray(new String[results.size()]);
 	}
 	private static void tryIpv4(ConnectMessages.Candidates candidates, ArrayList<CharSequence> results,
 			boolean localNetwork)
@@ -167,7 +167,7 @@ public class ConnectionCandidats
 					continue;
 				if (add.isLinkLocalAddress() && !localNetwork) 
 					continue;
-				results.add(SCHEME_TCP4+add.getHostAddress()+'/');
+				results.add(SCHEME_TCP4+"://"+add.getHostAddress()+'/');
 			}
 			catch (UnknownHostException e)
 			{
@@ -187,7 +187,7 @@ public class ConnectionCandidats
 					continue;
 				if (add.isLinkLocalAddress() && !localNetwork) 
 					continue;
-				results.add(SCHEME_TCP6+'['+add.getHostAddress()+"]/");
+				results.add(SCHEME_TCP6+"://["+add.getHostAddress()+"]/");
 			}
 			catch (UnknownHostException e)
 			{

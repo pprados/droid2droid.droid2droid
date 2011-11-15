@@ -232,10 +232,10 @@ public class Application extends android.app.Application
 	{
 		if (V) Log.v(TAG,PREFIX_LOG+"Application onCreate");
 		AndroidLogHandler.initLoggerHandler();
+		RemoteAndroidManagerImpl.initAppInfo(this);
 		
 		super.onCreate();
 
-		Compatibility.init(this);
 		if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
 		{
 			// VerifyWrapper
@@ -297,7 +297,7 @@ public class Application extends android.app.Application
 				@Override
 				public void run() 
 				{
-					initShareLibrary();
+					initSharedLibrary();
 				}
 
 			}.start();
@@ -329,11 +329,11 @@ public class Application extends android.app.Application
 	    }
 	}	
 	// TODO: invoquer dans on boot ?
-	private void initShareLibrary()
+	private void initSharedLibrary()
 	{
 		final SharedPreferences prefs=getSharedPreferences("sharedlib",Context.MODE_PRIVATE);
 		final long lastCopied=prefs.getLong("copy", -1);
-		final long packageLastModified=new File(Compatibility.sAppInfo.publicSourceDir).lastModified();
+		final long packageLastModified=new File(RemoteAndroidManagerImpl.sAppInfo.publicSourceDir).lastModified();
 		if (packageLastModified>lastCopied)
 		{
 			InputStream in=null;
