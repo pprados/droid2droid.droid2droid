@@ -1,26 +1,17 @@
 package org.remoteandroid;
 
-import static org.remoteandroid.Constants.ETHERNET_ONLY_IPV4;
-import static org.remoteandroid.Constants.PREFERENCES_BACKNAME;
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.PREFERENCES_PRIVATE_KEY;
 import static org.remoteandroid.Constants.PREFERENCES_PUBLIC_KEY;
 import static org.remoteandroid.Constants.PREFERENCES_UUID;
 import static org.remoteandroid.Constants.STRICT_MODE;
-import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.SHARED_LIB;
-import static org.remoteandroid.internal.Constants.USE_SHAREDLIB;
-import static org.remoteandroid.internal.Constants.V;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -39,22 +30,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
+import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
-import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass.Device;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.hardware.Camera;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;

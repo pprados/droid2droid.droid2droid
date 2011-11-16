@@ -194,7 +194,7 @@ implements TechnologiesFragment.Listener
 //	}
 
 	
-	public void tryConnect(final FirstStep firstStep,String[] urls,boolean acceptAnonymous)
+	public void tryConnect(final FirstStep firstStep,ArrayList<String> uris,boolean acceptAnonymous)
 	{
 		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
@@ -215,7 +215,7 @@ implements TechnologiesFragment.Listener
 			if (tryHandler!=null)
 			{
 				tryHandler.mActivity=new WeakReference<ConnectActivity>(this);
-				tryHandler.init(firstStep,urls);
+				tryHandler.init(firstStep,uris);
 				tryHandler.mProgressDialog = dlg;
 				tryHandler.execute();
 			}
@@ -312,7 +312,7 @@ implements TechnologiesFragment.Listener
 	{
 		private FirstStep mFirstStep;
 		public ConnectDialogFragment mProgressDialog=null;
-		private String[] mUrls;
+		private ArrayList<String> mUris;
 		private WeakReference<ConnectActivity> mActivity=new WeakReference<ConnectActivity>(null);
 		private boolean mAcceptAnonymous;
 		
@@ -320,14 +320,14 @@ implements TechnologiesFragment.Listener
 		{
 			mAcceptAnonymous=acceptAnonymous;
 		}
-		void init(FirstStep firstStep,String[] urls)
+		void init(FirstStep firstStep,ArrayList<String> uris)
 		{
 			mFirstStep=firstStep;
-			mUrls=urls;
+			mUris=uris;
 		}
-		void setUrls(String[] urls)
+		void setUris(ArrayList<String> uris)
 		{
-			mUrls=urls;
+			mUris=uris;
 		}
 
 		@Override
@@ -343,11 +343,11 @@ implements TechnologiesFragment.Listener
 				}
 				firststep=1;
 			}
-			for (int i=0;i<mUrls.length;++i)
+			for (int i=0;i<mUris.size();++i)
 			{
 				if (isCancelled())
 					return null;
-				String uri=mUrls[i];
+				String uri=mUris.get(i);
 				publishProgress(i+firststep);
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
@@ -366,7 +366,7 @@ implements TechnologiesFragment.Listener
 					catch (SecurityException e)
 					{
 						// Accept only bounded device.
-						info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUrls);
+						info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUris);
 						if (info==null)
 						{
 							if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");
@@ -394,7 +394,7 @@ implements TechnologiesFragment.Listener
 				if (d!=null)
 				{
 					int firststep=(mFirstStep==null) ? 0 : 1;
-					d.setProgress(values[0]*100/(mUrls.length+firststep));
+					d.setProgress(values[0]*100/(mUris.size()+firststep));
 				}
 			}
 		}

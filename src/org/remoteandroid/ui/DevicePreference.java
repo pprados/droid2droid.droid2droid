@@ -190,7 +190,7 @@ public class DevicePreference extends Preference
 				try
 				{
 					new Trusted(getContext().getApplicationContext(), mHandler)
-							.pairWith(mInfo.getUris());
+							.pairWith(mInfo.uris);
 				}
 				finally
 				{
@@ -236,7 +236,8 @@ public class DevicePreference extends Preference
 			@Override
 			protected void onPostExecute(Void result) 
 			{
-				setEnabled(false);
+				setEnabled(true);
+				onDeviceAttributesChanges();
 			}
 
 		}.execute();

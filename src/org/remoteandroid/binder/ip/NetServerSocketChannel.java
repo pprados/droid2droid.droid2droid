@@ -114,7 +114,7 @@ class NetServerSocketChannel implements Runnable
 							}
 							catch (Exception e)
 							{
-								if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Server socket",e);
+								if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Server socket ("+e.getMessage()+")");
 								mHandler.exceptionCaught(id,e);
 								try
 								{

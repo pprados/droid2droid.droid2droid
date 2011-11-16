@@ -1,5 +1,11 @@
 package org.remoteandroid.ui.expose;
 
+import static org.remoteandroid.Constants.TAG_EXPOSE;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.internal.Constants.W;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,30 +13,18 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.internal.Constants.*;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
-import org.remoteandroid.ui.connect.ConnectMessages;
-import org.remoteandroid.ui.connect.ConnectionCandidats;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.pairing.Trusted;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.os.AsyncTask;
 import android.text.Html;
 import android.util.Log;
 
@@ -72,7 +66,7 @@ public class InputExpose extends Expose
 		@Override
 		protected String doInBackground(Void... params) throws MalformedURLException, IOException
 		{
-			ConnectMessages.Candidates candidates=ConnectionCandidats.getConnectMessage(mAlertDialog.getContext());
+			Messages.Candidates candidates=Trusted.getConnectMessage(mAlertDialog.getContext());
 			byte[] bytes=candidates.toByteArray();
 			String base64=Base64.encodeToString(bytes, Base64.URL_SAFE|Base64.NO_WRAP);
 			HttpURLConnection connection=null;

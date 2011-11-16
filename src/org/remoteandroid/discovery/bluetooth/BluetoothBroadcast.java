@@ -1,11 +1,11 @@
 package org.remoteandroid.discovery.bluetooth;
 
-import static org.remoteandroid.Constants.BT_HACK_WAIT_BEFORE_TRY_ANOTHER_CONNECTION;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.BT_INFORM_PRESENCE;
 import static org.remoteandroid.Constants.BT_INFORM_PRESENCE_IN_PARALLEL;
 import static org.remoteandroid.Constants.BT_WAIT_BEFORE_CLOSE_SOCKET;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
@@ -85,13 +85,15 @@ public class BluetoothBroadcast extends BroadcastReceiver
 					for (RemoteAndroidInfo i:Trusted.getBonded())
 					{
 						RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)i;
-						if (info.bluetoothid!=null && info.bluetoothid.length()!=0)
+						if (info.removeUrisWithScheme(SCHEME_BT) || info.removeUrisWithScheme(SCHEME_BTS))
 						{
 							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+info.getName()+" is stopped.");
 							info.isDiscoverBT=false;
 							Intent intentDiscover=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 							intentDiscover.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-//							intentDiscover.putExtra(RemoteAndroidManager.EXTRA_REMOVE,true);
+							// FIXME: remove remote android ?
+//							if (info.getUris().length==0)
+//								intentDiscover.putExtra(RemoteAndroidManager.EXTRA_REMOVE,true);
 							Application.sAppContext.sendBroadcast(intentDiscover,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 							
 						}

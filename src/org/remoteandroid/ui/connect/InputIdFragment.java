@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.ProtobufConvs;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.connect.ConnectActivity.TryConnection;
 import org.remoteandroid.ui.expose.InputExpose;
 import static org.remoteandroid.Constants.*;
@@ -86,8 +90,8 @@ public class InputIdFragment extends AbstractBodyFragment
 							loc=loc.substring(InputExpose.BASE_SHORTEN.length());
 							if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Retrive "+loc);
 							byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
-							ConnectMessages.Candidates candidates=ConnectMessages.Candidates.parseFrom(bytes);
-							tryConn.setUrls(ConnectionCandidats.make(mViewer.getContext(), candidates));
+							Messages.Candidates candidates=Messages.Candidates.parseFrom(bytes);
+							tryConn.setUris(ProtobufConvs.toUris(candidates));
 						}
 						else
 						{
@@ -109,7 +113,7 @@ public class InputIdFragment extends AbstractBodyFragment
 					return R.string.connect_input_message_error_get_internet;
 				}
 			}
-		},new String[0],((ConnectActivity)getActivity()).isAcceptAnonymous());
+		},new ArrayList<String>(),((ConnectActivity)getActivity()).isAcceptAnonymous());
 	}
 	@Override
 	public void onResume()

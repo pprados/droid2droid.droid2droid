@@ -1,20 +1,19 @@
 package org.remoteandroid.pairing;
 
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.PAIR_PERSISTENT;
+import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
+import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TIMEOUT_PAIR;
-import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.I;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.TIMEOUT_PAIRING_ASK_CHALENGE;
-import static org.remoteandroid.internal.Constants.V;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
@@ -35,7 +34,10 @@ import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Compatibility;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.internal.Tools;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -54,6 +56,8 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.protobuf.ByteString;
+
 // TODO: réorganiser le code et les classes de pairing
 public class Trusted
 {
@@ -63,93 +67,43 @@ public class Trusted
 	private static final String KEY_ID=".id";
 	private static final String KEY_PUBLICKEY=".publickey";
 	private static final String KEY_NAME=".name";
-	private static final String KEY_BLUETOOTHID=".bluetoothid";
 	
 	private static List<RemoteAndroidInfoImpl> sCachedBonded;
 
 	private Context mAppContext;
-	private Handler mHandler;
+	private Handler mHandler; // FIXME: AppAhandler ?
 	public Trusted(Context appContext,Handler handler)
 	{
 		mAppContext=appContext;
 		mHandler=handler;
 	}
 	
-	public static RemoteAndroidInfoImpl getInfo(Context context,ConnectionType type)
+	public static RemoteAndroidInfoImpl getInfo(Context context,ConnectionType type/*FIXME: parametre toujours utils ?*/)
 	{
 		final RemoteAndroidInfoImpl info=new RemoteAndroidInfoImpl();
 		info.uuid=Application.getUUID();
 		info.name=Application.getName();
 		info.publicKey=Application.getKeyPair().getPublic();
 		info.version=Compatibility.VERSION_SDK_INT;
-		if (type==ConnectionType.BT || type==null)
+		final SharedPreferences preferences=Application.getPreferences();
+		final boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
+
+		try
 		{
-			if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
-			{
-				// VerifyWrapper
-				new Runnable()
-				{
-	
-					@Override
-					public void run()
-					{
-						try
-						{
-							if (BluetoothAdapter.getDefaultAdapter()!=null) 
-							{
-								info.bluetoothid=BluetoothAdapter.getDefaultAdapter().getAddress();
-							}
-						}
-						catch (SecurityException e)
-						{
-							// Ignore
-							if (D) Log.d(TAG_PAIRING,PREFIX_LOG+"Add permission \"android.permission.BLUETOOTH\"");
-						}
-					}
-				}.run();
-			}
+			Messages.Candidates candidates = getConnectMessage(context);
+			info.uris=ProtobufConvs.toUris(candidates);
 		}
-		if (type==ConnectionType.ETHERNET || type==null)
+		catch (UnknownHostException e)
 		{
-			try
-			{
-				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-				if (wifiManager!=null)
-				{
-					WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-					info.ethernetMac=wifiInfo.getMacAddress();
-					info.address=getLocalIpAddress();
-				}
-			}
-			catch (SecurityException e)
-			{
-				// Ignore
-				if (D) Log.d(TAG_PAIRING,PREFIX_LOG+"Add permission \"android.permission.ACCESS_WIFI_STATE\"");
-			}
+			if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when get local ip",e);
+		}
+		catch (SocketException e)
+		{
+			if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when get local ip",e);
 		}
 		return info;
 	}
-	public static  InetAddress getLocalIpAddress() 
-	{   // FIXME: Multiple adresses
-	    try 
-	    {
-	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) 
-	        {
-	            NetworkInterface intf = en.nextElement();
-	            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) 
-	            {
-	                InetAddress inetAddress = enumIpAddr.nextElement();
-	                if (!inetAddress.isLoopbackAddress()) {
-	                    return inetAddress;
-	                }
-	            }
-	        }
-	    } catch (SocketException e) 
-	    {
-	        if (E) Log.e(TAG_PAIRING, PREFIX_LOG+e.getMessage(),e);
-	    }
-	    return null;
-	}
+	
 	public static boolean isBonded(RemoteAndroidInfo info)
 	{
 		getBonded();
@@ -182,6 +136,7 @@ public class Trusted
 	{
 		registerDevice(context,conContext.mClientInfo,conContext.mType);
 	}
+	
 	public static synchronized void registerDevice(Context context,RemoteAndroidInfoImpl info,ConnectionType type)
 	{ 
 		if (I) Log.i(TAG_PAIRING,PREFIX_LOG + "Register device "+info);
@@ -189,14 +144,6 @@ public class Trusted
 		for (RemoteAndroidInfoImpl inf:getBonded())
 		{
 			if (inf.uuid.equals(info.uuid))
-			{
-				duplicates.add(inf);
-			}
-			if ((inf.bluetoothid!=null) && (inf.bluetoothid.length()!=0) && inf.bluetoothid.equals(info.bluetoothid))
-			{
-				duplicates.add(inf);
-			}
-			if ((inf.ethernetMac!=null) && (inf.ethernetMac.length()!=0) && inf.ethernetMac.equals(info.ethernetMac))
 			{
 				duplicates.add(inf);
 			}
@@ -213,12 +160,8 @@ public class Trusted
 			editor
 				.putBoolean(baseKey+KEY_ID, true)
 				.putString(baseKey+KEY_PUBLICKEY, Base64.encodeToString(info.publicKey.getEncoded(),Base64.DEFAULT))
-				.putString(baseKey+KEY_NAME, info.name);
-			if (info.getBluetoothId()!=null)
-			{
-				editor.putString(baseKey+KEY_BLUETOOTHID,info.bluetoothid);
-			}
-			editor.commit();
+				.putString(baseKey+KEY_NAME, info.name)
+				.commit();
 		}
 		Application.dataChanged();
 		getBonded().add(info);
@@ -232,6 +175,7 @@ public class Trusted
 		intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE,true);
 		context.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 	}
+	
 	public static synchronized void unregisterDevice(Context context,RemoteAndroidInfo info)
 	{
 		if (I) Log.i(TAG_PAIRING,PREFIX_LOG + "Unregister device "+info.getName());
@@ -243,7 +187,6 @@ public class Trusted
 			.remove(baseKey+KEY_ID)
 			.remove(baseKey+KEY_NAME)
 			.remove(baseKey+KEY_PUBLICKEY)
-			.remove(baseKey+KEY_BLUETOOTHID)
 			.commit();
 		Application.dataChanged();
 		if (!getBonded().remove(info))
@@ -269,7 +212,6 @@ public class Trusted
 				Map<String,?> alls=prefs.getAll();
 				for (Map.Entry<String,?> entry:alls.entrySet())
 				{
-					//if (V) Log.v(TAG_PAIRING,"entry="+entry.getKey()+" "+entry.getValue());
 					String basekey=entry.getKey();
 					if (basekey.startsWith(PAIRING_PREFIX) && basekey.endsWith(KEY_ID))
 					{
@@ -282,7 +224,6 @@ public class Trusted
 						byte[] pubBytes=Base64.decode(prefs.getString(basekey+KEY_PUBLICKEY, null),Base64.DEFAULT);
 						X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(pubBytes);
 						info.publicKey = KeyFactory.getInstance("RSA").generatePublic(pubKeySpec);
-						info.bluetoothid=prefs.getString(basekey+KEY_BLUETOOTHID, null);
 						info.isBonded=true;
 						result.add(info);
 					}
@@ -319,14 +260,25 @@ public class Trusted
 				if (i.getUuid().equals(uuid))
 				{
 					RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)i;
-					info.address=(addr==null) ? null : addr[0]; // FIXME: Manage multiple addresses
+					info.removeUrisWithScheme(SCHEME_TCP);
+					for (int j=0;j<addr.length;++j)
+					{
+						final InetAddress add=addr[j];
+						if (add instanceof Inet4Address)
+						{
+							info.addUris(SCHEME_TCP+"://"+add.getHostAddress()+":"+RemoteAndroidManager.DEFAULT_PORT);
+						}
+						else
+						{
+							info.addUris(SCHEME_TCP+"://["+add.getHostAddress()+"]:"+RemoteAndroidManager.DEFAULT_PORT);
+						}
+					}
 					return info;
 				}
 			}
 		}
 		return null;
 	}
-	
 	/**
 	 * Update bonded device from name.
 	 * 
@@ -344,7 +296,22 @@ public class Trusted
 				if (i.getName().equals(name))
 				{
 					RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)i;
-					info.address=(addr==null) ? null : addr[0]; // FIXME: Manage multiple addresses
+					info.removeUrisWithScheme(SCHEME_TCP);
+					if (addr!=null)
+					{
+						for (int j=0;j<addr.length;++j)
+						{
+							final InetAddress add=addr[j];
+							if (add instanceof Inet4Address)
+							{
+								info.addUris(SCHEME_TCP+"://"+add.getHostAddress()+":"+RemoteAndroidManager.DEFAULT_PORT);
+							}
+							else
+							{
+								info.addUris(SCHEME_TCP+"://["+add.getHostAddress()+"]:"+RemoteAndroidManager.DEFAULT_PORT);
+							}
+						}
+					}
 					return info;
 				}
 			}
@@ -352,16 +319,97 @@ public class Trusted
 		return null;
 	}
 	
+	// Note: With device <Honey_comb, only one data network is on. Wifi OR mobile.
+	// In honeycomb, it's possible to have Widi AND Mobile.
+	public static Messages.Candidates getConnectMessage(Context context) throws UnknownHostException, SocketException
+	{
+		final WifiManager wifi=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+
+		final int port=RemoteAndroidManager.DEFAULT_PORT; // TODO: variable port
+		ArrayList<InetAddress> all=new ArrayList<InetAddress>(4);
+		ArrayList<ByteString> ipv6=new ArrayList<ByteString>(2);
+		ArrayList<Integer> ipv4=new ArrayList<Integer>(2);
+
+		for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
+		{
+			NetworkInterface network=networks.nextElement();
+			for (Enumeration<InetAddress> addrs=network.getInetAddresses();addrs.hasMoreElements();)
+			{
+				InetAddress add=(InetAddress)addrs.nextElement();
+				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
+				if (network.getName().startsWith("sit")) // vpn ?
+					continue;
+				if (network.getName().startsWith("dummy")) // ipv6 in ipv4
+					continue;
+				if (add.isLoopbackAddress())
+					continue;
+				if (!all.contains(add))
+				{
+					if (add instanceof Inet4Address)
+					{
+						// Exclude RFC 3330. Auto configure ip
+						if (add.getAddress()[0]==(byte)169 && add.getAddress()[1]==(byte)254)
+							continue;
+						all.add(add);
+						ipv4.add(Tools.byteArrayToInt(add.getAddress()));
+	
+					}
+					else
+					{
+						if (!ETHERNET_ONLY_IPV4)
+						{
+							all.add(add);
+							ipv6.add( ByteString.copyFrom(add.getAddress()));
+						}
+					}
+				}
+			}
+		}
+		all.clear();
+		
+		Messages.Candidates.Builder builder=Messages.Candidates.newBuilder();
+		//FIXME: if (port!=RemoteAndroidManager.DEFAULT_PORT)
+			builder.setPort(port); // OPT: Optional if default
+		builder.addAllInternetIpv4(ipv4);
+		builder.addAllInternetIpv6(ipv6);
+		if (wifi!=null && wifi.isWifiEnabled())
+		{
+			WifiInfo info=wifi.getConnectionInfo();
+			builder.setBssid(ByteString.copyFrom(mactoByteArray(info.getBSSID())));
+		}
+		BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
+		if (adapter!=null && adapter.isEnabled())
+		{
+			if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
+			{
+				builder.setBluetoothAnonmymous(true);
+			}
+			builder.setBluetoothMac(Tools.byteArrayToInt(mactoByteArray(adapter.getAddress())));
+		}
+		return builder.build();
+	}
+	private static byte[] mactoByteArray(String bssid)
+	{
+		byte[] result=new byte[bssid.length()/3+1];
+		for (int i=0;i<bssid.length();i+=3)
+		{
+			result[i/3]=(byte)("0123456789ABCDEF".indexOf(bssid.charAt(i)) << 4 |
+						"0123456789ABCDEF".indexOf(bssid.charAt(i+1)));
+		}
+		return result;
+			
+	}
+	
 	// ---------------------------------
 	private AbstractRemoteAndroidImpl mRemoteAndroid;
-	public RemoteAndroidInfoImpl pairWith(String[] uris)
+	public RemoteAndroidInfoImpl pairWith(ArrayList<String> uris)
 	{
 		try
 		{
 			String uri=null;
-			for (int i=0;i<uris.length;++i)
+			for (int i=0;i<uris.size();++i)
 			{
-				uri=uris[i];
+				uri=uris.get(i);
 				Intent intent=new Intent(Intent.ACTION_MAIN,Uri.parse(uri));
 				intent.putExtra(AbstractRemoteAndroidImpl.EXTRA_FOR_PAIRING, true);
 				Application.sManager.bindRemoteAndroid(

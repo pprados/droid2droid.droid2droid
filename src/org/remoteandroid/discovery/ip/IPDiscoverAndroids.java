@@ -143,7 +143,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 						if (boundedInfo!=null)
 						{
 							boundedInfo.isDiscoverEthernet=true;
-							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+boundedInfo.getName()+" has the Ip address "+boundedInfo.getInetAddresses());
+							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+boundedInfo.getName()+" has Ips address.");
 							Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 							intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, boundedInfo);
 							Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
@@ -169,7 +169,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 					public void run()
 					{
 						// Update the current ip address of bonded device, and informe others apps
-						RemoteAndroidInfoImpl info=Trusted.update(name,null); // Remove IP
+						RemoteAndroidInfoImpl info=Trusted.update(name,null); // Remove IP. FIXME: BUG de null pointer exception
 						if (info!=null)
 						{
 							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+info.getName()+" is stopped.");
@@ -301,7 +301,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			try
 			{
 				sServiceInfo = 
-						ServiceInfo.create(REMOTEANDROID_SERVICE,Application.getName(), ETHERNET_LISTEN_PORT,"Remote android");
+						ServiceInfo.create(REMOTEANDROID_SERVICE,Application.getName(), ETHERNET_LISTEN_PORT,"Remote android");//FIXME: variable port number
 				RemoteAndroidInfo info=Trusted.getInfo(Application.sAppContext, ConnectionType.ETHERNET);
 				Map<String,String> props=new HashMap<String,String>();
 				props.put("uuid", info.getUuid().toString());
@@ -485,7 +485,6 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			{
 				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info.");
 				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
-				info.address=address;
 				info.isDiscoverEthernet=true;
 				// I find it !
 				//if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+info.getName()+" found ("+uri+")");

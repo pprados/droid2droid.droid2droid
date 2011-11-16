@@ -376,7 +376,6 @@ public class BluetoothServerSocketChannel implements Runnable
 									} while (l>0);
 									Messages.Identity resp=Messages.Identity.newBuilder().mergeFrom(buf, 4, length).build();
 									RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(resp);
-									info.bluetoothid=resp.getBluetoothId();
 	
 									if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"BT Discover remote android "+info.name+" at runtime");
 									Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);

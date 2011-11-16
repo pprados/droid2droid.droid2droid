@@ -7,8 +7,8 @@ import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import org.remoteandroid.ui.connect.ConnectMessages;
-import org.remoteandroid.ui.connect.ConnectionCandidats;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.pairing.Trusted;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -105,8 +105,7 @@ public class TestQRCode extends Activity
 
 		try
 		{
-			ConnectMessages.Candidates candidates = ConnectionCandidats
-					.getConnectMessage(this);
+			Messages.Candidates candidates = Trusted.getConnectMessage(this);
 			// byte[] test=new byte[]{0,1,(byte)'A',65,(byte)0xFF};
 			byte[] data = candidates.toByteArray();
 			if (data.length != 0)
