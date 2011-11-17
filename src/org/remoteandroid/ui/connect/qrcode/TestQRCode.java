@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ImageButton;
 
 import com.google.zxing.BarcodeFormat;
@@ -79,14 +80,18 @@ public class TestQRCode extends Activity
 					mBtn.setImageBitmap(bitmap);
 			}
 		}.execute();
-		// FIXME getWindow().setFlags(LayoutParams.FLAG_KEEP_SCREEN_ON,
-		// LayoutParams.FLAG_KEEP_SCREEN_ON);
+		WindowManager.LayoutParams layoutParams=getWindow().getAttributes();
+		mScreenBrightness=layoutParams.screenBrightness;
+		getWindow().setFlags(LayoutParams.FLAG_KEEP_SCREEN_ON,LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
+		getWindow().setAttributes(layoutParams);
 	}
 
 	@Override
@@ -95,8 +100,7 @@ public class TestQRCode extends Activity
 		super.onPause();
 		WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
 		layoutParams.screenBrightness = mScreenBrightness;
-		getWindow().setAttributes(
-			layoutParams);
+		getWindow().setAttributes(layoutParams);
 	}
 
 	Bitmap buildQRCode(int smallerDimension) throws WriterException
@@ -105,9 +109,9 @@ public class TestQRCode extends Activity
 
 		try
 		{
-			Messages.Candidates candidates = Trusted.getConnectMessage(this);
-			// byte[] test=new byte[]{0,1,(byte)'A',65,(byte)0xFF};
-			byte[] data = candidates.toByteArray();
+			//Messages.Candidates candidates = Trusted.getConnectMessage(this);
+			//byte[] data = candidates.toByteArray();
+			byte[] data=new byte[]{0,1,(byte)'A',65,(byte)0xFF};
 			if (data.length != 0)
 			{
 				String contents = new String(data, 0);
@@ -123,18 +127,19 @@ public class TestQRCode extends Activity
 				return null;
 			}
 		}
-		catch (UnknownHostException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-		catch (SocketException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+//		catch (UnknownHostException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return null;
+//		}
+//		catch (SocketException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return null;
+//		}
+		finally {}
 	}
 
 	Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int dimension)

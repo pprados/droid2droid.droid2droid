@@ -36,12 +36,12 @@ public class BluetoothRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
     private static BluetoothRemoteAndroid sDaemonBluetooth;
     public static void startDaemon(Context context,Notifications notifications)
     {
-//        if (BLUETOOTH && BluetoothAdapter.getDefaultAdapter()!=null)
-//        {
-//        	BluetoothBroadcast.startBluetoothManager(context);
-//	    	sDaemonBluetooth=new BluetoothRemoteAndroid(context, notifications);
-//	    	sDaemonBluetooth.start();
-//        }
+        if (BLUETOOTH && BluetoothAdapter.getDefaultAdapter()!=null)
+        {
+        	BluetoothBroadcast.startBluetoothManager(context);
+	    	sDaemonBluetooth=new BluetoothRemoteAndroid(context, notifications);
+	    	sDaemonBluetooth.start();
+        }
     	
     }
     public static void restart()

@@ -380,7 +380,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT All unknown devices detected.");
 	}
 
-	public static RemoteAndroidInfoImpl tryConnect(Uri uri)
+	public static RemoteAndroidInfoImpl tryConnectForCookie(Uri uri)
 	{
 		// TODO
 		return null;

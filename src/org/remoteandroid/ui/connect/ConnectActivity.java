@@ -352,12 +352,11 @@ implements TechnologiesFragment.Listener
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
 				
-				if (BLUETOOTH && uri.startsWith(SCHEME_BT) || uri.startsWith(SCHEME_BTS))
-				{
-					// TODO
-					//info=BluetoothDiscoverAndroids.tryConnect(uri);
-				}
-				else if (ETHERNET)
+//				if (BLUETOOTH && uri.startsWith(SCHEME_BT) || uri.startsWith(SCHEME_BTS))
+//				{
+//					info=BluetoothDiscoverAndroids.tryConnectForCookie(uri);
+//				}
+//				else if (ETHERNET) // FIXME
 				{
 					try
 					{

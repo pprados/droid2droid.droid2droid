@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.connect.qrcode.BeepManager;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
@@ -47,13 +49,13 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
 
-public class QRCodeFragment extends AbstractBodyFragment implements
-		SurfaceHolder.Callback, KeyEvent.Callback, Wrapper
+public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolder.Callback, KeyEvent.Callback, Wrapper
 {
 	private View mViewer;
 
@@ -65,8 +67,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 		DISPLAYABLE_METADATA_TYPES = new HashSet<ResultMetadataType>(5);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.ISSUE_NUMBER);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.SUGGESTED_PRICE);
-		DISPLAYABLE_METADATA_TYPES
-				.add(ResultMetadataType.ERROR_CORRECTION_LEVEL);
+		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.ERROR_CORRECTION_LEVEL);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.POSSIBLE_COUNTRY);
 	}
 
@@ -108,8 +109,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState)
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		mViewer = inflater.inflate(
 			R.layout.connect_qrcode, container, false);
@@ -129,8 +129,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 		Window window = getActivity().getWindow();
 
 		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		mViewfinderView = (ViewfinderView) mViewer
-				.findViewById(R.id.viewfinder_view);
+		mViewfinderView = (ViewfinderView) mViewer.findViewById(R.id.viewfinder_view);
 		mViewfinderView.setOnClickListener(new OnClickListener()
 		{
 
@@ -201,8 +200,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 				TAG_CONNECT, "onResume...");
 		resetStatusView();
 
-		SurfaceView surfaceView = (SurfaceView) mViewer
-				.findViewById(R.id.preview_view);
+		SurfaceView surfaceView = (SurfaceView) mViewer.findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (mHasSurface)
 		{
@@ -229,11 +227,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 	private int getRotation()
 	{
 		if (Build.VERSION.SDK_INT >= 8)
-			return getActivity().getWindowManager().getDefaultDisplay()
-					.getRotation();
+			return getActivity().getWindowManager().getDefaultDisplay().getRotation();
 		else
-			return getActivity().getWindowManager().getDefaultDisplay()
-					.getOrientation();
+			return getActivity().getWindowManager().getDefaultDisplay().getOrientation();
 	}
 
 	@Override
@@ -270,8 +266,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 		CameraManager.get().closeDriver();
 		CameraManager.get().init(
 			getActivity());
-		SurfaceView surfaceView = (SurfaceView) mViewer
-				.findViewById(R.id.preview_view);
+		SurfaceView surfaceView = (SurfaceView) mViewer.findViewById(R.id.preview_view);
 
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		CameraManager.get().closeDriver();
@@ -323,22 +318,16 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 			if (!NO_CAMERA)
 			{
 				CameraManager.get().setScreenResolutionValues(
-					new Point(mViewfinderView.getWidth(), mViewfinderView
-							.getHeight()));
+					new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
 				Log.e(
 					"camera",
-					"screen size:"
-							+ new Point(mViewfinderView.getWidth(),
-									mViewfinderView.getHeight()).toString());
+					"screen size:" + new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()).toString());
 				int[] location = new int[4];
 				;
 				mViewfinderView.getLocationOnScreen(location);
-				Rect locatInScreen = new Rect(location[0], location[1],
-						location[2], location[3]);
-				locatInScreen.right = locatInScreen.left
-						+ mViewfinderView.getWidth();
-				locatInScreen.bottom = locatInScreen.top
-						+ mViewfinderView.getHeight();
+				Rect locatInScreen = new Rect(location[0], location[1], location[2], location[3]);
+				locatInScreen.right = locatInScreen.left + mViewfinderView.getWidth();
+				locatInScreen.bottom = locatInScreen.top + mViewfinderView.getHeight();
 				initCamera(
 					holder, getRotation());
 				CameraManager cameraManager = CameraManager.get();
@@ -360,8 +349,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 		mHasSurface = false;
 	}
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height)
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 	{
 		CameraManager.get().setScreenResolutionValues(
 			new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
@@ -386,6 +374,20 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 		mCache.mBeepManager.playBeepSoundAndVibrate();
 		drawResultPoints(
 			barcode, rawResult);
+		ConnectActivity activity = (ConnectActivity) getActivity();
+		Messages.Candidates candidates;
+		try
+		{
+			byte[] result = rawResult.getRawBytes();
+			candidates = Messages.Candidates.parseFrom(result);
+			activity.tryConnect(
+				null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
+		}
+		catch (InvalidProtocolBufferException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -416,8 +418,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 				R.color.qrcode_result_image_border));
 			paint.setStrokeWidth(3.0f);
 			paint.setStyle(Paint.Style.STROKE);
-			Rect border = new Rect(2, 2, barcode.getWidth() - 2,
-					barcode.getHeight() - 2);
+			Rect border = new Rect(2, 2, barcode.getWidth() - 2, barcode.getHeight() - 2);
 			canvas.drawRect(
 				border, paint);
 
@@ -429,11 +430,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 				drawLine(
 					canvas, paint, points[0], points[1]);
 			}
-			else if (points.length == 4
-					&& (rawResult.getBarcodeFormat().equals(
-						BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat()
-							.equals(
-								BarcodeFormat.EAN_13)))
+			else if (points.length == 4 && (rawResult.getBarcodeFormat().equals(
+				BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat().equals(
+				BarcodeFormat.EAN_13)))
 			{
 				// Hacky special case -- draw two lines, for the barcode and
 				// metadata
@@ -454,8 +453,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements
 		}
 	}
 
-	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
-			ResultPoint b)
+	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a, ResultPoint b)
 	{
 		canvas.drawLine(
 			a.getX(), a.getY(), b.getX(), b.getY(), paint);

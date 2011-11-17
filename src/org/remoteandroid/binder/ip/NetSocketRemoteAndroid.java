@@ -133,7 +133,7 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 	@Override
 	public boolean connect(boolean forPairing,long timeout)
 	{
-		// TODO Auto-generated method stub
+		// FIXE: Why ?
 		return false;
 	}
 }

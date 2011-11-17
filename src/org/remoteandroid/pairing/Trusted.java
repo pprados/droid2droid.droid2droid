@@ -384,7 +384,7 @@ public class Trusted
 			{
 				builder.setBluetoothAnonmymous(true);
 			}
-			builder.setBluetoothMac(Tools.byteArrayToInt(mactoByteArray(adapter.getAddress())));
+			builder.setBluetoothMac(Tools.byteArrayToLong(mactoByteArray(adapter.getAddress())));
 		}
 		return builder.build();
 	}
