@@ -74,6 +74,13 @@
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
+    <!-- For SMS -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    
     <application 
     	android:debuggable="true" 
     	android:icon="@drawable/ic_launcher_remoteandroid" 
@@ -101,7 +108,18 @@
 			</intent-filter>
 		</receiver>
 
+       <!-- SMS TO REMOVE -->
+        <receiver
+            class=".ui.connect.SMSFragment$SMSReceiver"
+            android:name=".ui.connect.SMSFragment$SMSReceiver" >
+            <intent-filter android:priority="10" >
+                <action android:name="android.intent.action.DATA_SMS_RECEIVED" />
 
+                <data android:scheme="sms" />
+                <data android:port="6800" />
+            </intent-filter>
+        </receiver>
+		    
 
 		<!-- The service to listen socket -->
 		<service 

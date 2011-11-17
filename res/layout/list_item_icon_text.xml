@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <!-- <include -->
+    <!-- android:id="@+id/header" -->
+    <!-- layout="@layout/list_section" /> -->
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:paddingLeft="4dip" >
+
+        <LinearLayout
+            android:id="@+id/right_side"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="11dip"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:id="@+id/presence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dip"
+                android:layout_marginRight="5dip"
+                android:padding="7dip"
+                android:scaleType="centerInside" />
+
+            <LinearLayout
+                android:id="@+id/call_view"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:orientation="horizontal" >
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="1px"
+                    android:layout_height="fill_parent"
+                    android:layout_marginBottom="5dip"
+                    android:layout_marginTop="5dip" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <org.remoteandroid.ui.connect.ExQuickContactBadge
+            android:id="@+id/photo"
+            style="@*android:style/Widget.QuickContactBadge.WindowMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dip" />
+
+        <ImageView
+            android:id="@+id/icon"
+            style="@*android:style/Widget.QuickContactBadge.WindowMedium"
+            android:layout_width="50dp"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dip"
+            android:background="@null" />
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="8dip"
+            android:layout_marginTop="-10dip"
+            android:layout_toRightOf="@id/icon"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold" />
+
+        <!-- <TextView -->
+        <!-- android:id="@+id/data" -->
+        <!-- android:layout_width="wrap_content" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- android:layout_alignBaseline="@id/text" -->
+        <!-- android:layout_alignWithParentIfMissing="true" -->
+        <!-- android:layout_marginLeft="5dip" -->
+        <!-- android:layout_toLeftOf="@id/right_side" -->
+        <!-- android:layout_toRightOf="@id/text" -->
+        <!-- android:ellipsize="marquee" -->
+        <!-- android:singleLine="true" -->
+        <!-- android:textAppearance="?android:attr/textAppearanceSmall" /> -->
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dip"
+            android:layout_height="0dip"
+            android:layout_above="@id/text"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_toLeftOf="@id/right_side"
+            android:layout_toRightOf="@id/icon"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical|left"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!-- <ImageView -->
+        <!-- android:id="@+id/icon" -->
+        <!-- android:layout_width="wrap_content" -->
+        <!-- android:layout_height="match_parent" /> -->
+
+
+        <!-- <TextView -->
+        <!-- android:id="@+id/text" -->
+        <!-- android:layout_width="wrap_content" -->
+        <!-- android:layout_height="match_parent" /> -->
+    </RelativeLayout>
+
+</LinearLayout>
