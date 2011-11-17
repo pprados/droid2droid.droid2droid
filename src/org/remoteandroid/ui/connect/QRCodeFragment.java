@@ -255,7 +255,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onDestroy...");
-		mCache.mInactivityTimer.shutdown();
+		if (mCache!=null && mCache.mInactivityTimer!=null)
+			mCache.mInactivityTimer.shutdown();
 		super.onDestroy();
 	}
 
@@ -378,7 +379,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		Messages.Candidates candidates;
 		try
 		{
-			byte[] result = rawResult.getRawBytes();
+			byte[] result;
+			result = rawResult.getText().getBytes();
 			candidates = Messages.Candidates.parseFrom(result);
 			activity.tryConnect(
 				null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());

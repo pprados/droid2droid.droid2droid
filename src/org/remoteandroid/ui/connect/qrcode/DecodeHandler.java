@@ -139,9 +139,7 @@ final class DecodeHandler extends Handler
 		catch (ReaderException re)
 		{
 			// continue
-			if (V)
-				Log.v(
-					TAG_CONNECT, "******** Not found. " + re.getMessage());
+			if (V)	Log.v(TAG_CONNECT, "******** Not found. " + re.getClass().getName()+":"+re.getMessage());
 		}
 		finally
 		{

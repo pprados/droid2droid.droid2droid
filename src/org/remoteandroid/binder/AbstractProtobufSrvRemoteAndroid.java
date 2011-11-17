@@ -276,7 +276,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		if (cookie==0)
 		{
 			cookie=Application.sRandom.nextLong();
-			if (cookie==0) cookie=1;
+			if (cookie==0 || cookie==-1) cookie=1; // Zero: no cookie, -1: exception when load cookie
 			Application.addCookie(strUUID, cookie);
 			if (V) Log.v(TAG_SECURITY,PREFIX_LOG+"Set cookie for "+conContext.mClientInfo.uuid+" : "+cookie);
 		}

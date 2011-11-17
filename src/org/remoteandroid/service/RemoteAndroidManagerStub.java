@@ -1,8 +1,10 @@
 package org.remoteandroid.service;
 
+import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.internal.Constants.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,9 +48,22 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 		long cookie=mCookies.getCookie(uri);
 		if (cookie==0)
 		{
-			cookie=Application.sManager.askCookie(Uri.parse(uri));
-			if (cookie!=0)
-				mCookies.addCookie(uri, cookie);
+			try
+			{
+				cookie=Application.sManager.askCookie(Uri.parse(uri));
+				if (cookie!=0)
+					mCookies.addCookie(uri, cookie);
+			}
+			catch (SecurityException e)
+			{
+				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+				return -1;
+			}
+			catch (IOException e)
+			{
+				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+				return -1;
+			}
 		}
 		return cookie;
 	}

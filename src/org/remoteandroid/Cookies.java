@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Cookies // TODO: cookie persistant
+public class Cookies // TODO: cookie persistant ?
 {
 	private class Cookie
 	{

@@ -4,6 +4,7 @@ import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.*;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -352,27 +353,24 @@ implements TechnologiesFragment.Listener
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
 				
-//				if (BLUETOOTH && uri.startsWith(SCHEME_BT) || uri.startsWith(SCHEME_BTS))
-//				{
-//					info=BluetoothDiscoverAndroids.tryConnectForCookie(uri);
-//				}
-//				else if (ETHERNET) // FIXME
+				try
 				{
-					try
+					info=tryConnectForCookie(uri);
+				}
+				catch (IOException e)
+				{
+					if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+				}
+				catch (SecurityException e)
+				{
+					// Accept only bounded device.
+					info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUris);
+					if (info==null)
 					{
-						info=tryConnectForCookie(uri);
+						if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");
+						return R.string.connect_alert_pairing_impossible;
 					}
-					catch (SecurityException e)
-					{
-						// Accept only bounded device.
-						info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUris);
-						if (info==null)
-						{
-							if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");
-							return R.string.connect_alert_pairing_impossible;
-						}
-						if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Pairing successfull");
-					}
+					if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Pairing successfull");
 				}
 				if (info!=null) // Cool
 				{
@@ -457,7 +455,7 @@ implements TechnologiesFragment.Listener
 	{
 		return mAcceptAnonymous;
 	}
-	public static RemoteAndroidInfoImpl tryConnectForCookie(String uri) throws SecurityException
+	public static RemoteAndroidInfoImpl tryConnectForCookie(String uri) throws SecurityException, IOException
 	{
 		Pair<RemoteAndroidInfoImpl,Long> msg=Application.sManager.askMsgCookie(Uri.parse(uri));
 		if (msg==null || msg.second==0)

@@ -477,7 +477,7 @@ public class JmDNSImpl extends JmDNS implements DNSStatefulObject, DNSTaskStarte
                 } catch (SocketException exception) {
                     //
                 }
-                _socket.close();
+                if (_socket!=null) _socket.close(); // Patch PPR
                 // jP: 20010-01-18. It isn't safe to join() on the listener
                 // thread - it attempts to lock the IoLock object, and deadlock
                 // ensues. Per issue #2933183, changed this to wait on the JmDNS

@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -28,6 +31,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import javax.jmdns.impl.DNSRecord.IPv6Address;
 
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
@@ -373,8 +378,8 @@ public class Application extends android.app.Application
 		{
 			// TODO http://stackoverflow.com/questions/785973/what-is-the-most-appropriate-way-to-store-user-settings-in-android-application
 			// Initialise the UUID, keys and name
-			if (V)
-				Log.v(TAG, PREFIX_LOG+"Application init preferences.");
+
+			if (V) Log.v(TAG, PREFIX_LOG+"Application init preferences.");
 			Login.sLogin=new LoginImpl();
 			String adapterName=null;
 			if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
@@ -467,6 +472,7 @@ public class Application extends android.app.Application
 		}
 	}
 
+
 	public static void enableStrictMode()
 	{
 		if (D && STRICT_MODE && Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_GINGERBREAD)
@@ -504,7 +510,7 @@ public class Application extends android.app.Application
 	public void onTerminate()
 	{
 		super.onTerminate();
-		if (V) Log.v(TAG,PREFIX_LOG+"Application onCreate");
+		if (V) Log.v(TAG,PREFIX_LOG+"Application onTerminate");
 	}
 
 	/**
