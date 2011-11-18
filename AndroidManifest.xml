@@ -247,6 +247,7 @@
 			android:configChanges="orientation|screenSize"
          >
          </activity>
+         <activity android:name=".ui.connect.sms.SMSSendingActivity" android:launchMode="standard"></activity>
 
     </application>
 
