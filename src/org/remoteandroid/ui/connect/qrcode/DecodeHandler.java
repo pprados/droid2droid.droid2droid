@@ -95,6 +95,7 @@ final class DecodeHandler extends Handler
 	{
 		long start = System.currentTimeMillis();
 		Result rawResult = null;
+		//Log.e("camera", "raw width, height: " + width + "," + height);
 		/*
 		 * PlanarYUVLuminanceSource source1 =
 		 * CameraManager.get().buildLuminanceSource(data, width, height);

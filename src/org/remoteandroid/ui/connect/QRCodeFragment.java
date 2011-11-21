@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
@@ -16,11 +15,11 @@ import org.remoteandroid.ui.connect.qrcode.BeepManager;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
 import org.remoteandroid.ui.connect.qrcode.FinishListener;
-import org.remoteandroid.ui.connect.qrcode.FlashlightManager;
 import org.remoteandroid.ui.connect.qrcode.InactivityTimer;
 import org.remoteandroid.ui.connect.qrcode.ViewfinderView;
 import org.remoteandroid.ui.connect.qrcode.Wrapper;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -36,17 +35,14 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -113,15 +109,17 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	{
 		mViewer = inflater.inflate(
 			R.layout.connect_qrcode, container, false);
-		CameraManager.CAMERA_ORIENTATION = getResources().getConfiguration().orientation;
+		CameraManager.camera_orientation = getResources().getConfiguration().orientation;
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-		CameraManager.HACK_DPI = metrics.xdpi;
-		CameraManager.x = metrics.widthPixels / metrics.xdpi;
-		CameraManager.y = metrics.heightPixels / metrics.ydpi;
-
+		Log.d("size", "density : " + metrics.density);
+		Log.d("size", " metrics.widthPixels " + metrics.widthPixels + " metrics.xdpi " + metrics.xdpi);
+		//CameraManager.deviceSizeX = metrics.widthPixels / metrics.xdpi;
+		//CameraManager.deviceSizeY = metrics.heightPixels / metrics.ydpi;
+		CameraManager.density = metrics.density;
+		
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onCreateView...");
@@ -182,6 +180,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		// }
 		// else
 		// btn.setActivated(false);
+		//this.getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		return mViewer;
 	}
 
@@ -244,6 +244,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			mCache.mHandler.quitSynchronously();
 			mCache.mHandler = null;
 		}
+		
 		mCache.mInactivityTimer.onPause();
 		if (!NO_CAMERA)
 			CameraManager.get().closeDriver();
@@ -255,7 +256,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onDestroy...");
-		mCache.mInactivityTimer.shutdown();
+		if(mCache != null && mCache.mInactivityTimer != null)
+			mCache.mInactivityTimer.shutdown();
 		super.onDestroy();
 	}
 
@@ -543,4 +545,5 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		return false;
 	}
 
+	 
 }

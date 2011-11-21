@@ -1,11 +1,14 @@
 package org.remoteandroid.login;
 
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_SECURITY;
+
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import static org.remoteandroid.internal.Constants.*;
 
 import javax.crypto.Cipher;
 
@@ -16,12 +19,12 @@ import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
+import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.Pair;
 
 import com.google.protobuf.ByteString;
 

@@ -1,24 +1,19 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.CONNECT_FORCE_FRAGMENTS;
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.lang.ref.WeakReference;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ConnectionType;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
-import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
-import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
-import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
-import org.remoteandroid.internal.Messages.Identity;
-import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.internal.Messages.Msg;
+import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
@@ -37,7 +32,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 
 public class ConnectActivity extends StyleFragmentActivity 
