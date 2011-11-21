@@ -67,10 +67,7 @@ public class SMSSendingActivity extends Activity implements TextWatcher,
 	private volatile ArrayList<String> _phoneNumberList;
 	private volatile ArrayList<String> _contactName;
 	private ArrayList<Long> _listIdContact;
-	private volatile ArrayList<String> _list;
-	private volatile ArrayList<String> _copyList;
 	private ArrayList<String> _selectedContact;
-	private ArrayAdapter<String> _arrayAdapter;
 	private HashMap<Long, SoftReference<Bitmap>> _bitmapCache = null;
 
 	private byte[] _sendedData;
@@ -86,8 +83,6 @@ public class SMSSendingActivity extends Activity implements TextWatcher,
 		if (_bitmapCache == null)
 			_bitmapCache = new HashMap<Long, SoftReference<Bitmap>>();
 		_contentResolver = getContentResolver();
-		_list = new ArrayList<String>();
-		_copyList = new ArrayList<String>();
 		_selectedContact = new ArrayList<String>();
 
 		initViewElements();
