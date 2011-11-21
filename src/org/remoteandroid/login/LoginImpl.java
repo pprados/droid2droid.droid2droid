@@ -16,12 +16,12 @@ import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
+import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.Pair;
 
 import com.google.protobuf.ByteString;
 

@@ -18,6 +18,7 @@ import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Messages.Identity;
+import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -38,7 +39,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 
 public class ConnectActivity extends StyleFragmentActivity 
