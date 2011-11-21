@@ -51,82 +51,48 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-public class SMSSendingActivity extends Activity implements TextWatcher, OnScrollListener {
+public class SMSSendingActivity extends Activity implements TextWatcher,
+		OnScrollListener {
 
+	private static Cache _holder;
 	private static boolean _busy = false;
-	static Cache _holder;
+	private static final Short _sendingPort = 6800;
+
 	private ContentResolver _contentResolver;
+
+	private EfficientAdapter _efficientAdapter;
+	private ListView _contactList;
+	private ContactClassAsyncTask _contactAsync = null;
+
 	private volatile ArrayList<String> _phoneNumberList;
 	private volatile ArrayList<String> _contactName;
-	private EfficientAdapter _efficientAdapter;
 	private ArrayList<Long> _listIdContact;
-	private HashMap<Long, SoftReference<Bitmap>> _bitmapCache = null;
-	private ListView _contactList;
-	private static final Short _sendingPort = 6800;
 	private volatile ArrayList<String> _list;
 	private volatile ArrayList<String> _copyList;
-	private ArrayAdapter<String> _arrayAdapter;
 	private ArrayList<String> _selectedContact;
-	
-	private boolean _isMultipleChoice = false;
-	
-	private final byte[] message = "3?1?FirstRemoteAndroid"
-			.getBytes();
-	private final byte[] message2 = "3?2?SecondRemoteAndroid"
-			.getBytes();
-	private final byte[] message3 = "3?3?LastRemoteAndroid"
-			.getBytes();
+	private ArrayAdapter<String> _arrayAdapter;
+	private HashMap<Long, SoftReference<Bitmap>> _bitmapCache = null;
+
 	private byte[] _sendedData;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.connect_sms);
-		//SmsMessage.MAX_USER_DATA_BYTES
+
 		_phoneNumberList = new ArrayList<String>();
 		_listIdContact = new ArrayList<Long>();
 		_contactName = new ArrayList<String>();
 		if (_bitmapCache == null)
 			_bitmapCache = new HashMap<Long, SoftReference<Bitmap>>();
 		_contentResolver = getContentResolver();
+		_list = new ArrayList<String>();
+		_copyList = new ArrayList<String>();
+		_selectedContact = new ArrayList<String>();
 
 		initViewElements();
 
 		initListView();
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		new AsyncTask<Void, Void, byte[]>()
-		{
-			@Override
-			protected byte[] doInBackground(Void... params)
-			{
-				Messages.Candidates candidates;
-				try {
-					candidates = Trusted.getConnectMessage(SMSSendingActivity.this);
-					byte[] data = candidates.toByteArray();
-					return data;
-				} catch (UnknownHostException e1) {
-					e1.printStackTrace();
-				} catch (SocketException e1) {
-					e1.printStackTrace();
-				}
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(byte[] data)
-			{
-				_sendedData = data;
-				Log.e("SMSSendingActivity", "length = " + data.length);
-			}
-		}.execute();
-		
-		ContactClassAsyncTask contactAsync = new ContactClassAsyncTask();
-		contactAsync.execute("");
 	}
 
 	public void initViewElements() {
@@ -137,29 +103,25 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 			public boolean onEditorAction(TextView v, int actionId,
 					KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
-					String receiver = editText.getText().toString();
-					if (_sendedData != null) {
-						//Rajout de l'envoie des messages
+					final String receiver = editText.getText().toString();
+					if (_sendedData != null || receiver != null) {
+						// TODO : Checker le format de la saisie
+						sendData(_sendedData, receiver);
+					} else {
+						// TODO : Gestion des erreurs
 					}
-					sendSMS(receiver, message);
-					sendSMS(receiver, message2);
-					sendSMS(receiver, message3);
 					return true;
 				}
 				return false;
 			}
 		});
-
-		_list = new ArrayList<String>();
-		_copyList = new ArrayList<String>();
-		_selectedContact = new ArrayList<String>();
 	}
 
 	public void initListView() {
 		_efficientAdapter = new EfficientAdapter(SMSSendingActivity.this);
+
 		_contactList = (ListView) findViewById(R.id.contactListView);
 		_contactList.setOnScrollListener(this);
-
 		_contactList.setFastScrollEnabled(true);
 		_contactList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		_contactList.setAdapter(_efficientAdapter);
@@ -167,31 +129,93 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View view,
 					int position, long arg3) {
-				Integer integer = (Integer) adapter.getItemAtPosition(position);
-				Log.e("SMSFragment", "contact Name = " + _contactName.get(integer));
-				Log.e("SMSFragment", "contact Phone Number = " + _phoneNumberList.get(integer));
-				final String selectedPhoneNumber = _phoneNumberList.get(integer);
-				AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-				builder.setMessage("Voulez-vous envoyer une requête Remote Android à : " + _contactName.get(integer) 
-						+ "sur le numéro : " + selectedPhoneNumber)
-				       .setCancelable(false)
-				       .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-				        		sendSMS(selectedPhoneNumber, message);
-								sendSMS(selectedPhoneNumber, message2);
-								sendSMS(selectedPhoneNumber, message3);
-				           }
-				       })
-				       .setNegativeButton("No", new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int id) {
-				                dialog.cancel();
-				           }
-				       });
-				AlertDialog alert = builder.create();
-				alert.show();
+				final int itemPosition = (Integer) adapter
+						.getItemAtPosition(position);
+				final String selectedPhoneNumber = _phoneNumberList
+						.get(itemPosition);
+				confirmSelection(itemPosition, selectedPhoneNumber,
+						view.getContext());
 			}
 		});
+	}
 
+	private void confirmSelection(int itemPosition,
+			final String selectedPhoneNumber, Context context) {
+		// TODO : Internationalisation
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setMessage(
+				"Voulez-vous envoyer une requête Remote Android à : "
+						+ _contactName.get(itemPosition) + "sur le numéro : "
+						+ selectedPhoneNumber)
+				.setCancelable(false)
+				.setPositiveButton("Oui",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								if (_sendedData != null) {
+									sendData(_sendedData, selectedPhoneNumber);
+								}
+							}
+						})
+				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
+		final AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		new AsyncTask<Void, Void, byte[]>() {
+			@Override
+			protected byte[] doInBackground(Void... params) {
+				Messages.Candidates candidates;
+				try {
+					candidates = Trusted
+							.getConnectMessage(SMSSendingActivity.this);
+					return candidates.toByteArray();
+				} catch (UnknownHostException e1) {
+					// TODO Gérer cette erreur
+					e1.printStackTrace();
+				} catch (SocketException e1) {
+					// TODO Gérer cette erreur
+					e1.printStackTrace();
+				}
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(byte[] data) {
+				_sendedData = data;
+				Log.e("SMSSendingActivity", "length = " + data.length);
+			}
+		}.execute();
+
+		if (_contactAsync == null) {
+			Log.e("SMSSendingActivity", "contact Async is null");
+			_contactAsync = new ContactClassAsyncTask();
+			_contactAsync.execute("");
+		}
+	}
+
+	public void sendData(byte[] buf, String receiver) {
+		byte[] fragment = new byte[SmsMessage.MAX_USER_DATA_BYTES];
+		int fragNumber = 0;
+		for (int i = 0; i < buf.length; i += SmsMessage.MAX_USER_DATA_BYTES - 1) {
+			Log.e("SMSSendingActivity", "fragNumber = " + fragNumber);
+			boolean last = buf.length < SmsMessage.MAX_USER_DATA_BYTES - 1;
+			Log.e("SMSSendingActivity", "last = " + last);
+			int len = Math.min(buf.length, SmsMessage.MAX_USER_DATA_BYTES - 1);
+			Log.e("SMSSendingActivity", "len = " + len);
+			System.arraycopy(buf, i, fragment, 1, len);
+			fragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
+			Log.e("SMSSendingActivity", "fragment[0] = " + fragment[0]);
+			sendSMS(receiver, buf);
+			++fragNumber;
+		}
 	}
 
 	protected void sendSMS(byte[] text) {
@@ -202,10 +226,10 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 
 	protected void sendSMS(String receiver, byte[] text) {
 		Log.e("Destination", " = " + receiver);
-		SmsManager.getDefault().sendDataMessage(receiver, null, _sendingPort, text,
-				null, null);
+		SmsManager.getDefault().sendDataMessage(receiver, null, _sendingPort,
+				text, null, null);
 	}
-	
+
 	public class EfficientAdapter extends BaseAdapter {
 
 		private LayoutInflater mInflater;
@@ -213,7 +237,6 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		private Context mContext;
 
 		public EfficientAdapter(Context context) {
-			Log.e("SMSFragment", "Init EfficientAdapter");
 			mContext = context;
 			mInflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -226,7 +249,6 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		}
 
 		public Object getItem(int position) {
-			Log.e("SMSFragment", "position item = " + position);
 			return position;
 		}
 
@@ -239,27 +261,28 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 				convertView = mInflater.inflate(R.layout.list_item_icon_text,
 						parent, false);
 
-				_holder = new Cache();   
+				_holder = new Cache();
 				_holder.text = (TextView) convertView.findViewById(R.id.text);
 				_holder.icon = (ImageView) convertView.findViewById(R.id.icon);
 				_holder.name = (TextView) convertView.findViewById(R.id.name);
 
 				convertView.setTag(_holder);
-			} else {
+			} else
 				_holder = (Cache) convertView.getTag();
-			}
-			if (!_busy) { 
-				Long contactId = _listIdContact.get(position);
+
+			if (!_busy) {
+				final Long contactId = _listIdContact.get(position);
 				if (_bitmapCache.containsKey(contactId)) {
 					_holder.icon.setImageBitmap(_bitmapCache.get(contactId)
 							.get());
 				} else {
-					Uri uri = ContentUris.withAppendedId(
+					final Uri uri = ContentUris.withAppendedId(
 							ContactsContract.Contacts.CONTENT_URI, contactId);
-					InputStream input = ContactsContract.Contacts
+					final InputStream input = ContactsContract.Contacts
 							.openContactPhotoInputStream(_contentResolver, uri);
 					if (input != null) {
-						Bitmap contactPhoto = BitmapFactory.decodeStream(input);
+						final Bitmap contactPhoto = BitmapFactory
+								.decodeStream(input);
 						_bitmapCache.put(contactId, new SoftReference<Bitmap>(
 								contactPhoto));
 						_holder.icon.setImageBitmap(contactPhoto);
@@ -273,13 +296,13 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 				if (_bitmapCache.containsKey(contactId) == true)
 					_holder.icon.setImageBitmap(_bitmapCache.get(contactId)
 							.get());
-				else 
+				else
 					_holder.icon.setImageDrawable(defaultContactIcon);
 				_holder.icon.setTag(this);
 			}
 			_holder.text.setText(_phoneNumberList.get(position));
 			_holder.name.setText(_contactName.get(position));
-			
+
 			return convertView;
 		}
 
@@ -297,55 +320,25 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		private TextView text;
 		private ImageView icon;
 		private TextView name;
-//		private Long contactId;
-	}
-	
-	public static class SMSReceiver extends BroadcastReceiver {
-		private final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Log.e("Action", " = " + intent.getAction());
-			if (!intent.getAction().equals(ACTION_RECEIVE_SMS))
-				return;
-			String uri = intent.getDataString();
-
-			Log.e("Action", uri);
-			if (!uri.contains(_sendingPort.toString()))
-				return;
-
-			Object[] pdus = (Object[]) intent.getExtras().get("pdus");
-			SmsMessage[] msgs = new SmsMessage[pdus.length];
-			byte[] data = null;
-
-			String sender = "";
-			String msgTxt = "";
-			for (int i = 0; i < msgs.length; i++) {
-				msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-				sender = msgs[i].getOriginatingAddress();
-				data = msgs[i].getUserData();
-				for (int index = 0; index < data.length; ++index)
-					msgTxt += Character.toString((char) data[index]);
-			}
-			
-			Toast.makeText(context, sender + " - " + msgTxt, Toast.LENGTH_SHORT)
-					.show();
-		}
 	}
 
 	class ContactClassAsyncTask extends AsyncTask<String, Void, Void> {
 
+		private ArrayList<String> _tmpPhoneListNumber;
+		private ArrayList<String> _tmpContactName;
+		private ArrayList<Long> _tmpListIdContact;
+
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			_phoneNumberList.clear();
-			_contactName.clear();
-			_listIdContact.clear();
+			_tmpContactName = new ArrayList<String>();
+			_tmpPhoneListNumber = new ArrayList<String>();
+			_tmpListIdContact = new ArrayList<Long>();
 		}
 
 		@Override
 		protected Void doInBackground(String... filterStr) {
-			final Cursor cur;
+			Cursor cur = null;
 			if (filterStr[0].equals(""))
 				cur = _contentResolver.query(
 						ContactsContract.Contacts.CONTENT_URI, null, null,
@@ -358,38 +351,39 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 						ContactsContract.Contacts.CONTENT_URI, projection,
 						ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?",
 						new String[] { filterStr[0] }, null);
+				Log.e("SMSSendingActivity", "filtering string = "
+						+ filterStr[0]);
+				Log.e("SMSSendingActivity", "cursor count = " + cur.getCount());
 			}
 
 			if (cur == null)
 				return null;
+
 			while (cur.moveToNext()) {
-				String contactid = cur.getString(cur
+				final String contactId = cur.getString(cur
 						.getColumnIndex(ContactsContract.Contacts._ID));
-				String name = cur
+				final String name = cur
 						.getString(cur
 								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-				String hasphone = cur
+				final String hasphone = cur
 						.getString(cur
 								.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
-				if (hasphone.equals("1"))
-					hasphone = "true";
-
-				if (Boolean.parseBoolean(hasphone)) {
-					Cursor cphon = _contentResolver.query(
+				if (hasphone.equals("1")) {
+					final Cursor cphon = _contentResolver.query(
 							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 							null,
 							ContactsContract.CommonDataKinds.Phone.CONTACT_ID
-									+ "=" + contactid, null, null);
+									+ "=" + contactId, null, null);
 					if (cphon == null)
 						continue;
 					while (cphon.moveToNext()) {
-						String phonenumber = cphon
+						final String phonenumber = cphon
 								.getString(cphon
 										.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-						_phoneNumberList.add(phonenumber);
-						_contactName.add(name);
-						_listIdContact.add(Long.parseLong(contactid));
+						_tmpPhoneListNumber.add(phonenumber);
+						_tmpContactName.add(name);
+						_tmpListIdContact.add(Long.parseLong(contactId));
 					}
 				}
 			}
@@ -400,9 +394,15 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			Log.e("SMSFragment", "1 - " + _phoneNumberList.size());
-			Log.e("SMSFragment", "2 - " + _contactName.size());
-			Log.e("SMSFragment", "3 - " + _listIdContact.size());
+			_phoneNumberList.clear();
+			_phoneNumberList.addAll(_tmpPhoneListNumber);
+
+			_contactName.clear();
+			_contactName.addAll(_tmpContactName);
+
+			_listIdContact.clear();
+			_listIdContact.addAll(_tmpListIdContact);
+
 			_efficientAdapter.notifyDataSetChanged();
 		}
 
@@ -411,15 +411,10 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 	@Override
 	public void afterTextChanged(Editable s) {
 		Log.e("SMSFragment", s.toString());
-		ContactClassAsyncTask contactAsyncTask = new ContactClassAsyncTask();
-		contactAsyncTask.execute("%" + s.toString() + "%");
-	}
-
-	public void orderListByName() {
-		Collections.sort(_copyList, String.CASE_INSENSITIVE_ORDER);
-		_list.clear();
-		_list.addAll(_copyList);
-		_arrayAdapter.notifyDataSetChanged();
+		if (_contactAsync != null)
+			_contactAsync.cancel(true);
+		_contactAsync = new ContactClassAsyncTask();
+		_contactAsync.execute("%" + s.toString() + "%");
 	}
 
 	@Override
@@ -447,12 +442,11 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 			int count = view.getChildCount();
 
 			for (int i = 0; i < count; i++) {
-				
+
 				_holder.icon = (ImageView) view.getChildAt(i).findViewById(
 						R.id.icon);
 
 				if (_holder.icon.getTag() != null) {
-					Log.e("SMSSendingActivity", "tag not null");
 					Long contactId = _listIdContact.get(first + i);
 
 					if (_bitmapCache.containsKey(contactId)) {
@@ -474,9 +468,7 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 						}
 					}
 					_holder.icon.setTag(null);
-				}
-				else {
-					Log.e("SMSSendingActivity", "tag null");
+				} else {
 				}
 			}
 
@@ -490,4 +482,77 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		}
 	}
 
+	// TODO : Register receiver programmaticly in reception view
+	public static class SMSReceiver extends BroadcastReceiver {
+		private final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.e("Action", " = " + intent.getAction());
+			if (!intent.getAction().equals(ACTION_RECEIVE_SMS))
+				return;
+			String uri = intent.getDataString();
+
+			Log.e("Action", uri);
+			if (!uri.contains(_sendingPort.toString()))
+				return;
+
+			Object[] pdus = (Object[]) intent.getExtras().get("pdus");
+			SmsMessage[] msgs = new SmsMessage[pdus.length];
+			byte[] data = null;
+
+			String sender = "";
+			String msgTxt = "";
+			for (int i = 0; i < msgs.length; i++) {
+				msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
+				sender = msgs[i].getOriginatingAddress();
+				data = msgs[i].getUserData();
+				for (int index = 0; index < data.length; ++index)
+					msgTxt += Character.toString((char) data[index]);
+			}
+
+			Toast.makeText(context, sender + " - " + msgTxt, Toast.LENGTH_SHORT)
+					.show();
+		}
+	}
+
 }
+
+// static class Fragments
+// {
+// int max=-1;
+// SparseArray<byte[]> bufs=new SparseArray<byte[]>();
+// }
+// Dictionary<String,Fragments> allFragments;
+// public void readData()
+// {
+// Fragments currentFragments=null;
+// for (;;)
+// {
+// byte[] fragment=getNextFragment();
+// int fragNumber=fragment[0] & ~0x80;
+// if ((fragment[0] & 0x80)==0x80)
+// {
+// currentFragments.max=fragNumber;
+//
+// }
+// currentFragments.bufs.put(fragNumber, fragment);
+// if (currentFragments.max==currentFragments.bufs.size())
+// {
+// // Max pour tous les buffers, sauf pour le dernier
+// int
+// bufferSize=(currentFragments.bufs.size()-1)*(SmsMessage.MAX_USER_DATA_BYTES-1)
+// +currentFragments.bufs.get(currentFragments.max).length-1;
+// byte[] result=new byte[bufferSize];
+// for (int i=0;i<currentFragments.bufs.size();++i)
+// {
+// byte[] r=currentFragments.bufs.get(i);
+// if (r==null)
+// ; // Illegal arguem...
+// System.arraycopy(r, 1, result, i*SmsMessage.MAX_USER_DATA_BYTES-1,
+// r.length-1);
+// }
+// return result;
+// }
+// }
+// }

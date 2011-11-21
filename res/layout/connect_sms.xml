@@ -2,23 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
-<!--     <TextView -->
-<!--         android:id="@+id/connect_help" -->
-<!--         android:layout_width="fill_parent" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:layout_alignParentLeft="true" -->
-<!--         android:layout_alignParentTop="true" -->
-<!--         android:gravity="center_vertical" -->
-<!--         android:lineSpacingMultiplier="0.92" -->
-<!--         android:paddingLeft="10dip" -->
-<!--         android:paddingRight="10dip" -->
-<!--         android:paddingTop="10dip" -->
-<!--         android:paddingBottom="10dip" -->
-<!--         android:text="@string/connect_sms_help" -->
-<!--         android:textAppearance="?android:attr/textAppearance" /> -->
+    <!-- <TextView -->
+    <!-- android:id="@+id/connect_help" -->
+    <!-- android:layout_width="fill_parent" -->
+    <!-- android:layout_height="wrap_content" -->
+    <!-- android:layout_alignParentLeft="true" -->
+    <!-- android:layout_alignParentTop="true" -->
+    <!-- android:gravity="center_vertical" -->
+    <!-- android:lineSpacingMultiplier="0.92" -->
+    <!-- android:paddingLeft="10dip" -->
+    <!-- android:paddingRight="10dip" -->
+    <!-- android:paddingTop="10dip" -->
+    <!-- android:paddingBottom="10dip" -->
+    <!-- android:text="@string/connect_sms_help" -->
+    <!-- android:textAppearance="?android:attr/textAppearance" /> -->
+
 
     <!-- <TextView -->
     <!-- android:id="@+id/line" -->
@@ -42,26 +45,25 @@
             android:id="@+id/numberEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Vous pouvez filtrer vos contacts par nom ou saisir un numéro de téléphone"
             android:imeOptions="actionSend"
-            android:lines="1" 
             android:inputType="text"
-            android:textSize="15dp"
-            android:hint="Vous pouvez filtrer vos contacts par nom ou saisir un numéro de téléphone"/>
+            android:lines="1"
+            android:textSize="15dp" />
 
         <ListView
             android:id="@+id/contactListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:dividerHeight="1dp" 
-            />
+            android:dividerHeight="1dp" />
     </LinearLayout>
 
-<!--     <Button -->
-<!--         android:layout_width="match_parent" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:layout_alignParentBottom="true" -->
-<!--         android:layout_below="@+id/smsRelativeLayout" -->
-<!--         android:id="@+id/sendMsgBtn" -->
-<!--         android:text="@string/button_ok" /> -->
-    
+    <!-- <Button -->
+    <!-- android:layout_width="match_parent" -->
+    <!-- android:layout_height="wrap_content" -->
+    <!-- android:layout_alignParentBottom="true" -->
+    <!-- android:layout_below="@+id/smsRelativeLayout" -->
+    <!-- android:id="@+id/sendMsgBtn" -->
+    <!-- android:text="@string/button_ok" /> -->
+
 </LinearLayout>
