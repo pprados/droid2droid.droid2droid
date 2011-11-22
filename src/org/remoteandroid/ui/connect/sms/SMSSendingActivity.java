@@ -5,7 +5,6 @@ import java.lang.ref.SoftReference;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import org.remoteandroid.R;
@@ -42,7 +41,6 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -478,76 +476,39 @@ public class SMSSendingActivity extends Activity implements TextWatcher,
 	}
 
 	// TODO : Register receiver programmaticly in reception view
-	public static class SMSReceiver extends BroadcastReceiver {
-		private final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Log.e("Action", " = " + intent.getAction());
-			if (!intent.getAction().equals(ACTION_RECEIVE_SMS))
-				return;
-			String uri = intent.getDataString();
-
-			Log.e("Action", uri);
-			if (!uri.contains(_sendingPort.toString()))
-				return;
-
-			Object[] pdus = (Object[]) intent.getExtras().get("pdus");
-			SmsMessage[] msgs = new SmsMessage[pdus.length];
-			byte[] data = null;
-
-			String sender = "";
-			String msgTxt = "";
-			for (int i = 0; i < msgs.length; i++) {
-				msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-				sender = msgs[i].getOriginatingAddress();
-				data = msgs[i].getUserData();
-				for (int index = 0; index < data.length; ++index)
-					msgTxt += Character.toString((char) data[index]);
-			}
-
-			Toast.makeText(context, sender + " - " + msgTxt, Toast.LENGTH_SHORT)
-					.show();
-		}
-	}
+//	public static class SMSReceiver extends BroadcastReceiver {
+//		private final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
+//
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			Log.e("Action", " = " + intent.getAction());
+//			if (!intent.getAction().equals(ACTION_RECEIVE_SMS))
+//				return;
+//			String uri = intent.getDataString();
+//
+//			Log.e("Action", uri);
+//			if (!uri.contains(_sendingPort.toString()))
+//				return;
+//
+//			Object[] pdus = (Object[]) intent.getExtras().get("pdus");
+//			SmsMessage[] msgs = new SmsMessage[pdus.length];
+//			byte[] data = null;
+//
+//			String sender = "";
+//			String msgTxt = "";
+//			for (int i = 0; i < msgs.length; i++) {
+//				msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
+//				sender = msgs[i].getOriginatingAddress();
+//				data = msgs[i].getUserData();
+//				for (int index = 0; index < data.length; ++index)
+//					msgTxt += Character.toString((char) data[index]);
+//			}
+//
+//			Toast.makeText(context, sender + " - " + msgTxt, Toast.LENGTH_SHORT)
+//					.show();
+//		}
+//	}
 
 }
 
-// static class Fragments
-// {
-// int max=-1;
-// SparseArray<byte[]> bufs=new SparseArray<byte[]>();
-// }
-// Dictionary<String,Fragments> allFragments;
-// public void readData()
-// {
-// Fragments currentFragments=null;
-// for (;;)
-// {
-// byte[] fragment=getNextFragment();
-// int fragNumber=fragment[0] & ~0x80;
-// if ((fragment[0] & 0x80)==0x80)
-// {
-// currentFragments.max=fragNumber;
-//
-// }
-// currentFragments.bufs.put(fragNumber, fragment);
-// if (currentFragments.max==currentFragments.bufs.size())
-// {
-// // Max pour tous les buffers, sauf pour le dernier
-// int
-// bufferSize=(currentFragments.bufs.size()-1)*(SmsMessage.MAX_USER_DATA_BYTES-1)
-// +currentFragments.bufs.get(currentFragments.max).length-1;
-// byte[] result=new byte[bufferSize];
-// for (int i=0;i<currentFragments.bufs.size();++i)
-// {
-// byte[] r=currentFragments.bufs.get(i);
-// if (r==null)
-// ; // Illegal arguem...
-// System.arraycopy(r, 1, result, i*SmsMessage.MAX_USER_DATA_BYTES-1,
-// r.length-1);
-// }
-// return result;
-// }
-// }
-// }
+
