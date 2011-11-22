@@ -1,6 +1,6 @@
 package org.remoteandroid.ui.connect;
 
-import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.remoteandroid.R;
 
@@ -17,15 +17,14 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 public class SMSFragment extends AbstractBodyFragment {
 
 	private static final Short _sendingPort = 6800;
 	private View _viewer;
-	private ProgressDialog _progressBar;
+	private static ProgressDialog _progressBar;
 
-	public class SMSReceiver extends BroadcastReceiver {
+	public static class SMSReceiver extends BroadcastReceiver {
 		private final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
 
 		@Override
@@ -33,28 +32,23 @@ public class SMSFragment extends AbstractBodyFragment {
 			Log.e("Action", " = " + intent.getAction());
 			if (!intent.getAction().equals(ACTION_RECEIVE_SMS))
 				return;
-			String uri = intent.getDataString();
+			final String uri = intent.getDataString();
 
 			// intent.getByteArrayExtra(name)
 			Log.e("Action", uri);
 			if (!uri.contains(_sendingPort.toString()))
 				return;
 
-			Object[] pdus = (Object[]) intent.getExtras().get("pdus");
-			SmsMessage[] msgs = new SmsMessage[pdus.length];
+			final Object[] pdus = (Object[]) intent.getExtras().get("pdus");
+			final SmsMessage[] msgs = new SmsMessage[pdus.length];
 			byte[] data = null;
 
-			String sender = "";
-			String msgTxt = "";
 			for (int i = 0; i < msgs.length; i++) {
 				msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-				sender = msgs[i].getOriginatingAddress();
+				final String sender = msgs[i].getOriginatingAddress();
 				data = msgs[i].getUserData();
 				readData(data, sender);
 			}
-
-			Toast.makeText(context, sender + " - " + msgTxt, Toast.LENGTH_SHORT)
-					.show();
 		}
 	}
 
@@ -63,17 +57,18 @@ public class SMSFragment extends AbstractBodyFragment {
 		SparseArray<byte[]> bufs = new SparseArray<byte[]>();
 	}
 
-	Dictionary<String, Fragments> allFragments;
+	static Hashtable<String, Fragments> allFragments = new Hashtable<String, SMSFragment.Fragments>();
 
-	public void readData(byte[] fragment, String sender) {
+	public static void readData(byte[] fragment, String sender) {
 		Fragments currentFragments = new Fragments();
-		int fragNumber = fragment[0] & ~0x80;
+		int fragNumber = fragment[0] & 0x7F;
 		if ((fragment[0] & 0x80) == 0x80)
 			currentFragments.max = fragNumber;
 
 		currentFragments.bufs.put(fragNumber, fragment);
 		
-		if (currentFragments.max == currentFragments.bufs.size()) {
+		if ((currentFragments.max!=fragNumber && (currentFragments.bufs.size()==SmsMessage.MAX_USER_DATA_BYTES - 1) || (currentFragments.max==fragNumber))) {
+//		if (currentFragments.max == currentFragments.bufs.size()) {
 			// Max pour tous les buffers, sauf pour le dernier
 			int bufferSize = (currentFragments.bufs.size() - 1)
 					* (SmsMessage.MAX_USER_DATA_BYTES - 1)
@@ -85,10 +80,15 @@ public class SMSFragment extends AbstractBodyFragment {
 				if (r == null)
 					; // Illegal arguem...
 				System.arraycopy(r, 1, result, i
-						* SmsMessage.MAX_USER_DATA_BYTES - 1, r.length - 1);
+						* (SmsMessage.MAX_USER_DATA_BYTES - 1), r.length - 1);
 				currentFragments.bufs.clear();
 				currentFragments.bufs.put(currentFragments.max, result);
+				Log.e("SMSFragment", "sender = " + sender);
+				Log.e("SMSFragment", "max = " + currentFragments.max);
+				Log.e("SMSFragment", "bufs = " + currentFragments.bufs.toString());
 				allFragments.put(sender, currentFragments);
+				_progressBar.cancel();
+				//TODO Rajouter un message pour activer le pairing
 			}
 		}
 	}
@@ -97,8 +97,6 @@ public class SMSFragment extends AbstractBodyFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		_viewer = inflater.inflate(R.layout.wainting_sms, container, false);
-//		_progressBar = ProgressDialog.show(_viewer.getContext(), "", 
-//                "Loading. Please wait...", true);
 		_progressBar = new ProgressDialog(_viewer.getContext());
 		_progressBar.setButton("Annuler", new OnClickListener() {
 			

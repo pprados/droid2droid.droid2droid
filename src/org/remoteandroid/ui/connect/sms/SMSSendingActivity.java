@@ -43,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -67,6 +68,8 @@ public class SMSSendingActivity extends Activity implements TextWatcher,
 	private ArrayList<Long> _listIdContact;
 	private ArrayList<String> _selectedContact;
 	private HashMap<Long, SoftReference<Bitmap>> _bitmapCache = null;
+	
+	private static final int SMS_HEADER = 10;
 
 	private byte[] _sendedData;
 
@@ -182,7 +185,18 @@ public class SMSSendingActivity extends Activity implements TextWatcher,
 
 			@Override
 			protected void onPostExecute(byte[] data) {
-				_sendedData = data;
+				//TODO uncomment this line after testing
+				//_sendedData = data;
+				_sendedData = new byte[SmsMessage.MAX_USER_DATA_BYTES - SMS_HEADER];
+				_sendedData[0] = -128;
+				byte[] array = {-83, 1, -112, -64, 74, 10};
+				int j = 0;
+				for (int i = 1; i < _sendedData.length; ++i) {
+					if (j == 6)
+						j = 0;
+					_sendedData[i] = array[j];
+					++j;
+				}
 				Log.e("SMSSendingActivity", "length = " + data.length);
 			}
 		}.execute();
@@ -195,18 +209,23 @@ public class SMSSendingActivity extends Activity implements TextWatcher,
 	}
 
 	public void sendData(byte[] buf, String receiver) {
-		byte[] fragment = new byte[SmsMessage.MAX_USER_DATA_BYTES];
+		int fragmentSize =  SmsMessage.MAX_USER_DATA_BYTES - SMS_HEADER;
+		Log.e("SMSending", "buf length = " + buf.length);
+		Log.e("SMSending", "fragmentSize = " + fragmentSize);
+		if (buf.length < fragmentSize)
+			fragmentSize = buf.length + 1;
+		byte[] fragment = new byte[fragmentSize];
 		int fragNumber = 0;
-		for (int i = 0; i < buf.length; i += SmsMessage.MAX_USER_DATA_BYTES - 1) {
+		for (int i = 0; i < buf.length; i += (SmsMessage.MAX_USER_DATA_BYTES - 1 - SMS_HEADER)) {
 			Log.e("SMSSendingActivity", "fragNumber = " + fragNumber);
-			boolean last = buf.length < SmsMessage.MAX_USER_DATA_BYTES - 1;
+			boolean last = (buf.length - i) < (SmsMessage.MAX_USER_DATA_BYTES - 1 - SMS_HEADER);
 			Log.e("SMSSendingActivity", "last = " + last);
-			int len = Math.min(buf.length, SmsMessage.MAX_USER_DATA_BYTES - 1);
+			int len = Math.min(buf.length - i, SmsMessage.MAX_USER_DATA_BYTES - 1 - SMS_HEADER);
 			Log.e("SMSSendingActivity", "len = " + len);
 			System.arraycopy(buf, i, fragment, 1, len);
 			fragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
 			Log.e("SMSSendingActivity", "fragment[0] = " + fragment[0]);
-			sendSMS(receiver, buf);
+			sendSMS(receiver, fragment);
 			++fragNumber;
 		}
 	}
