@@ -16,6 +16,8 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.D;
@@ -322,7 +324,7 @@ public final class ViewfinderView extends View
 	{
 		if (D)
 			Log.d(
-				TAG_CONNECT,
+				TAG_QRCODE,
 				"Result w:" + barcode.getWidth() + " h:" + barcode.getHeight());
 		// FIXME if (CameraManager.get().isRotate())
 //		if (CameraManager.camera_orientation == 2
@@ -337,7 +339,7 @@ public final class ViewfinderView extends View
 //				true);
 //			if (D)
 //				Log.d(
-//					TAG_CONNECT, "Rotate result w:" + barcode.getWidth()
+//					TAG_QRCODE, "Rotate result w:" + barcode.getWidth()
 //							+ " h:" + barcode.getHeight());
 //		}
 		mResultBitmap = barcode;
@@ -362,7 +364,7 @@ public final class ViewfinderView extends View
 //				true);
 //			if (D)
 //				Log.d(
-//					TAG_CONNECT, "Rotate result w:" + barcode.getWidth()
+//					TAG_QRCODE, "Rotate result w:" + barcode.getWidth()
 //							+ " h:" + barcode.getHeight());
 //		
 		mPreviousBitmap = barcode;

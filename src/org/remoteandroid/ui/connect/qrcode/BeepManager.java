@@ -141,9 +141,7 @@ public final class BeepManager
 		}
 		catch (IOException ioe)
 		{
-			if (W)
-				Log.w(
-					TAG_CONNECT, ioe);
+			if (W) Log.w(TAG_QRCODE, ioe);
 			mediaPlayer = null;
 		}
 		return mediaPlayer;

@@ -47,9 +47,7 @@ final class AutoFocusCallback implements Camera.AutoFocusCallback
 	{
 		if (mAutoFocusHandler != null)
 		{
-			if (V)
-				Log.v(
-					TAG_CONNECT, "Got auto-focus callback");
+			if (V) Log.v(TAG_QRCODE, "2. Got auto-focus callback");
 			mAutoFocusHandler.sendEmptyMessage(R.id.start_decode);
 
 			if (QRCODE_REPEAT_AUTOFOCUS)
@@ -63,10 +61,7 @@ final class AutoFocusCallback implements Camera.AutoFocusCallback
 		}
 		else
 		{
-			if (V)
-				Log.v(
-					TAG_CONNECT,
-					"Got auto-focus callback, but no handler for it");
+			if (V) Log.v(TAG_QRCODE, "Got auto-focus callback, but no handler for it");
 		}
 	}
 

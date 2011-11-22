@@ -1,7 +1,6 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.CONNECT_FORCE_FRAGMENTS;
-import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -24,6 +23,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -110,7 +110,6 @@ implements TechnologiesFragment.Listener
 				// Restore state after changed the orientation
 				if (mBodyFragment==null || mBodyFragment instanceof EmptyBodyFragment)
 				{
-					//Log.d("TTT","add in body, techno "+mTechnologiesFragment.mIndex);
 					transaction.replace(R.id.body, mTechnologiesFragment);
 				}
 				else
@@ -283,7 +282,6 @@ implements TechnologiesFragment.Listener
 					tryHandler.mProgressDialog=null;
 				}
 				tryHandler.cancel(false);
-				Log.d("TTT","tryHandler=null cause onCancel");
 			}
 		}
 		@Override
@@ -340,15 +338,15 @@ implements TechnologiesFragment.Listener
 			}
 			for (int i=0;i<mUris.size();++i)
 			{
-				if (isCancelled())
-					return null;
-				String uri=mUris.get(i);
-				publishProgress(i+firststep);
-				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
-				
 				try
 				{
+					if (isCancelled())
+						return null;
+					String uri=mUris.get(i);
+					publishProgress(i+firststep);
+					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
+					
 					info=tryConnectForCookie(uri);
 				}
 				catch (IOException e)
@@ -457,5 +455,9 @@ implements TechnologiesFragment.Listener
 		return msg.first;
 		
 	}
-	
+
+	private boolean hasCamera()
+	{
+	    return (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA));
+	}
 }

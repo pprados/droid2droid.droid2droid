@@ -20,6 +20,7 @@ public class Constants
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
 	public static final String TAG_EXPOSE						="Expose";
+	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
 		
 	public static final boolean PREFERENCES_IN_ONE_SCREEN		=true;
 	
@@ -100,13 +101,13 @@ public class Constants
 	/** For debug, use classic exception. */ 
 	public static final boolean QRCODE_DEBUG					=true;
 	/** Show the current bitmap to analyse. */
-	public static final boolean	QRCODE_SHOW_CURRENT_DECODE		= false;
+	public static final boolean	QRCODE_SHOW_CURRENT_DECODE		=false;
 	/** Force auto-focus before analyse bitmap. */
-	public static final boolean QRCODE_AUTOFOCUS				=true;
-	/** Re-ask autofocus after each analyse. */
+	public static final boolean QRCODE_AUTOFOCUS				=false;
+	/** Re-ask autofocus after each QRCODE_AUTOFOCUS_INTERVAL_MS. */
 	public static final boolean QRCODE_REPEAT_AUTOFOCUS			=false;
 	/** Interval between autofocus. */
-	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS	= 2000L;
+	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS	= 1000L;
 	
 	//-----------------------------------------------------------------------------
 	// --- Bluetooth parameters ---

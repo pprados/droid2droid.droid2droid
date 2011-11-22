@@ -52,6 +52,7 @@ final class PreviewCallback implements Camera.PreviewCallback
 	@Override
 	public void onPreviewFrame(byte[] data, Camera camera)
 	{
+		if (V) Log.v(TAG_QRCODE,"3. get preview frame");
 		Point cameraResolution = mConfigManager.getCameraResolution();
 		if (mPreviewHandler != null)
 		{
@@ -64,7 +65,7 @@ final class PreviewCallback implements Camera.PreviewCallback
 		{
 			if (D)
 				Log.d(
-					TAG_CONNECT, "Got preview callback, but no handler for it");
+					TAG_QRCODE, "Got preview callback, but no handler for it");
 		}
 	}
 

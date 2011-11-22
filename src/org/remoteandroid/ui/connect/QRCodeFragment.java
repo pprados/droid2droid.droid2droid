@@ -402,8 +402,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			s.getBytes(0, s.length(), data, 0);//rawResult.getText().getBytes();
 			
 			candidates = Messages.Candidates.parseFrom(data);
-			activity.tryConnect(
-				null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
+			activity.tryConnect(null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
 		}
 		catch (InvalidProtocolBufferException e)
 		{

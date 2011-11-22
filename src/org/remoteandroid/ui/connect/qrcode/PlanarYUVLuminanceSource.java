@@ -16,6 +16,8 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.hardware.Camera;
@@ -176,7 +178,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 				// && (Application.CAMERA_ORIENTATION == 0 ||
 				// Application.CAMERA_ORIENTATION == 3))){
 				// i = width * height - 1;
-				Log.e("camera", "orientation 0 ou 3");
+				if (D) Log.d(TAG_QRCODE, "orientation 0 ou 3");
 				i = 0;
 				for (int y = offsetY; y < height + offsetY; y++)
 				{

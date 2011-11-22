@@ -16,7 +16,7 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
-import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
@@ -60,7 +60,7 @@ public final class CaptureHandler extends Handler
 		{
 			if (V)
 				Log.v(
-					TAG_CONNECT, "Found possible result point");
+					TAG_QRCODE, "Found possible result point");
 			mWrapper.getViewfinderView().addPossibleResultPoint(
 				point);
 		}
@@ -89,24 +89,23 @@ public final class CaptureHandler extends Handler
 		switch (message.what)
 		{
 			case R.id.auto_focus:
-				if (V)
-					Log.v(
-						TAG_CONNECT, "Got auto-focus message");
+				if (V)	Log.v(TAG_QRCODE, "Got auto-focus message");
 				// When one auto focus pass finishes, start another. This is the
 				// closest thing to
 				// continuous AF. It does seem to hunt a bit, but I'm not sure
 				// what else to do.
 				if (mState == State.DECODE)
 				{
-					CameraManager.get().requestAutoFocus(
-						this, R.id.auto_focus);
+					CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
 				}
+				else
+					CameraManager.get().stopPreview();
 				break;
 
 			case R.id.start_decode:
 				if (V)
 					Log.v(
-						TAG_CONNECT, "Got start decode message");
+						TAG_QRCODE, "3. Got start decode message");
 				if (mState != State.DECODE)
 				{
 					mState = State.DECODE;
@@ -115,7 +114,7 @@ public final class CaptureHandler extends Handler
 				}
 				else if (E)
 					Log.e(
-						TAG_CONNECT, "allrealdy in decode state");
+						TAG_QRCODE, "allrealdy in decode state");
 				break;
 
 			case R.id.current_decode:
@@ -123,7 +122,7 @@ public final class CaptureHandler extends Handler
 				{
 					if (D)
 						Log.d(
-							TAG_CONNECT, "Got current decode message");
+							TAG_QRCODE, "Got current decode message");
 					Bundle bundle = message.getData();
 					Bitmap barcode = bundle == null ? null : (Bitmap) bundle
 							.getParcelable(DecodeThread.BARCODE_BITMAP);
@@ -133,21 +132,17 @@ public final class CaptureHandler extends Handler
 				break;
 
 			case R.id.decode_succeeded:
-				if (D)
-					Log.d(
-						TAG_CONNECT, "Got decode succeeded message");
+				if (V) Log.v(TAG_QRCODE, "5. Got decode succeeded message");
+				CameraManager.get().stopPreview();
 				mState = State.SUCCESS;
 				Bundle bundle = message.getData();
 				Bitmap barcode = bundle == null ? null : (Bitmap) bundle
 						.getParcelable(DecodeThread.BARCODE_BITMAP);
-				mWrapper.handleDecode(
-					(Result) message.obj, barcode);
+				mWrapper.handleDecode((Result) message.obj, barcode);
 				break;
 
 			case R.id.decode_failed:
-				if (V)
-					Log.v(
-						TAG_CONNECT, "Got decode failed message");
+				if (V) Log.v(TAG_QRCODE, "5. Got decode failed message");
 				// We're decoding as fast as possible, so when one decode fails,
 				// start another.
 				restartPreviewAndDecode();
@@ -179,12 +174,10 @@ public final class CaptureHandler extends Handler
 
 	private void restartPreviewAndDecode()
 	{
-		if (V)
-			Log.v(
-				TAG_CONNECT, "State.SUCESSS. restartPreviewAndDecode...");
+		if (V) Log.v(TAG_QRCODE, "1. restartPreviewAndDecode...");
 		mState = State.AUTOFOCUS;
-		CameraManager.get().requestAutoFocus(
-			this, R.id.auto_focus);
+		if (!QRCODE_REPEAT_AUTOFOCUS)
+			CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
 		mWrapper.drawViewfinder();
 	}
 

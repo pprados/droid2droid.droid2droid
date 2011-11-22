@@ -94,7 +94,7 @@ public class TestQRCode extends Activity
 	{
 		super.onResume();
 		WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
-		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
+		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE;
 		getWindow().setAttributes(layoutParams);
 	}
 
@@ -141,7 +141,7 @@ public class TestQRCode extends Activity
 //			{
 //				// TODO: Pas de connection possible
 //				if (I)
-//					Log.i(TAG_CONNECT, PREFIX_LOG + "Not connection available");
+//					Log.i(TAG_QRCODE, PREFIX_LOG + "Not connection available");
 //				return null;
 //			}
 		}

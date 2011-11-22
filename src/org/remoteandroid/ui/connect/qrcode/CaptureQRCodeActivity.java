@@ -16,6 +16,8 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.W;
@@ -128,8 +130,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void onCreate(Bundle icicle)
 	{
 		super.onCreate(icicle);
-		Log.e(
-			"activity", "create");
+		if (D) Log.d(
+			TAG_QRCODE, "create");
 		Window window = getWindow();
 		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.qrcode_capture);
@@ -207,8 +209,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mViewfinderView.getLocationOnScreen(location);
 		Rect r = new Rect();
 		v.getLocalVisibleRect(r);
-		Log.d(
-			TAG_CONNECT, "rect=" + r);
+		if (D) Log.d(
+			TAG_QRCODE, "rect=" + r);
 	}
 
 	@Override
@@ -216,8 +218,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 	{
 		super.onResume();
 		resetStatusView();
-		Log.e(
-			"activity", "resume");
+		if (D) Log.d(
+			TAG_QRCODE, "resume");
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (mHasSurface)
@@ -264,11 +266,11 @@ public final class CaptureQRCodeActivity extends Activity implements
 	protected void onPause()
 	{
 		super.onPause();
-		Log.e(
-			"activity", "pause");
+		if (D) Log.e(
+			TAG_QRCODE, "pause");
 		if (I)
 			Log.i(
-				TAG_CONNECT, "onPause...");
+				TAG_QRCODE, "onPause...");
 		if (mCache.mHandler != null)
 		{
 			mCache.mHandler.quitSynchronously();
@@ -285,7 +287,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 		
 		if (I)
 			Log.i(
-				TAG_CONNECT, "onDestroy...");
+				TAG_QRCODE, "onDestroy...");
 		mCache.mInactivityTimer.shutdown();
 		this.mViewfinderView.detachHandler();
 		super.onDestroy();
@@ -295,8 +297,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		Log.e(
-			"activity", "onconfigchanged");
+		if (D) Log.d(
+			TAG_QRCODE, "onconfigchanged");
 		CameraManager.init(this); // FIXME: Attention fuite mémoire sur le this !
 		CameraManager.get().closeDriver();
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
@@ -359,12 +361,12 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 	public void surfaceCreated(SurfaceHolder holder)
 	{
-		Log.e(
-			"activity", "surface created");
+		if (D) Log.d(
+			TAG_QRCODE, "surface created");
 		if (!mHasSurface)
 		{
-			Log.e(
-				"activity", "mHasSurface surface created");
+			if (D) Log.e(
+				TAG_QRCODE, "mHasSurface surface created");
 			
 			CameraManager.get().setScreenResolutionValues(
 				new Point(mViewfinderView.getWidth(), mViewfinderView
@@ -384,8 +386,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height)
 	{
-		Log.e(
-			"activity", "surface changed");
+		if (D) Log.d(
+			TAG_QRCODE, "surface changed");
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
@@ -408,7 +410,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	{
 		if (I)
 			Log.i(
-				TAG_CONNECT, "handle valide decode " + rawResult);
+				TAG_QRCODE, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		mViewfinderView.drawResultBitmap(barcode);
 		mCache.mBeepManager.playBeepSoundAndVibrate();
@@ -421,7 +423,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	{
 		if (I)
 			Log.i(
-				TAG_CONNECT, "handle valide decode " + rawResult);
+				TAG_QRCODE, "handle valide decode " + rawResult);
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}
 
@@ -505,7 +507,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 		{
 			if (W)
 				Log.w(
-					TAG_CONNECT, ioe);
+					TAG_QRCODE, ioe);
 			displayFrameworkBugMessageAndExit();
 		}
 		catch (RuntimeException e)
@@ -514,7 +516,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 			// java.?lang.?RuntimeException: Fail to connect to camera service
 			if (W)
 				Log.w(
-					TAG_CONNECT, "Unexpected error initializating camera", e);
+					TAG_QRCODE, "Unexpected error initializating camera", e);
 			displayFrameworkBugMessageAndExit();
 		}
 	}

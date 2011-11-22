@@ -318,7 +318,6 @@ public class Trusted
 		}
 		return null;
 	}
-	
 	// Note: With device <Honey_comb, only one data network is on. Wifi OR mobile.
 	// In honeycomb, it's possible to have Widi AND Mobile.
 	public static Messages.Candidates getConnectMessage(Context context) throws UnknownHostException, SocketException

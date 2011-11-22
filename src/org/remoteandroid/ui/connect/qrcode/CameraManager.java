@@ -1,5 +1,7 @@
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.QRCODE_AUTOFOCUS;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.V;
@@ -152,14 +154,16 @@ public final class CameraManager
 //			p.set("rotation", 0);
 //		}
 
+		 p.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO); // FIXME
 		 mCamera.setParameters(p);
+		 
 		 if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD){
 			 new Runnable(){
 				@Override
 				public void run() {
 					android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
 				    android.hardware.Camera.getCameraInfo(camera, info);
-					int degrees = 0;
+				    int degrees = 0;
 				    switch (rotation) {
 				         case Surface.ROTATION_0: degrees = 0; break;
 				         case Surface.ROTATION_90: degrees = 90; break;
@@ -235,7 +239,7 @@ public final class CameraManager
 		}
 
 		
-		Log.e("camera", "rotation : " + rotation);
+		if (D) Log.d(TAG_QRCODE, "rotation : " + rotation);
 		CameraManager.get().setOrientation(rotation);
 			//ORIENTATION[rotation]);
 
@@ -253,8 +257,7 @@ public final class CameraManager
 		Point p = mConfigManager.getCameraResolution();
 		MAX_FRAME_HEIGHT = p.y;
 		MAX_FRAME_WIDTH = p.x;
-		Log.e(
-			"size", "max : " + p.x + "," + p.y);
+		if (D) Log.d(TAG_QRCODE, "max : " + p.x + "," + p.y);
 		// FIXME
 		// SharedPreferences prefs =
 		// PreferenceManager.getDefaultSharedPreferences(context);
@@ -341,16 +344,11 @@ public final class CameraManager
 	{
 		if (mCamera != null && mPreviewing)
 		{
-			mAutoFocusCallback.setHandler(
-				handler, message);
-			if (V)
-				Log.v(
-					TAG_CONNECT, "Requesting auto-focus callback");
+			mAutoFocusCallback.setHandler(handler, message);
 			if (QRCODE_AUTOFOCUS)
 				mCamera.autoFocus(mAutoFocusCallback);
 			else
-				mAutoFocusCallback.onAutoFocus(
-					true, mCamera);
+				mAutoFocusCallback.onAutoFocus(true, mCamera);
 		}
 	}
 
@@ -419,7 +417,7 @@ public final class CameraManager
 			mFramingRectInPreview.top = mFramingRectInPreview.top * surfaceResolution.y / cameraResolution.y;
 			mFramingRectInPreview.right = mFramingRectInPreview.right * surfaceResolution.x / cameraResolution.x;
 			mFramingRectInPreview.bottom = mFramingRectInPreview.bottom * surfaceResolution.y / cameraResolution.y;
-			Log.e("camera", "orientation in getfrmaingrectinpreview " + camera_rotation);
+			if (D) Log.d(TAG_QRCODE, "orientation in getfrmaingrectinpreview " + camera_rotation);
 			if(camera == Camera.CameraInfo.CAMERA_FACING_BACK){
 				if(camera_rotation == 90)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview);
@@ -440,18 +438,18 @@ public final class CameraManager
 			}
 			
 			if (V)
-				Log.d(
-					TAG_CONNECT, "cameraResolution=" + cameraResolution);
+				Log.v(
+					TAG_QRCODE, "cameraResolution=" + cameraResolution);
 			if (V)
-				Log.d(
-					TAG_CONNECT, "surfaceResolution=" + surfaceResolution);
+				Log.v(
+					TAG_QRCODE, "surfaceResolution=" + surfaceResolution);
 			if (V)
-				Log.d(
-					TAG_CONNECT, "framingRect=" + rect + " (w:" + rect.width()
+				Log.v(
+					TAG_QRCODE, "framingRect=" + rect + " (w:" + rect.width()
 							+ ",h:" + rect.height() + ")");
 			if (V)
-				Log.d(
-					TAG_CONNECT, "framingRect in previous="
+				Log.v(
+					TAG_QRCODE, "framingRect in previous="
 							+ mFramingRectInPreview.toShortString() + " (w:"
 							+ mFramingRectInPreview.width() + ",h:"
 							+ mFramingRectInPreview.height() + ")");
@@ -557,17 +555,17 @@ public final class CameraManager
 			// mFramingRect = new Rect(leftOffset, topOffset, leftOffset +
 			// size.x, topOffset + size.y); // Center
 			if (V)
-				Log.d(
-					TAG_CONNECT, "cam Resolution: " + cameraResolution);
+				Log.v(
+					TAG_QRCODE, "cam Resolution: " + cameraResolution);
 			if (V)
-				Log.d(
-					TAG_CONNECT, "surface Resolution: " + surfaceResolution);
+				Log.v(
+					TAG_QRCODE, "surface Resolution: " + surfaceResolution);
 			if (V)
-				Log.d(
-					TAG_CONNECT, "Calculated framing rect: " + mFramingRect
+				Log.v(
+					TAG_QRCODE, "Calculated framing rect: " + mFramingRect
 							+ " (w:" + mFramingRect.width() + ",h:"
 							+ mFramingRect.height() + ")");
-			Log.d(TAG_CONNECT,"framing : " + mFramingRect.toShortString());
+			if (V) Log.v(TAG_QRCODE,"framing : " + mFramingRect.toShortString());
 		}
 		return mFramingRect;
 	}
@@ -599,12 +597,12 @@ public final class CameraManager
 		
 		
 		int width, height;
-		if(D) Log.e("size", "scale " + density);
+		if(D) Log.d(TAG_QRCODE, "scale " + density);
 		width = (int) (density * DESIRED_FRAME_SIZE_BASELINE  * ((float) ((float) cameraResolution.x / (float) surfaceResolution.x)));
 		height = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.y / (float) surfaceResolution.y)));
 
 		if(D) Log.d(
-			"size", "display size: " + width + "," + height);
+			TAG_QRCODE, "display size: " + width + "," + height);
 		if (width < MIN_FRAME_WIDTH)
 		{
 			width = MIN_FRAME_WIDTH;
