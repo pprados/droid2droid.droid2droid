@@ -56,7 +56,7 @@ final class CameraConfigurationManager
 
 	private static final int MIN_CAMERA_RESOLUTION_HEIGHT = 144;
 
-	private static final int TARGET_CAMERA_RESOLUTION = 320 * 240;
+	private static final int TARGET_CAMERA_RESOLUTION = 320*240;
 
 	private static final String TAG_CONNECT = "";
 
@@ -112,7 +112,7 @@ final class CameraConfigurationManager
 		parameters.setPreviewSize(
 			mCameraResolution.x, mCameraResolution.y);
 
-		setFlash(parameters);
+		//setFlash(parameters);
 		setZoom(parameters);
 		camera.setParameters(parameters);
 	}

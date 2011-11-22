@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
@@ -54,7 +55,7 @@ public final class ViewfinderView extends View
 
 	private static final long ANIMATION_DELAY = 100L;
 
-	private static final int CURRENT_POINT_OPACITY = 0xFF;
+	private static final int CURRENT_POINT_OPACITY = 0x99;
 
 	private static final int MAX_RESULT_POINTS = 20;
 
@@ -155,10 +156,14 @@ public final class ViewfinderView extends View
 			frame.right + 1, frame.top, width, frame.bottom + 1, mPaint);
 		canvas.drawRect(
 			0, frame.bottom + 1, width, height, mPaint);
-		// mPaint.setColor(Color.BLUE);
-		// canvas.drawCircle(0, 0, 10, mPaint);
-		// mPaint.setColor(Color.RED);
-		// canvas.drawCircle(frame.right - 20,100, 10, mPaint);
+		 
+		 
+		 mPaint.setColor(Color.RED);
+		 canvas.drawCircle(70, 41, 10, mPaint);
+		 
+		 canvas.drawCircle(320-70, 240-41, 10, mPaint);
+		 mPaint.setColor(Color.BLUE);
+		 canvas.drawCircle(41, 70, 10, mPaint);
 		if (mResultBitmap != null)
 		{
 			// Draw the opaque result bitmap over the scanning rectangle
@@ -320,48 +325,46 @@ public final class ViewfinderView extends View
 				TAG_CONNECT,
 				"Result w:" + barcode.getWidth() + " h:" + barcode.getHeight());
 		// FIXME if (CameraManager.get().isRotate())
-		if (CameraManager.CAMERA_ORIENTATION == 2
-				|| CameraManager.CAMERA_ORIENTATION == 0)// CameraManager.HACK_ROTATE)
-		{
-			Matrix matrix = new Matrix();
-			matrix.setRotate(
-				90, barcode.getWidth() / 2, barcode.getHeight() / 2);
-
-			barcode = Bitmap.createBitmap(
-				barcode, 0, 0, barcode.getWidth(), barcode.getHeight(), matrix,
-				true);
-			if (D)
-				Log.d(
-					TAG_CONNECT, "Rotate result w:" + barcode.getWidth()
-							+ " h:" + barcode.getHeight());
-		}
+//		if (CameraManager.camera_orientation == 2
+//				|| CameraManager.camera_orientation == 0)// CameraManager.HACK_ROTATE)
+//		{
+//			Matrix matrix = new Matrix();
+//			matrix.setRotate(
+//				90, barcode.getWidth() / 2, barcode.getHeight() / 2);
+//
+//			barcode = Bitmap.createBitmap(
+//				barcode, 0, 0, barcode.getWidth(), barcode.getHeight(), matrix,
+//				true);
+//			if (D)
+//				Log.d(
+//					TAG_CONNECT, "Rotate result w:" + barcode.getWidth()
+//							+ " h:" + barcode.getHeight());
+//		}
 		mResultBitmap = barcode;
 		invalidate();
 	}
 
 	public void drawPreviousBitmap(Bitmap barcode)
 	{
-		if (D)
-			Log.d(
-				TAG_CONNECT,
-				"Result w:" + barcode.getWidth() + " h:" + barcode.getHeight());
-		// FIXME if (CameraManager.get().isRotate())
-
-		if (CameraManager.CAMERA_ORIENTATION == 0
-				|| CameraManager.CAMERA_ORIENTATION == 2)
-		{
-			Matrix matrix = new Matrix();
-			matrix.setRotate(
-				90, barcode.getWidth() / 2, barcode.getHeight() / 2);
-
-			barcode = Bitmap.createBitmap(
-				barcode, 0, 0, barcode.getWidth(), barcode.getHeight(), matrix,
-				true);
-			if (D)
-				Log.d(
-					TAG_CONNECT, "Rotate result w:" + barcode.getWidth()
-							+ " h:" + barcode.getHeight());
-		}
+//		if (D)
+//			Log.d(
+//				TAG_CONNECT,
+//				"Result w:" + barcode.getWidth() + " h:" + barcode.getHeight());
+//		// FIXME if (CameraManager.get().isRotate())
+//
+//		
+//			Matrix matrix = new Matrix();
+//			matrix.setRotate(
+//				CameraManager.get().hackRotation, this.getWidth()/2, this.getHeight() / 2);
+//
+//			barcode = Bitmap.createBitmap(
+//				barcode, 0, 0, barcode.getWidth(), barcode.getHeight(), matrix,
+//				true);
+//			if (D)
+//				Log.d(
+//					TAG_CONNECT, "Rotate result w:" + barcode.getWidth()
+//							+ " h:" + barcode.getHeight());
+//		
 		mPreviousBitmap = barcode;
 		invalidate();
 	}

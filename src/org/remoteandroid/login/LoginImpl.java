@@ -1,11 +1,14 @@
 package org.remoteandroid.login;
 
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_SECURITY;
+
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import static org.remoteandroid.internal.Constants.*;
 
 import javax.crypto.Cipher;
 

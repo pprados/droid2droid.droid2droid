@@ -19,6 +19,7 @@ package org.remoteandroid.ui.connect.qrcode;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.util.Log;
 
 import com.google.zxing.LuminanceSource;
 
@@ -56,12 +57,12 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 	{
 		super(width, height);
 		// FIXME: remove logs
-		// Log.e("camera", "data len: "+yuvData.length +
-		// " width: "+dataWidth+" height: " + dataHeight + " left: " + left +
-		// " width: " + width + " top: " + top + " height: " + height);
-		// Log.e("camera", "left + width > dataWidth: " + (left + width) + " > "
-		// + dataWidth + " top + height > dataHeight: " + (top + height) + " > "
-		// + dataHeight);
+//		 Log.e("camera", "data len: "+yuvData.length +
+//		 " width: "+dataWidth+" height: " + dataHeight + " left: " + left +
+//		 " width: " + width + " top: " + top + " height: " + height);
+//		 Log.e("camera", "left + width > dataWidth: " + (left + width) + " > "
+//		 + dataWidth + " top + height > dataHeight: " + (top + height) + " > "
+//		 + dataHeight);
 		if (left + width > dataWidth || top + height > dataHeight)
 		{
 			throw new IllegalArgumentException(
@@ -164,24 +165,26 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 
 		int i = 0;
 
-		if (CameraManager.CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK)
+		if (CameraManager.camera == Camera.CameraInfo.CAMERA_FACING_BACK)
 		{
 
 			offsetX = (mLeft);
 			offsetY = mTop;
-			if (false || CameraManager.CAMERA_ORIENTATION != 0
-					&& CameraManager.CAMERA_ORIENTATION != 1)
+			if (false && CameraManager.camera_orientation == 1
+					&& CameraManager.camera_orientation == 3)
 			{// || (Application.CAMERA == Camera.CameraInfo.CAMERA_FACING_FRONT
 				// && (Application.CAMERA_ORIENTATION == 0 ||
 				// Application.CAMERA_ORIENTATION == 3))){
 				// i = width * height - 1;
+				Log.e("camera", "orientation 0 ou 3");
 				i = 0;
-				for (int y = height + offsetY; y > offsetY; y--)
+				for (int y = offsetY; y < height + offsetY; y++)
 				{
-					int outputOffset = y * mDataWidth;
-					for (int x = width + offsetX; x > offsetX; x--)
+					//int outputOffset = y * mDataWidth;
+					
+					for (int x = offsetX; x < width + offsetX; x++)
 					{
-						int grey = yuv[outputOffset + x] & 0xff;
+						int grey = yuv[y * mDataWidth + x] & 0xff;
 						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
 
 					}
@@ -208,7 +211,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 
 			offsetX = mLeft;
 			offsetY = (mTop);
-			if ((CameraManager.CAMERA_ORIENTATION == 0 || CameraManager.CAMERA_ORIENTATION == 1))
+			if (true  ||(CameraManager.camera_rotation == 90 || CameraManager.camera_rotation == 0))
 			{
 				i = 0;
 				for (int y = offsetY; y < (height + offsetY); y++)
@@ -222,17 +225,16 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 					}
 				}
 			}
-			else if (CameraManager.CAMERA_ORIENTATION == 3)
+			else if (CameraManager.camera_rotation == 180 || CameraManager.camera_rotation == 270)
 			{
-				i = 0;
-
-				for (int y = height + offsetY; (y - offsetY) > 0; y--)
+				i = width * height;
+				for (int y = (height + offsetY); (y - offsetY) > 0; y--)
 				{
 					int outputOffset = y * mDataWidth;
-					for (int x = offsetX; x < (width + offsetX); x++)
+					for (int x = (width + offsetX); (x - offsetX) > 0; x--)
 					{
 						int grey = yuv[outputOffset + x] & 0xff;
-						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+						pixels[--i] = 0xFF000000 | (grey * 0x00010101);
 
 					}
 				}
@@ -258,6 +260,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		bitmap.setPixels(
 			pixels, 0, width, 0, 0, width, height);
 		Matrix matrix = new Matrix();
+		matrix.setRotate(CameraManager.get().camera_rotation, width/2, height/2);
 		bitmap = Bitmap.createBitmap(
 			bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 

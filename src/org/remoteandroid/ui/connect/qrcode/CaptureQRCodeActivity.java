@@ -23,8 +23,10 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.remoteandroid.R;
+import org.remoteandroid.internal.Compatibility;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,7 +37,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -114,13 +115,13 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 	private void setParams()
 	{
-		CameraManager.CAMERA_ORIENTATION = getResources().getConfiguration().orientation;
+		CameraManager.camera_orientation = getResources().getConfiguration().orientation;
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-		CameraManager.HACK_DPI = metrics.xdpi;
-		CameraManager.x = metrics.widthPixels / metrics.xdpi;
-		CameraManager.y = metrics.heightPixels / metrics.ydpi;
+		CameraManager.density = metrics.density;
+		//CameraManager.density = metrics.widthPixels / metrics.xdpi;
+		//CameraManager.density = metrics.heightPixels / metrics.ydpi;
 	}
 
 	@Override
@@ -135,25 +136,34 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 		setParams();
 
-		ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
-		if (Build.VERSION.SDK_INT >= 8)
+		final ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
 		{
-			btn.setOnClickListener(new OnClickListener()
+			new Runnable()
 			{
-
 				@Override
-				public void onClick(View v)
+				public void run()
 				{
-					CameraManager.CAMERA = (CameraManager.CAMERA + 1)
-							% Camera.getNumberOfCameras();
-					onPause();
-					setParams();
-					onResume();
+					btn.setOnClickListener(new OnClickListener()
+					{
+
+						@Override
+						public void onClick(View v)
+						{
+							CameraManager.camera = (CameraManager.camera + 1)
+									% Camera.getNumberOfCameras();
+							onPause();
+							setParams();
+							onResume();
+						}
+					});
+					
 				}
-			});
-		}
-		else
-			btn.setActivated(false);
+			}.run();
+					}
+//		else
+//			btn.setClickable(false);
+		
 		mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		mStatusView = (TextView) findViewById(R.id.status_view);
 		mCache = (Cache) getLastNonConfigurationInstance();
@@ -233,10 +243,21 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 	private int getRotation()
 	{
-		if (Build.VERSION.SDK_INT >= 8)
-			return getWindowManager().getDefaultDisplay().getRotation();
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+			Integer job = new Callable<Integer>()
+			{
+				public Integer call() 
+				{
+					return getWindowManager().getDefaultDisplay().getRotation();
+				}
+			
+				
+			}.call();
+			return job;
+		}
 		else
 			return getWindowManager().getDefaultDisplay().getOrientation();
+		
 	}
 
 	@Override
@@ -261,8 +282,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	protected void onDestroy()
 	{
-		Log.e(
-			"activity", "pause");
+		
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onDestroy...");
@@ -318,9 +338,17 @@ public final class CaptureQRCodeActivity extends Activity implements
 				FlashlightManager.setFlashlight(mCache.mFlashState);
 				return true;
 			case R.id.context_qrcode_camera:
-				if (Build.VERSION.SDK_INT >= 8)
-					CameraManager.CAMERA = (CameraManager.CAMERA + 1)
-							% Camera.getNumberOfCameras();
+				if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+					new Runnable(){
+						@Override
+						public void run() {
+							CameraManager.camera = (CameraManager.camera + 1)
+									% Camera.getNumberOfCameras();
+						}
+					}.run();
+				}
+					
+					
 				this.onPause();
 				this.onResume();
 				return true;
@@ -337,6 +365,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 		{
 			Log.e(
 				"activity", "mHasSurface surface created");
+			
 			CameraManager.get().setScreenResolutionValues(
 				new Point(mViewfinderView.getWidth(), mViewfinderView
 						.getHeight()));
@@ -360,9 +389,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-		CameraManager.HACK_DPI = metrics.xdpi;
-		CameraManager.x = metrics.widthPixels / metrics.xdpi;
-		CameraManager.y = metrics.heightPixels / metrics.ydpi;
+		CameraManager.density = metrics.density;
+//		CameraManager.density = metrics.widthPixels / metrics.xdpi;
+//		CameraManager.density = metrics.heightPixels / metrics.ydpi;
 		CameraManager.get().setScreenResolutionValues(
 			new Point(width, height));
 	}
