@@ -158,11 +158,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 	@Override
 	public RemoteAndroidInfoImpl getInfo()
 	{
-		return getInfo(null);
-	}
-	public RemoteAndroidInfoImpl getInfo(ConnectionType type)
-	{
-		return Trusted.getInfo(mContext,type);
+		return Trusted.getInfo(mContext);
 	}
 
 	@Override

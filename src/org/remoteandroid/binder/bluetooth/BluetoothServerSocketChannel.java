@@ -81,152 +81,125 @@ public class BluetoothServerSocketChannel implements Runnable
         {
         	final int j=i;
         	final UUID uuid=BluetoothSocketBossSender.sKeys[i];
-//			try
-			{
-//		        final BluetoothServerSocket srvSocket=mAdapter.listenUsingRfcommWithServiceRecord("RemoteAndroid", uuid);
-//				mSrvSockets.add(srvSocket);
-	        	new Thread(
-	    			new Runnable()
-	    			{
-	    				@Override
-	    				public void run() 
-	    				{
-	    					if (BT_HACK_DELAY_STARTUP!=0)
-	    					{
-	    						try { Thread.sleep(j*BT_HACK_DELAY_STARTUP); } catch (Exception e) {}
-	    					}
-	    					
-	    					BluetoothServerSocket srvSocket=null;
-	    			        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-	    			        for (int i=0;i<BT_MAX_LOOP_BEFORE_STOP;++i)
-	    			        {
-		    			        //BluetoothServerSocket srvSocket=null;
-								try
+        	new Thread(
+    			new Runnable()
+    			{
+    				@Override
+    				public void run() 
+    				{
+    					if (BT_HACK_DELAY_STARTUP!=0)
+    					{
+    						try { Thread.sleep(j*BT_HACK_DELAY_STARTUP); } catch (Exception e) {}
+    					}
+    					
+    					BluetoothServerSocket srvSocket=null;
+    			        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+    			        for (int i=0;i<BT_MAX_LOOP_BEFORE_STOP;++i)
+    			        {
+							try
+							{
+								if (!mAdapter.isEnabled())
+									return;
+								if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"BT listen on "+uuid);
+		    					srvSocket=mAdapter.listenUsingRfcommWithServiceRecord("RemoteAndroid", uuid);
+		    					mSrvSockets.add(srvSocket);
+		    					manageBluetoothSocket(uuid, srvSocket,true);
+							}
+							catch (IOException e)
+							{
+								mHandler.exceptionCaught(0,e);
+								if (e.getMessage().startsWith("Unknopwn error"))
 								{
-									if (!mAdapter.isEnabled())
-										return;
-									if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"BT listen on "+uuid);
-			    					srvSocket=mAdapter.listenUsingRfcommWithServiceRecord("RemoteAndroid", uuid);
-			    					mSrvSockets.add(srvSocket);
-			    					manageBluetoothSocket(uuid, srvSocket,true);
-								}
-								catch (IOException e)
-								{
-									mHandler.exceptionCaught(0,e);
-									if (e.getMessage().startsWith("Unknopwn error"))
-									{
-										if (E) Log.e(TAG_DISCOVERY,"BT invalide state.");
-										return;
-									}
-								}
-								catch (Throwable e)
-								{
-									if (E) Log.e(TAG_DISCOVERY,"BT error. ("+e.getMessage()+")");
+									if (E) Log.e(TAG_DISCOVERY,"BT invalide state.");
 									return;
 								}
-								finally
+							}
+							catch (Throwable e)
+							{
+								if (E) Log.e(TAG_DISCOVERY,"BT error. ("+e.getMessage()+")");
+								return;
+							}
+							finally
+							{
+								if (srvSocket!=null)
 								{
-									if (srvSocket!=null)
+									try
 									{
-										try
-										{
-											if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"BT socket closing... "+uuid);
-											srvSocket.close();
-											if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"BT socket closed. "+uuid);
-										}
-										catch (IOException e)
-										{
-											if (W) Log.w(TAG_SERVER_BIND,PREFIX_LOG+"Impossible to close BT socket",e);
-										}
+										if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"BT socket closing... "+uuid);
+										srvSocket.close();
+										if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"BT socket closed. "+uuid);
 									}
-		
+									catch (IOException e)
+									{
+										if (W) Log.w(TAG_SERVER_BIND,PREFIX_LOG+"Impossible to close BT socket",e);
+									}
 								}
-	    			        }
-	    			        if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"More error in bluetooth thread. Stop.");
-	    				}
 	
-	    			},
-	    			"BT server channel").start();
-			}
-//			catch (IOException e1)
-//			{
-//				// TODO Auto-generated catch block
-//				if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"BT Error when start server",e1);
-//			}
-        	if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
-        	{
-        		try
-				{
-					final Method method=mAdapter.getClass().getMethod("listenUsingInsecureRfcommWithServiceRecord", new Class<?>[]{String.class,UUID.class});
-					final BluetoothServerSocket srvSocket=(BluetoothServerSocket)method.invoke(mAdapter, "RemoteAndroid", uuid);
-					mSrvSockets.add(srvSocket);
-		        	new Thread(
-		        			new Runnable()
-		        			{
-		        				public void run() 
-		        				{
-		        			        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-		        			        for (int i=0;i<BT_MAX_LOOP_BEFORE_STOP;++i)
-		        			        {
-//			        			        BluetoothServerSocket srvSocket=null;
-										if (!mAdapter.isEnabled())
-											return;
-			    						try
-			    						{
-//			    	    					srvSocket=mAdapter.listenUsingInsecureRfcommWithServiceRecord("RemoteAndroid", uuid);
-//			    							mSrvSockets.add(srvSocket);
-			    	    					manageBluetoothSocket(uuid, srvSocket,false);
-			    						}
-			    						catch (IOException e)
-			    						{
-			    							mHandler.exceptionCaught(0,e);
-			    						}
-										catch (IllegalArgumentException e)
+							}
+    			        }
+    			        if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"More error in bluetooth thread. Stop.");
+    				}
+
+    			},
+    			"BT server channel").start();
+        }
+        
+        if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
+        {
+	        for (int i=0;i<BT_NB_UUID;++i)
+	        {
+	        	final int j=i;
+	        	final UUID uuid=BluetoothSocketBossSender.sKeysAno[i];
+	        	new Thread(
+	        			new Runnable()
+	        			{
+	        				public void run() 
+	        				{
+	        			        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+	        			        BluetoothServerSocket srvSocket=null;
+	        			        for (int i=0;i<BT_MAX_LOOP_BEFORE_STOP;++i)
+	        			        {
+									if (!mAdapter.isEnabled())
+										return;
+		    						try
+		    						{
+		    	    					srvSocket=mAdapter.listenUsingInsecureRfcommWithServiceRecord("RemoteAndroid", uuid);
+		    							mSrvSockets.add(srvSocket);
+		    	    					manageBluetoothSocket(uuid, srvSocket,false);
+		    						}
+		    						catch (IOException e)
+		    						{
+		    							mHandler.exceptionCaught(0,e);
+		    						}
+									catch (IllegalArgumentException e)
+									{
+										if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Android version problem",e);
+									}
+									catch (Throwable e)
+									{
+										if (E) Log.e(TAG_DISCOVERY,"BT error.",e);
+										return;
+									}
+									finally
+									{
+										if (srvSocket!=null)
 										{
-											if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Android version problem",e);
-										}
-										catch (Throwable e)
-										{
-											if (E) Log.e(TAG_DISCOVERY,"BT error.",e);
-											return;
-										}
-										finally
-										{
-											if (srvSocket!=null)
+											try
 											{
-												try
-												{
-													srvSocket.close();
-												}
-												catch (IOException e)
-												{
-													if (W) Log.w(TAG_SERVER_BIND,PREFIX_LOG+"Impossible to close BT socket",e);
-												}
+												srvSocket.close();
+											}
+											catch (IOException e)
+											{
+												if (W) Log.w(TAG_SERVER_BIND,PREFIX_LOG+"Impossible to close BT socket",e);
 											}
 										}
-		        			        }
-		        			        if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"More error in bluetooth thread. Stop.");
-		        				}
-		
-		        			},
-		        			"BT anonymous server channel").start();
-				}
-				catch (IllegalAccessException e)
-				{
-					if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Android version problem",e);
-				}
-				catch (InvocationTargetException e)
-				{
-					if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Android version problem",e);
-				}
-				catch (SecurityException e)
-				{
-					if (D) Log.d(TAG_SECURITY,PREFIX_LOG+"Android version problem",e);
-				}
-				catch (NoSuchMethodException e)
-				{
-					if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Android version problem",e);
-				}
+									}
+	        			        }
+	        			        if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"More error in bluetooth thread. Stop.");
+	        				}
+	
+	        			},
+	        			"BT anonymous server channel").start();
         	}
         }
     }

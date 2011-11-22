@@ -79,7 +79,7 @@ implements TechnologiesFragment.Listener
 		mMerge=getResources().getBoolean(R.bool.connect_merge);
 		
 		// Hack to simulate merger in landscape, and not merged in portrait
-		if (CONNECT_FORCE_FRAGMENTS)
+		if (HACK_CONNECT_FORCE_FRAGMENTS)
 		{
 			if (getResources().getConfiguration().orientation  == Configuration.ORIENTATION_LANDSCAPE)
 				mMerge=true;

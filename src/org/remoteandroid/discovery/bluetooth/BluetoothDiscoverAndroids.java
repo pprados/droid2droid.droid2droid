@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
@@ -77,20 +78,6 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 	
 	private static enum State { PENDING, DISCOVERY_ANONYMOUS,DISCOVERY};
 	private State mState=State.PENDING;
-	
-	static Method sMethod;
-	static
-	{
-		try
-		{
-			sMethod = BluetoothDevice.class.getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
-		}
-		catch (Exception e)
-		{
-			if (W) Log.w(TAG_DISCOVERY,PREFIX_LOG+"Anonymous bluetooth not supported with this device");
-		}
-	}
-
 	
 	// Manage the bluetooth status
 	private BroadcastReceiver mReceiver=new BroadcastReceiver()
@@ -154,7 +141,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 					if (D) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT Discovery "+device.getName()+". Try to use...");
 					if (V && deviceClass) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT compatible with device classe");
 					if (V && majorClass) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT compatible with major classe");
-					final RemoteAndroidInfoImpl myInfo=mBoss.getInfo(ConnectionType.BT);
+					final RemoteAndroidInfoImpl myInfo=mBoss.getInfo();
 					for (BluetoothDevice device2:BluetoothAdapter.getDefaultAdapter().getBondedDevices())
 					{
 						if (device.getAddress().equals(device2.getAddress()))
@@ -270,7 +257,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 						if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT Discover in parallel...");
 						jobs=new ArrayList<Callable<Void>>();
 					}
-					final RemoteAndroidInfoImpl myInfo=mBoss.getInfo(ConnectionType.BT);
+					final RemoteAndroidInfoImpl myInfo=mBoss.getInfo();
 					for (final BluetoothDevice device:adapter.getBondedDevices())
 					{
 						if ((device.getBluetoothClass().getDeviceClass()==BluetoothClass.Device.PHONE_SMART)
@@ -328,16 +315,21 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 						{
 							List<Future<Void>> j=mPool.invokeAll(jobs);
 							for (int i=0;i<j.size();++i)
-								j.get(i).get();
+							{
+								try
+								{
+									j.get(i).get();
+								}
+								catch (ExecutionException e)
+								{
+						    		if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"BT error",e);
+								}
+							}
 						}
 						catch (InterruptedException e)
 						{
 							// Ignore
 				    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT discover interrupted.",e);
-						}
-						catch (ExecutionException e)
-						{
-				    		if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"BT error",e);
 						}
 					}
 				} 
@@ -435,6 +427,7 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"BT device "+device.getName()+" return info.");
 				
 				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
+				info.isDiscoverBT=true;
 				// I find it !
 				if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"BT Device "+device.getName()+" found");
 				return info;
@@ -467,11 +460,19 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
 	{
 		try
 		{
-			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
 			if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
 			{
-				if (adapter.isDiscovering())
-					adapter.cancelDiscovery();
+				Application.sHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
+						if (adapter.isDiscovering())
+								adapter.cancelDiscovery();
+						
+					}
+				});
 			}
 			mPool.shutdown();
 			mPool=Executors.newCachedThreadPool();
@@ -495,26 +496,19 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
     	BluetoothSocket socket=null;
     	for (int i=0;i<BT_NB_UUID;++i)
     	{
-    		uuid=BluetoothSocketBossSender.sKeys[i];
 			if (Thread.interrupted())
 				return null;
     		try
     		{
     			if (anno)
     			{
-					try
-					{
-						// socket=device.createInsecureRfcommSocketToServiceRecord(uuid);
-    					socket=(BluetoothSocket)sMethod.invoke(device,uuid);
-					}
-					catch (Exception e)
-					{
-						throw new IllegalArgumentException("Anonymous bluetooth not supported with this device");
-					}
+					socket=device.createInsecureRfcommSocketToServiceRecord(uuid);
+		    		uuid=BluetoothSocketBossSender.sKeysAno[i];
     			}
     			else
     			{
     				socket=device.createRfcommSocketToServiceRecord(uuid);
+    	    		uuid=BluetoothSocketBossSender.sKeys[i];
     			}
     			if (BT_HACK_WAIT_AFTER_CREATE_RF_COMM!=0)
     				try { Thread.sleep(BT_HACK_WAIT_AFTER_CREATE_RF_COMM); } catch (InterruptedException e) {} 

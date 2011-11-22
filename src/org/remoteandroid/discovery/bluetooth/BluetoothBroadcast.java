@@ -64,10 +64,10 @@ public class BluetoothBroadcast extends BroadcastReceiver
 	}
 	
 	@Override
-	public void onReceive(Context context, Intent intent)
+	public void onReceive(Context context, final Intent intent)
 	{
 		if (!RemoteAndroidService.isActive()) return;
-		String action =intent.getAction();
+		final String action=intent.getAction();
 		if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED))
 		{
 			if (BT_INFORM_PRESENCE)
@@ -92,8 +92,8 @@ public class BluetoothBroadcast extends BroadcastReceiver
 							Intent intentDiscover=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 							intentDiscover.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
 							// FIXME: remove remote android ?
-//							if (info.getUris().length==0)
-//								intentDiscover.putExtra(RemoteAndroidManager.EXTRA_REMOVE,true);
+//										if (info.getUris().length==0)
+//											intentDiscover.putExtra(RemoteAndroidManager.EXTRA_REMOVE,true);
 							Application.sAppContext.sendBroadcast(intentDiscover,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 							
 						}
@@ -161,7 +161,7 @@ public class BluetoothBroadcast extends BroadcastReceiver
 									{ 
 										socket.connect();
 										// Ask remote android info
-										RemoteAndroidInfoImpl info=Trusted.getInfo(mAppContext,ConnectionType.BT);
+										RemoteAndroidInfoImpl info=Trusted.getInfo(mAppContext);
 										info.isBonded=true;
 										Messages.Identity msg=ProtobufConvs.toIdentity(info);
 						    			Channel.writeMsg(msg, socket.getOutputStream());

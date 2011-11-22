@@ -302,7 +302,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			{
 				sServiceInfo = 
 						ServiceInfo.create(REMOTEANDROID_SERVICE,Application.getName(), ETHERNET_LISTEN_PORT,"Remote android");//FIXME: variable port number
-				RemoteAndroidInfo info=Trusted.getInfo(Application.sAppContext, ConnectionType.ETHERNET);
+				RemoteAndroidInfo info=Trusted.getInfo(Application.sAppContext);
 				Map<String,String> props=new HashMap<String,String>();
 				props.put("uuid", info.getUuid().toString());
 				props.put("os", info.getOs());
@@ -449,7 +449,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			Msg msg = Msg.newBuilder()
 				.setType(Type.CONNECT_FOR_DISCOVERING)
 				.setThreadid(threadid)
-				.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo(ConnectionType.BT)))
+				.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
 				.build();
 			Channel.writeMsg(msg, socket.getOutputStream());
 	

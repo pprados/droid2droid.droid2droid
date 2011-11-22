@@ -36,6 +36,7 @@ import javax.jmdns.impl.DNSRecord.IPv6Address;
 
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
+import org.remoteandroid.internal.Constants;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
@@ -613,13 +614,13 @@ public class Application extends android.app.Application
 		// TODO: Samsung7
 		if (Build.FINGERPRINT.equals("htc_wwe/htc_ace/ace:2.3.3/GRI40/87995:user/release-keys"))
 		{
-			Constants.BT_DISCOVERY_IN_PARALLEL=false;
-			Constants.BT_DISCOVER_ANONYMOUS_IN_PARALLELE=false;
-			Constants.BT_INFORM_PRESENCE_IN_PARALLEL=false;
-			Constants.BT_HACK_DELAY_STARTUP=300L;
-			// I can discover this device, I can't be discovered with Fon router. Pas toujours !
+			BLUETOOTH=false;
+			BT_DISCOVERY_IN_PARALLEL=false;
+			BT_DISCOVER_ANONYMOUS_IN_PARALLELE=false;
+			BT_INFORM_PRESENCE_IN_PARALLEL=false;
+			BT_HACK_DELAY_STARTUP=300L;
 			// http://code.google.com/p/android/issues/detail?id=8407
-			Constants.ETHERNET_CAN_RECEIVE_MULTICAST=false;
+			ETHERNET_CAN_RECEIVE_MULTICAST=false;
 		}
 	}
 	

@@ -78,7 +78,7 @@ public class Trusted
 		mHandler=handler;
 	}
 	
-	public static RemoteAndroidInfoImpl getInfo(Context context,ConnectionType type/*FIXME: parametre toujours utils ?*/)
+	public static RemoteAndroidInfoImpl getInfo(Context context)
 	{
 		final RemoteAndroidInfoImpl info=new RemoteAndroidInfoImpl();
 		info.uuid=Application.getUUID();

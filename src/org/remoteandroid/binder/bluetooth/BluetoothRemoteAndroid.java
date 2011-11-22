@@ -31,7 +31,7 @@ import android.util.Log;
 public class BluetoothRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 {
 	private BluetoothServerSocketChannel mServerSocket;
-    static ExecutorService sExecutors=Executors.newCachedThreadPool();
+    public static ExecutorService sExecutors=Executors.newCachedThreadPool();
     
     private static BluetoothRemoteAndroid sDaemonBluetooth;
     public static void startDaemon(Context context,Notifications notifications)
@@ -108,38 +108,14 @@ public class BluetoothRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 	public void start()
 	{
 		super.start();
-		if (BT_HACK_CREATE_LISTEN_IN_MAIN_THREAD)
+		try
 		{
-			// TODO: essais dans main threa
-			Application.sHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						mServerSocket=new BluetoothServerSocketChannel(sExecutors, mHandler);
-						//sExecutors.execute(mServerSocket);
-						mServerSocket.run();
-					}
-					catch (IOException e)
-					{
-						if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
-					}
-				}
-			});
+			mServerSocket=new BluetoothServerSocketChannel(sExecutors, mHandler);
+			sExecutors.execute(mServerSocket);
 		}
-		else
+		catch (IOException e)
 		{
-			try
-			{
-				mServerSocket=new BluetoothServerSocketChannel(sExecutors, mHandler);
-				sExecutors.execute(mServerSocket);
-			}
-			catch (IOException e)
-			{
-				if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
-			}
+			if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Start failed",e);
 		}
 	}
 	
