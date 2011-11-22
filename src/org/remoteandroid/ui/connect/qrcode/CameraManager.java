@@ -133,7 +133,7 @@ public final class CameraManager
 	 */
 	
 	
-	public void setOrientation(int rotation)
+	public void setOrientation(final int rotation)
 	{
 		
 		 Camera.Parameters p = mCamera.getParameters(); 
@@ -154,25 +154,33 @@ public final class CameraManager
 
 		 mCamera.setParameters(p);
 		 if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD){
-			 android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
-			    android.hardware.Camera.getCameraInfo(camera, info);
-				int degrees = 0;
-			     switch (rotation) {
-			         case Surface.ROTATION_0: degrees = 0; break;
-			         case Surface.ROTATION_90: degrees = 90; break;
-			         case Surface.ROTATION_180: degrees = 180; break;
-			         case Surface.ROTATION_270: degrees = 270; break;
-			     }
+			 new Runnable(){
+				@Override
+				public void run() {
+					android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+				    android.hardware.Camera.getCameraInfo(camera, info);
+					int degrees = 0;
+				    switch (rotation) {
+				         case Surface.ROTATION_0: degrees = 0; break;
+				         case Surface.ROTATION_90: degrees = 90; break;
+				         case Surface.ROTATION_180: degrees = 180; break;
+				         case Surface.ROTATION_270: degrees = 270; break;
+				     }
 
-			     int result;
-			     if (camera == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-			         result = (info.orientation + degrees) % 360;
-			         result = (360 - result) % 360;  // compensate the mirror
-			     } else {  // back-facing
-			         result = (info.orientation - degrees + 360) % 360;
-			     }
-			     mCamera.setDisplayOrientation(result);
-			     camera_rotation = result;
+				     int result;
+				     if (camera == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+				         result = (info.orientation + degrees) % 360;
+				         result = (360 - result) % 360;  // compensate the mirror
+				     } else {  // back-facing
+				         result = (info.orientation - degrees + 360) % 360;
+				     }
+				     mCamera.setDisplayOrientation(result);
+				     camera_rotation = result;
+					
+				}
+				 
+			 }.run();
+			 
 	 
 		 }
 		//		if (Build.VERSION.SDK_INT >= 8)
@@ -203,8 +211,16 @@ public final class CameraManager
 	{
 		if (mCamera == null)
 		{
-			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
-				mCamera = Camera.open(camera);
+			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD){
+				new Runnable(){
+
+					@Override
+					public void run() {
+						mCamera = Camera.open(camera);
+					}
+					
+				}.run();
+			}
 			else
 				mCamera = Camera.open();
 	

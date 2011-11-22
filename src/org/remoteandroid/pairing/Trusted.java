@@ -324,67 +324,73 @@ public class Trusted
 	public static Messages.Candidates getConnectMessage(Context context) throws UnknownHostException, SocketException
 	{
 		final WifiManager wifi=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+		Messages.Candidates.Builder builder=Messages.Candidates.newBuilder();
 
-		final int port=RemoteAndroidManager.DEFAULT_PORT; // TODO: variable port
-		ArrayList<InetAddress> all=new ArrayList<InetAddress>(4);
-		ArrayList<ByteString> ipv6=new ArrayList<ByteString>(2);
-		ArrayList<Integer> ipv4=new ArrayList<Integer>(2);
-
-		for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
+		if (ETHERNET)
 		{
-			NetworkInterface network=networks.nextElement();
-			for (Enumeration<InetAddress> addrs=network.getInetAddresses();addrs.hasMoreElements();)
-			{
-				InetAddress add=(InetAddress)addrs.nextElement();
-				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
-				if (network.getName().startsWith("sit")) // vpn ?
-					continue;
-				if (network.getName().startsWith("dummy")) // ipv6 in ipv4
-					continue;
-				if (add.isLoopbackAddress())
-					continue;
-				if (!all.contains(add))
-				{
-					if (add instanceof Inet4Address)
-					{
-						// Exclude RFC 3330. Auto configure ip
-						if (add.getAddress()[0]==(byte)169 && add.getAddress()[1]==(byte)254)
-							continue;
-						all.add(add);
-						ipv4.add(Tools.byteArrayToInt(add.getAddress()));
+			final int port=RemoteAndroidManager.DEFAULT_PORT; // TODO: variable port
+			ArrayList<InetAddress> all=new ArrayList<InetAddress>(4);
+			ArrayList<ByteString> ipv6=new ArrayList<ByteString>(2);
+			ArrayList<Integer> ipv4=new ArrayList<Integer>(2);
 	
-					}
-					else
+			for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
+			{
+				NetworkInterface network=networks.nextElement();
+				for (Enumeration<InetAddress> addrs=network.getInetAddresses();addrs.hasMoreElements();)
+				{
+					InetAddress add=(InetAddress)addrs.nextElement();
+					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
+					if (network.getName().startsWith("sit")) // vpn ?
+						continue;
+					if (network.getName().startsWith("dummy")) // ipv6 in ipv4
+						continue;
+					if (add.isLoopbackAddress())
+						continue;
+					if (!all.contains(add))
 					{
-						if (!ETHERNET_ONLY_IPV4)
+						if (add instanceof Inet4Address)
 						{
+							// Exclude RFC 3330. Auto configure ip
+							if (add.getAddress()[0]==(byte)169 && add.getAddress()[1]==(byte)254)
+								continue;
 							all.add(add);
-							ipv6.add( ByteString.copyFrom(add.getAddress()));
+							ipv4.add(Tools.byteArrayToInt(add.getAddress()));
+		
+						}
+						else
+						{
+							if (!ETHERNET_ONLY_IPV4)
+							{
+								all.add(add);
+								ipv6.add( ByteString.copyFrom(add.getAddress()));
+							}
 						}
 					}
 				}
 			}
-		}
-		all.clear();
-		
-		Messages.Candidates.Builder builder=Messages.Candidates.newBuilder();
-		//FIXME: if (port!=RemoteAndroidManager.DEFAULT_PORT)
-			builder.setPort(port); // OPT: Optional if default
-		builder.addAllInternetIpv4(ipv4);
-		builder.addAllInternetIpv6(ipv6);
-		if (wifi!=null && wifi.isWifiEnabled())
-		{
-			WifiInfo info=wifi.getConnectionInfo();
-			builder.setBssid(ByteString.copyFrom(mactoByteArray(info.getBSSID())));
-		}
-		BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
-		if (adapter!=null && adapter.isEnabled())
-		{
-			if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
+			all.clear();
+			
+			if (port!=RemoteAndroidManager.DEFAULT_PORT)
+				builder.setPort(port);
+			builder.addAllInternetIpv4(ipv4);
+			builder.addAllInternetIpv6(ipv6);
+			if (wifi!=null && wifi.isWifiEnabled())
 			{
-				builder.setBluetoothAnonmymous(true);
+				WifiInfo info=wifi.getConnectionInfo();
+				builder.setBssid(ByteString.copyFrom(mactoByteArray(info.getBSSID())));
 			}
-			builder.setBluetoothMac(Tools.byteArrayToLong(mactoByteArray(adapter.getAddress())));
+		}
+		if (BLUETOOTH)
+		{
+			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
+			if (adapter!=null && adapter.isEnabled())
+			{
+				if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
+				{
+					builder.setBluetoothAnonmymous(true);
+				}
+				builder.setBluetoothMac(Tools.byteArrayToLong(mactoByteArray(adapter.getAddress())));
+			}
 		}
 		return builder.build();
 	}

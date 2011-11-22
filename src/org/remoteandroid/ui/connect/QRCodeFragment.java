@@ -7,8 +7,10 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.remoteandroid.R;
+import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.connect.qrcode.BeepManager;
@@ -226,8 +228,19 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 
 	private int getRotation()
 	{
-		if (Build.VERSION.SDK_INT >= 8)
-			return getActivity().getWindowManager().getDefaultDisplay().getRotation();
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+			Integer job = new Callable<Integer>()
+			{
+				public Integer call() 
+				{
+					return getActivity().getWindowManager().getDefaultDisplay().getRotation();
+				}
+			
+				
+			}.call();
+			return job;
+		}
+			
 		else
 			return getActivity().getWindowManager().getDefaultDisplay().getOrientation();
 	}
@@ -256,7 +269,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onDestroy...");
+
 		if(mCache != null && mCache.mInactivityTimer != null)
+
 			mCache.mInactivityTimer.shutdown();
 		super.onDestroy();
 	}
@@ -367,9 +382,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	@Override
 	public void handleDecode(Result rawResult, Bitmap barcode)
 	{
-		if (I)
-			Log.i(
-				TAG_CONNECT, "handle valide decode " + rawResult);
+//		if (I)
+//			Log.i(
+//				TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		mCache.mLastResult = rawResult;
 		mViewfinderView.drawResultBitmap(barcode);
@@ -380,8 +395,13 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		Messages.Candidates candidates;
 		try
 		{
-			byte[] result = rawResult.getRawBytes();
-			candidates = Messages.Candidates.parseFrom(result);
+			byte[] result;
+			String s = rawResult.getText();
+			
+			byte[] data=new byte[s.length()];
+			s.getBytes(0, s.length(), data, 0);//rawResult.getText().getBytes();
+			
+			candidates = Messages.Candidates.parseFrom(data);
 			activity.tryConnect(
 				null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
 		}
@@ -395,9 +415,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		if (I)
-			Log.i(
-				TAG_CONNECT, "handle valide decode " + rawResult);
+//		if (I)
+//			Log.i(
+//				TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mLastResult = rawResult;
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}

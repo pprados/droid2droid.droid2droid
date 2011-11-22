@@ -23,6 +23,7 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
@@ -36,7 +37,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -136,25 +136,34 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 		setParams();
 
-		ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
+		final ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
 		{
-			btn.setOnClickListener(new OnClickListener()
+			new Runnable()
 			{
-
 				@Override
-				public void onClick(View v)
+				public void run()
 				{
-					CameraManager.camera = (CameraManager.camera + 1)
-							% Camera.getNumberOfCameras();
-					onPause();
-					setParams();
-					onResume();
+					btn.setOnClickListener(new OnClickListener()
+					{
+
+						@Override
+						public void onClick(View v)
+						{
+							CameraManager.camera = (CameraManager.camera + 1)
+									% Camera.getNumberOfCameras();
+							onPause();
+							setParams();
+							onResume();
+						}
+					});
+					
 				}
-			});
-		}
-		else
-			btn.setActivated(false);
+			}.run();
+					}
+//		else
+//			btn.setClickable(false);
+		
 		mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		mStatusView = (TextView) findViewById(R.id.status_view);
 		mCache = (Cache) getLastNonConfigurationInstance();
@@ -234,10 +243,21 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 	private int getRotation()
 	{
-		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
-			return getWindowManager().getDefaultDisplay().getRotation();
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+			Integer job = new Callable<Integer>()
+			{
+				public Integer call() 
+				{
+					return getWindowManager().getDefaultDisplay().getRotation();
+				}
+			
+				
+			}.call();
+			return job;
+		}
 		else
 			return getWindowManager().getDefaultDisplay().getOrientation();
+		
 	}
 
 	@Override
@@ -318,9 +338,17 @@ public final class CaptureQRCodeActivity extends Activity implements
 				FlashlightManager.setFlashlight(mCache.mFlashState);
 				return true;
 			case R.id.context_qrcode_camera:
-				if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
-					CameraManager.camera = (CameraManager.camera + 1)
-							% Camera.getNumberOfCameras();
+				if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+					new Runnable(){
+						@Override
+						public void run() {
+							CameraManager.camera = (CameraManager.camera + 1)
+									% Camera.getNumberOfCameras();
+						}
+					}.run();
+				}
+					
+					
 				this.onPause();
 				this.onResume();
 				return true;

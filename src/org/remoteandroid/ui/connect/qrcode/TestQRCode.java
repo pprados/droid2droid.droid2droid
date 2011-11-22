@@ -4,8 +4,10 @@ import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 
+import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Hashtable;
 
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
@@ -21,6 +23,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.ImageButton;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
 import com.google.zxing.Writer;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -63,6 +66,7 @@ public class TestQRCode extends Activity
 			{
 				try
 				{
+					 
 					return buildQRCode(smallerDim);
 				}
 				catch (WriterException e)
@@ -109,49 +113,62 @@ public class TestQRCode extends Activity
 
 		try
 		{
-			//Messages.Candidates candidates = Trusted.getConnectMessage(this);
-			//byte[] data = candidates.toByteArray();
-			byte[] data=new byte[]{0,1,(byte)'A',65,(byte)0xFF};
-			if (data.length != 0)
+			Messages.Candidates candidates = Trusted.getConnectMessage(this);
+			byte[] data = candidates.toByteArray();
+			
+			//byte[] data=new byte[]{0,1,(byte)'A',65,(byte)0xFF};
+	//		if (data.length != 0)
 			{
-				String contents = new String(data, 0);
+				//String contents = new String(data, 0);
+				String contents = null;
+				contents = new String(data, 0);
+				char[] t = new char[contents.length()];
+				contents.getChars(0, contents.length(), t, 0);
+				
+//				try {
+//					//contents = new String(data, "");
+//					//contents = new String(data, "UTF-8");
+//					
+//					
+//				} catch (UnsupportedEncodingException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				return encodeAsBitmap(
 					contents, format, smallerDimension);
 			}
-			else
-			{
-				// TODO: Pas de connection possible
-				if (I)
-					Log.i(
-						TAG_CONNECT, PREFIX_LOG + "Not connection available");
-				return null;
-			}
+//			else
+//			{
+//				// TODO: Pas de connection possible
+//				if (I)
+//					Log.i(TAG_CONNECT, PREFIX_LOG + "Not connection available");
+//				return null;
+//			}
 		}
-//		catch (UnknownHostException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return null;
-//		}
-//		catch (SocketException e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return null;
-//		}
+		catch (UnknownHostException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		catch (SocketException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 		finally {}
 	}
 
 	Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int dimension)
 			throws WriterException
 	{
-		// Hashtable<EncodeHintType, Object> hints = new
-		// Hashtable<EncodeHintType, Object>(2);
-		// hints.put(EncodeHintType.CHARACTER_SET, null);
+//		 Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>(2);
+//		 hints.put(EncodeHintType.CHARACTER_SET, null);
 
 		Writer writer = new QRCodeWriter();
 		BitMatrix result = writer.encode(
-			contents, format, 0, 0, null);
+			contents, format, 0, 0, null/*hints*/);
 		int width = result.getWidth();
 		int height = result.getHeight();
 		int[] pixels = new int[width * height];
