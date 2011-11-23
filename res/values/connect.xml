@@ -74,6 +74,7 @@
 	<string name="connect_input_message_error_set_internet">Impossible to access Internet to generate a ticket.</string>
 	<string name="connect_input_message_error_get_internet">Impossible to access Internet to check the ticket.</string>
 	<string name="connect_input_message_error_get_format">Invalid ticket. Check case and try again.</string>
+	<string name="connect_input_enter_code">Enter ticket</string>
 	    	    	    	
 	<string name="connect_input">Manual id</string>
 	<string name="connect_input_description">Enter published id from remote device.</string>

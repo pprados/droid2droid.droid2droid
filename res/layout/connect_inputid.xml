@@ -47,7 +47,7 @@
 	    android:layout_alignBaseline="@+id/edit"
 	    android:layout_alignBottom="@+id/edit"
 	    android:layout_alignParentLeft="true"
-	    android:text="@string/input_enter_code"
+	    android:text="@string/connect_input_enter_code"
 	    android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<Button

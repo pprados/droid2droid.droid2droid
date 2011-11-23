@@ -205,9 +205,9 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 			protected void onPostExecute(byte[] data)
 			{
 				// TODO uncomment this line after testing
-				// _sendedData = data;SmsMessage.MAX_USER_DATA_BYTES
-				mSendedData = new byte[]
-				{ 'A', 'B', 'C', 'D', 'E' };
+				mSendedData = data;
+//				mSendedData = new byte[]
+//				{ 'A', 'B', 'C', 'D', 'E' };
 				if (V)
 					Log.v(
 						TAG_SMS, "length of byte array = " + data.length);
