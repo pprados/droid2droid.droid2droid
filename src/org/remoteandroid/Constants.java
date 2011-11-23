@@ -20,7 +20,8 @@ public class Constants
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
 	public static final String TAG_EXPOSE						="Expose";
-		
+	public static final String TAG_SMS							="Sms";
+	
 	public static final boolean PREFERENCES_IN_ONE_SCREEN		=true;
 	
 	public static final String PREFERENCES_DEVICE_ID			="deviceid";
