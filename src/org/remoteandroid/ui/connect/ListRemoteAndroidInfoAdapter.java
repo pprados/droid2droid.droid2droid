@@ -1,4 +1,4 @@
-package org.remoteandroid.ui;
+package org.remoteandroid.ui.connect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class ListRemoteAndroidInfoAdapter extends BaseAdapter implements Discove
 	}
 
 	@Override
-	public Object getItem(int position)
+	public RemoteAndroidInfo getItem(int position)
 	{
 		return mListFilter.get(position);
 	}

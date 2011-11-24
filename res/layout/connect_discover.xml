@@ -36,5 +36,4 @@
 		android:id="@+id/connect_discover_list"
 	></ListView>
 
-
 </RelativeLayout>
