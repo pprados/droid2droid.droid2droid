@@ -103,7 +103,7 @@ public class Constants
 	/** Show the current bitmap to analyse. */
 	public static final boolean	QRCODE_SHOW_CURRENT_DECODE		=false;
 	/** Force auto-focus before analyse bitmap. */
-	public static final boolean QRCODE_AUTOFOCUS				=false;
+	public static final boolean QRCODE_AUTOFOCUS				=true;
 	/** Re-ask autofocus after each QRCODE_AUTOFOCUS_INTERVAL_MS. */
 	public static final boolean QRCODE_REPEAT_AUTOFOCUS			=false;
 	/** Interval between autofocus. */
@@ -152,13 +152,13 @@ public class Constants
     /** Delay to discover others remote androids. */
 	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 20000L : 5000L;	// FIXME: 5000L;
 	/** Socket timeout for read message. */
-    public static final int ETHERNET_TRY_TIMEOUT					=150000; 	// Timeout for try connection
+    public static final int ETHERNET_TRY_TIMEOUT					=150000; 	// FIXME Timeout for try connection
 	/** Socket timeout for read message. */
-    public static final int ETHERNET_SO_TIMEOUT						=3600000; 	// Timeout for read message
+    public static final int ETHERNET_SO_TIMEOUT						=3600000; 	// FIXME Timeout for read message
     /** Flush current data before close the socket. */
     public static final boolean ETHERNET_SO_LINGER					=true; 		// Vide les derniers paquets avant la fermeture du socket
     /** Timeout to flush the last datas. */
-    public static final int ETHERNET_SO_LINGER_TIMEOUT				=5000; 		// Temps pour vider les derniers paquets
+    public static final int ETHERNET_SO_LINGER_TIMEOUT				=50000; 		// FIXME Delay for flush last packets
     /** Keep the socket alive. */
     public static final boolean ETHERNET_KEEP_ALIVE					=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */

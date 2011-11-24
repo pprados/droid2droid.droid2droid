@@ -9,6 +9,7 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
@@ -32,6 +33,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.Window;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 
@@ -64,6 +66,7 @@ implements TechnologiesFragment.Listener
 		// TODO: patch de l'icone
 		//setTheme(android.R.style.Theme_Light_NoTitleBar);
 		// TODO: placer tous les styles dans des wrappers de style pour pouvoir les adapter
+		//requestWindowFeature(Window.FEATURE_ACTION_BAR);
 		super.onCreate(savedInstanceState);
 		
 		mAcceptAnonymous=getIntent().getBooleanExtra(RemoteAndroidManager.EXTRA_ACCEPT_ANONYMOUS, false);
@@ -188,7 +191,7 @@ implements TechnologiesFragment.Listener
 //	}
 
 	
-	public void tryConnect(final FirstStep firstStep,ArrayList<String> uris,boolean acceptAnonymous)
+	public void tryConnect(final FirstStep firstStep,List<String> uris,boolean acceptAnonymous)
 	{
 		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
@@ -305,7 +308,7 @@ implements TechnologiesFragment.Listener
 	{
 		private FirstStep mFirstStep;
 		public ConnectDialogFragment mProgressDialog=null;
-		private ArrayList<String> mUris;
+		private List<String> mUris;
 		private WeakReference<ConnectActivity> mActivity=new WeakReference<ConnectActivity>(null);
 		private boolean mAcceptAnonymous;
 		
@@ -313,7 +316,7 @@ implements TechnologiesFragment.Listener
 		{
 			mAcceptAnonymous=acceptAnonymous;
 		}
-		void init(FirstStep firstStep,ArrayList<String> uris)
+		void init(FirstStep firstStep,List<String> uris)
 		{
 			mFirstStep=firstStep;
 			mUris=uris;

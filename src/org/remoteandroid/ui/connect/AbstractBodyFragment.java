@@ -21,5 +21,4 @@ public abstract class AbstractBodyFragment extends Fragment
 	@Override
 	public abstract View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
 	
-	
 }

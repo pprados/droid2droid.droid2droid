@@ -5,7 +5,6 @@ import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.ui.ListRemoteAndroidInfoAdapter;
 
 import android.os.Bundle;
 import android.support.v4.app.SupportActivity;

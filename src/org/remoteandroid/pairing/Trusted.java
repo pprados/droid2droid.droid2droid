@@ -407,7 +407,7 @@ public class Trusted
 	
 	// ---------------------------------
 	private AbstractRemoteAndroidImpl mRemoteAndroid;
-	public RemoteAndroidInfoImpl pairWith(ArrayList<String> uris)
+	public RemoteAndroidInfoImpl pairWith(List<String> uris)
 	{
 		try
 		{
