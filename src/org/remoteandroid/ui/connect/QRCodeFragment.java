@@ -7,20 +7,21 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
-import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.connect.qrcode.BeepManager;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
 import org.remoteandroid.ui.connect.qrcode.FinishListener;
-import org.remoteandroid.ui.connect.qrcode.FlashlightManager;
 import org.remoteandroid.ui.connect.qrcode.InactivityTimer;
 import org.remoteandroid.ui.connect.qrcode.ViewfinderView;
 import org.remoteandroid.ui.connect.qrcode.Wrapper;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -36,17 +37,14 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -113,15 +111,17 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	{
 		mViewer = inflater.inflate(
 			R.layout.connect_qrcode, container, false);
-		CameraManager.CAMERA_ORIENTATION = getResources().getConfiguration().orientation;
+		CameraManager.camera_orientation = getResources().getConfiguration().orientation;
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-		CameraManager.HACK_DPI = metrics.xdpi;
-		CameraManager.x = metrics.widthPixels / metrics.xdpi;
-		CameraManager.y = metrics.heightPixels / metrics.ydpi;
-
+		Log.d("size", "density : " + metrics.density);
+		Log.d("size", " metrics.widthPixels " + metrics.widthPixels + " metrics.xdpi " + metrics.xdpi);
+		//CameraManager.deviceSizeX = metrics.widthPixels / metrics.xdpi;
+		//CameraManager.deviceSizeY = metrics.heightPixels / metrics.ydpi;
+		CameraManager.density = metrics.density;
+		
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onCreateView...");
@@ -182,6 +182,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		// }
 		// else
 		// btn.setActivated(false);
+		//this.getActivity().requestWindowFeature(Window.FEATURE_NO_TITLE);
+
 		return mViewer;
 	}
 
@@ -226,8 +228,19 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 
 	private int getRotation()
 	{
-		if (Build.VERSION.SDK_INT >= 8)
-			return getActivity().getWindowManager().getDefaultDisplay().getRotation();
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+			Integer job = new Callable<Integer>()
+			{
+				public Integer call() 
+				{
+					return getActivity().getWindowManager().getDefaultDisplay().getRotation();
+				}
+			
+				
+			}.call();
+			return job;
+		}
+			
 		else
 			return getActivity().getWindowManager().getDefaultDisplay().getOrientation();
 	}
@@ -244,6 +257,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			mCache.mHandler.quitSynchronously();
 			mCache.mHandler = null;
 		}
+		
 		mCache.mInactivityTimer.onPause();
 		if (!NO_CAMERA)
 			CameraManager.get().closeDriver();
@@ -255,7 +269,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		if (I)
 			Log.i(
 				TAG_CONNECT, "onDestroy...");
-		if (mCache!=null && mCache.mInactivityTimer!=null)
+
+		if(mCache != null && mCache.mInactivityTimer != null)
+
 			mCache.mInactivityTimer.shutdown();
 		super.onDestroy();
 	}
@@ -366,9 +382,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	@Override
 	public void handleDecode(Result rawResult, Bitmap barcode)
 	{
-		if (I)
-			Log.i(
-				TAG_CONNECT, "handle valide decode " + rawResult);
+//		if (I)
+//			Log.i(
+//				TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		mCache.mLastResult = rawResult;
 		mViewfinderView.drawResultBitmap(barcode);
@@ -380,10 +396,13 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		try
 		{
 			byte[] result;
-			result = rawResult.getText().getBytes();
-			candidates = Messages.Candidates.parseFrom(result);
-			activity.tryConnect(
-				null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
+			String s = rawResult.getText();
+			
+			byte[] data=new byte[s.length()];
+			s.getBytes(0, s.length(), data, 0);//rawResult.getText().getBytes();
+			
+			candidates = Messages.Candidates.parseFrom(data);
+			activity.tryConnect(null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
 		}
 		catch (InvalidProtocolBufferException e)
 		{
@@ -395,9 +414,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		if (I)
-			Log.i(
-				TAG_CONNECT, "handle valide decode " + rawResult);
+//		if (I)
+//			Log.i(
+//				TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mLastResult = rawResult;
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}
@@ -545,4 +564,5 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		return false;
 	}
 
+	 
 }

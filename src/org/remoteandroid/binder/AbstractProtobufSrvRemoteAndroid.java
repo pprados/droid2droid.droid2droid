@@ -1,7 +1,6 @@
 package org.remoteandroid.binder;
 
 import static org.remoteandroid.Constants.PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE;
-import static org.remoteandroid.Constants.PAIR_CHECK_ANONYMOUS;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.*;
@@ -95,7 +94,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		// Check connection with anonymous
 	    			final SharedPreferences preferences=Application.getPreferences();
 	    			boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
-	        		if (SECURITY && PAIR_CHECK_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
+	        		if (SECURITY && PAIR_CHECK_WIFI_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
 	        		{
 	        			// Accept anonymous only from specific wifi network
 	        			if (getType()==ConnectionType.ETHERNET)
@@ -187,7 +186,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             	return Msg.newBuilder()
 					.setType(type)
         			.setThreadid(msg.getThreadid())
-					.setIdentity(ProtobufConvs.toIdentity(Trusted.getInfo(mContext,getType())))
+					.setIdentity(ProtobufConvs.toIdentity(Trusted.getInfo(mContext)))
 					.setRc(true)
 					.build();
             }

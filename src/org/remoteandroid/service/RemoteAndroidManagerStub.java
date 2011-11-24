@@ -59,11 +59,11 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
 				return -1;
 			}
-//			catch (IOException e)
-//			{
-//				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
-//				return -1;
-//			}
+			catch (IOException e)
+			{
+				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+				return -1;
+			}			
 		}
 		return cookie;
 	}
@@ -158,11 +158,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 	@Override
 	public RemoteAndroidInfoImpl getInfo()
 	{
-		return getInfo(null);
-	}
-	public RemoteAndroidInfoImpl getInfo(ConnectionType type)
-	{
-		return Trusted.getInfo(mContext,type);
+		return Trusted.getInfo(mContext);
 	}
 
 	@Override

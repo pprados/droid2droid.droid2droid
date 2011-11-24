@@ -107,7 +107,9 @@ public class SMSFragment extends AbstractBodyFragment {
 			if (V)
 			Log.v(TAG_SMS, "currentFragments.bufs = " + currentFragments.bufs.size());
 			
-			if ((currentFragments.max!=fragNumber && (currentFragments.bufs.size()==MESSAGE_SIZE - 1) || (currentFragments.max==fragNumber))) {
+			if ((currentFragments.max!=fragNumber && (currentFragments.bufs.size()==MESSAGE_SIZE - 1) 
+					|| 
+					(currentFragments.max==fragNumber && currentFragments.bufs.size()==fragNumber))) {
 //			if (currentFragments.max == currentFragments.bufs.size()) {
 				// Max pour tous les buffers, sauf pour le dernier
 				int bufferSize = (currentFragments.bufs.size() - 1)

@@ -78,7 +78,7 @@ public class Trusted
 		mHandler=handler;
 	}
 	
-	public static RemoteAndroidInfoImpl getInfo(Context context,ConnectionType type/*FIXME: parametre toujours utils ?*/)
+	public static RemoteAndroidInfoImpl getInfo(Context context)
 	{
 		final RemoteAndroidInfoImpl info=new RemoteAndroidInfoImpl();
 		info.uuid=Application.getUUID();
@@ -318,7 +318,6 @@ public class Trusted
 		}
 		return null;
 	}
-	
 	// Note: With device <Honey_comb, only one data network is on. Wifi OR mobile.
 	// In honeycomb, it's possible to have Widi AND Mobile.
 	public static Messages.Candidates getConnectMessage(Context context) throws UnknownHostException, SocketException

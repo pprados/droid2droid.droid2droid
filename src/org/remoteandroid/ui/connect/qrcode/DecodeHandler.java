@@ -16,6 +16,8 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.V;
@@ -71,6 +73,7 @@ final class DecodeHandler extends Handler
 		switch (message.what)
 		{
 			case R.id.decode:
+				if (V) Log.v(TAG_QRCODE,"4. decode");
 				decode(
 					(byte[]) message.obj, message.arg1, message.arg2);
 				break;
@@ -95,6 +98,7 @@ final class DecodeHandler extends Handler
 	{
 		long start = System.currentTimeMillis();
 		Result rawResult = null;
+		//Log.e("camera", "raw width, height: " + width + "," + height);
 		/*
 		 * PlanarYUVLuminanceSource source1 =
 		 * CameraManager.get().buildLuminanceSource(data, width, height);
@@ -139,7 +143,7 @@ final class DecodeHandler extends Handler
 		catch (ReaderException re)
 		{
 			// continue
-			if (V)	Log.v(TAG_CONNECT, "******** Not found. " + re.getClass().getName()+":"+re.getMessage());
+			if (V)	Log.v(TAG_QRCODE, "******** Not found. " + re.getClass().getName()+":"+re.getMessage());
 		}
 		finally
 		{
@@ -149,7 +153,7 @@ final class DecodeHandler extends Handler
 		long end = System.currentTimeMillis();
 		if (V)
 			Log.v(
-				TAG_CONNECT, "Stop decode " + (end - start) + " ms");
+				TAG_QRCODE, "Stop decode " + (end - start) + " ms");
 		if (rawResult != null)
 		{
 			// Don't log the barcode contents for security.

@@ -23,7 +23,6 @@ public class AndroidLogHandler extends Handler
 	}
 	public AndroidLogHandler()
 	{
-		Log.i("LOG","Init logger");
 	}
 	@Override
 	public void close()

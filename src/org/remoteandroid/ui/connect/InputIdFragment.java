@@ -79,7 +79,7 @@ public class InputIdFragment extends AbstractBodyFragment
 				try
 				{
 					URL url=new URL(InputExpose.GOOGLE_SHORTEN+ticket);
-					HttpURLConnection conn=(HttpURLConnection)url.openConnection();// VyyjR dB2fJ
+					HttpURLConnection conn=(HttpURLConnection)url.openConnection();
 					conn.setInstanceFollowRedirects(false);
 					int responsecode=conn.getResponseCode();
 					String loc=conn.getHeaderField("location");
@@ -109,7 +109,7 @@ public class InputIdFragment extends AbstractBodyFragment
 				}
 				catch (Exception e)
 				{
-					if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket",e);
+					if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket ("+e.getMessage()+")");
 					return R.string.connect_input_message_error_get_internet;
 				}
 			}

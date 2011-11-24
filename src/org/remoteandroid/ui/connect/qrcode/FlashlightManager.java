@@ -51,14 +51,14 @@ final public class FlashlightManager
 		{
 			if (V)
 				Log.v(
-					TAG_CONNECT,
+					TAG_QRCODE,
 					"This device does supports control of a flashlight");
 		}
 		else
 		{
 			if (V)
 				Log.v(
-					TAG_CONNECT,
+					TAG_QRCODE,
 					"This device does not support control of a flashlight");
 		}
 	}
@@ -132,7 +132,7 @@ final public class FlashlightManager
 		{
 			if (W)
 				Log.w(
-					TAG_CONNECT,
+					TAG_QRCODE,
 					"Unexpected error while finding class " + name, re);
 			return null;
 		}
@@ -155,7 +155,7 @@ final public class FlashlightManager
 		{
 			if (W)
 				Log.w(
-					TAG_CONNECT, "Unexpected error while finding method "
+					TAG_QRCODE, "Unexpected error while finding method "
 							+ name, re);
 			return null;
 		}
@@ -172,14 +172,14 @@ final public class FlashlightManager
 		{
 			if (W)
 				Log.w(
-					TAG_CONNECT, "Unexpected error while invoking " + method, e);
+					TAG_QRCODE, "Unexpected error while invoking " + method, e);
 			return null;
 		}
 		catch (InvocationTargetException e)
 		{
 			if (W)
 				Log.w(
-					TAG_CONNECT, "Unexpected error while invoking " + method,
+					TAG_QRCODE, "Unexpected error while invoking " + method,
 					e.getCause());
 			return null;
 		}
@@ -187,7 +187,7 @@ final public class FlashlightManager
 		{
 			if (W)
 				Log.w(
-					TAG_CONNECT, "Unexpected error while invoking " + method,
+					TAG_QRCODE, "Unexpected error while invoking " + method,
 					re);
 			return null;
 		}

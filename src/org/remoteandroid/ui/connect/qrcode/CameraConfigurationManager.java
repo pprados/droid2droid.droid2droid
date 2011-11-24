@@ -16,7 +16,8 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.util.regex.Pattern;
@@ -56,7 +57,7 @@ final class CameraConfigurationManager
 
 	private static final int MIN_CAMERA_RESOLUTION_HEIGHT = 144;
 
-	private static final int TARGET_CAMERA_RESOLUTION = 320 * 240;
+	private static final int TARGET_CAMERA_RESOLUTION = 320*240;
 
 	private static final String TAG_CONNECT = "";
 
@@ -73,10 +74,7 @@ final class CameraConfigurationManager
 		Camera.Parameters parameters = camera.getParameters();
 		mPreviewFormat = parameters.getPreviewFormat();
 		mPreviewFormatString = parameters.get("preview-format");
-		if (D)
-			Log.d(
-				TAG_CONNECT, "Default preview format: " + mPreviewFormat + '/'
-						+ mPreviewFormatString);
+		if (D) Log.d(TAG_QRCODE, "Default preview format: " + mPreviewFormat + '/' + mPreviewFormatString);
 		WindowManager manager = (WindowManager) mContext
 				.getSystemService(Context.WINDOW_SERVICE);
 		Display display = manager.getDefaultDisplay();
@@ -88,12 +86,8 @@ final class CameraConfigurationManager
 		// mScreenResolution=CameraManager.rotatePoint(mScreenResolution);
 		// if (mCameraResolution.x<mCameraResolution.y)
 		// mCameraResolution=CameraManager.rotatePoint(mCameraResolution);
-		if (D)
-			Log.d(
-				TAG_CONNECT, "Screen resolution: " + mScreenResolution);
-		if (D)
-			Log.d(
-				TAG_CONNECT, "Camera resolution: " + mCameraResolution);
+		if (D) Log.d(TAG_QRCODE, "Screen resolution: " + mScreenResolution);
+		if (D) Log.d(TAG_QRCODE, "Camera resolution: " + mCameraResolution);
 	}
 
 	/**
@@ -108,11 +102,11 @@ final class CameraConfigurationManager
 		Camera.Parameters parameters = camera.getParameters();
 		if (D)
 			Log.d(
-				TAG_CONNECT, "Setting preview size: " + mCameraResolution);
+				TAG_QRCODE, "Setting preview size: " + mCameraResolution);
 		parameters.setPreviewSize(
 			mCameraResolution.x, mCameraResolution.y);
 
-		setFlash(parameters);
+		//setFlash(parameters);
 		setZoom(parameters);
 		camera.setParameters(parameters);
 	}
@@ -151,20 +145,16 @@ final class CameraConfigurationManager
 
 		if (previewSizeValueString != null)
 		{
-			if (D)
-				Log.d(
-					TAG_CONNECT, "preview-size-values parameter: "
+			if (D) Log.d(TAG_QRCODE, "preview-size-values parameter: "
 							+ previewSizeValueString);
 			cameraResolution = findBestPreviewSizeValue(
 				previewSizeValueString, screenResolution);
-			Log.d(
-				TAG_CONNECT, "preview-size-values best: " + cameraResolution);
+			if (D) Log.d(TAG_QRCODE, "preview-size-values best: " + cameraResolution);
 		}
 		if (cameraResolution != null
 				&& (cameraResolution.x < MIN_CAMERA_RESOLUTION_WIDTH || cameraResolution.y < MIN_CAMERA_RESOLUTION_HEIGHT))
 		{
-			Log.w(
-				"camera",
+			if (W) Log.w(TAG_QRCODE,
 				"Camera resolution was too small and has been resized to "
 						+ MIN_CAMERA_RESOLUTION_WIDTH + "*"
 						+ MIN_CAMERA_RESOLUTION_HEIGHT);
@@ -199,8 +189,7 @@ final class CameraConfigurationManager
 			if (dimPosition < 0)
 			{
 				if (W)
-					Log.w(
-						TAG_CONNECT, "Bad preview-size: " + previewSize);
+					Log.w(TAG_QRCODE, "Bad preview-size: " + previewSize);
 				continue;
 			}
 
@@ -216,7 +205,7 @@ final class CameraConfigurationManager
 			{
 				if (W)
 					Log.w(
-						TAG_CONNECT, "Bad preview-size: " + previewSize);
+						TAG_QRCODE, "Bad preview-size: " + previewSize);
 				continue;
 			}
 			int newDiff;
@@ -339,7 +328,7 @@ final class CameraConfigurationManager
 			{
 				if (W)
 					Log.w(
-						TAG_CONNECT, "Bad max-zoom: " + maxZoomString);
+						TAG_QRCODE, "Bad max-zoom: " + maxZoomString);
 			}
 		}
 
@@ -359,7 +348,7 @@ final class CameraConfigurationManager
 			{
 				if (W)
 					Log.w(
-						TAG_CONNECT, "Bad taking-picture-zoom-max: "
+						TAG_QRCODE, "Bad taking-picture-zoom-max: "
 								+ takingPictureZoomMaxString);
 			}
 		}

@@ -1,6 +1,6 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.MODE_WITH_FINAL_NOTIF;
+import static org.remoteandroid.Constants.SHOW_FINAL_NOTIF_AFTER_DOWNLOAD;
 
 import java.security.PrivilegedAction;
 
@@ -218,7 +218,7 @@ public class Notifications
     		mInboundSuccNumber++;
     	else
     		mInboundFailNumber++;
-    	if (!MODE_WITH_FINAL_NOTIF)
+    	if (!SHOW_FINAL_NOTIF_AFTER_DOWNLOAD)
     	{
     		if (mInboundFailNumber==0)
     			return;

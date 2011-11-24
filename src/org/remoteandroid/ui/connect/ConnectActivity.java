@@ -1,25 +1,19 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ConnectionType;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
-import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
-import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
-import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
-import org.remoteandroid.internal.Messages.Identity;
-import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.internal.Messages.Msg;
+import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
@@ -29,6 +23,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,7 +33,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 
 public class ConnectActivity extends StyleFragmentActivity 
@@ -79,7 +73,7 @@ implements TechnologiesFragment.Listener
 		mMerge=getResources().getBoolean(R.bool.connect_merge);
 		
 		// Hack to simulate merger in landscape, and not merged in portrait
-		if (CONNECT_FORCE_FRAGMENTS)
+		if (HACK_CONNECT_FORCE_FRAGMENTS)
 		{
 			if (getResources().getConfiguration().orientation  == Configuration.ORIENTATION_LANDSCAPE)
 				mMerge=true;
@@ -116,7 +110,6 @@ implements TechnologiesFragment.Listener
 				// Restore state after changed the orientation
 				if (mBodyFragment==null || mBodyFragment instanceof EmptyBodyFragment)
 				{
-					//Log.d("TTT","add in body, techno "+mTechnologiesFragment.mIndex);
 					transaction.replace(R.id.body, mTechnologiesFragment);
 				}
 				else
@@ -289,7 +282,6 @@ implements TechnologiesFragment.Listener
 					tryHandler.mProgressDialog=null;
 				}
 				tryHandler.cancel(false);
-				Log.d("TTT","tryHandler=null cause onCancel");
 			}
 		}
 		@Override
@@ -346,15 +338,15 @@ implements TechnologiesFragment.Listener
 			}
 			for (int i=0;i<mUris.size();++i)
 			{
-				if (isCancelled())
-					return null;
-				String uri=mUris.get(i);
-				publishProgress(i+firststep);
-				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				RemoteAndroidInfoImpl info=null;
-				
 				try
 				{
+					if (isCancelled())
+						return null;
+					String uri=mUris.get(i);
+					publishProgress(i+firststep);
+					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
+					
 					info=tryConnectForCookie(uri);
 				}
 				catch (IOException e)
@@ -463,5 +455,9 @@ implements TechnologiesFragment.Listener
 		return msg.first;
 		
 	}
-	
+
+	private boolean hasCamera()
+	{
+	    return (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA));
+	}
 }

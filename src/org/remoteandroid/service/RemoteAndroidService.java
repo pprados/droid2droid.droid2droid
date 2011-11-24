@@ -104,7 +104,7 @@ public class RemoteAndroidService extends Service
 				}
 			}
 	
-	    	if (Constants.MODE_WITH_SERVICE_NOTIFICATION)
+	    	if (Constants.SHOW_SERVICE_NOTIFICATION)
 	    	{
 	    		mNotification.serviceShow(this);
 	    	}
