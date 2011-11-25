@@ -111,7 +111,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	{
 		mViewer = inflater.inflate(
 			R.layout.connect_qrcode, container, false);
-		CameraManager.camera_orientation = getResources().getConfiguration().orientation;
+		//CameraManager.camera_orientation = getResources().getConfiguration().orientation;
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
@@ -336,11 +336,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			{
 				CameraManager.get().setScreenResolutionValues(
 					new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
-				Log.e(
-					"camera",
-					"screen size:" + new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()).toString());
+				
 				int[] location = new int[4];
-				;
+				
 				mViewfinderView.getLocationOnScreen(location);
 				Rect locatInScreen = new Rect(location[0], location[1], location[2], location[3]);
 				locatInScreen.right = locatInScreen.left + mViewfinderView.getWidth();

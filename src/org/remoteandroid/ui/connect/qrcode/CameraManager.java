@@ -1,15 +1,14 @@
 package org.remoteandroid.ui.connect.qrcode;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.QRCODE_AUTOFOCUS;
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.I;
-import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.remoteandroid.internal.Compatibility;
 
@@ -19,7 +18,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
@@ -37,23 +35,16 @@ import android.view.SurfaceHolder;
 public final class CameraManager
 {
 
-	// TODO: Ne pas utiliser des noms en majuscule s'il s'agit de variable non final.
-	public static int 		camera					= Camera.CameraInfo.CAMERA_FACING_BACK; // Default camera
-	
-	public static int		camera_orientation;		// Camera orientation
-	
-	public static int		layout_orientation; //landscape / portrait
-	
-	public static int 		camera_rotation;		//rotation of the device measured in degrees
-	
-	public static float		density;					
+	public static int camera = Camera.CameraInfo.CAMERA_FACING_BACK; // Default
+																		// camera
 
-					
-	public static final boolean HACK_ROTATE = false;
+	public static int camera_rotation; // rotation of the device measured in
+										// degrees
+	public static int default_orientation;
+	
+	public static float density;
 
-	public static final boolean HACK_ROTATE_CAMERA = false;
-
-	static final int[] ORIENTATION =
+	static final int[] sOrientation =
 	{ 90, 0, 270, 180 };
 
 	private static final int MIN_FRAME_WIDTH = 50;
@@ -68,8 +59,8 @@ public final class CameraManager
 
 	private static int MAX_FRAME_WIDTH;// = MAX_FRAME_HEIGHT;
 
-	private static final float DESIRED_FRAME_SIZE_BASELINE = 250f; // in
-																	// inches!
+	private static final float DESIRED_FRAME_SIZE_BASELINE = 250f; // theorical
+																	// size
 
 	private static CameraManager sCameraManager;
 
@@ -112,7 +103,6 @@ public final class CameraManager
 		if (sCameraManager == null)
 		{
 			sCameraManager = new CameraManager(context);
-
 		}
 	}
 
@@ -126,72 +116,159 @@ public final class CameraManager
 		return sCameraManager;
 	}
 
-	public int getOrientation(){
-		
+	public int getOrientation()
+	{
+
 		return 0;
 	}
+
 	/*
 	 * Set orientation based on rotation in degrees
 	 */
-	
-	
+
 	public void setOrientation(final int rotation)
 	{
-		
-		 Camera.Parameters p = mCamera.getParameters(); 
-	
-		 //p.setPreviewFrameRate(1);
-		  
-		 //p.setPictureSize(3264,2448);
-//		if (rotation == Configuration.ORIENTATION_PORTRAIT)
-//		{   
-//		p.set("orientation", "portrait");
-//		p.set("rotation",0);
-//		}
-//		if (rotation == Configuration.ORIENTATION_LANDSCAPE)
-//		{                               
-//			p.set("orientation", "landscape");          
-//			p.set("rotation", 0);
-//		}
 
-		 p.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO); // FIXME
-		 mCamera.setParameters(p);
-		 
-		 if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD){
-			 new Runnable(){
+		// FIXME : works only for android >= 9
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
+		{
+			new Runnable()
+			{
 				@Override
-				public void run() {
+				public void run()
+				{
 					android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
-				    android.hardware.Camera.getCameraInfo(camera, info);
-				    int degrees = 0;
-				    switch (rotation) {
-				         case Surface.ROTATION_0: degrees = 0; break;
-				         case Surface.ROTATION_90: degrees = 90; break;
-				         case Surface.ROTATION_180: degrees = 180; break;
-				         case Surface.ROTATION_270: degrees = 270; break;
-				     }
+					android.hardware.Camera.getCameraInfo(
+						camera, info);
+					int degrees = 0;
+					switch (rotation)
+					{
+						case Surface.ROTATION_0:
+							degrees = 0;
+							break;
+						case Surface.ROTATION_90:
+							degrees = 90;
+							break;
+						case Surface.ROTATION_180:
+							degrees = 180;
+							break;
+						case Surface.ROTATION_270:
+							degrees = 270;
+							break;
+					}
 
-				     int result;
-				     if (camera == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-				         result = (info.orientation + degrees) % 360;
-				         result = (360 - result) % 360;  // compensate the mirror
-				     } else {  // back-facing
-				         result = (info.orientation - degrees + 360) % 360;
-				     }
-				     mCamera.setDisplayOrientation(result);
-				     camera_rotation = result;
-					
+					int result;
+					if (camera == Camera.CameraInfo.CAMERA_FACING_FRONT)
+					{
+						result = (info.orientation + degrees) % 360;
+						result = (360 - result) % 360; // compensate the mirror
+					}
+					else
+					{ // back-facing
+						result = (info.orientation - degrees + 360) % 360;
+					}
+					mCamera.setDisplayOrientation(result);
+					camera_rotation = result;
+
 				}
-				 
-			 }.run();
-			 
-	 
-		 }
-		//		if (Build.VERSION.SDK_INT >= 8)
-//			mCamera.setDisplayOrientation(orientation);
-//		else
-//			// FIXME: Incompatibilité < 8
-//			;
+
+			}.run();
+
+		}
+		else
+		{
+			final Camera.Parameters p = mCamera.getParameters();
+
+			if (Compatibility.VERSION_SDK_INT == Compatibility.VERSION_FROYO)
+			{
+				if(rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180){
+					
+					Point surface = mConfigManager.getScreenResolution();
+					if(surface.x > surface.y){
+						sOrientation[0] = 0;
+						sOrientation[1] = 270;
+						sOrientation[2] = 180;
+						sOrientation[3] = 90;
+					}
+				}
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+					
+						mCamera.setDisplayOrientation(sOrientation[rotation]);
+//						if (rotation == Surface.ROTATION_0)
+//						{
+//							// p.set("orientation", "portrait");
+//							// p.set("rotation", 90);
+//
+//							camera_rotation = sOrientation[0];
+//							mCamera.setDisplayOrientation(sOrientation[0]);
+//						}
+//						else if (rotation == Surface.ROTATION_90)
+//						{
+//							// p.set("orientation", "landscape");
+//							// p.set("rotation", 90);
+//							camera_rotation = sOrientation[1];
+//							mCamera.setDisplayOrientation(sOrientation[1]);
+//						}
+//						else if (rotation == Surface.ROTATION_180)
+//						{
+//							camera_rotation = sOrientation[2];
+//							mCamera.setDisplayOrientation(sOrientation[2]);
+//						}
+//						else if (rotation == Surface.ROTATION_270)
+//						{
+//							camera_rotation = sOrientation[3];
+//							mCamera.setDisplayOrientation(sOrientation[3]);
+//						}
+					}
+				}.run();
+			}
+			else
+			{
+				if (rotation == Surface.ROTATION_0)
+				{
+					p.set("orientation", "portrait");
+					p.set("rotation", 90);
+					camera_rotation = 90;
+				}
+				else
+				// if (rotation == Configuration.ORIENTATION_LANDSCAPE)
+				{
+					p.set("orientation", "landscape");
+					p.set("rotation", 90);
+					camera_rotation = 0;
+				}
+
+				mCamera.setParameters(p);
+			}
+
+		}
+		// if (Build.VERSION.SDK_INT >= 8)
+		// mCamera.setDisplayOrientation(orientation);
+		// else
+		// // FIXME: Incompatibilité < 8
+		// ;
+	}
+	
+	private void setCameraParameters(){
+		if(this.mPreviewing)
+			mCamera.stopPreview();
+		
+		Camera.Parameters p = mCamera.getParameters();
+//		List<String> effects = p.getSupportedColorEffects();
+//		for(int i = effects.size(); i-- > 0;){
+//			Log.e("camera", "effect : " + effects.get(i).toString());
+//			if(effects.get(i).contains("mono"))
+//				p.setColorEffect(effects.get(i));
+//		}
+		p.setZoom(7);
+		
+		mCamera.setParameters(p);
+		if(this.mPreviewing)
+			mCamera.startPreview();
 	}
 
 	private CameraManager(Context context)
@@ -210,27 +287,25 @@ public final class CameraManager
 	 *            frames into.
 	 * @throws IOException Indicates the camera driver failed to open.
 	 */
-	public void openDriver(SurfaceHolder holder, int rotation)
-			throws IOException
+	public void openDriver(SurfaceHolder holder, int rotation) throws IOException
 	{
 		if (mCamera == null)
 		{
-			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD){
-				new Runnable(){
+			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
+			{
+				new Runnable()
+				{
 
 					@Override
-					public void run() {
+					public void run()
+					{
 						mCamera = Camera.open(camera);
 					}
-					
+
 				}.run();
 			}
 			else
 				mCamera = Camera.open();
-	
-			  
-			 
-			 
 
 			if (mCamera == null)
 			{
@@ -239,25 +314,26 @@ public final class CameraManager
 		}
 
 		
-		if (D) Log.d(TAG_QRCODE, "rotation : " + rotation);
-		CameraManager.get().setOrientation(rotation);
-			//ORIENTATION[rotation]);
-
+		// ORIENTATION[rotation]);
+		this.setCameraParameters();
 		mCamera.setPreviewDisplay(holder);
 		if (!mInitialized)
 		{
 			mInitialized = true;
 			mConfigManager.initFromCameraParameters(mCamera);
 		}
+		CameraManager.get().setOrientation(
+			rotation);
 		mConfigManager.setDesiredCameraParameters(mCamera);
 		MAX_FRAME_HEIGHT = Math.max(
-			mConfigManager.getCameraResolution().y,
-			mConfigManager.getCameraResolution().x);
+			mConfigManager.getCameraResolution().y, mConfigManager.getCameraResolution().x);
 		MAX_FRAME_WIDTH = MAX_FRAME_HEIGHT;
 		Point p = mConfigManager.getCameraResolution();
 		MAX_FRAME_HEIGHT = p.y;
 		MAX_FRAME_WIDTH = p.x;
-		if (D) Log.d(TAG_QRCODE, "max : " + p.x + "," + p.y);
+		if (D)
+			Log.d(
+				TAG_QRCODE, PREFIX_LOG + " MAX_FRAME_WIDTH/HEIGHT size: " + p.x + "," + p.y);
 		// FIXME
 		// SharedPreferences prefs =
 		// PreferenceManager.getDefaultSharedPreferences(context);
@@ -344,11 +420,16 @@ public final class CameraManager
 	{
 		if (mCamera != null && mPreviewing)
 		{
-			mAutoFocusCallback.setHandler(handler, message);
+			mAutoFocusCallback.setHandler(
+				handler, message);
+			if (V)
+				Log.v(
+					TAG_CONNECT, "Requesting auto-focus callback");
 			if (QRCODE_AUTOFOCUS)
 				mCamera.autoFocus(mAutoFocusCallback);
 			else
-				mAutoFocusCallback.onAutoFocus(true, mCamera);
+				mAutoFocusCallback.onAutoFocus(
+					true, mCamera);
 		}
 	}
 
@@ -371,7 +452,8 @@ public final class CameraManager
 		return new Point(p.y, p.x);
 	}
 
-	public Rect scaledRotateRect(Rect r){
+	public Rect scaledRotateRect(Rect r)
+	{
 		Rect tmp;
 		Point s = mConfigManager.getSurfaceResolution();
 		tmp = new Rect();
@@ -381,7 +463,9 @@ public final class CameraManager
 		tmp.bottom = r.right;
 		return tmp;
 	}
-	public Rect scaledRotateRect2(Rect r){
+
+	public Rect scaledRotateRect2(Rect r)
+	{
 		Rect tmp;
 		Point s = mConfigManager.getSurfaceResolution();
 		tmp = new Rect();
@@ -391,7 +475,9 @@ public final class CameraManager
 		tmp.bottom = s.y - r.top;
 		return tmp;
 	}
-	public Rect scaledRotateRect3(Rect r){
+
+	public Rect scaledRotateRect3(Rect r)
+	{
 		Rect tmp;
 		Point s = mConfigManager.getSurfaceResolution();
 		tmp = new Rect();
@@ -401,6 +487,7 @@ public final class CameraManager
 		tmp.bottom = s.x - r.left;
 		return tmp;
 	}
+
 	public Rect getFramingRectInPreview()
 	{
 		Point cameraResolution = mConfigManager.getCameraResolution();
@@ -408,7 +495,7 @@ public final class CameraManager
 		Point surfaceResolution = mConfigManager.getSurfaceResolution();
 		if (mFramingRectInPreview == null)
 		{
-			
+
 			Rect rect = getFramingRect();
 			if (rect == null)
 				return null;
@@ -417,45 +504,44 @@ public final class CameraManager
 			mFramingRectInPreview.top = mFramingRectInPreview.top * surfaceResolution.y / cameraResolution.y;
 			mFramingRectInPreview.right = mFramingRectInPreview.right * surfaceResolution.x / cameraResolution.x;
 			mFramingRectInPreview.bottom = mFramingRectInPreview.bottom * surfaceResolution.y / cameraResolution.y;
-			if (D) Log.d(TAG_QRCODE, "orientation in getfrmaingrectinpreview " + camera_rotation);
-			if(camera == Camera.CameraInfo.CAMERA_FACING_BACK){
-				if(camera_rotation == 90)
+
+			if (camera == Camera.CameraInfo.CAMERA_FACING_BACK)
+			{
+				if (camera_rotation == 90)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview);
-				if(camera_rotation == 180)
+				if (camera_rotation == 180)
 					mFramingRectInPreview = scaledRotateRect2(mFramingRectInPreview);
-				if(camera_rotation == 270)
+				if (camera_rotation == 270)
 					mFramingRectInPreview = scaledRotateRect3(mFramingRectInPreview);
-				
+
 			}
-			else{
-				if(camera_rotation == 90)
+			else
+			{
+				if (camera_rotation == 90)
 					mFramingRectInPreview = scaledRotateRect3(mFramingRectInPreview);
-				if(camera_rotation == 270)
+				if (camera_rotation == 270)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview);
-				if(camera_rotation == 0)
+				if (camera_rotation == 0)
 					mFramingRectInPreview = scaledRotateRect2(mFramingRectInPreview);
-				
+
 			}
-			
+
 			if (V)
-				Log.v(
-					TAG_QRCODE, "cameraResolution=" + cameraResolution);
+				Log.d(
+					TAG_CONNECT, "cameraResolution=" + cameraResolution);
 			if (V)
-				Log.v(
-					TAG_QRCODE, "surfaceResolution=" + surfaceResolution);
+				Log.d(
+					TAG_CONNECT, "surfaceResolution=" + surfaceResolution);
 			if (V)
-				Log.v(
-					TAG_QRCODE, "framingRect=" + rect + " (w:" + rect.width()
-							+ ",h:" + rect.height() + ")");
+				Log.d(
+					TAG_CONNECT, "framingRect=" + rect + " (w:" + rect.width() + ",h:" + rect.height() + ")");
 			if (V)
-				Log.v(
-					TAG_QRCODE, "framingRect in previous="
-							+ mFramingRectInPreview.toShortString() + " (w:"
-							+ mFramingRectInPreview.width() + ",h:"
-							+ mFramingRectInPreview.height() + ")");
-			
+				Log.d(
+					TAG_CONNECT, "framingRect in previous=" + mFramingRectInPreview.toShortString() + " (w:"
+							+ mFramingRectInPreview.width() + ",h:" + mFramingRectInPreview.height() + ")");
+
 		}
-		//return new Rect(0, 0, surfaceResolution.y,surfaceResolution.x);
+		// return new Rect(0, 0, surfaceResolution.y,surfaceResolution.x);
 		return mFramingRectInPreview;
 	}
 
@@ -537,11 +623,15 @@ public final class CameraManager
 			int topOffset = (cameraResolution.y - size.y) / 2;
 
 			// C'est naze sur le motorola
-			//mFramingRect = new Rect(40, 0, 160, 240); // top right
-			mFramingRect = new Rect(leftOffset, topOffset, size.x + leftOffset,
-					size.y + topOffset); // TOP RIGHT corner corresponds to the
-//											// bottom right point in LANDSCAPE
-											// even in portrait
+			// mFramingRect = new Rect(40, 0, 160, 240); // top right
+			mFramingRect = new Rect(leftOffset, topOffset, size.x + leftOffset, size.y + topOffset); // TOP
+																										// RIGHT
+																										// corner
+																										// corresponds
+																										// to
+																										// the
+			// // bottom right point in LANDSCAPE
+			// even in portrait
 
 			// Attention, je ne modifie pas la frame, mais je la place sur la
 			// résolution ecran et non sur la résolution camera
@@ -555,17 +645,17 @@ public final class CameraManager
 			// mFramingRect = new Rect(leftOffset, topOffset, leftOffset +
 			// size.x, topOffset + size.y); // Center
 			if (V)
-				Log.v(
-					TAG_QRCODE, "cam Resolution: " + cameraResolution);
+				Log.d(
+					TAG_CONNECT, "cam Resolution: " + cameraResolution);
 			if (V)
-				Log.v(
-					TAG_QRCODE, "surface Resolution: " + surfaceResolution);
+				Log.d(
+					TAG_CONNECT, "surface Resolution: " + surfaceResolution);
 			if (V)
-				Log.v(
-					TAG_QRCODE, "Calculated framing rect: " + mFramingRect
-							+ " (w:" + mFramingRect.width() + ",h:"
+				Log.d(
+					TAG_CONNECT, "Calculated framing rect: " + mFramingRect + " (w:" + mFramingRect.width() + ",h:"
 							+ mFramingRect.height() + ")");
-			if (V) Log.v(TAG_QRCODE,"framing : " + mFramingRect.toShortString());
+			Log.d(
+				TAG_CONNECT, "framing : " + mFramingRect.toShortString());
 		}
 		return mFramingRect;
 	}
@@ -573,36 +663,34 @@ public final class CameraManager
 	public Point getSize()
 	{
 		Point surfaceResolution = mConfigManager.getSurfaceResolution();
-		Point screenResolution = mConfigManager.getScreenResolution();
 		Point cameraResolution = mConfigManager.getCameraResolution();
 
-		
-		
+		// FIXME : remove
 		// app.x and app.y are bounded to the device orientation
 		// if the device orientation is not landscape we have to reverse it's
 		// size to match the "unchanged" camera orientation
 		// otherwize the larger edge of the camera would be paired with the
 		// smaller resolution of the device
-//		if (camera_orientation == 0 || camera_orientation == 2)
-//		{
-//			scaleX = scaleY;
-//			scaleY = deviceSizeX;
-//			// FIXME use XOR switch to save memory?
-//			int tmp;
-//			tmp = screenResolution.x;
-//			screenResolution.x = screenResolution.y;
-//			screenResolution.y = tmp;
-//
-//		}
-		
-		
+		// if (camera_orientation == 0 || camera_orientation == 2)
+		// {
+		// scaleX = scaleY;
+		// scaleY = deviceSizeX;
+		// // FIXME use XOR switch to save memory?
+		// int tmp;
+		// tmp = screenResolution.x;
+		// screenResolution.x = screenResolution.y;
+		// screenResolution.y = tmp;
+		//
+		// }
+
 		int width, height;
-		if(D) Log.d(TAG_QRCODE, "scale " + density);
-		width = (int) (density * DESIRED_FRAME_SIZE_BASELINE  * ((float) ((float) cameraResolution.x / (float) surfaceResolution.x)));
+
+		width = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.x / (float) surfaceResolution.x)));
 		height = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.y / (float) surfaceResolution.y)));
 
-		if(D) Log.d(
-			TAG_QRCODE, "display size: " + width + "," + height);
+		if (D)
+			Log.d(
+				"size", "display size: " + width + "," + height);
 		if (width < MIN_FRAME_WIDTH)
 		{
 			width = MIN_FRAME_WIDTH;
@@ -621,7 +709,7 @@ public final class CameraManager
 			height = MAX_FRAME_HEIGHT;
 		}
 
-		 //return new Point(cameraResolution.x,cameraResolution.y);
+		// return new Point(cameraResolution.x,cameraResolution.y);
 		return new Point(width, height);
 	}
 
@@ -634,8 +722,7 @@ public final class CameraManager
 	 * @param height The height of the image.
 	 * @return A PlanarYUVLuminanceSource instance.
 	 */
-	public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data,
-			int width, int height)
+	public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height)
 	{
 		Rect rect = getFramingRect();
 		// FIXME: remove Log.e("camera", "buildluminancesource w,h: " + width +
@@ -645,10 +732,10 @@ public final class CameraManager
 
 		switch (previewFormat)
 		{
-			// This is the standard Android format which all devices are
-			// REQUIRED to
-			// support.
-			// In theory, it's the only one we should ever care about.
+		// This is the standard Android format which all devices are
+		// REQUIRED to
+		// support.
+		// In theory, it's the only one we should ever care about.
 			case PixelFormat.YCbCr_420_SP:
 				// This format has never been seen in the wild, but is
 				// compatible as
@@ -657,9 +744,8 @@ public final class CameraManager
 			case PixelFormat.YCbCr_422_SP:
 
 				// new Rect(r.top, r.left, r.bottom, r.right);
-				return new PlanarYUVLuminanceSource(data, width, height,
-						rect.left, rect.top, rect.width(), rect.height(),
-						mReverseImage);
+				return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top, rect.width(),
+						rect.height(), mReverseImage);
 				// return new PlanarYUVLuminanceSource(data, height, width,
 				// rect.top, rect.left, rect.height(), rect.width(),
 				// mReverseImage);
@@ -673,17 +759,30 @@ public final class CameraManager
 				// it.
 				if ("yuv420p".equals(previewFormatString))
 				{
-					return new PlanarYUVLuminanceSource(data, width, height,
-							rect.left, rect.top, rect.width(), rect.height(),
-							mReverseImage);
+					return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top, rect.width(),
+							rect.height(), mReverseImage);
 				}
 		}
-		throw new IllegalArgumentException("Unsupported picture format: "
-				+ previewFormat + '/' + previewFormatString);
+		throw new IllegalArgumentException("Unsupported picture format: " + previewFormat + '/' + previewFormatString);
 	}
 
 	public void setScreenResolutionValues(Point p)
 	{
 		this.mConfigManager.setSurfaceResolutionValues(p);
 	}
+	
+	public void setParameters(int zoom, String flashmode){
+		Camera.Parameters p = mCamera.getParameters();
+		List<String> list = p.getSupportedFlashModes();
+		if(list.contains(flashmode))
+			p.setFlashMode(flashmode);
+		p.setZoom(zoom);
+		
+	}
+	public List<String> getSupportedFlashModes(){
+		if(mCamera != null)
+			return mCamera.getParameters().getSupportedFlashModes();
+		return null;
+	}
+	
 }

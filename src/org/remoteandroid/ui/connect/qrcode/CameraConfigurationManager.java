@@ -168,7 +168,18 @@ final class CameraConfigurationManager
 			cameraResolution = new Point((screenResolution.x >> 3) << 3,
 					(screenResolution.y >> 3) << 3);
 		}
-
+		
+		/*
+		 * Hack for samsung galaxy running android 1.5 and probably other 1.5 devices
+		 * When the device is in landscape mode, the camera resolution is rotated which leads
+		 * to strange behaviors (such as array out of bounds) in the xzing lib
+		 */
+		if (cameraResolution.x < cameraResolution.y)
+		{
+			int tmp = cameraResolution.x;
+			cameraResolution.x = cameraResolution.y;
+			cameraResolution.y = tmp;
+		}
 		return cameraResolution;
 	}
 
@@ -245,7 +256,7 @@ final class CameraConfigurationManager
 			// }
 
 		}
-
+		
 		if (bestX > 0 && bestY > 0)
 		{
 			return new Point(bestX, bestY);

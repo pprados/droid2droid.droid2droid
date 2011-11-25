@@ -16,8 +16,6 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.hardware.Camera;
@@ -172,27 +170,26 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 
 			offsetX = (mLeft);
 			offsetY = mTop;
-			if (false && CameraManager.camera_orientation == 1
-					&& CameraManager.camera_orientation == 3)
-			{// || (Application.CAMERA == Camera.CameraInfo.CAMERA_FACING_FRONT
-				// && (Application.CAMERA_ORIENTATION == 0 ||
-				// Application.CAMERA_ORIENTATION == 3))){
-				// i = width * height - 1;
-				if (D) Log.d(TAG_QRCODE, "orientation 0 ou 3");
-				i = 0;
-				for (int y = offsetY; y < height + offsetY; y++)
-				{
-					//int outputOffset = y * mDataWidth;
-					
-					for (int x = offsetX; x < width + offsetX; x++)
-					{
-						int grey = yuv[y * mDataWidth + x] & 0xff;
-						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
-
-					}
-				}
-			}
-			else
+//			if (false && CameraManager.camera_orientation == 1
+//					&& CameraManager.camera_orientation == 3)
+//			{// || (Application.CAMERA == Camera.CameraInfo.CAMERA_FACING_FRONT
+//				// && (Application.CAMERA_ORIENTATION == 0 ||
+//				// Application.CAMERA_ORIENTATION == 3))){
+//				// i = width * height - 1;
+//				i = 0;
+//				for (int y = offsetY; y < height + offsetY; y++)
+//				{
+//					//int outputOffset = y * mDataWidth;
+//					
+//					for (int x = offsetX; x < width + offsetX; x++)
+//					{
+//						int grey = yuv[y * mDataWidth + x] & 0xff;
+//						pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+//
+//					}
+//				}
+//			}
+//			else
 			{
 				for (int y = offsetY; y < height + offsetY; y++)
 				{

@@ -160,12 +160,12 @@ public final class ViewfinderView extends View
 			0, frame.bottom + 1, width, height, mPaint);
 		 
 		 
-		 mPaint.setColor(Color.RED);
-		 canvas.drawCircle(70, 41, 10, mPaint);
-		 
-		 canvas.drawCircle(320-70, 240-41, 10, mPaint);
-		 mPaint.setColor(Color.BLUE);
-		 canvas.drawCircle(41, 70, 10, mPaint);
+//		 mPaint.setColor(Color.RED);
+//		 canvas.drawCircle(70, 41, 10, mPaint);
+//		 
+//		 canvas.drawCircle(320-70, 240-41, 10, mPaint);
+//		 mPaint.setColor(Color.BLUE);
+//		 canvas.drawCircle(41, 70, 10, mPaint);
 		if (mResultBitmap != null)
 		{
 			// Draw the opaque result bitmap over the scanning rectangle

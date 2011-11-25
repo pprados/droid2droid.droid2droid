@@ -15,10 +15,16 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
          */
         public static final int abBackground=0x7f01001e;
+        /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+<p>May be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+         */
+        public static final int abBackgroundStacked=0x7f01001f;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int abCustomNavigationLayout=0x7f01001f;
+        public static final int abCustomNavigationLayout=0x7f010020;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -45,11 +51,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
          */
-        public static final int abHeight=0x7f010020;
-        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
-or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-         */
-        public static final int abHomeAsUpIndicator=0x7f010021;
+        public static final int abHeight=0x7f010021;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
@@ -276,155 +278,158 @@ containing a value of this type.
         public static final int button_minWidth=0x7f0c0000;
     }
     public static final class drawable {
-        public static final int abs__action_item_divider=0x7f020000;
-        public static final int abs__cab_background_holo_dark=0x7f020001;
-        public static final int abs__cab_background_holo_light=0x7f020002;
-        public static final int abs__cab_ic_close_focused_holo=0x7f020003;
-        public static final int abs__cab_ic_close_holo=0x7f020004;
-        public static final int abs__cab_ic_close_normal_holo=0x7f020005;
-        public static final int abs__cab_ic_close_pressed_holo=0x7f020006;
-        public static final int abs__ic_ab_back_holo_dark=0x7f020007;
-        public static final int abs__ic_ab_back_holo_light=0x7f020008;
-        public static final int abs__item_background_holo_dark=0x7f020009;
-        public static final int abs__item_background_holo_light=0x7f02000a;
-        public static final int abs__list_focused_holo=0x7f02000b;
-        public static final int abs__list_longpressed_holo=0x7f02000c;
-        public static final int abs__list_pressed_holo_dark=0x7f02000d;
-        public static final int abs__list_pressed_holo_light=0x7f02000e;
-        public static final int abs__list_selector_background_transition_holo_dark=0x7f02000f;
-        public static final int abs__list_selector_background_transition_holo_light=0x7f020010;
-        public static final int abs__list_selector_disabled_holo_dark=0x7f020011;
-        public static final int abs__list_selector_disabled_holo_light=0x7f020012;
-        public static final int abs__spinner_background_holo_dark=0x7f020013;
-        public static final int abs__spinner_background_holo_light=0x7f020014;
-        public static final int abs__spinner_default_holo_dark=0x7f020015;
-        public static final int abs__spinner_default_holo_light=0x7f020016;
-        public static final int abs__spinner_disabled_holo_dark=0x7f020017;
-        public static final int abs__spinner_disabled_holo_light=0x7f020018;
-        public static final int abs__spinner_focused_holo_dark=0x7f020019;
-        public static final int abs__spinner_focused_holo_light=0x7f02001a;
-        public static final int abs__spinner_pressed_holo_dark=0x7f02001b;
-        public static final int abs__spinner_pressed_holo_light=0x7f02001c;
-        public static final int abs__tab_indicator_holo=0x7f02001d;
-        public static final int abs__tab_selected_focused_holo=0x7f02001e;
-        public static final int abs__tab_selected_holo=0x7f02001f;
-        public static final int abs__tab_selected_pressed_focused_holo=0x7f020020;
-        public static final int abs__tab_selected_pressed_holo=0x7f020021;
-        public static final int abs__tab_unselected_focused_holo=0x7f020022;
-        public static final int abs__tab_unselected_holo=0x7f020023;
-        public static final int abs__tab_unselected_pressed_focused_holo=0x7f020024;
-        public static final int abs__tab_unselected_pressed_holo=0x7f020025;
-        public static final int default_contact_icon=0x7f020026;
-        public static final int ic_btn_back=0x7f020027;
-        public static final int ic_btn_done=0x7f020028;
-        public static final int ic_btn_next=0x7f020029;
-        public static final int ic_launcher_remoteandroid=0x7f02002a;
-        public static final int ic_menu_remoteandroid=0x7f02002b;
-        public static final int ic_stat_notify_incomming_file=0x7f02002c;
-        public static final int ic_stat_notify_install_complete=0x7f02002d;
-        public static final int ic_stat_remoteandroid=0x7f02002e;
-        public static final int icon=0x7f02002f;
-        public static final int landscape_camera=0x7f020030;
-        public static final int shopper_icon=0x7f020031;
-        public static final int switch_camera=0x7f020032;
+        public static final int abs__ab_stacked_transparent_dark_holo=0x7f020000;
+        public static final int abs__ab_stacked_transparent_light_holo=0x7f020001;
+        public static final int abs__action_item_divider=0x7f020002;
+        public static final int abs__cab_background_holo_dark=0x7f020003;
+        public static final int abs__cab_background_holo_light=0x7f020004;
+        public static final int abs__cab_ic_close_focused_holo=0x7f020005;
+        public static final int abs__cab_ic_close_holo=0x7f020006;
+        public static final int abs__cab_ic_close_normal_holo=0x7f020007;
+        public static final int abs__cab_ic_close_pressed_holo=0x7f020008;
+        public static final int abs__ic_ab_back_holo_dark=0x7f020009;
+        public static final int abs__ic_ab_back_holo_light=0x7f02000a;
+        public static final int abs__item_background_holo_dark=0x7f02000b;
+        public static final int abs__item_background_holo_light=0x7f02000c;
+        public static final int abs__list_focused_holo=0x7f02000d;
+        public static final int abs__list_longpressed_holo=0x7f02000e;
+        public static final int abs__list_pressed_holo_dark=0x7f02000f;
+        public static final int abs__list_pressed_holo_light=0x7f020010;
+        public static final int abs__list_selector_background_transition_holo_dark=0x7f020011;
+        public static final int abs__list_selector_background_transition_holo_light=0x7f020012;
+        public static final int abs__list_selector_disabled_holo_dark=0x7f020013;
+        public static final int abs__list_selector_disabled_holo_light=0x7f020014;
+        public static final int abs__spinner_background_holo_dark=0x7f020015;
+        public static final int abs__spinner_background_holo_light=0x7f020016;
+        public static final int abs__spinner_default_holo_dark=0x7f020017;
+        public static final int abs__spinner_default_holo_light=0x7f020018;
+        public static final int abs__spinner_disabled_holo_dark=0x7f020019;
+        public static final int abs__spinner_disabled_holo_light=0x7f02001a;
+        public static final int abs__spinner_focused_holo_dark=0x7f02001b;
+        public static final int abs__spinner_focused_holo_light=0x7f02001c;
+        public static final int abs__spinner_pressed_holo_dark=0x7f02001d;
+        public static final int abs__spinner_pressed_holo_light=0x7f02001e;
+        public static final int abs__tab_indicator_holo=0x7f02001f;
+        public static final int abs__tab_selected_focused_holo=0x7f020020;
+        public static final int abs__tab_selected_holo=0x7f020021;
+        public static final int abs__tab_selected_pressed_focused_holo=0x7f020022;
+        public static final int abs__tab_selected_pressed_holo=0x7f020023;
+        public static final int abs__tab_unselected_focused_holo=0x7f020024;
+        public static final int abs__tab_unselected_holo=0x7f020025;
+        public static final int abs__tab_unselected_pressed_focused_holo=0x7f020026;
+        public static final int abs__tab_unselected_pressed_holo=0x7f020027;
+        public static final int default_contact_icon=0x7f020028;
+        public static final int ic_btn_back=0x7f020029;
+        public static final int ic_btn_done=0x7f02002a;
+        public static final int ic_btn_next=0x7f02002b;
+        public static final int ic_launcher_remoteandroid=0x7f02002c;
+        public static final int ic_menu_remoteandroid=0x7f02002d;
+        public static final int ic_stat_notify_incomming_file=0x7f02002e;
+        public static final int ic_stat_notify_install_complete=0x7f02002f;
+        public static final int ic_stat_remoteandroid=0x7f020030;
+        public static final int icon=0x7f020031;
+        public static final int landscape_camera=0x7f020032;
+        public static final int shopper_icon=0x7f020033;
+        public static final int switch_camera=0x7f020034;
     }
     public static final class id {
-        public static final int abs__action_bar=0x7f060021;
-        public static final int abs__action_bar_container=0x7f060020;
-        public static final int abs__action_bar_subtitle=0x7f06001f;
-        public static final int abs__action_bar_title=0x7f06001e;
+        public static final int abs__action_bar=0x7f060022;
+        public static final int abs__action_bar_container=0x7f060021;
+        public static final int abs__action_bar_subtitle=0x7f060020;
+        public static final int abs__action_bar_title=0x7f06001f;
         public static final int abs__actions=0x7f060011;
-        public static final int abs__content=0x7f060022;
+        public static final int abs__content=0x7f060023;
         public static final int abs__custom=0x7f060014;
         public static final int abs__home=0x7f060017;
         public static final int abs__home_wrapper=0x7f060010;
         public static final int abs__iprogress=0x7f060012;
-        public static final int abs__item_custom=0x7f06001a;
-        public static final int abs__item_icon=0x7f060018;
-        public static final int abs__item_text=0x7f060019;
+        public static final int abs__item_custom=0x7f06001b;
+        public static final int abs__item_icon=0x7f060019;
+        public static final int abs__item_text=0x7f06001a;
         public static final int abs__nav_list=0x7f060013;
         public static final int abs__nav_tabs=0x7f060015;
-        public static final int abs__tab=0x7f06001c;
-        public static final int abs__tab_custom=0x7f06001d;
-        public static final int abs__tab_icon=0x7f06001b;
+        public static final int abs__nav_tabs_layout=0x7f060018;
+        public static final int abs__tab=0x7f06001d;
+        public static final int abs__tab_custom=0x7f06001e;
+        public static final int abs__tab_icon=0x7f06001c;
         public static final int abs__up=0x7f060016;
-        public static final int appIcon=0x7f06004f;
+        public static final int appIcon=0x7f060050;
         /**  Messages IDs 
          */
         public static final int auto_focus=0x7f060009;
-        public static final int body=0x7f060029;
-        public static final int btn_next=0x7f06002b;
-        public static final int button1=0x7f06003b;
-        public static final int button2=0x7f06003c;
-        public static final int call_view=0x7f060046;
-        public static final int complete_date=0x7f060056;
-        public static final int complete_text=0x7f060057;
-        public static final int connect=0x7f060037;
-        public static final int connect_bounded_list=0x7f060039;
-        public static final int connect_description=0x7f060038;
-        public static final int connect_discover_list=0x7f060026;
-        public static final int connect_help=0x7f060024;
-        public static final int connect_qrcode_btn_camera=0x7f060033;
-        public static final int contactListView=0x7f060036;
-        public static final int context_pair=0x7f060059;
-        public static final int context_qrcode_camera=0x7f06005b;
-        public static final int context_qrcode_flash=0x7f06005a;
-        public static final int context_scan_all=0x7f06005c;
-        public static final int context_scan_bt=0x7f06005d;
-        public static final int context_scan_wifi=0x7f06005e;
-        public static final int context_unpair=0x7f060058;
+        public static final int body=0x7f06002a;
+        public static final int btn_next=0x7f06002c;
+        public static final int button1=0x7f06003c;
+        public static final int button2=0x7f06003d;
+        public static final int call_view=0x7f060047;
+        public static final int complete_date=0x7f060057;
+        public static final int complete_text=0x7f060058;
+        public static final int connect=0x7f060038;
+        public static final int connect_bounded_list=0x7f06003a;
+        public static final int connect_description=0x7f060039;
+        public static final int connect_discover_list=0x7f060027;
+        public static final int connect_help=0x7f060025;
+        public static final int connect_qrcode_btn_camera=0x7f060034;
+        public static final int contactListView=0x7f060037;
+        public static final int context_pair=0x7f06005a;
+        public static final int context_qrcode_camera=0x7f06005c;
+        public static final int context_qrcode_flash=0x7f06005b;
+        public static final int context_scan_all=0x7f06005d;
+        public static final int context_scan_bt=0x7f06005e;
+        public static final int context_scan_wifi=0x7f06005f;
+        public static final int context_unpair=0x7f060059;
         public static final int current_decode=0x7f06000b;
         public static final int decode=0x7f06000c;
         public static final int decode_failed=0x7f06000d;
         public static final int decode_succeeded=0x7f06000e;
-        public static final int description=0x7f060051;
-        public static final int divider=0x7f060047;
-        public static final int download_apk_describe=0x7f060023;
-        public static final int edit=0x7f06002c;
+        public static final int description=0x7f060052;
+        public static final int divider=0x7f060048;
+        public static final int download_apk_describe=0x7f060024;
+        public static final int edit=0x7f06002d;
         public static final int homeAsUp=0x7f060006;
-        public static final int icon=0x7f060049;
-        public static final int line=0x7f060025;
-        public static final int line1_view=0x7f06003d;
-        public static final int line2_view=0x7f06003e;
-        public static final int line3_view=0x7f06003f;
-        public static final int line4_view=0x7f060040;
-        public static final int line5_view=0x7f060041;
+        public static final int icon=0x7f06004a;
+        public static final int line=0x7f060026;
+        public static final int line1_view=0x7f06003e;
+        public static final int line2_view=0x7f06003f;
+        public static final int line3_view=0x7f060040;
+        public static final int line4_view=0x7f060041;
+        public static final int line5_view=0x7f060042;
         public static final int listMode=0x7f060002;
-        public static final int mainFragement=0x7f06002e;
-        public static final int main_layout=0x7f06004d;
-        public static final int name=0x7f06004a;
+        public static final int mainFragement=0x7f06002f;
+        public static final int main_layout=0x7f06004e;
+        public static final int name=0x7f06004b;
         public static final int normal=0x7f060001;
-        public static final int numberEditText=0x7f060035;
-        public static final int photo=0x7f060048;
-        public static final int presence=0x7f060045;
-        public static final int preview_view=0x7f060030;
-        public static final int progress_bar=0x7f060052;
-        public static final int progress_info=0x7f06004e;
-        public static final int progress_percent=0x7f060042;
-        public static final int progress_text=0x7f060050;
-        public static final int progress_transfer=0x7f060043;
+        public static final int numberEditText=0x7f060036;
+        public static final int photo=0x7f060049;
+        public static final int presence=0x7f060046;
+        public static final int preview_view=0x7f060031;
+        public static final int progress_bar=0x7f060053;
+        public static final int progress_info=0x7f06004f;
+        public static final int progress_percent=0x7f060043;
+        public static final int progress_text=0x7f060051;
+        public static final int progress_transfer=0x7f060044;
         public static final int quit=0x7f06000f;
-        public static final int relativeLayout1=0x7f06002f;
-        public static final int right_side=0x7f060044;
-        public static final int scanning_progress=0x7f06004b;
-        public static final int scanning_text=0x7f06004c;
-        public static final int scrollView1=0x7f060027;
+        public static final int relativeLayout1=0x7f060030;
+        public static final int right_side=0x7f060045;
+        public static final int scanning_progress=0x7f06004c;
+        public static final int scanning_text=0x7f06004d;
+        public static final int scrollView1=0x7f060028;
         public static final int showCustom=0x7f060008;
         public static final int showHome=0x7f060005;
         public static final int showTitle=0x7f060007;
-        public static final int smsRelativeLayout=0x7f060034;
+        public static final int smsRelativeLayout=0x7f060035;
         public static final int start_decode=0x7f06000a;
-        public static final int status_view=0x7f060032;
+        public static final int status_view=0x7f060033;
         public static final int tabMode=0x7f060003;
-        public static final int targetdevice=0x7f060055;
-        public static final int technologies=0x7f060028;
-        public static final int text=0x7f06002d;
-        public static final int textView1=0x7f06003a;
-        public static final int toolbar=0x7f06002a;
-        public static final int transfer_icon=0x7f060053;
-        public static final int transfer_title=0x7f060054;
+        public static final int targetdevice=0x7f060056;
+        public static final int technologies=0x7f060029;
+        public static final int text=0x7f06002e;
+        public static final int textView1=0x7f06003b;
+        public static final int toolbar=0x7f06002b;
+        public static final int transfer_icon=0x7f060054;
+        public static final int transfer_title=0x7f060055;
         public static final int useLogo=0x7f060004;
-        public static final int viewfinder_view=0x7f060031;
+        public static final int viewfinder_view=0x7f060032;
         public static final int wrap_content=0x7f060000;
     }
     public static final class integer {
@@ -736,11 +741,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
            <tr><td><code>{@link #SherlockTheme_abBackground org.remoteandroid:abBackground}</code></td><td></td></tr>
+           <tr><td><code>{@link #SherlockTheme_abBackgroundStacked org.remoteandroid:abBackgroundStacked}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abCustomNavigationLayout org.remoteandroid:abCustomNavigationLayout}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abDisplayOptions org.remoteandroid:abDisplayOptions}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abDivider org.remoteandroid:abDivider}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abHeight org.remoteandroid:abHeight}</code></td><td></td></tr>
-           <tr><td><code>{@link #SherlockTheme_abHomeAsUpIndicator org.remoteandroid:abHomeAsUpIndicator}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abHomeLayout org.remoteandroid:abHomeLayout}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abIcon org.remoteandroid:abIcon}</code></td><td></td></tr>
            <tr><td><code>{@link #SherlockTheme_abIndeterminateProgressStyle org.remoteandroid:abIndeterminateProgressStyle}</code></td><td></td></tr>
@@ -776,11 +781,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
            <tr><td><code>{@link #SherlockTheme_windowActionModeOverlay org.remoteandroid:windowActionModeOverlay}</code></td><td></td></tr>
            </table>
            @see #SherlockTheme_abBackground
+           @see #SherlockTheme_abBackgroundStacked
            @see #SherlockTheme_abCustomNavigationLayout
            @see #SherlockTheme_abDisplayOptions
            @see #SherlockTheme_abDivider
            @see #SherlockTheme_abHeight
-           @see #SherlockTheme_abHomeAsUpIndicator
            @see #SherlockTheme_abHomeLayout
            @see #SherlockTheme_abIcon
            @see #SherlockTheme_abIndeterminateProgressStyle
@@ -840,6 +845,18 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         */
         public static final int SherlockTheme_abBackground = 30;
         /**
+          <p>This symbol is the offset where the {@link org.remoteandroid.R.attr#abBackgroundStacked}
+          attribute's value can be found in the {@link #SherlockTheme} array.
+
+
+          <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+<p>May be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
+"<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
+          @attr name android:abBackgroundStacked
+        */
+        public static final int SherlockTheme_abBackgroundStacked = 31;
+        /**
           <p>This symbol is the offset where the {@link org.remoteandroid.R.attr#abCustomNavigationLayout}
           attribute's value can be found in the {@link #SherlockTheme} array.
 
@@ -848,7 +865,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
           @attr name android:abCustomNavigationLayout
         */
-        public static final int SherlockTheme_abCustomNavigationLayout = 31;
+        public static final int SherlockTheme_abCustomNavigationLayout = 32;
         /**
           <p>This symbol is the offset where the {@link org.remoteandroid.R.attr#abDisplayOptions}
           attribute's value can be found in the {@link #SherlockTheme} array.
@@ -893,17 +910,7 @@ Available units are: px (pixels), dp (density-independent pixels), sp (scaled pi
 in (inches), mm (millimeters).
           @attr name android:abHeight
         */
-        public static final int SherlockTheme_abHeight = 32;
-        /**
-          <p>This symbol is the offset where the {@link org.remoteandroid.R.attr#abHomeAsUpIndicator}
-          attribute's value can be found in the {@link #SherlockTheme} array.
-
-
-          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
-or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name android:abHomeAsUpIndicator
-        */
-        public static final int SherlockTheme_abHomeAsUpIndicator = 33;
+        public static final int SherlockTheme_abHeight = 33;
         /**
           <p>This symbol is the offset where the {@link org.remoteandroid.R.attr#abHomeLayout}
           attribute's value can be found in the {@link #SherlockTheme} array.

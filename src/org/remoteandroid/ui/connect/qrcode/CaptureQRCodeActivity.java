@@ -32,6 +32,7 @@ import org.remoteandroid.internal.Compatibility;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -47,12 +48,15 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -117,21 +121,18 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 	private void setParams()
 	{
-		CameraManager.camera_orientation = getResources().getConfiguration().orientation;
+		//CameraManager.camera_orientation = getResources().getConfiguration().orientation;
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
 		CameraManager.density = metrics.density;
-		//CameraManager.density = metrics.widthPixels / metrics.xdpi;
-		//CameraManager.density = metrics.heightPixels / metrics.ydpi;
+
 	}
 
 	@Override
 	public void onCreate(Bundle icicle)
 	{
 		super.onCreate(icicle);
-		if (D) Log.d(
-			TAG_QRCODE, "create");
 		Window window = getWindow();
 		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.qrcode_capture);
@@ -139,6 +140,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 		setParams();
 
 		final ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
+		//if the SDK version is FROYO or better, we can switch front/back camera
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
 		{
 			new Runnable()
@@ -152,6 +154,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 						@Override
 						public void onClick(View v)
 						{
+							//switch to next camera
 							CameraManager.camera = (CameraManager.camera + 1)
 									% Camera.getNumberOfCameras();
 							onPause();
@@ -168,11 +171,17 @@ public final class CaptureQRCodeActivity extends Activity implements
 		
 		mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		mStatusView = (TextView) findViewById(R.id.status_view);
+
+//		  RotateAnimation ranim = (RotateAnimation)AnimationUtils.loadAnimation(this, R.anim.rotate_anim);
+//		  ranim.setFillAfter(true); //For the textview to remain at the same place after the rotation
+//		  mStatusView.setAnimation(ranim);
+//		  
 		mCache = (Cache) getLastNonConfigurationInstance();
 		mHasSurface = false;
 		View v = findViewById(R.id.main_layout); // FIXME: remove id
-		int[] location = new int[2];
-		mViewfinderView.getLocationOnScreen(location);
+		//int[] location = new int[2];
+		
+		//mViewfinderView.getLocationOnScreen(location);
 		Rect r = new Rect();
 		v.getLocalVisibleRect(r);
 		if (mCache == null)
@@ -191,6 +200,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 			if (mCache.mHandler != null)
 				mCache.mHandler.setWrapper(this);
 		}
+		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
 
 	@Override
@@ -242,10 +252,13 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mCache.mBeepManager.updatePrefs();
 		mCache.mInactivityTimer.onResume();
 	}
-
+	
+	
+	
 	private int getRotation()
 	{
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+		
 			Integer job = new Callable<Integer>()
 			{
 				public Integer call() 
@@ -258,7 +271,12 @@ public final class CaptureQRCodeActivity extends Activity implements
 			return job;
 		}
 		else
-			return getWindowManager().getDefaultDisplay().getOrientation();
+			if(getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight())
+				return Surface.ROTATION_0;
+			else
+				return Surface.ROTATION_90;
+			//return getResources().getConfiguration().orientation;
+			//return getWindowManager().getDefaultDisplay().getOrientation();
 		
 	}
 
@@ -266,8 +284,6 @@ public final class CaptureQRCodeActivity extends Activity implements
 	protected void onPause()
 	{
 		super.onPause();
-		if (D) Log.e(
-			TAG_QRCODE, "pause");
 		if (I)
 			Log.i(
 				TAG_QRCODE, "onPause...");
@@ -354,19 +370,37 @@ public final class CaptureQRCodeActivity extends Activity implements
 				this.onPause();
 				this.onResume();
 				return true;
+//			case  R.id.context_qrcode_param:
+//				Intent intent = new Intent(CaptureQRCodeActivity.this, CameraParametersActivity.class);
+//				startActivityForResult(intent, CAMERA_PARAMETERS_REQUEST);
+//				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
+//
+//	static final int CAMERA_PARAMETERS_REQUEST = 1110;
+//	protected void onActivityResult(int requestCode, int resultCode,
+//            Intent data) {
+//        if (requestCode == CAMERA_PARAMETERS_REQUEST) {
+//            if (resultCode == RESULT_OK) {
+//            	Bundle bundle = data.getExtras();
+//            	int zoom = bundle.getInt("zoom", 1);
+//            	String flashMode = bundle.getString("flashmode");
+//            	
+//            	CameraManager.get().setParameters(zoom,flashMode);
+//            }
+//        }
+//    }
 
+	
 	public void surfaceCreated(SurfaceHolder holder)
 	{
 		if (D) Log.d(
 			TAG_QRCODE, "surface created");
 		if (!mHasSurface)
 		{
-			if (D) Log.e(
-				TAG_QRCODE, "mHasSurface surface created");
+
 			
 			CameraManager.get().setScreenResolutionValues(
 				new Point(mViewfinderView.getWidth(), mViewfinderView
@@ -392,8 +426,6 @@ public final class CaptureQRCodeActivity extends Activity implements
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
 		CameraManager.density = metrics.density;
-//		CameraManager.density = metrics.widthPixels / metrics.xdpi;
-//		CameraManager.density = metrics.heightPixels / metrics.ydpi;
 		CameraManager.get().setScreenResolutionValues(
 			new Point(width, height));
 	}
