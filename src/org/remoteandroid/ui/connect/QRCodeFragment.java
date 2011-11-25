@@ -5,6 +5,7 @@ import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -116,10 +117,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-		Log.d("size", "density : " + metrics.density);
-		Log.d("size", " metrics.widthPixels " + metrics.widthPixels + " metrics.xdpi " + metrics.xdpi);
-		//CameraManager.deviceSizeX = metrics.widthPixels / metrics.xdpi;
-		//CameraManager.deviceSizeY = metrics.heightPixels / metrics.ydpi;
+		
 		CameraManager.density = metrics.density;
 		
 		if (I)
@@ -229,6 +227,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	private int getRotation()
 	{
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+			
 			Integer job = new Callable<Integer>()
 			{
 				public Integer call() 
@@ -240,9 +239,14 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			}.call();
 			return job;
 		}
-			
 		else
-			return getActivity().getWindowManager().getDefaultDisplay().getOrientation();
+			if(getActivity().getWindowManager().getDefaultDisplay().getWidth() < getActivity().getWindowManager().getDefaultDisplay().getHeight())
+				return Surface.ROTATION_0;
+			else
+				return Surface.ROTATION_90;
+			//return getResources().getConfiguration().orientation;
+			//return getWindowManager().getDefaultDisplay().getOrientation();
+	
 	}
 
 	@Override
@@ -397,8 +401,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			String s = rawResult.getText();
 			
 			byte[] data=new byte[s.length()];
-			s.getBytes(0, s.length(), data, 0);//rawResult.getText().getBytes();
 			
+			getBytes(s, 0, s.length(), data, 0);//rawResult.getText().getBytes();
+			//data = s.getBytes();
 			candidates = Messages.Candidates.parseFrom(data);
 			activity.tryConnect(null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
 		}
@@ -408,6 +413,30 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * WARNING:
+	 * This method SHOULD NOT be here and is only used to bypass
+	 *  the bug in the String method getBytes(int start, int end, byte[] data, int index)
+	 *  in android honeycomb 3.2 (and maybe earlier honeycomb versions)
+	 *  This method always return a StringIndexOutOfBoundsException in this version of android
+	 *  Note:
+	 *  Earlier versions (gingerbread) are not affected by this bug
+	 */
+	public void getBytes(String s, int start, int end, byte[] data, int index) {
+		char[] value = s.toCharArray();
+        if (0 <= start && start <= end && end <= s.length()) {
+            
+            try {
+                for (int i = 0 + start; i < end; i++) {
+                    data[index++] = (byte) value[i];
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new StringIndexOutOfBoundsException();
+            }
+        } else {
+            throw new StringIndexOutOfBoundsException();
+        }
+    }
 
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)

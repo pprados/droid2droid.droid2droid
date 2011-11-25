@@ -234,10 +234,10 @@
 			android:configChanges=""
 		>
             <intent-filter>
-<!--                 <action android:name="android.intent.action.MAIN" /> -->
+                <action android:name="android.intent.action.MAIN" />
                 <action android:name="org.remoteandroid.action.Connect" />
                 <category android:name="android.intent.category.DEFAULT" />
-<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -269,21 +269,7 @@
 <!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
 <!--             </intent-filter> -->
          </activity>
-        <activity 
-        	android:name=".ui.connect.ConnectActivity" 
-			android:icon="@drawable/ic_launcher_remoteandroid"
-			android:launchMode="standard" 
-			android:taskAffinity=""
-			android:exported="true"
-			android:configChanges=""
-		>
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="org.remoteandroid.action.Connect" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
     </application>
 
 

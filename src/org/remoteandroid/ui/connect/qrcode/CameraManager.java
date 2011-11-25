@@ -198,6 +198,7 @@ public final class CameraManager
 					{
 					
 						mCamera.setDisplayOrientation(sOrientation[rotation]);
+						camera_rotation = sOrientation[rotation];
 //						if (rotation == Surface.ROTATION_0)
 //						{
 //							// p.set("orientation", "portrait");
@@ -264,7 +265,7 @@ public final class CameraManager
 //			if(effects.get(i).contains("mono"))
 //				p.setColorEffect(effects.get(i));
 //		}
-		p.setZoom(7);
+		
 		
 		mCamera.setParameters(p);
 		if(this.mPreviewing)
@@ -315,7 +316,7 @@ public final class CameraManager
 
 		
 		// ORIENTATION[rotation]);
-		this.setCameraParameters();
+		//setCameraParameters();
 		mCamera.setPreviewDisplay(holder);
 		if (!mInitialized)
 		{
