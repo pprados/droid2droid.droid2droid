@@ -45,7 +45,7 @@ public class SMSFragment extends AbstractBodyFragment
 
 	private static final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
 	private static final String EXTRA_PDU="pdus";
-	public static final int MESSAGE_SIZE = 3;//SmsMessage.MAX_USER_DATA_BYTES - SMS_HEADER;
+	public static final int MESSAGE_SIZE = SmsMessage.MAX_USER_DATA_BYTES;
 
 	private View mViewer;
 	private BlockingQueue<byte[]> mQueue = new ArrayBlockingQueue<byte[]>(10, false);
@@ -96,18 +96,14 @@ public class SMSFragment extends AbstractBodyFragment
 			}
 
 			int fragNumber = fragment[0] & 0x7F;
-
-			if ((fragment[0] & 0x80) == 0x80)
+			boolean isLast=((fragment[0] & 0x80) == 0x80);
+			if (isLast)
 				currentFragments.max = fragNumber;
+			if (V) Log.v(TAG_SMS,"Receive fragment  #"+fragNumber+" ["+(fragment.length-1)+"] "+(((fragment[0] & 0x80) == 0x80) ? "(last)":""));
+			currentFragments.bufs.put(fragNumber, fragment);
 
-			currentFragments.bufs.put(
-				fragNumber, fragment);
-
-			if ((currentFragments.max != fragNumber && (currentFragments.bufs.size() == MESSAGE_SIZE - 1) 
-					|| (currentFragments.max == fragNumber && currentFragments.bufs.size() == fragNumber+1)))
+			if (currentFragments.bufs.size()-1 == currentFragments.max)
 			{
-				// if (currentFragments.max == currentFragments.bufs.size()) {
-				// Max pour tous les buffers, sauf pour le dernier
 				int bufferSize = (currentFragments.bufs.size() - 1) * (MESSAGE_SIZE - 1)
 						+ currentFragments.bufs.get(currentFragments.max).length - 1;
 				if (V) Log.v(TAG_SMS, "BufferSize = " + bufferSize);

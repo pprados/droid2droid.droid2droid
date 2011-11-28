@@ -6,6 +6,8 @@
 
 	<bool name="connect_merge">false</bool>
 
+	<string name="connect_expose_title">Expose with...</string>
+	
 	<string name="connect_alert_title">Alert</string>
 	<string name="connect_alert_connection_impossible">Connection to remote device impossible!</string>
 	<string name="connect_alert_pairing_impossible">Pairing to remote device impossible!</string>

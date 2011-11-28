@@ -179,6 +179,5 @@ public class Constants
 	public static final short SMS_PORT 							=RemoteAndroidManager.DEFAULT_PORT;
 	/** Timeout to wait to receive SMS. */
 	public static final int SMS_TIMEOUT_WAIT=600000; // 60s
-	public static final int SMS_HEADER = 10;		 // Reserved byte for header
 
 }

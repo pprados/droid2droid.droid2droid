@@ -17,6 +17,7 @@ import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.connect.SMSFragment;
 import org.remoteandroid.ui.connect.ConnectActivity.ConnectDialogFragment;
 import org.remoteandroid.ui.connect.ConnectActivity.TryConnection;
+import org.remoteandroid.ui.connect.qrcode.FinishListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -347,22 +348,6 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 			{
 				final long contactId = cur.getLong(POS_ID);
 				final String name= cur.getString(POS_DISPLAY_NAME);
-//				final Cursor cphon = mContentResolver.query(
-//					Phone.CONTENT_URI, 
-//					sProjectionPhone,
-//					Phone.CONTACT_ID + "=" + contactId, 
-//					null, null);
-//				if (cphon == null)
-//					continue;
-//				while (cphon.moveToNext())
-//				{
-//					final String phonenumber = cphon.getString(POS_PHONE_NUMBER);
-//					mTmpPhoneListNumber.add(phonenumber);
-//					mTmpContactName.add(name);
-//					mTmpListIdContact.add(contactId);
-//				}
-//				cphon.close();
-//				mTmpPhoneListNumber.add(phonenumber);
 				mTmpContactName.add(name);
 				mTmpListIdContact.add(contactId);
 			}
@@ -509,9 +494,15 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 						boolean last = (buf.length - i) < maxsize;
 						int len = Math.min(buf.length - i, maxsize);
 						System.arraycopy(buf, i, fragment, 1, len);
-						fragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
+						byte[] pushFragment=fragment;
+						if (last)
+						{
+							pushFragment=new byte[len+1];
+							System.arraycopy(buf, i, pushFragment, 1, len);
+						}
+						pushFragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
 						SmsManager.getDefault().sendDataMessage(
-							receiver, null, SMS_PORT, fragment, null, null);
+							receiver, null, SMS_PORT, pushFragment, null, null);
 
 						++fragNumber;
 					}
@@ -522,13 +513,21 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 					{
 						try { Thread.sleep(1000-(stop-start)); } catch (Exception e) {}
 					}
-					dismiss();
 					return null;
 				}
 				@Override
 				protected void onException(Throwable e)
 				{
-					// TODO
+					if (E && !D) Log.d(TAG_SMS,PREFIX_LOG+"SMS error ("+e.getMessage()+")");
+					if (D) Log.d(TAG_SMS,PREFIX_LOG+"SMS error ("+e.getMessage()+")",e);
+					dismiss();
+					new AlertDialog.Builder(getActivity())
+						.setTitle(R.string.expose_sms_error_title)
+						.setMessage(R.string.expose_sms_error_message)
+						.setIcon(android.R.drawable.ic_dialog_alert)
+						.setPositiveButton(android.R.string.ok,null)
+						.create()
+						.show();
 				}
 				
 				@Override
@@ -549,6 +548,12 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 				{
 					dismiss();
 				}
+				
+				@Override
+				protected void onPostExecute(Void result)
+				{
+					getActivity().finish();
+				}
 			};
 		}
 
@@ -566,6 +571,7 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 			progressDialog.setMessage(getResources().getText(R.string.expose_sms_send));
             progressDialog.setCancelable(true);
 			mTask.execute();
+			
             return progressDialog;
 		}
 		

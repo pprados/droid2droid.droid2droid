@@ -35,13 +35,16 @@ import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.expose.Expose;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
@@ -64,6 +67,9 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 // TODO: Sur xoom, enlever le menu contextuel
@@ -78,16 +84,15 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private static final int MODE_ONE_SCREEN=MODE_MAIN_SCREEN|MODE_ANO_SCREEN|MODE_KNOW_SCREEN;
 	
 	private CharSequence[] mExposeValues;
-	private CharSequence[] mExposeKeys;
 	
 	private int mMode;
 
 	// No persistante preference
 	private static final String PREFERENCES_ANO					="ano";
 	private static final String PREFERENCES_KNOWN				="known";
-	private static final String PREFERENCES_EXPOSE				="expose";
 
 	private static final String PREFERENCE_DEVICE_LIST			="lan.list";
+	private static final String PREFERENCE_EXPOSE 				= "expose";
 	private static final String PREFERENCE_SCAN 				= "scan";
 
 	private static final String ALL_WIFI="#ALL#";
@@ -401,26 +406,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			});
 
 
-			ListPreference expose=(ListPreference)findPreference(PREFERENCES_EXPOSE);
-			expose.setEntries(mExposeValues);
-			expose.setEntryValues(mExposeKeys);
-			expose.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-			{
-				@Override
-				public boolean onPreferenceChange(Preference preference, final Object newValue)
-				{
-					for (int i=0;i<Expose.sExpose.length;++i)
-					{
-						if (Expose.sExpose[i].mKey.equals(newValue))
-						{
-							Expose.sExpose[i].startExposition(EditPreferenceActivity.this);
-							break;
-						}
-					}
-					return true;
-				}
-			});
-			
 			// Scan
 			mPreferenceScan=findPreference(PREFERENCE_SCAN);
 	        mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
@@ -522,11 +507,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private void initFromExpose()
 	{
 		mExposeValues=new CharSequence[Expose.sExpose.length];
-		mExposeKeys=new CharSequence[Expose.sExpose.length];
 		for (int i=0;i<Expose.sExpose.length;++i)
 		{
 			mExposeValues[i]=getString(Expose.sExpose[i].mValue);
-			mExposeKeys[i]=Expose.sExpose[i].mKey;
 		}
 	}
 	
@@ -641,6 +624,11 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         		scan(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS);
         	}
             return true;
+        }
+        if (PREFERENCE_EXPOSE.equals(preference.getKey()))
+        {
+        	expose();
+        	return true;
         }
         else if (preference instanceof DevicePreference) 
         {
@@ -775,23 +763,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         }
     }
 
-	private void scan(final int flags)
-	{
-		if (!Application.sManager.isDiscovering())
-		{
-			initBonded();
-			Application.sThreadPool.execute(new Runnable()
-			{
-				
-				@Override
-				public void run()
-				{
-					Application.sManager.startDiscover(flags,TIME_TO_DISCOVER);
-				}
-			});
-		}
-	}
-	
 	private DevicePreference addInfo(RemoteAndroidInfoImpl info)
 	{
 		DevicePreference preference=new DevicePreference(this,info);
@@ -819,6 +790,41 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 				(!airPlaneState && 
 				!Application.sManager.isDiscovering()) &&
 				(bluetoothState || wifiState));
+		
+	}
+	private void scan(final int flags)
+	{
+		if (!Application.sManager.isDiscovering())
+		{
+			initBonded();
+			Application.sThreadPool.execute(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					Application.sManager.startDiscover(flags,TIME_TO_DISCOVER);
+				}
+			});
+		}
+	}
+	private void expose()
+	{
+		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues);
+		new AlertDialog.Builder(this)
+			.setAdapter(adapter, new DialogInterface.OnClickListener()
+			{
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which)
+				{
+					Expose.sExpose[which].startExposition(EditPreferenceActivity.this);
+				}
+			})
+			.setTitle(R.string.connect_expose_title)
+			.create()
+			.show();
+
 		
 	}
 }

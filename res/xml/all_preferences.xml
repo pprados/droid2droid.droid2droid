@@ -21,14 +21,18 @@
 			android:dialogMessage="@string/device_name_message" 
 			android:persistent="true"
 		/>
-	 <ListPreference 
-           	android:key="expose"
-			android:dependency="active" 
-			android:title="@string/expose_title" 
-			android:summary="@string/expose_summary"
-            android:dialogTitle="@string/expose_dialog_title" 
-           	android:persistent="false"
-       />	
+<!-- 	 <ListPreference  -->
+<!--            	android:key="expose" -->
+<!-- 			android:dependency="active"  -->
+<!-- 			android:title="@string/expose_title"  -->
+<!-- 			android:summary="@string/expose_summary" -->
+<!--             android:dialogTitle="@string/expose_dialog_title"  -->
+<!--            	android:persistent="false" -->
+<!--        />	 -->
+       
+    <Preference
+        android:key="expose"
+        android:title="@string/expose_title" />
 		
 	</PreferenceCategory>
 		

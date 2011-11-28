@@ -6,11 +6,13 @@
 	<string name="expose_summary">For connect with another</string>
 	<string name="expose_dialog_title">Select exposition</string>
 	<string name="expose_qrcode">QRCode</string>
-	<string name="expose_sms">SMS</string>
+	<string name="expose_sms">Short Message</string>
 	<string name="expose_sound">Sound</string>
-	<string name="expose_input">Input</string>
+	<string name="expose_input">Ticket</string>
 
 	<string name="expose_sms_help">Send an message to another device.</string>
 	<string name="expose_sms_field_help">Name or phone number.</string>
 	<string name="expose_sms_send">Send...</string>
+	<string name="expose_sms_error_title">SMS error</string>
+	<string name="expose_sms_error_message">Impossible to send message!</string>
 </resources>

@@ -10,6 +10,7 @@ public abstract class Expose
 	protected static final String KEY_SOUND="SOUND";
 	protected static final String KEY_INPUT="Input";
 
+	// TODO: adapter suivant les capacités du téléphone
 	public static final Expose[] sExpose=
 	{
 		new QRCodeExpose(),
