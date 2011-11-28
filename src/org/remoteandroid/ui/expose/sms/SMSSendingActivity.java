@@ -50,6 +50,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -184,6 +185,8 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 
 	public void sendData(final String receiver)
 	{
+		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
 		final SendSMSDialogFragment dlg=SendSMSDialogFragment.sendSMS(receiver);
 		dlg.show(mFragmentManager, "dialog");
 
