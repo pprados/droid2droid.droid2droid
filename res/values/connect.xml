@@ -21,21 +21,12 @@
         <li><font fgcolor="#ffffffff"><b>Enter ID</b></font> propose to create a short identification for the current connection in the remote device. You must enter this id with the keyboard to initiate the communication.\n\n</li>
     </string>
     
-	<string name="connect_trusted">Trusted device</string>
-	<string name="connect_trusted_description_3G">All bounded devices.</string>
-	<string name="connect_trusted_description_BT_WIFI">All bounded devices present in current Wifi network
-		or with Bluetooths.</string>
-	<string name="connect_trusted_description_BT">All bounded devices with Bluetooths.</string>
-	<string name="connect_trusted_description_WIFI">All bounded devices present in current Wifi
-		network.</string>
-	<string name="connect_trusted_help">Select a trusted device.</string>
-    
-
 	<string name="connect_discover">Discovers</string>
 	<string name="connect_discover_description">Discovers devices in proximity.</string>
 	<string name="connect_discover_help">Discover the devices if they are connected in the same WIFI network or have the bluetooth activated.
 	Then, select one discovered device to connect and/or pairing.
     </string>
+    <string name="connect_device_paired">Paired.</string>
 
 	<string name="connect_try">Connect...</string>
 	<string name="connect_qrcode">QRCode</string>
@@ -61,8 +52,10 @@
 
 	<string name="connect_sms">SMS</string>
 	<string name="connect_sms_description">Receive an SMS to remote device.</string>
-	<string name="connect_sms_help">Wait a SMS from a remote device.
-    </string>
+	<string name="connect_sms_help">Wait a SMS from a remote device.</string>
+	<string name="connect_sms_error_invalides_sms">Impossible to received short messages.</string>
+	<!-- Title for the sms disambiguation dialog -->
+	<string name="connect_sms_disambig_title">Using</string>
 
 	<string name="connect_sound">Sound</string>
 	<string name="connect_sound_description">Listen a special sound.</string>

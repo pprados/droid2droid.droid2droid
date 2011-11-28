@@ -8,13 +8,12 @@ import android.content.Context;
 
 class Technology
 {
-	enum Type { EMPTY,DISCOVER,BOUNDED,QRCODE,NFC,SMS,SOUND,INPUT};
+	enum Type { EMPTY,DISCOVER,QRCODE,NFC,SMS,SOUND,INPUT};
 	public static Technology sDefault=new Technology(Type.EMPTY, true, 0, 0, R.string.connect_empty_help);
 	private static int[] sStringIds=
 		{
 			0,0,R.string.connect_empty_help,
 			R.string.connect_discover,R.string.connect_discover_description,R.string.connect_discover_help,
-			R.string.connect_trusted,R.string.connect_trusted_description_3G,R.string.connect_trusted_help,
 			R.string.connect_qrcode,R.string.connect_qrcode_description,R.string.connect_qrcode_help,
 			R.string.connect_nfc,R.string.connect_nfc_description,R.string.connect_nfc_help,
 			R.string.connect_sms,R.string.connect_sms_description,R.string.connect_sms_help,
@@ -65,9 +64,6 @@ class Technology
 				break;
 			case DISCOVER:
 				fragment=new DiscoverFragment();
-				break;
-			case BOUNDED:
-				fragment=new TrustedFragment();
 				break;
 			case QRCODE:
 				fragment=new QRCodeFragment();

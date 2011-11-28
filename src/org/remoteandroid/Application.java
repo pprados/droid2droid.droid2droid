@@ -420,7 +420,7 @@ public class Application extends android.app.Application
 			if (strUuid == null)
 			{
 				sUuid = UUID.randomUUID();
-				if (V) Log.v(TAG,PREFIX_LOG+"Generate key pair...");
+				if (V) Log.v(TAG,PREFIX_LOG+"Generate key pair..."); // FIXME: Ca prend du temps lors du premier lancement. Ajouter boite d'attente.
 				sKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 				if (editor == null)
 					editor = preferences.edit();

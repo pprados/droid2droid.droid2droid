@@ -810,7 +810,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	{
         boolean airPlaneState=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
 		boolean bluetoothState=false;
-		if (BLUETOOTH)
+		if (BLUETOOTH && BluetoothAdapter.getDefaultAdapter()!=null)
 			bluetoothState=BluetoothAdapter.getDefaultAdapter().isEnabled();
 		boolean wifiState=false;
 		if (ETHERNET)

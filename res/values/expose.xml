@@ -10,4 +10,6 @@
 	<string name="expose_sound">Sound</string>
 	<string name="expose_input">Input</string>
 
+	<string name="expose_sms_help">Send an message to another device.</string>
+	<string name="expose_sms_field_help">Name or phone number.</string>
 </resources>

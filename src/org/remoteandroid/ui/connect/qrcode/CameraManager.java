@@ -198,6 +198,7 @@ public final class CameraManager
 					{
 					
 						mCamera.setDisplayOrientation(sOrientation[rotation]);
+						camera_rotation = sOrientation[rotation];
 //						if (rotation == Surface.ROTATION_0)
 //						{
 //							// p.set("orientation", "portrait");
@@ -772,11 +773,11 @@ public final class CameraManager
 	}
 	
 	public void setParameters(int zoom, String flashmode){
-		Camera.Parameters p = mCamera.getParameters();
-		List<String> list = p.getSupportedFlashModes();
-		if(list.contains(flashmode))
-			p.setFlashMode(flashmode);
-		p.setZoom(zoom);
+//		Camera.Parameters p = mCamera.getParameters();
+//		List<String> list = p.getSupportedFlashModes();
+//		if(list.contains(flashmode))
+//			p.setFlashMode(flashmode);
+//		p.setZoom(zoom);
 		
 	}
 	public List<String> getSupportedFlashModes(){
