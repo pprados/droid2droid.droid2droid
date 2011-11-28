@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect.sms;
+package org.remoteandroid.ui.expose.sms;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,14 +9,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.*;
+
+import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.connect.SMSFragment;
-import org.remoteandroid.ui.expose.sms.PhoneDisambigDialog;
+import org.remoteandroid.ui.connect.ConnectActivity.ConnectDialogFragment;
+import org.remoteandroid.ui.connect.ConnectActivity.TryConnection;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -27,10 +32,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -52,7 +61,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class SMSSendingActivity extends Activity implements TextWatcher, OnScrollListener
+public class SMSSendingActivity extends FragmentActivity implements TextWatcher, OnScrollListener
 {
 	static class Cache
 	{
@@ -82,6 +91,7 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 	private static HashMap<Long, SoftReference<Bitmap>> sBitmapCache = null;
 
 	private byte[] mSendedData;
+	private FragmentManager mFragmentManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -89,6 +99,7 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.expose_sms);
 
+		mFragmentManager=getSupportFragmentManager();
 		mListIdContact = new ArrayList<Long>();
 		mContactName = new ArrayList<String>();
 		if (sBitmapCache == null)
@@ -173,41 +184,9 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 
 	public void sendData(final String receiver)
 	{
-		new AsyncTask<Void, Void, Void>()
-		{
-			@Override
-			protected Void doInBackground(Void... params)
-			{
-				byte[] buf=mSendedData;
-				int fragmentSize = SMSFragment.MESSAGE_SIZE;
-				if (V)
-				{
-					Log.v(TAG_SMS, "buf to send length = " + buf.length);
-					Log.v(TAG_SMS, "MESSAGE SIZE = " + fragmentSize);
-				}
-				if (buf.length < fragmentSize)
-					fragmentSize = buf.length + 1;
-				byte[] fragment = new byte[fragmentSize];
-				int fragNumber = 0;
-				for (int i = 0; i < buf.length; i += (SMSFragment.MESSAGE_SIZE - 1))
-				{
-					if (V) Log.v(TAG_SMS, "fragNumber = " + fragNumber);
-					boolean last = (buf.length - i) < (SMSFragment.MESSAGE_SIZE - 1);
-					if (V) Log.v(TAG_SMS, "is last message = " + last);
-					int len = Math.min(buf.length - i, SMSFragment.MESSAGE_SIZE - 1);
-					if (V) Log.v(TAG_SMS, "len = " + len);
-					System.arraycopy(
-						buf, i, fragment, 1, len);
-					fragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
-					if (V) Log.v(TAG_SMS, "fragment[0] = " + fragment[0]);
-					SmsManager.getDefault().sendDataMessage(
-						receiver, null, SMS_PORT, fragment, null, null);
+		final SendSMSDialogFragment dlg=SendSMSDialogFragment.sendSMS(receiver);
+		dlg.show(mFragmentManager, "dialog");
 
-					++fragNumber;
-				}
-				return null;
-			}
-		}.execute();
 		
 	}
 
@@ -491,4 +470,102 @@ public class SMSSendingActivity extends Activity implements TextWatcher, OnScrol
 		super.onPause();
 		sBitmapCache.clear();
 	}
+	
+	
+	public static class SendSMSDialogFragment extends DialogFragment
+	{
+		AsyncTaskWithException<Void, Integer, Void> mTask;
+		public static SendSMSDialogFragment sendSMS(final String receiver)
+		{
+			return new SendSMSDialogFragment(receiver);
+		}
+ 		
+		SendSMSDialogFragment(final String receiver)
+		{
+			mTask=new AsyncTaskWithException<Void, Integer, Void>()
+			{
+				int mNbStep=0;
+				
+				//@Override
+				protected Void doInBackground(Void... params) throws Exception
+				{
+					Messages.Candidates candidates = Trusted.getConnectMessage(getActivity());
+					byte[] buf = candidates.toByteArray();
+					long start=System.currentTimeMillis();
+					int fragmentSize = SMSFragment.MESSAGE_SIZE;
+					if (buf.length < fragmentSize)
+						fragmentSize = buf.length + 1;
+					byte[] fragment = new byte[fragmentSize];
+					int fragNumber = 0;
+					mNbStep=buf.length/(SMSFragment.MESSAGE_SIZE - 1)+1;
+					if (V) Log.v(TAG_SMS,"Sending "+mNbStep+" sms...");
+					int maxsize=(SMSFragment.MESSAGE_SIZE - 1);
+					for (int i = 0; i < buf.length; i += maxsize)
+					{
+						publishProgress(i/maxsize);
+						boolean last = (buf.length - i) < maxsize;
+						int len = Math.min(buf.length - i, maxsize);
+						System.arraycopy(buf, i, fragment, 1, len);
+						fragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
+						SmsManager.getDefault().sendDataMessage(
+							receiver, null, SMS_PORT, fragment, null, null);
+
+						++fragNumber;
+					}
+					if (V) Log.v(TAG_SMS,"Sending "+mNbStep+" sms done.");
+					long stop=System.currentTimeMillis();
+					publishProgress(mNbStep);
+					if (stop-start<1000) // 1s
+					{
+						try { Thread.sleep(1000-(stop-start)); } catch (Exception e) {}
+					}
+					dismiss();
+					return null;
+				}
+				@Override
+				protected void onException(Throwable e)
+				{
+					// TODO
+				}
+				
+				@Override
+				protected void onProgressUpdate(Integer... values) 
+				{
+					if (mNbStep!=0)
+					{
+						ProgressDialog d=(ProgressDialog)getDialog();
+						if (d!=null)
+						{
+							d.setProgress(values[0]*100/mNbStep);
+						}
+					}
+				}
+				
+				@Override
+				protected void onCancelled()
+				{
+					dismiss();
+				}
+			};
+		}
+
+		@Override
+		public void onCancel(DialogInterface dialog)
+		{
+			super.onCancel(dialog);
+		}
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState)
+		{
+			ProgressDialog progressDialog = new ProgressDialog(getActivity());
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+	        progressDialog.setTitle(R.string.connect_try);
+			progressDialog.setMessage(getResources().getText(R.string.expose_sms_send));
+            progressDialog.setCancelable(true);
+			mTask.execute();
+            return progressDialog;
+		}
+		
+	}	
+	
 }

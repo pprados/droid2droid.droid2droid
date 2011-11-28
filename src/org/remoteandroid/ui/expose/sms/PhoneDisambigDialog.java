@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.R;
-import org.remoteandroid.ui.connect.sms.SMSSendingActivity;
 import org.remoteandroid.ui.expose.sms.Collapser.Collapsible;
 
 import android.app.AlertDialog;

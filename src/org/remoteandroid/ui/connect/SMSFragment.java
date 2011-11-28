@@ -45,7 +45,7 @@ public class SMSFragment extends AbstractBodyFragment
 
 	private static final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
 	private static final String EXTRA_PDU="pdus";
-	public static final int MESSAGE_SIZE = SmsMessage.MAX_USER_DATA_BYTES - SMS_HEADER;
+	public static final int MESSAGE_SIZE = 3;//SmsMessage.MAX_USER_DATA_BYTES - SMS_HEADER;
 
 	private View mViewer;
 	private BlockingQueue<byte[]> mQueue = new ArrayBlockingQueue<byte[]>(10, false);
@@ -66,12 +66,10 @@ public class SMSFragment extends AbstractBodyFragment
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			if (V) Log.v(TAG_SMS, "Action = " + intent.getAction());
 			if (!intent.getAction().equals(ACTION_RECEIVE_SMS))
 				return;
 			final String uri = intent.getDataString();
 
-			if (V) Log.v(TAG_SMS, "Action uri = " + uri);
 			if (Uri.parse(uri).getPort() != SMS_PORT)
 				return;
 
@@ -83,11 +81,6 @@ public class SMSFragment extends AbstractBodyFragment
 				SmsMessage msg = SmsMessage.createFromPdu((byte[]) pdus[i]);
 				final String sender = msg.getOriginatingAddress();
 				data = msg.getUserData();
-				if (V)
-				{
-					Log.v(TAG_SMS, "data = " + data.toString());
-					Log.v(TAG_SMS, "data length = " + data.length);
-				}
 				readData(data, sender);
 			}
 		}
@@ -103,17 +96,12 @@ public class SMSFragment extends AbstractBodyFragment
 			}
 
 			int fragNumber = fragment[0] & 0x7F;
-			if (V) Log.v(TAG_SMS, "fragNumber = " + fragNumber);
 
 			if ((fragment[0] & 0x80) == 0x80)
 				currentFragments.max = fragNumber;
 
-			if (V) Log.v(TAG_SMS, "currentFragments.max = " + currentFragments.max);
-
 			currentFragments.bufs.put(
 				fragNumber, fragment);
-
-			if (V) Log.v(TAG_SMS, "currentFragments.bufs = " + currentFragments.bufs.size());
 
 			if ((currentFragments.max != fragNumber && (currentFragments.bufs.size() == MESSAGE_SIZE - 1) 
 					|| (currentFragments.max == fragNumber && currentFragments.bufs.size() == fragNumber+1)))
@@ -124,11 +112,6 @@ public class SMSFragment extends AbstractBodyFragment
 						+ currentFragments.bufs.get(currentFragments.max).length - 1;
 				if (V) Log.v(TAG_SMS, "BufferSize = " + bufferSize);
 				byte[] result = new byte[bufferSize];
-				if (V)
-				{
-					Log.v(TAG_SMS, "currentFragments.bufs.size = " + currentFragments.bufs.size());
-					Log.v(TAG_SMS, "currentFragments.bufs = " + currentFragments.bufs.toString());
-				}
 				for (int i = 0; i < currentFragments.bufs.size(); ++i)
 				{
 					byte[] r = currentFragments.bufs.get(i);
@@ -139,14 +122,7 @@ public class SMSFragment extends AbstractBodyFragment
 						if (W) Log.w(TAG_SMS, PREFIX_LOG + "Receive invalide SMS");
 						return; // Ignore bad message
 					}
-					if (V) Log.v(TAG_SMS, "r.size = " + r.length);
 					System.arraycopy(r, 1, result, i * (MESSAGE_SIZE - 1), r.length - 1);
-					if (V)
-					{
-						Log.v(TAG_SMS, "sender = " + sender);
-						Log.v(TAG_SMS, "max = " + currentFragments.max);
-						Log.v(TAG_SMS, "bufs = " + currentFragments.bufs.toString());
-					}
 				}
 				currentFragments.bufs.clear();
 				mAllFragments.remove(sender);

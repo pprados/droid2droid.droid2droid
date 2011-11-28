@@ -483,17 +483,17 @@ containing a value of this type.
     }
     public static final class string {
         public static final int abs__tab_under_ab_tag=0x7f090000;
-        public static final int accept_all_3G_summary=0x7f09006e;
-        public static final int accept_all_summary=0x7f09006d;
-        public static final int accept_all_title=0x7f09006c;
-        public static final int all_key=0x7f090068;
-        public static final int anonymous=0x7f090064;
-        public static final int app_description=0x7f090051;
+        public static final int accept_all_3G_summary=0x7f09006f;
+        public static final int accept_all_summary=0x7f09006e;
+        public static final int accept_all_title=0x7f09006d;
+        public static final int all_key=0x7f090069;
+        public static final int anonymous=0x7f090065;
+        public static final int app_description=0x7f090052;
         /**  Application name 
          */
         public static final int app_name=0x7f090002;
-        public static final int app_summary=0x7f090052;
-        public static final int app_title=0x7f090050;
+        public static final int app_summary=0x7f090053;
+        public static final int app_title=0x7f090051;
         public static final int ask_download_apk_accept=0x7f09002a;
         public static final int ask_download_apk_decline=0x7f09002b;
         public static final int ask_download_apk_describe=0x7f090029;
@@ -501,17 +501,17 @@ containing a value of this type.
         /**   Dialogue affiché lors de la proposition du téléchargement d'un APK 
          */
         public static final int ask_download_apk_title=0x7f090027;
-        public static final int ask_pairing_accept=0x7f090055;
-        public static final int ask_pairing_decline=0x7f090056;
-        public static final int ask_pairing_describe=0x7f090054;
-        public static final int ask_pairing_title=0x7f090053;
+        public static final int ask_pairing_accept=0x7f090056;
+        public static final int ask_pairing_decline=0x7f090057;
+        public static final int ask_pairing_describe=0x7f090055;
+        public static final int ask_pairing_title=0x7f090054;
         /**  If system/app, signal download is finish 
          */
-        public static final int autoinstall_caption=0x7f090049;
-        public static final int autoinstall_ticket=0x7f09004a;
+        public static final int autoinstall_caption=0x7f09004a;
+        public static final int autoinstall_ticket=0x7f09004b;
         public static final int btn_discover=0x7f090024;
-        public static final int button_ok=0x7f090085;
-        public static final int camera_switch=0x7f090088;
+        public static final int button_ok=0x7f090086;
+        public static final int camera_switch=0x7f090089;
         public static final int connect_alert_connection_impossible=0x7f090004;
         public static final int connect_alert_pairing_impossible=0x7f090005;
         public static final int connect_alert_title=0x7f090003;
@@ -549,16 +549,16 @@ containing a value of this type.
         public static final int connect_try=0x7f09000b;
         /**   TODO : Adapter les textes suivant la résolution 
          */
-        public static final int detected_devices=0x7f090074;
-        public static final int device_context_pair=0x7f090080;
-        public static final int device_context_unpair=0x7f090081;
-        public static final int device_name=0x7f090061;
-        public static final int device_name_message=0x7f090063;
-        public static final int device_name_title=0x7f090062;
-        public static final int device_not_paired=0x7f09007e;
-        public static final int device_paired=0x7f09007d;
-        public static final int device_pairing_summary=0x7f09007f;
-        public static final int dialog_title_wifi_preference=0x7f090067;
+        public static final int detected_devices=0x7f090075;
+        public static final int device_context_pair=0x7f090081;
+        public static final int device_context_unpair=0x7f090082;
+        public static final int device_name=0x7f090062;
+        public static final int device_name_message=0x7f090064;
+        public static final int device_name_title=0x7f090063;
+        public static final int device_not_paired=0x7f09007f;
+        public static final int device_paired=0x7f09007e;
+        public static final int device_pairing_summary=0x7f090080;
+        public static final int dialog_title_wifi_preference=0x7f090068;
         public static final int download_apk_cancel=0x7f090033;
         public static final int download_apk_hide=0x7f090034;
         public static final int download_line1=0x7f09002d;
@@ -570,10 +570,10 @@ containing a value of this type.
         /**  Dialog affiché lors du détail d'un téléchargement de APK 
          */
         public static final int download_title=0x7f09002c;
-        public static final int editpreference_description=0x7f09005c;
-        public static final int editpreference_label=0x7f09005b;
-        public static final int err_pairing_aborted=0x7f090082;
-        public static final int explain=0x7f090060;
+        public static final int editpreference_description=0x7f09005d;
+        public static final int editpreference_label=0x7f09005c;
+        public static final int err_pairing_aborted=0x7f090083;
+        public static final int explain=0x7f090061;
         public static final int expose=0x7f09003f;
         public static final int expose_dialog_title=0x7f090042;
         public static final int expose_input=0x7f090046;
@@ -581,6 +581,7 @@ containing a value of this type.
         public static final int expose_sms=0x7f090044;
         public static final int expose_sms_field_help=0x7f090048;
         public static final int expose_sms_help=0x7f090047;
+        public static final int expose_sms_send=0x7f090049;
         public static final int expose_sound=0x7f090045;
         public static final int expose_summary=0x7f090041;
         public static final int expose_title=0x7f090040;
@@ -591,7 +592,7 @@ containing a value of this type.
          */
         public static final int finish_download_title=0x7f09003b;
         public static final int hello=0x7f090001;
-        public static final int host_summary=0x7f090069;
+        public static final int host_summary=0x7f09006a;
         /**  TODO Alert download 
          */
         public static final int incoming_apk_alert=0x7f090038;
@@ -603,62 +604,62 @@ containing a value of this type.
         public static final int incoming_apk_toast_backup=0x7f090026;
         /**  If system/app, signal application is not installed 
          */
-        public static final int installed_fail_caption=0x7f09004d;
-        public static final int installed_fail_ticket=0x7f09004e;
+        public static final int installed_fail_caption=0x7f09004e;
+        public static final int installed_fail_ticket=0x7f09004f;
         /**  If system/app, signal application is successufull installed 
          */
-        public static final int installed_success_caption=0x7f09004b;
-        public static final int installed_success_ticket=0x7f09004c;
-        public static final int known=0x7f090071;
-        public static final int known_active_summary=0x7f090073;
-        public static final int known_active_title=0x7f090072;
+        public static final int installed_success_caption=0x7f09004c;
+        public static final int installed_success_ticket=0x7f09004d;
+        public static final int known=0x7f090072;
+        public static final int known_active_summary=0x7f090074;
+        public static final int known_active_title=0x7f090073;
         /**    <item type="id" name="restart_preview"/> 
          */
-        public static final int msg_default_status=0x7f090083;
+        public static final int msg_default_status=0x7f090084;
         /**  Network type show when discover device 
          */
-        public static final int network_bt=0x7f090078;
+        public static final int network_bt=0x7f090079;
         /**  Network type show when discover device 
          */
-        public static final int network_ip=0x7f090077;
+        public static final int network_ip=0x7f090078;
         public static final int next=0x7f090023;
-        public static final int permission_discover_desc=0x7f090057;
-        public static final int permission_discover_label=0x7f090058;
-        public static final int permission_private_desc=0x7f090059;
-        public static final int permission_private_label=0x7f09005a;
+        public static final int permission_discover_desc=0x7f090058;
+        public static final int permission_discover_label=0x7f090059;
+        public static final int permission_private_desc=0x7f09005a;
+        public static final int permission_private_label=0x7f09005b;
         /**  The title of the preference (list item) that initiates a scan for devices. (bluetooth_preference_scan_title) 
          */
-        public static final int preference_scan_title=0x7f090076;
+        public static final int preference_scan_title=0x7f090077;
         /**  text that appears in heading bar when scanning for devices. Recuperer versions dans les differentes langues dans les sources Android 
          */
-        public static final int progress_scanning=0x7f090075;
-        public static final int proximity_active_summary=0x7f090066;
-        public static final int proximity_active_title=0x7f090065;
-        public static final int qrcode_context_title=0x7f090086;
-        public static final int qrcode_flash=0x7f090087;
-        public static final int qrcode_msg_camera_framework_bug=0x7f090084;
-        public static final int remote_control=0x7f09005f;
-        public static final int remote_control_summary=0x7f09006b;
-        public static final int remote_control_title=0x7f09006a;
-        public static final int scan_context_all=0x7f09007a;
-        public static final int scan_context_bt=0x7f09007b;
-        public static final int scan_context_title=0x7f090079;
-        public static final int scan_context_wifi=0x7f09007c;
-        public static final int select_wifi_summary=0x7f090070;
-        public static final int select_wifi_title=0x7f09006f;
-        public static final int service_description=0x7f09008a;
-        public static final int service_label=0x7f090089;
-        public static final int service_start_message=0x7f09008d;
+        public static final int progress_scanning=0x7f090076;
+        public static final int proximity_active_summary=0x7f090067;
+        public static final int proximity_active_title=0x7f090066;
+        public static final int qrcode_context_title=0x7f090087;
+        public static final int qrcode_flash=0x7f090088;
+        public static final int qrcode_msg_camera_framework_bug=0x7f090085;
+        public static final int remote_control=0x7f090060;
+        public static final int remote_control_summary=0x7f09006c;
+        public static final int remote_control_title=0x7f09006b;
+        public static final int scan_context_all=0x7f09007b;
+        public static final int scan_context_bt=0x7f09007c;
+        public static final int scan_context_title=0x7f09007a;
+        public static final int scan_context_wifi=0x7f09007d;
+        public static final int select_wifi_summary=0x7f090071;
+        public static final int select_wifi_title=0x7f090070;
+        public static final int service_description=0x7f09008b;
+        public static final int service_label=0x7f09008a;
+        public static final int service_start_message=0x7f09008e;
         /**  Start service 
  Start service 
          */
-        public static final int service_start_ticker=0x7f09008b;
-        public static final int service_start_title=0x7f09008c;
-        public static final int settings_label=0x7f09005d;
-        public static final int settings_remote_android=0x7f09005e;
+        public static final int service_start_ticker=0x7f09008c;
+        public static final int service_start_title=0x7f09008d;
+        public static final int settings_label=0x7f09005e;
+        public static final int settings_remote_android=0x7f09005f;
         /**  User name for this application 
          */
-        public static final int shared_user=0x7f09004f;
+        public static final int shared_user=0x7f090050;
         public static final int update_download_ticket=0x7f09003a;
         /**  Update currents downloads 
          */

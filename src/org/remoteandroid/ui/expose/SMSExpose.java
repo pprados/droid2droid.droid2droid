@@ -1,7 +1,7 @@
 package org.remoteandroid.ui.expose;
 
 import org.remoteandroid.R;
-import org.remoteandroid.ui.connect.sms.SMSSendingActivity;
+import org.remoteandroid.ui.expose.sms.SMSSendingActivity;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -238,7 +238,7 @@
 			android:configChanges="orientation|screenSize"
          >
          </activity>
-         <activity android:name=".ui.connect.sms.SMSSendingActivity" android:launchMode="standard"></activity>
+         <activity android:name=".ui.expose.sms.SMSSendingActivity" android:launchMode="standard"></activity>
          
 <!--          <activity android:name=".ui.connect.qrcode.CaptureQRCodeActivity" -->
 <!--              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"> -->
