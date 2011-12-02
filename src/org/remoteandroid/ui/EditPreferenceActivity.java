@@ -1,12 +1,12 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.PREFERENCES_IN_ONE_SCREEN;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.Constants.TIME_TO_DISCOVER;
-import static org.remoteandroid.internal.Constants.BLUETOOTH;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
@@ -103,75 +103,126 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private Preference mName;
 	private Preference mScan;
 	
-	private MultiSelectListPreference mListWifi;
+	private MultiSelectListPreference mListEthernet;
 	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
     {
 		
         @Override
         public void onReceive(Context context, Intent intent) 
         {
-            if (D) Log.d(TAG_PREFERENCE, PREFIX_LOG+"IP Type Changed "+intent);
-            NetworkInfo ni=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            //boolean failover=intent.getBooleanExtra(ConnectivityManager.EXTRA_IS_FAILOVER, false);
-            //boolean noconnectivity=intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY,false);
-            if (ni.getType()==ConnectivityManager.TYPE_WIFI)
+            if (V) Log.v(TAG_PREFERENCE, PREFIX_LOG+"IP network changed "+intent);
+            // deprecated
+            // NetworkInfo ni=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+			if (!ETHERNET) return;
+        	ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni=cm.getActiveNetworkInfo();
+            if (ni==null)
             {
-            	if (ni.getState()==NetworkInfo.State.CONNECTED)
-                {
-                	// Inform presence if network status change
-					if (!ETHERNET) return;
-			        WifiManager wifiManager=(WifiManager)getSystemService(Context.WIFI_SERVICE);
-			        if (wifiManager!=null)
-			        {
-			        	List<WifiConfiguration> confs=wifiManager.getConfiguredNetworks();
-			        	if (confs.size()!=0)
-			        	{
-				        	ArrayList<CharSequence> names=new ArrayList<CharSequence>();
-				        	ArrayList<CharSequence> namesKey=new ArrayList<CharSequence>();
-				        	names.add(getResources().getString(R.string.all_key));
-				        	namesKey.add(ALL_WIFI);
-				        	for (WifiConfiguration conf:confs)
-				        	{
-				        		String name=conf.SSID;
-				        		if (conf.SSID.charAt(0)=='\"')
-				        			name=name.substring(1,name.length()-1);
-				        		names.add(name);
-				        		namesKey.add(name);
-				        	}
-				        	if (names.size()!=0)
-				        	{
-					            CharSequence[] entriesArray = new CharSequence[names.size()];
-					            names.toArray(entriesArray);
-					            CharSequence[] valuesArray = new CharSequence[namesKey.size()];
-					            namesKey.toArray(valuesArray);
-					            mListWifi.setEntries(names.toArray(entriesArray));
-					        	mListWifi.setEntryValues(valuesArray);
-					        	// FIXME: default value not activated !
-					        	mListWifi.setDefaultValue(Application.getPreferences().getString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
-					        	if (mLastValue!=null) 
-					        		mListWifi.setValue(mLastValue);
-					        	mListWifi.setEnabled(true);
-				        	}
-				        	else
-				        		mListWifi.setEnabled(false); // FIXME: Et si ajout à chaud d'un réseau Wifi alors qu'il n'y en a pas ?
-			        	}
-			        	else
-			        	{
-			        		mListWifi.setEnabled(false);
-			        	}
-			        }
-			        else
-			        	mListWifi.setEnabled(false);
-                }
-            	else
-            	{
-	        		if (mListWifi!=null)
-	        			mListWifi.setEnabled(false);
-            	}
-		        updateDiscoverButton();
+        		clearEthernet();
+            }
+            else
+            {
+	            switch (ni.getType())
+	            {
+	            	case ConnectivityManager.TYPE_MOBILE:
+	            	case ConnectivityManager.TYPE_MOBILE_DUN:
+	            	case ConnectivityManager.TYPE_MOBILE_HIPRI:
+	            	case ConnectivityManager.TYPE_MOBILE_MMS:
+	            	case ConnectivityManager.TYPE_MOBILE_SUPL:
+	            		clearEthernet();
+		            	break;
+		            default:
+		            	if (ni.getState()==NetworkInfo.State.CONNECTED)
+		                {
+		            		// TODO: En cas de connexion sur un nouveau WIFI, il y a des restes de la découverte du précédant
+		                	// Inform presence if network status change
+							if (mListEthernet!=null)
+								mListEthernet.setEnabled(false);
+					        WifiManager wifiManager=(WifiManager)getSystemService(Context.WIFI_SERVICE);
+					        if (wifiManager!=null)
+					        {
+					        	List<WifiConfiguration> confs=wifiManager.getConfiguredNetworks();
+					        	if (confs.size()!=0)
+					        	{
+						        	ArrayList<CharSequence> names=new ArrayList<CharSequence>();
+						        	ArrayList<CharSequence> namesKey=new ArrayList<CharSequence>();
+						        	names.add(getResources().getString(R.string.all_key));
+						        	namesKey.add(ALL_WIFI);
+						        	for (WifiConfiguration conf:confs)
+						        	{
+						        		String name=conf.SSID;
+						        		if (conf.SSID.charAt(0)=='\"')
+						        			name=name.substring(1,name.length()-1);
+						        		names.add(name);
+						        		namesKey.add(name);
+						        	}
+						        	if (names.size()!=0)
+						        	{
+							            CharSequence[] entriesArray = new CharSequence[names.size()];
+							            names.toArray(entriesArray);
+							            CharSequence[] valuesArray = new CharSequence[namesKey.size()];
+							            namesKey.toArray(valuesArray);
+							            mListEthernet.setEntries(names.toArray(entriesArray));
+							        	mListEthernet.setEntryValues(valuesArray);
+							        	// FIXME: default value not activated !
+							        	mListEthernet.setDefaultValue(Application.getPreferences().getString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
+							        	if (mLastValue!=null) 
+							        		mListEthernet.setValue(mLastValue);
+							        	mListEthernet.setEnabled(true);
+						        	}
+						        	else
+						        		mListEthernet.setEnabled(false); // FIXME: Et si ajout à chaud d'un réseau Wifi alors qu'il n'y en a pas ?
+					        	}
+					        	else
+					        	{
+					        		mListEthernet.setEnabled(false);
+					        	}
+					        }
+					        else
+					        	mListEthernet.setEnabled(false);
+		                }
+		            	else
+		            	{
+		            		clearEthernet();
+		            	}
+		            	break;
+	            		
+	            }
             }
         }
     };
+    
+    void clearEthernet()
+    {
+		if (mListEthernet!=null)
+		{
+			ArrayList<DevicePreference> toRemove=new ArrayList<DevicePreference>();
+			mListEthernet.setEnabled(false);
+			for (DevicePreference preference:mDevicePreferenceMap.values())
+			{
+				preference.mInfo.isDiscoverEthernet=false;
+				preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
+				if (!preference.mInfo.isBonded)
+				{
+					if (!preference.mInfo.isDiscover())
+					{
+						toRemove.add(preference);
+					}
+				}
+				else
+				{
+					preference.mInfo.isDiscoverEthernet=false;
+					preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
+					preference.onDeviceAttributesChanges();
+				}
+			}
+			for (DevicePreference preference:toRemove)
+			{
+				mDevicePreferenceMap.remove(preference.mInfo.uuid);
+				mDeviceList.removePreference(preference);
+			}
+		}
+    }
     
     private BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
     {
@@ -252,9 +303,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		Cache cache=new Cache();
 		if (ETHERNET)
 		{
-			cache.mValue=mListWifi.getValue();
-			cache.mEntries=mListWifi.getEntries();
-			cache.mEntryValues=mListWifi.getEntryValues();
+			cache.mValue=mListEthernet.getValue();
+			cache.mEntries=mListEthernet.getEntries();
+			cache.mEntryValues=mListEthernet.getEntryValues();
 		}
 		for (UUID uuid:mDevicePreferenceMap.keySet())
 		{
@@ -275,9 +326,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		mLastValue=cache.mValue;
 		if (ETHERNET)
 		{
-			mListWifi.setValue(cache.mValue);
-			mListWifi.setEntries(cache.mEntries);
-			mListWifi.setEntryValues(cache.mEntryValues);
+			mListEthernet.setValue(cache.mValue);
+			mListEthernet.setEntries(cache.mEntries);
+			mListEthernet.setEntryValues(cache.mEntryValues);
 		}
 		for (UUID uuid:cache.mSaved.keySet())
 		{
@@ -414,19 +465,19 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         if ((mMode & MODE_ANO_SCREEN)!=0)
         {
 	        // Level 11: MultiSelectListPreference
-	        mListWifi=(MultiSelectListPreference)findPreference(PREFERENCES_ANO_WIFI_LIST);
+	        mListEthernet=(MultiSelectListPreference)findPreference(PREFERENCES_ANO_WIFI_LIST);
 	        if (ETHERNET)
 	        {
 		        CharSequence[] empty=new CharSequence[0];
-		        mListWifi.setEntries(empty);
-		        mListWifi.setEntryValues(empty);
-		        mListWifi.setEnabled(false);
+		        mListEthernet.setEntries(empty);
+		        mListEthernet.setEntryValues(empty);
+		        mListEthernet.setEnabled(false);
 		        registerForContextMenu(getListView());
 	        }
 	        else
 	        {
-	        	((PreferenceGroup)findPreference(PREFERENCES_ANO)).removePreference(mListWifi);
-	        	mListWifi=null;
+	        	((PreferenceGroup)findPreference(PREFERENCES_ANO)).removePreference(mListEthernet);
+	        	mListEthernet=null;
 	        }
         }
 
@@ -552,9 +603,10 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
    @Override
     protected void onResume() 
     {
-        super.onResume();
-        if ((mMode & MODE_MAIN_SCREEN)!=0)
-        {
+       super.onResume();
+	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onResume()");
+       if ((mMode & MODE_MAIN_SCREEN)!=0)
+       {
         	new AsyncTask<Void, Void, Boolean>()
         	{
         		protected Boolean doInBackground(Void... paramArrayOfParams) 
@@ -592,6 +644,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
     protected void onPause() 
     {
     	super.onPause();
+ 	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onPause()");
 
     	if (mDiscovered!=null)
     	{
@@ -665,7 +718,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		if ((mMode & MODE_MAIN_SCREEN)!=0)
 		{
 			boolean isDiscovering=Application.sManager.isDiscovering();
-			findPreference(PREFERENCE_SCAN).setEnabled(!isDiscovering);
 			mPreferenceScan.setEnabled(!isDiscovering);
 			mDeviceList.setProgress(isDiscovering);
 		}

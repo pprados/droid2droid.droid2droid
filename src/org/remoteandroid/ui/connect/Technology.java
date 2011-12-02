@@ -5,6 +5,7 @@ import org.remoteandroid.R;
 import android.app.Fragment;
 import android.content.Context;
 //import android.support.v4.app.Fragment;
+import android.telephony.TelephonyManager;
 
 class Technology
 {
@@ -27,6 +28,13 @@ class Technology
 	int mDescription;
 	int mHelp;
 	Fragment mFragment;
+	
+//	void detectTechno()
+//	{
+//		android.telephony.TelephonyManager tm=((android.telephony.TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE));
+//		tm.getPhoneType()==TelephonyManager.PHONE_TYPE_NONE
+//		
+//	}
 	
 	Technology(Type id,boolean status,int content,int description,int help)
 	{

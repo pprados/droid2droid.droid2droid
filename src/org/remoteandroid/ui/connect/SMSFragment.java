@@ -39,6 +39,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 public class SMSFragment extends AbstractBodyFragment
 {
@@ -134,12 +135,14 @@ public class SMSFragment extends AbstractBodyFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		mViewer = inflater.inflate(R.layout.connect_sms, container, false);
-		ConnectActivity.FirstStep firstStep = new ConnectActivity.FirstStep()
+		final ConnectActivity.FirstStep firstStep = new ConnectActivity.FirstStep()
 		{
 			public int run(ConnectActivity.TryConnection tryConn)
 			{
 				try
 				{
+					tryConn.publishMessage(R.string.connect_sms_wait,0);
+
 					// TODO: gerer le cancel
 					byte[] bytes = mQueue.poll(
 						SMS_TIMEOUT_WAIT, TimeUnit.MILLISECONDS);
@@ -154,9 +157,16 @@ public class SMSFragment extends AbstractBodyFragment
 				}
 			}
 		};
-		ConnectActivity activity = (ConnectActivity) getActivity();
-		activity.tryConnect(firstStep, new ArrayList<String>(), activity.isAcceptAnonymous());
-
+		((Button)mViewer.findViewById(R.id.execute)).setOnClickListener(new Button.OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				ConnectActivity activity = (ConnectActivity) getActivity();
+				activity.tryConnect(firstStep, new ArrayList<String>(), activity.isAcceptAnonymous());
+			}
+		});
 		return mViewer;
 	}
 
@@ -190,6 +200,12 @@ public class SMSFragment extends AbstractBodyFragment
 		getActivity().registerReceiver(mSmsReceiver, filter);
 	}
 
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		
+	}
 	@Override
 	public void onPause()
 	{

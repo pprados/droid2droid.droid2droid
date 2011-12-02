@@ -9,9 +9,9 @@ public class Constants
 {
 	public static final boolean DEBUG=true;
 
-	public static final boolean LOGGER_SEVERE					=false;
+	public static final boolean LOGGER_SEVERE					=true;
 	public static final boolean LOGGER_WARNING					=LOGGER_SEVERE;
-	public static final boolean LOGGER_INFO						=LOGGER_WARNING;
+	public static final boolean LOGGER_INFO						=false; //false;
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
 	public static final boolean LOGGER_FINER					=LOGGER_FINE;
 	public static final boolean LOGGER_FINEST					=false;//LOGGER_FINER;
@@ -101,7 +101,7 @@ public class Constants
 	//-----------------------------------------------------------------------------
 	// --- Bluetooth parameters ---
 	/** Try to connect to anonymous devices. */
-	public static final boolean BT_DISCOVER_ANONYMOUS			=true;
+	public static final boolean BT_DISCOVER_ANONYMOUS			=false; // true;
 	/** Start an anonymous server ? */
 	public static final boolean BT_LISTEN_ANONYMOUS				=true;
 	/** Discover BT device in parallel, and at the same time, try to connect to knows devices. */
@@ -139,7 +139,7 @@ public class Constants
 	/** IP Listen port to accept connection from remotes androids. */
 	public static final int ETHERNET_LISTEN_PORT					=RemoteAndroidManager.DEFAULT_PORT;
     /** Delay to discover others remote androids. */
-	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 20000L : 5000L;	// FIXME: 5000L;
+	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 5000L : 5000L;	// FIXME: 5000L;
 	/** Socket timeout for read message. */
     public static final int ETHERNET_TRY_TIMEOUT					=150000; 	// FIXME Timeout for try connection
 	/** Socket timeout for read message. */
@@ -154,7 +154,7 @@ public class Constants
     public static final long ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT	=300L; // Timeout before ask mDNS info (for HTC Desire)
 	/** Timeout to receive a service info. */
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.
-
+    public static final long ETHERNET_DELAY_ANTI_REPEAT_DISCOVER	=2000L; // Timeout to refuse same UUID
 	//-----------------------------------------------------------------------------
 	// Multicast DNS service
 	// http://tools.ietf.org/html/draft-cheshire-dnsext-dns-sd-10

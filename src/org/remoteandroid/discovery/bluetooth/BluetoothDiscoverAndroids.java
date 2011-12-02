@@ -502,13 +502,13 @@ public class BluetoothDiscoverAndroids implements DiscoverAndroids
     		{
     			if (anno)
     			{
-					socket=device.createInsecureRfcommSocketToServiceRecord(uuid);
 		    		uuid=BluetoothSocketBossSender.sKeysAno[i];
+					socket=device.createInsecureRfcommSocketToServiceRecord(uuid);
     			}
     			else
     			{
-    				socket=device.createRfcommSocketToServiceRecord(uuid);
     	    		uuid=BluetoothSocketBossSender.sKeys[i];
+    				socket=device.createRfcommSocketToServiceRecord(uuid);
     			}
     			if (BT_HACK_WAIT_AFTER_CREATE_RF_COMM!=0)
     				try { Thread.sleep(BT_HACK_WAIT_AFTER_CREATE_RF_COMM); } catch (InterruptedException e) {} 

@@ -242,7 +242,20 @@ public class Trusted
 			throw new Error(e);
 		}
 	}
-	
+	public static RemoteAndroidInfoImpl getBonded(String uuid)
+	{
+		if (sCachedBonded==null)
+			getBonded();
+		UUID id=UUID.fromString(uuid);
+		for (RemoteAndroidInfoImpl info:sCachedBonded)
+		{
+			if (info.uuid.equals(id))
+			{
+				return info;
+			}
+		}
+		return null;
+	}
 	/**
 	 * Update bonded device from uuid.
 	 * 
@@ -261,16 +274,24 @@ public class Trusted
 				{
 					RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)i;
 					info.removeUrisWithScheme(SCHEME_TCP);
-					for (int j=0;j<addr.length;++j)
+					if (addr==null)
 					{
-						final InetAddress add=addr[j];
-						if (add instanceof Inet4Address)
+						info.isDiscoverEthernet=false;
+						info.removeUrisWithScheme(SCHEME_TCP);
+					}
+					else
+					{
+						for (int j=0;j<addr.length;++j)
 						{
-							info.addUris(SCHEME_TCP+"://"+add.getHostAddress()+":"+RemoteAndroidManager.DEFAULT_PORT);
-						}
-						else
-						{
-							info.addUris(SCHEME_TCP+"://["+add.getHostAddress()+"]:"+RemoteAndroidManager.DEFAULT_PORT);
+							final InetAddress add=addr[j];
+							if (add instanceof Inet4Address)
+							{
+								info.addUris(SCHEME_TCP+"://"+add.getHostAddress()+":"+RemoteAndroidManager.DEFAULT_PORT);
+							}
+							else
+							{
+								info.addUris(SCHEME_TCP+"://["+add.getHostAddress()+"]:"+RemoteAndroidManager.DEFAULT_PORT);
+							}
 						}
 					}
 					return info;
@@ -338,7 +359,7 @@ public class Trusted
 				for (Enumeration<InetAddress> addrs=network.getInetAddresses();addrs.hasMoreElements();)
 				{
 					InetAddress add=(InetAddress)addrs.nextElement();
-					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
+					if (V) Log.v(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
 					if (network.getName().startsWith("sit")) // vpn ?
 						continue;
 					if (network.getName().startsWith("dummy")) // ipv6 in ipv4

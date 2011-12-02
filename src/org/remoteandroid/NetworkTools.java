@@ -19,8 +19,9 @@ public class NetworkTools
 	public static final int ACTIVE_PHONE_SIM		=1<<4;
 	public static final int ACTIVE_NFC				=1<<5;
 
-	public static int getActiveNetwork(Context context)
+	public static int getActiveNetwork()
 	{
+		Context context=Application.sAppContext;
 		int activeNetwork=0;
 		ConnectivityManager conn=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (conn!=null && conn.getActiveNetworkInfo()!=null)

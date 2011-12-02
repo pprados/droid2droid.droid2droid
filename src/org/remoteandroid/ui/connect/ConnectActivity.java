@@ -195,7 +195,7 @@ implements TechnologiesFragment.Listener
 	protected void onResume()
 	{
 		super.onResume();
-		mActiveNetwork=NetworkTools.getActiveNetwork(this);
+		mActiveNetwork=NetworkTools.getActiveNetwork();
 		registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		registerReceiver(mAirPlane,new IntentFilter("android.intent.action.SERVICE_STATE"));
 		IntentFilter filter=new IntentFilter();
@@ -406,7 +406,6 @@ implements TechnologiesFragment.Listener
 	};
 	public static class ConnectDialogFragment extends DialogFragment
 	{
-
 		public static ConnectDialogFragment newInstance()
 		{
 			return new ConnectDialogFragment();
@@ -452,6 +451,13 @@ implements TechnologiesFragment.Listener
 		private List<String> mUris;
 		private WeakReference<ConnectActivity> mActivity=new WeakReference<ConnectActivity>(null);
 		private boolean mAcceptAnonymous;
+		private int mMessage;
+		
+		public void publishMessage(int message,int val)
+		{
+			mMessage=message;
+			publishProgress(val);
+		}
 		
 		TryConnection(boolean acceptAnonymous)
 		{
@@ -467,6 +473,7 @@ implements TechnologiesFragment.Listener
 			mUris=uris;
 		}
 
+		
 		@Override
 		protected Object doInBackground(Void...params)
 		{
@@ -488,7 +495,7 @@ implements TechnologiesFragment.Listener
 					if (isCancelled())
 						return null;
 					String uri=mUris.get(i);
-					publishProgress(i+firststep);
+					publishMessage(R.string.connect_try_connect,i+firststep);
 					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 					
 					info=tryConnectForCookie(uri);
@@ -526,8 +533,10 @@ implements TechnologiesFragment.Listener
 				ProgressDialog d=(ProgressDialog)dlg.getDialog();
 				if (d!=null)
 				{
+					d.setMessage(Application.sAppContext.getText(mMessage));
 					int firststep=(mFirstStep==null) ? 0 : 1;
 					d.setProgress(values[0]*100/(mUris.size()+firststep));
+					
 				}
 			}
 		}

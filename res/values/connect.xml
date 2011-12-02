@@ -7,11 +7,11 @@
 	<bool name="connect_merge">false</bool>
 
 	<string name="connect_expose_title">Expose with...</string>
+	<string name="connect_try_connect">Connect...</string>
 	
 	<string name="connect_alert_title">Alert</string>
 	<string name="connect_alert_connection_impossible">Connection to remote device impossible!</string>
 	<string name="connect_alert_pairing_impossible">Pairing to remote device impossible!</string>
-	    	
 	    	
 	<string name="connect_empty_help">Select an approach to detect a remote device\n\n
         <li><font fgcolor="#ffffffff"><b>Discovers devices</b></font> propose to search a devices at proximity (same WIFI or Bluetooth).\n\n</li>
@@ -58,11 +58,13 @@
 	<string name="connect_sms_error_invalides_sms">Impossible to received short messages.</string>
 	<!-- Title for the sms disambiguation dialog -->
 	<string name="connect_sms_disambig_title">Using</string>
+	<string name="connect_sms_execute">Start</string>
+	<string name="connect_sms_wait">Wait short messages...</string>
 
 	<string name="connect_sound">Sound</string>
 	<string name="connect_sound_description">Listen a special sound.</string>
-	<string name="connect_sound_help">Listen a sound with the connection informations.
-    </string>
+	<string name="connect_sound_help">Listen a sound with the connection informations.</string>
+	<string name="connect_sound_execute">Start</string>
 
 	<string name="connect_input_expose_title">Expose</string>
 	<string name="connect_input_message">Ticket number: &lt;b&gt;%1$s&lt;/b&gt;</string>
