@@ -373,10 +373,11 @@ containing a value of this type.
         public static final int contactListView=0x7f060037;
         public static final int context_pair=0x7f06005a;
         public static final int context_qrcode_camera=0x7f06005c;
+        public static final int context_qrcode_debugitem=0x7f06005d;
         public static final int context_qrcode_flash=0x7f06005b;
-        public static final int context_scan_all=0x7f06005d;
-        public static final int context_scan_bt=0x7f06005e;
-        public static final int context_scan_wifi=0x7f06005f;
+        public static final int context_scan_all=0x7f06005e;
+        public static final int context_scan_bt=0x7f06005f;
+        public static final int context_scan_wifi=0x7f060060;
         public static final int context_unpair=0x7f060059;
         public static final int current_decode=0x7f06000b;
         public static final int decode=0x7f06000c;
@@ -516,6 +517,7 @@ containing a value of this type.
         public static final int autoinstall_ticket=0x7f09004b;
         public static final int btn_discover=0x7f090027;
         public static final int button_ok=0x7f090086;
+        public static final int camera_debug=0x7f09008a;
         public static final int camera_switch=0x7f090089;
         public static final int connect_alert_connection_impossible=0x7f090004;
         public static final int connect_alert_pairing_impossible=0x7f090005;
@@ -650,14 +652,14 @@ containing a value of this type.
         public static final int scan_context_wifi=0x7f09007d;
         public static final int select_wifi_summary=0x7f090071;
         public static final int select_wifi_title=0x7f090070;
-        public static final int service_description=0x7f09008b;
-        public static final int service_label=0x7f09008a;
-        public static final int service_start_message=0x7f09008e;
+        public static final int service_description=0x7f09008c;
+        public static final int service_label=0x7f09008b;
+        public static final int service_start_message=0x7f09008f;
         /**  Start service 
  Start service 
          */
-        public static final int service_start_ticker=0x7f09008c;
-        public static final int service_start_title=0x7f09008d;
+        public static final int service_start_ticker=0x7f09008d;
+        public static final int service_start_title=0x7f09008e;
         public static final int settings_label=0x7f09005e;
         public static final int settings_remote_android=0x7f09005f;
         /**  User name for this application 

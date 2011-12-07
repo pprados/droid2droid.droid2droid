@@ -35,16 +35,15 @@ import android.view.SurfaceHolder;
 public final class CameraManager
 {
 
-	public static int camera = Camera.CameraInfo.CAMERA_FACING_BACK; // Default
-																		// camera
+	public static int camera = Camera.CameraInfo.CAMERA_FACING_BACK; // Default																// camera
 
 	public static int camera_rotation; // rotation of the device measured in
 										// degrees
-	public static int default_orientation;
+	public static int camera_orientation; //{0,1,2,3}
 	
 	public static float density;
 
-	static final int[] sOrientation =
+	public static final int[] sOrientation =
 	{ 90, 0, 270, 180 };
 
 	private static final int MIN_FRAME_WIDTH = 50;
@@ -119,7 +118,10 @@ public final class CameraManager
 	public int getOrientation()
 	{
 
-		return 0;
+		return this.camera_orientation;
+	}
+	public int getRotation(){
+		return this.camera_rotation;
 	}
 
 	/*
@@ -128,7 +130,7 @@ public final class CameraManager
 
 	public void setOrientation(final int rotation)
 	{
-
+		camera_orientation = rotation;
 		// FIXME : works only for android >= 9
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
 		{
@@ -252,6 +254,9 @@ public final class CameraManager
 		// else
 		// // FIXME: Incompatibilité < 8
 		// ;
+	}
+	public Point getSurfaceResolution(){
+		return mConfigManager.getSurfaceResolution();
 	}
 	
 	private void setCameraParameters(){
@@ -453,15 +458,38 @@ public final class CameraManager
 		return new Point(p.y, p.x);
 	}
 
-	public Rect scaledRotateRect(Rect r)
+	public Rect scaledRotateRect(Rect r, int rotation)
 	{
-		Rect tmp;
-		Point s = mConfigManager.getSurfaceResolution();
-		tmp = new Rect();
-		tmp.left = s.y - r.bottom;
-		tmp.right = s.y - r.top;
-		tmp.top = r.left;
-		tmp.bottom = r.right;
+		Rect tmp = null;
+		Point s;
+		switch(rotation){
+		case 1:
+			s = mConfigManager.getSurfaceResolution();
+			tmp = new Rect();
+			tmp.left = s.y - r.bottom;
+			tmp.right = s.y - r.top;
+			tmp.top = r.left;
+			tmp.bottom = r.right;
+		break;
+		case 2:
+			
+			s = mConfigManager.getSurfaceResolution();
+			tmp = new Rect();
+			tmp.left = s.x - r.right;
+			tmp.right = s.x - r.left;
+			tmp.top = s.y - r.bottom;
+			tmp.bottom = s.y - r.top;
+		break;
+		case 3:
+			s = mConfigManager.getSurfaceResolution();
+			tmp = new Rect();
+			tmp.left = r.top;
+			tmp.right = r.bottom;
+			tmp.top = s.x - r.right;
+			tmp.bottom = s.x - r.left;
+		break;
+		};
+		
 		return tmp;
 	}
 
@@ -501,29 +529,40 @@ public final class CameraManager
 			if (rect == null)
 				return null;
 			mFramingRectInPreview = new Rect(rect);
-			mFramingRectInPreview.left = mFramingRectInPreview.left * surfaceResolution.x / cameraResolution.x;
-			mFramingRectInPreview.top = mFramingRectInPreview.top * surfaceResolution.y / cameraResolution.y;
-			mFramingRectInPreview.right = mFramingRectInPreview.right * surfaceResolution.x / cameraResolution.x;
-			mFramingRectInPreview.bottom = mFramingRectInPreview.bottom * surfaceResolution.y / cameraResolution.y;
-
+			
+//			mFramingRectInPreview.left = mFramingRectInPreview.left * surfaceResolution.x / cameraResolution.x;
+//			mFramingRectInPreview.top = mFramingRectInPreview.top * surfaceResolution.y / cameraResolution.y;
+//			mFramingRectInPreview.right = mFramingRectInPreview.right * surfaceResolution.x / cameraResolution.x;
+//			mFramingRectInPreview.bottom = mFramingRectInPreview.bottom * surfaceResolution.y / cameraResolution.y;
+			Point size = new Point();
+			size.x = rect.width() * surfaceResolution.x / cameraResolution.x;
+			size.y = rect.height() * surfaceResolution.y / cameraResolution.y;
+			Log.d("camera","size.x " + size.x + " size.y " + size.y);
+			Log.d("camera", "(surfaceResolution.x - size.x)/2 " + ((surfaceResolution.x - size.x)/2) + " (surfaceResolution.y - size.y)/2 " + ((surfaceResolution.y - size.y)/2));
+			Log.d("camera", "size.x + (surfaceResolution.x - size.x)/2  " + (size.x + (surfaceResolution.x - size.x)/2) + " size.y + (surfaceResolution.y - size.y)/2 " + (size.y + (surfaceResolution.y - size.y)/2));
+			mFramingRectInPreview.left = (surfaceResolution.x - size.x)/2;
+			mFramingRectInPreview.top = (surfaceResolution.y - size.y)/2;
+			mFramingRectInPreview.right = size.x + (surfaceResolution.x - size.x)/2;
+			mFramingRectInPreview.bottom = size.y + (surfaceResolution.y - size.y)/2;
+			
 			if (camera == Camera.CameraInfo.CAMERA_FACING_BACK)
 			{
 				if (camera_rotation == 90)
-					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview);
+					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,1);
 				if (camera_rotation == 180)
-					mFramingRectInPreview = scaledRotateRect2(mFramingRectInPreview);
+					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,2);
 				if (camera_rotation == 270)
-					mFramingRectInPreview = scaledRotateRect3(mFramingRectInPreview);
+					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,3);
 
 			}
 			else
 			{
 				if (camera_rotation == 90)
-					mFramingRectInPreview = scaledRotateRect3(mFramingRectInPreview);
+					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,3);
 				if (camera_rotation == 270)
-					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview);
+					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,1);
 				if (camera_rotation == 0)
-					mFramingRectInPreview = scaledRotateRect2(mFramingRectInPreview);
+					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,2);
 
 			}
 
@@ -688,10 +727,6 @@ public final class CameraManager
 
 		width = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.x / (float) surfaceResolution.x)));
 		height = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.y / (float) surfaceResolution.y)));
-
-		if (D)
-			Log.d(
-				"size", "display size: " + width + "," + height);
 		if (width < MIN_FRAME_WIDTH)
 		{
 			width = MIN_FRAME_WIDTH;
@@ -709,7 +744,9 @@ public final class CameraManager
 		{
 			height = MAX_FRAME_HEIGHT;
 		}
-
+		if (V)
+			Log.v(
+					TAG_CONNECT, "QRCode capturing square size on the device (after correction): " + width + "," + height);
 		// return new Point(cameraResolution.x,cameraResolution.y);
 		return new Point(width, height);
 	}
@@ -769,6 +806,11 @@ public final class CameraManager
 
 	public void setScreenResolutionValues(Point p)
 	{
+		if(mConfigManager.getScreenResolution().x < mConfigManager.getScreenResolution().y){
+			int tmp = p.x;
+			p.x = p.y;
+			p.y = tmp;	
+		}
 		this.mConfigManager.setSurfaceResolutionValues(p);
 	}
 	
@@ -785,5 +827,7 @@ public final class CameraManager
 			return mCamera.getParameters().getSupportedFlashModes();
 		return null;
 	}
+	
+	
 	
 }
