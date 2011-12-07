@@ -20,6 +20,7 @@ import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
 import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.internal.Constants.D;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -54,10 +56,11 @@ import com.google.zxing.ResultPoint;
  */
 public final class ViewfinderView extends View
 {
-
+	public boolean found = false;
+	
 	private static final long ANIMATION_DELAY = 100L;
-
-	private static final int CURRENT_POINT_OPACITY = 0x99;
+	//FIXME : public and non final only for debug purpose
+	public static int CURRENT_POINT_OPACITY = 0x99;
 
 	private static final int MAX_RESULT_POINTS = 20;
 
@@ -131,7 +134,7 @@ public final class ViewfinderView extends View
 	}
 
 	private Rect mRect = new Rect();
-
+	
 	@Override
 	public void onDraw(Canvas canvas)
 	{
@@ -166,6 +169,7 @@ public final class ViewfinderView extends View
 //		 canvas.drawCircle(320-70, 240-41, 10, mPaint);
 //		 mPaint.setColor(Color.BLUE);
 //		 canvas.drawCircle(41, 70, 10, mPaint);
+		
 		if (mResultBitmap != null)
 		{
 			// Draw the opaque result bitmap over the scanning rectangle
@@ -256,6 +260,9 @@ public final class ViewfinderView extends View
 			float scaleX = frame.width() / (float) previewFrame.width();
 			float scaleY = frame.height() / (float) previewFrame.height();
 
+			//Log.d("camera", "surface size in view : " +this.getWidth() + "," + this.getHeight() + "  framing " + previewFrame);
+			
+			
 			List<ResultPoint> currentPossible = mPossibleResultPoints;
 			List<ResultPoint> currentLast = mLastPossibleResultPoints;
 			if (currentPossible.isEmpty())
@@ -272,9 +279,13 @@ public final class ViewfinderView extends View
 				{
 					for (ResultPoint point : currentPossible)
 					{
+						Point p = new Point();
+						p.x = (int) point.getX();
+						p.y = (int) point.getY();
+						p = this.scaledRotatePoint(p, CameraManager.get().getRotation() , previewFrame.width(), previewFrame.height());
 						canvas.drawCircle(
-							frame.left + (int) (point.getX() * scaleX),
-							frame.top + (int) (point.getY() * scaleY), 6.0f,
+							frame.left + (int) (p.x * scaleX),
+							frame.top + (int) (p.y * scaleY), 6.0f,
 							mPaint);
 					}
 				}
@@ -303,7 +314,12 @@ public final class ViewfinderView extends View
 					ANIMATION_DELAY, frame.left, frame.top, frame.right,
 					frame.bottom);
 		}
+		
+		
+		
 	}
+	
+
 
 	public void drawViewfinder()
 	{
@@ -385,6 +401,34 @@ public final class ViewfinderView extends View
 					0, size - MAX_RESULT_POINTS / 2).clear();
 			}
 		}
+	}
+	
+	
+	public Point scaledRotatePoint(Point p, int rotation, int canvasW, int canvasH)
+	{
+		Point tmp = new Point();
+		if (D)
+			Log.d(
+				TAG_QRCODE, "rotating result points to match the device orientation (rotation: " + rotation + "°)");
+		switch(rotation){
+			case 90:
+				tmp.x = canvasW - p.y;
+				tmp.y = p.x;
+			break;
+			case 0:
+				tmp.x = p.x;
+				tmp.y = p.y;
+				break;
+			case 270:
+				tmp.x = p.y;
+				tmp.y = canvasH - p.x;
+			break;
+			case 180:
+				tmp.x = canvasW - p.x;
+				tmp.y = canvasH - p.y; 
+			break;
+		}
+		return tmp;
 	}
 
 }

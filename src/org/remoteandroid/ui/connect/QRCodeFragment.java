@@ -1,6 +1,8 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.Constants.TAG_QRCODE;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.W;
 
@@ -14,6 +16,7 @@ import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.connect.qrcode.BeepManager;
+
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
 import org.remoteandroid.ui.connect.qrcode.FinishListener;
@@ -21,16 +24,15 @@ import org.remoteandroid.ui.connect.qrcode.InactivityTimer;
 import org.remoteandroid.ui.connect.qrcode.ViewfinderView;
 import org.remoteandroid.ui.connect.qrcode.Wrapper;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -116,10 +118,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-		Log.d("size", "density : " + metrics.density);
-		Log.d("size", " metrics.widthPixels " + metrics.widthPixels + " metrics.xdpi " + metrics.xdpi);
-		//CameraManager.deviceSizeX = metrics.widthPixels / metrics.xdpi;
-		//CameraManager.deviceSizeY = metrics.heightPixels / metrics.ydpi;
+		
 		CameraManager.density = metrics.density;
 		
 		if (I)
@@ -229,6 +228,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	private int getRotation()
 	{
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
+			
 			Integer job = new Callable<Integer>()
 			{
 				public Integer call() 
@@ -240,9 +240,14 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			}.call();
 			return job;
 		}
-			
 		else
-			return getActivity().getWindowManager().getDefaultDisplay().getOrientation();
+			if(getActivity().getWindowManager().getDefaultDisplay().getWidth() < getActivity().getWindowManager().getDefaultDisplay().getHeight())
+				return Surface.ROTATION_0;
+			else
+				return Surface.ROTATION_90;
+			//return getResources().getConfiguration().orientation;
+			//return getWindowManager().getDefaultDisplay().getOrientation();
+	
 	}
 
 	@Override
@@ -334,8 +339,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			mHasSurface = true;
 			if (!NO_CAMERA)
 			{
-				CameraManager.get().setScreenResolutionValues(
-					new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
+				
 				
 				int[] location = new int[4];
 				
@@ -345,7 +349,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 				locatInScreen.bottom = locatInScreen.top + mViewfinderView.getHeight();
 				initCamera(
 					holder, getRotation());
-				CameraManager cameraManager = CameraManager.get();
+				
 				// Point size=cameraManager.getSize();
 				// Rect rect=new Rect(
 				// (locatInScreen.width()-size.x)/2,
@@ -366,8 +370,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 	{
-		CameraManager.get().setScreenResolutionValues(
-			new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
+		
+//		CameraManager.get().setScreenResolutionValues(
+//			new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
 	}
 
 	/**
@@ -385,6 +390,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 //				TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		mCache.mLastResult = rawResult;
+		ViewfinderView.CURRENT_POINT_OPACITY = 0xFF;
+		
 		mViewfinderView.drawResultBitmap(barcode);
 		mCache.mBeepManager.playBeepSoundAndVibrate();
 		drawResultPoints(
@@ -397,8 +404,9 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			String s = rawResult.getText();
 			
 			byte[] data=new byte[s.length()];
-			s.getBytes(0, s.length(), data, 0);//rawResult.getText().getBytes();
 			
+			getBytes(s, 0, s.length(), data, 0);//rawResult.getText().getBytes();
+			//data = s.getBytes();
 			candidates = Messages.Candidates.parseFrom(data);
 			activity.tryConnect(null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
 		}
@@ -408,6 +416,30 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * WARNING:
+	 * This method SHOULD NOT be here and is only used to bypass
+	 *  the bug in the String method getBytes(int start, int end, byte[] data, int index)
+	 *  in android honeycomb 3.2 (and maybe earlier honeycomb versions)
+	 *  This method always return a StringIndexOutOfBoundsException in this version of android
+	 *  Note:
+	 *  Earlier versions (gingerbread) are not affected by this bug
+	 */
+	public void getBytes(String s, int start, int end, byte[] data, int index) {
+		char[] value = s.toCharArray();
+        if (0 <= start && start <= end && end <= s.length()) {
+            
+            try {
+                for (int i = 0 + start; i < end; i++) {
+                    data[index++] = (byte) value[i];
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new StringIndexOutOfBoundsException();
+            }
+        } else {
+            throw new StringIndexOutOfBoundsException();
+        }
+    }
 
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)
@@ -418,7 +450,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		mCache.mLastResult = rawResult;
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}
-
+	
 	/**
 	 * Superimpose a line for 1D or dots for 2D to highlight the key features of
 	 * the barcode.
@@ -462,11 +494,17 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			}
 			else
 			{
-				paint.setStrokeWidth(10.0f);
+				
 				for (ResultPoint point : points)
 				{
+					paint.setStrokeWidth(10.0f);
+					paint.setColor(Color.RED);
+					Point p = new Point();
+					p.x = (int) point.getX();
+					p.y = (int) point.getY();
+					p = this.scaledRotatePoint(p, CameraManager.get().getRotation() , canvas.getWidth(), canvas.getHeight());
 					canvas.drawPoint(
-						point.getX(), point.getY(), paint);
+						p.x, p.y, paint);
 				}
 			}
 		}
@@ -490,6 +528,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			{
 				mCache.mHandler = new CaptureHandler(this);
 			}
+			CameraManager.get().setScreenResolutionValues(
+					new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
 		}
 		catch (IOException ioe)
 		{
@@ -561,6 +601,31 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	public Point scaledRotatePoint(Point p, int rotation, int canvasW, int canvasH)
+	{
+		Point tmp = new Point();
+		if (D)
+			Log.d(
+				TAG_QRCODE, "rotating result points to match the device orientation (rotation: " + rotation + "°)");
+		switch(rotation){
+			case 90:
+				tmp.x = canvasW - p.y;
+				tmp.y = p.x;
+			break;
+			case 0:
+				tmp.x = p.x;
+				tmp.y = p.y;
+				break;
+			case 270:
+				tmp.x = p.y;
+				tmp.y = canvasH - p.x;
+			break;
+			case 180:
+				tmp.x = canvasW - p.x;
+				tmp.y = canvasH - p.y; 
+			break;
+		}
+		return tmp;
+	}
 	 
 }

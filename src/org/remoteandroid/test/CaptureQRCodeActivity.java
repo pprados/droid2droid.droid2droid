@@ -44,6 +44,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -378,10 +380,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 				this.onPause();
 				this.onResume();
 				return true;
-//			case  R.id.context_qrcode_param:
-//				Intent intent = new Intent(CaptureQRCodeActivity.this, CameraParametersActivity.class);
-//				startActivityForResult(intent, CAMERA_PARAMETERS_REQUEST);
-//				return true;
+			case  R.id.context_qrcode_debugitem:
+				
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -407,16 +407,12 @@ public final class CaptureQRCodeActivity extends Activity implements
 		if (D) Log.d(
 			TAG_QRCODE, "surface created");
 		if (!mHasSurface)
-		{
-
-			
-			CameraManager.get().setScreenResolutionValues(
-				new Point(mViewfinderView.getWidth(), mViewfinderView
-						.getHeight()));
+		{	
 			mHasSurface = true;
 			if (!NO_CAMERA)
 				initCamera(
 					holder, getRotation());
+			
 		}
 	}
 
@@ -434,8 +430,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
 		CameraManager.density = metrics.density;
-		CameraManager.get().setScreenResolutionValues(
-			new Point(width, height));
+//		CameraManager.get().setScreenResolutionValues(
+//			new Point(width, height));
 	}
 
 	/**
@@ -452,7 +448,10 @@ public final class CaptureQRCodeActivity extends Activity implements
 			Log.i(
 				TAG_QRCODE, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
+		ViewfinderView.CURRENT_POINT_OPACITY = 0xFF;
 		mViewfinderView.drawResultBitmap(barcode);
+		mViewfinderView.found = true;
+		mViewfinderView.invalidate();
 		mCache.mBeepManager.playBeepSoundAndVibrate();
 		drawResultPoints(
 			barcode, rawResult);
@@ -516,13 +515,19 @@ public final class CaptureQRCodeActivity extends Activity implements
 				paint.setStrokeWidth(10.0f);
 				for (ResultPoint point : points)
 				{
+					paint.setStrokeWidth(10.0f);
+					paint.setColor(Color.RED);
+					Point p = new Point();
+					p.x = (int) point.getX();
+					p.y = (int) point.getY();
+					p = this.scaledRotatePoint(p, CameraManager.get().getRotation() , canvas.getWidth(), canvas.getHeight());
 					canvas.drawPoint(
-						point.getX(), point.getY(), paint);
+						p.x, p.y, paint);
 				}
 			}
 		}
 	}
-
+	
 	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
 			ResultPoint b)
 	{
@@ -542,6 +547,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 			{
 				mCache.mHandler = new CaptureHandler(this);
 			}
+			CameraManager.get().setScreenResolutionValues(
+					new Point(mViewfinderView.getWidth(), mViewfinderView
+							.getHeight()));
 		}
 		catch (IOException ioe)
 		{
@@ -583,6 +591,74 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void drawViewfinder()
 	{
 		mViewfinderView.drawViewfinder();
+	}
+
+
+	public Point scaledRotatePoint(Point p, int orientation, int canvasW, int canvasH)
+	{
+		Point tmp = new Point();
+		if (D)
+			Log.d(
+				TAG_QRCODE, "rotating result points to match the device orientation");
+
+//		if (orientation == CameraManager.sOrientation[0]){
+//			tmp.x = canvasW - p.y;
+//			tmp.y = p.x;
+//		}
+//		else
+//			if (orientation == CameraManager.sOrientation[1]){
+//				tmp.x = p.x;
+//				tmp.y = p.y;
+//			}
+//			else
+//				if (orientation == CameraManager.sOrientation[2]){
+//					tmp.x = p.y;
+//					tmp.y = canvasH - p.x;
+//				}
+//				else
+//					if (orientation == CameraManager.sOrientation[3]){
+//						tmp.x = canvasW - p.x;
+//						tmp.y = canvasH - p.y; 
+//					}
+		if(CameraManager.get().camera == Camera.CameraInfo.CAMERA_FACING_BACK)
+			switch(orientation){
+				case 90:
+					tmp.x = canvasW - p.y;
+					tmp.y = p.x;
+				break;
+				case 0:
+					tmp.x = p.x;
+					tmp.y = p.y;
+					break;
+				case 270:
+					tmp.x = p.y;
+					tmp.y = canvasH - p.x;
+				break;
+				case 180:
+					tmp.x = canvasW - p.x;
+					tmp.y = canvasH - p.y; 
+				break;
+			}
+		else
+			switch(orientation){
+			case 0:
+				tmp.x = p.x;
+				tmp.y = p.y;
+			break;
+			case 90:
+				tmp.x = canvasW - p.y;
+				tmp.y = canvasH - p.x;
+				break;
+			case 180:
+				tmp.x = p.x;
+				tmp.y = canvasH - p.y;
+			break;
+			case 270:
+				tmp.x = p.x;
+				tmp.y = p.y; 
+			break;
+		}
+		return tmp;
 	}
 
 }

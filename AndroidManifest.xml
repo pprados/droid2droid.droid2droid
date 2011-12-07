@@ -226,10 +226,10 @@
 			android:configChanges=""
 		>
             <intent-filter>
-<!--                 <action android:name="android.intent.action.MAIN" /> -->
+                <action android:name="android.intent.action.MAIN" />
                 <action android:name="org.remoteandroid.action.Connect" />
                 <category android:name="android.intent.category.DEFAULT" />
-<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -243,26 +243,18 @@
          </activity>
          <activity android:name=".ui.expose.sms.SMSSendingActivity" android:launchMode="standard"></activity>
          
-<!--          <activity android:name=".ui.connect.qrcode.CaptureQRCodeActivity" -->
-<!--              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"> -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="org.remoteandroid.action.Connect" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-<!--          </activity> -->
-
-
 
 <!-- Tests activities -->
          <activity android:name=".test.CaptureQRCodeActivity"
              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
             <intent-filter>
-<!--                 <action android:name="android.intent.action.MAIN" /> -->
+                <action android:name="org.remoteandroid.action.test.QRCODE" />
+            </intent-filter>
+         </activity>
+         <activity android:name=".ui.connect.QRCodeFragment"
+             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <intent-filter>
                 <action android:name="org.remoteandroid.action.test.DTMF" />
-<!--                 <category android:name="android.intent.category.DEFAULT" /> -->
-<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
          </activity>
              
@@ -276,6 +268,9 @@
 <!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
          </activity>
+=======
+
+>>>>>>> 8e9b12dacf979c6f61301f9911cb3cf4c75352f5
     </application>
 
 

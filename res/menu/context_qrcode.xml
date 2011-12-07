@@ -6,4 +6,7 @@
    <item
         android:id="@+id/context_qrcode_camera"
         android:title="@string/camera_switch" />
+   <item
+        android:id="@+id/context_qrcode_debugitem"
+        android:title="@string/camera_switch" />
  </menu>

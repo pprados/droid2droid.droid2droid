@@ -123,8 +123,8 @@ public class TestQRCode extends Activity
 				//String contents = new String(data, 0);
 				String contents = null;
 				contents = new String(data, 0);
-				char[] t = new char[contents.length()];
-				contents.getChars(0, contents.length(), t, 0);
+				//char[] t = new char[contents.length()];
+				//contents.getChars(0, contents.length(), t, 0);
 				
 //				try {
 //					//contents = new String(data, "");

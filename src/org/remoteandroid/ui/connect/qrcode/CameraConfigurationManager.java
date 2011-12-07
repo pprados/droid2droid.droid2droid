@@ -23,10 +23,12 @@ import static org.remoteandroid.internal.Constants.W;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.Display;
+import android.view.Surface;
 import android.view.WindowManager;
 
 /**
@@ -406,15 +408,24 @@ final class CameraConfigurationManager
 				"taking-picture-zoom", tenDesiredZoom);
 		}
 	}
-
+/*
+ * setSurfaceResolutionValues set the value of the surface resolution where the camera is being displayed
+ * input : Point p (p.x the width of the surface, p.y the height of the surface) 
+ */
 	public void setSurfaceResolutionValues(Point p)
 	{
-		if (p.x < p.y)
-		{
-			int tmp = p.x;
-			p.x = p.y;
-			p.y = tmp;
-		}
+		
+//		
+//		if(screenResolutionFix.x < screenResolutionFix.y)
+//		{
+//			Log.d("camera", "surface : " + p.toString());
+//			if (true || p.x < p.y){
+//				int tmp = p.x;
+//				p.x = p.y;
+//				p.y = tmp;	
+//			}
+//			
+//		}
 
 		this.mSurfaceResolution = p;
 	}
