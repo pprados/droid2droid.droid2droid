@@ -490,11 +490,11 @@ implements TechnologiesFragment.Listener
 			for (int i=0;i<mUris.size();++i)
 			{
 				RemoteAndroidInfoImpl info=null;
+				String uri=mUris.get(i);
 				try
 				{
 					if (isCancelled())
 						return null;
-					String uri=mUris.get(i);
 					publishMessage(R.string.connect_try_connect,i+firststep);
 					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 					
@@ -517,6 +517,7 @@ implements TechnologiesFragment.Listener
 				}
 				if (info!=null) // Cool
 				{
+					if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Connection for cookie with "+uri);
 					return info;
 				}
 				

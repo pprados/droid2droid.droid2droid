@@ -15,7 +15,7 @@ public abstract class Expose
 	{
 		new QRCodeExpose(),
 		new SMSExpose(),
-		new SoundExpose(),
+		new DTMFExpose(),
 		new InputExpose()
 	};
 	

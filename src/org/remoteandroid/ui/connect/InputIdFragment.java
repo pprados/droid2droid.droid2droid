@@ -88,7 +88,6 @@ public class InputIdFragment extends AbstractBodyFragment
 						if (loc.startsWith(InputExpose.BASE_SHORTEN))
 						{
 							loc=loc.substring(InputExpose.BASE_SHORTEN.length());
-							if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Retrive "+loc);
 							byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
 							Messages.Candidates candidates=Messages.Candidates.parseFrom(bytes);
 							tryConn.setUris(ProtobufConvs.toUris(candidates));

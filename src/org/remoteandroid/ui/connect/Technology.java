@@ -18,7 +18,7 @@ class Technology
 			R.string.connect_qrcode,R.string.connect_qrcode_description,R.string.connect_qrcode_help,
 			R.string.connect_nfc,R.string.connect_nfc_description,R.string.connect_nfc_help,
 			R.string.connect_sms,R.string.connect_sms_description,R.string.connect_sms_help,
-			R.string.connect_sound,R.string.connect_sound_description,R.string.connect_sound_help,
+			R.string.connect_dtmf,R.string.connect_dtmf_description,R.string.connect_dtmf_help,
 			R.string.connect_input,R.string.connect_input_description,R.string.connect_input_help
 		};
 	
@@ -83,7 +83,7 @@ class Technology
 				fragment=new SMSFragment();
 				break;
 			case SOUND:
-				fragment=new SoundFragment();
+				fragment=new DTMFFragment();
 				break;
 			case INPUT:
 				fragment=new InputIdFragment();

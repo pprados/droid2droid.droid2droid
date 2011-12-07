@@ -242,11 +242,11 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 					public void run()
 					{
 						// FIXME: Suivant les telephones, le request service info ne retourne rien. Cas du Samsung I7, HTC HD 
-						if (ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT!=0)
+						if (HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY!=0)
 						{
 							try
 							{
-								Thread.sleep(ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT);
+								Thread.sleep(HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY);
 							} catch (Exception e ) {}
 						}
 		            	sDNS.requestServiceInfo(event.getType(), event.getName(), false,ETHERNET_GET_INFO_MDNS_TIMEOUT);					}
@@ -343,7 +343,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				isStarting=false;
 				if (NetSocketRemoteAndroid.isStarted())
 				{
-					if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS re-regsiter service");
+					if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS re-register service");
 					registerService();
 				}
 

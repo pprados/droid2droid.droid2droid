@@ -5,11 +5,12 @@ import static org.remoteandroid.internal.Constants.*;
 
 import android.bluetooth.BluetoothClass;
 
+//TODO: Manage battery low !
 public class Constants
 {
 	public static final boolean DEBUG=true;
 
-	public static final boolean LOGGER_SEVERE					=true;
+	public static final boolean LOGGER_SEVERE					=false; // true
 	public static final boolean LOGGER_WARNING					=LOGGER_SEVERE;
 	public static final boolean LOGGER_INFO						=false; //false;
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
@@ -20,8 +21,8 @@ public class Constants
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
 	public static final String TAG_EXPOSE						="Expose";
-	public static final String TAG_SMS							="Sms";
-	
+	public static final String TAG_SMS							=TAG_CONNECT;
+	public static final String TAG_DTMF							="DTMF"; // TAG_CONNECT
 	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
 		
 	public static final boolean PREFERENCES_IN_ONE_SCREEN		=true;
@@ -129,7 +130,7 @@ public class Constants
 	};
 
 	
-	public static /*final*/ long BT_HACK_DELAY_STARTUP			=0L; // 300L for HTC Desire HD
+	public static /*final*/ long BT_HACK_DELAY_STARTUP				=0L; // 300L for HTC Desire HD
 	public static final boolean BT_HACK_RETRY_IF_UNABLE_TO_START_SERVICE_DISCOVERY=false;
 	public static final boolean BT_HACK_WAIT_BEFORE_TRY_ANOTHER_CONNECTION=false;
 
@@ -151,7 +152,7 @@ public class Constants
     /** Keep the socket alive. */
     public static final boolean ETHERNET_KEEP_ALIVE					=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */
-    public static final long ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT	=300L; // Timeout before ask mDNS info (for HTC Desire)
+    public static final long HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY	=300L; // Timeout before ask mDNS info (for HTC Desire)
 	/** Timeout to receive a service info. */
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.
     public static final long ETHERNET_DELAY_ANTI_REPEAT_DISCOVER	=2000L; // Timeout to refuse same UUID
@@ -178,6 +179,18 @@ public class Constants
 	/** Port use to receive technical message. */
 	public static final short SMS_PORT 							=RemoteAndroidManager.DEFAULT_PORT;
 	/** Timeout to wait to receive SMS. */
-	public static final int SMS_TIMEOUT_WAIT=600000; // 60s
+	public static final int SMS_TIMEOUT_WAIT					=60000; // 60s
 
+	//-----------------------------------------------------------------------------
+	// --- DTMF parameters ---
+	public static final int DTMF_VOLUME 						= /*100*/50; // %
+	public static final int DTMF_TIMEOUT_WAIT					=60000; // 60s
+	public static final int DTMF_FREQUENCY_DELTA				=2; // +-2
+	public static final int DTMF_MIN_PRESENCE_START_STOP		=1;
+	public static final int DTMF_MIN_PRESENCE					=2;
+	public static final int DTMF_DELAY_EMISSION					=400; // Ms
+	public static final int DTMF_DELAY_START_STOP				=1000;
+
+
+	
 }
