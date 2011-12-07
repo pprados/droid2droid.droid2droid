@@ -253,12 +253,12 @@
          
          <activity android:name=".ui.connect.qrcode.CaptureQRCodeActivity"
              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="org.remoteandroid.action.Connect" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--             <intent-filter> -->
+<!--                 <action android:name="android.intent.action.MAIN" /> -->
+<!--                 <action android:name="org.remoteandroid.action.Connect" /> -->
+<!--                 <category android:name="android.intent.category.DEFAULT" /> -->
+<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
+<!--             </intent-filter> -->
          </activity>
          <activity android:name=".ui.connect.QRCodeFragment"
              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">

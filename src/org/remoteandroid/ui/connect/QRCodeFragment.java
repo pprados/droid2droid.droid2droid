@@ -349,9 +349,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 				locatInScreen.bottom = locatInScreen.top + mViewfinderView.getHeight();
 				initCamera(
 					holder, getRotation());
-				CameraManager cameraManager = CameraManager.get();
-				CameraManager.get().setScreenResolutionValues(
-						new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
+				
 				// Point size=cameraManager.getSize();
 				// Rect rect=new Rect(
 				// (locatInScreen.width()-size.x)/2,
@@ -530,6 +528,8 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			{
 				mCache.mHandler = new CaptureHandler(this);
 			}
+			CameraManager.get().setScreenResolutionValues(
+					new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
 		}
 		catch (IOException ioe)
 		{

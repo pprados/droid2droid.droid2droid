@@ -537,9 +537,7 @@ public final class CameraManager
 			Point size = new Point();
 			size.x = rect.width() * surfaceResolution.x / cameraResolution.x;
 			size.y = rect.height() * surfaceResolution.y / cameraResolution.y;
-			Log.d("camera","size.x " + size.x + " size.y " + size.y);
-			Log.d("camera", "(surfaceResolution.x - size.x)/2 " + ((surfaceResolution.x - size.x)/2) + " (surfaceResolution.y - size.y)/2 " + ((surfaceResolution.y - size.y)/2));
-			Log.d("camera", "size.x + (surfaceResolution.x - size.x)/2  " + (size.x + (surfaceResolution.x - size.x)/2) + " size.y + (surfaceResolution.y - size.y)/2 " + (size.y + (surfaceResolution.y - size.y)/2));
+			//Places the QRCode square in the middle of the surface of the screen
 			mFramingRectInPreview.left = (surfaceResolution.x - size.x)/2;
 			mFramingRectInPreview.top = (surfaceResolution.y - size.y)/2;
 			mFramingRectInPreview.right = size.x + (surfaceResolution.x - size.x)/2;
@@ -694,8 +692,6 @@ public final class CameraManager
 				Log.d(
 					TAG_CONNECT, "Calculated framing rect: " + mFramingRect + " (w:" + mFramingRect.width() + ",h:"
 							+ mFramingRect.height() + ")");
-			Log.d(
-				TAG_CONNECT, "framing : " + mFramingRect.toShortString());
 		}
 		return mFramingRect;
 	}

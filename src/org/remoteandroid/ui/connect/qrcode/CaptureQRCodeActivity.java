@@ -399,17 +399,12 @@ public final class CaptureQRCodeActivity extends Activity implements
 		if (D) Log.d(
 			TAG_QRCODE, "surface created");
 		if (!mHasSurface)
-		{
-
-			
-			
+		{	
 			mHasSurface = true;
 			if (!NO_CAMERA)
 				initCamera(
 					holder, getRotation());
-			CameraManager.get().setScreenResolutionValues(
-					new Point(mViewfinderView.getWidth(), mViewfinderView
-							.getHeight()));
+			
 		}
 	}
 
@@ -544,6 +539,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 			{
 				mCache.mHandler = new CaptureHandler(this);
 			}
+			CameraManager.get().setScreenResolutionValues(
+					new Point(mViewfinderView.getWidth(), mViewfinderView
+							.getHeight()));
 		}
 		catch (IOException ioe)
 		{
