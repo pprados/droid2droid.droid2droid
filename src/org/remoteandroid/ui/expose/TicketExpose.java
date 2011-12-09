@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
@@ -28,6 +29,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
+import android.widget.Toast;
 
 public class TicketExpose extends Expose
 {
@@ -114,12 +116,23 @@ public class TicketExpose extends Expose
 		}
 		
 		@Override
-		protected void onException(Throwable e)
+		protected void onException(final Throwable e)
 		{
 			mAlertDialog.cancel();
 			if (mActivity.isFinishing()) 
 				return;
 			if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Error when load shorten url",e);
+			if (D)
+			{
+				Application.sHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+					}
+				});
+			}
 			mAlertDialog=new AlertDialog.Builder(mActivity)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setTitle(R.string.connect_input_expose_title)

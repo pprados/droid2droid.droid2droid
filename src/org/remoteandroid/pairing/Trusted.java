@@ -382,6 +382,8 @@ public class Trusted
 						{
 							if (!ETHERNET_ONLY_IPV4)
 							{
+								if (ETHERNET_REFUSE_LOCAL_IPV6 && add.isLinkLocalAddress())
+									continue;
 								all.add(add);
 								ipv6.add( ByteString.copyFrom(add.getAddress()));
 							}

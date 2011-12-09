@@ -159,6 +159,7 @@ public class Constants
 	/** Timeout to receive a service info. */
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.
     public static final long ETHERNET_DELAY_ANTI_REPEAT_DISCOVER	=2000L; // Timeout to refuse same UUID
+    public static final boolean ETHERNET_REFUSE_LOCAL_IPV6	= true; 		// Else we must select the interface
 	//-----------------------------------------------------------------------------
 	// Multicast DNS service
 	// http://tools.ietf.org/html/draft-cheshire-dnsext-dns-sd-10

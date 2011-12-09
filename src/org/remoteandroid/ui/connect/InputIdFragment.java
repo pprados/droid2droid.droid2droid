@@ -5,6 +5,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
@@ -28,6 +29,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
 public class InputIdFragment extends AbstractBodyFragment
@@ -106,9 +108,20 @@ public class InputIdFragment extends AbstractBodyFragment
 					return 0;
 					
 				}
-				catch (Exception e)
+				catch (final Exception e)
 				{
 					if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket ("+e.getMessage()+")");
+					if (D)
+					{
+						Application.sHandler.post(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
 					return R.string.connect_input_message_error_get_internet;
 				}
 			}
