@@ -16,15 +16,17 @@ public abstract class Expose
 		new QRCodeExpose(),
 		new SMSExpose(),
 		new DTMFExpose(),
-		new InputExpose()
+		new TicketExpose()
 	};
 	
-	Expose(int value,String key)
+	Expose(int value,String key,int feature)
 	{
 		mValue=value;
 		mKey=key;
+		mFeature=feature;
 	}
 	public abstract void startExposition(Activity context);
 	public int mValue;
 	public String mKey;
+	public int mFeature;
 }

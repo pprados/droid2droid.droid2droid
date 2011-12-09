@@ -1,11 +1,35 @@
 package org.remoteandroid.ui.connect;
 
-import org.remoteandroid.R;
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
+import static org.remoteandroid.internal.Constants.V;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.remoteandroid.Application;
+import org.remoteandroid.NetworkTools;
+import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.ui.DevicePreference;
+
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.SupportActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -14,6 +38,39 @@ import android.widget.TextView;
 
 public class TechnologiesFragment extends ListFragment
 {
+	private BroadcastReceiver mAirPlaine = new BroadcastReceiver() 
+	{
+	      @Override
+	      public void onReceive(Context context, Intent intent) 
+	      {
+		        update();
+	      }
+	};
+	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
+    {
+		
+        @Override
+        public void onReceive(Context context, Intent intent) 
+        {
+        	update();
+        }
+    };
+    private BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
+    {
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+            if (W) Log.w(TAG_PREFERENCE, PREFIX_LOG+"BT Type Changed "+intent);
+			if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
+			{
+	        	update();
+			}
+			
+		}
+    };
+    private int mActiveFeature;
+    private int mActiveNetwork;
+    
 	interface Listener
 	{
 		public void onTechnologieSelected(Technology technology);
@@ -47,6 +104,12 @@ public class TechnologiesFragment extends ListFragment
 			final Technology tech=mTechnologies[position+1];
 			cache.mContent.setText(tech.mContent);
 			cache.mContextDescription.setText(tech.mDescription);
+			boolean airplane=Settings.System.getInt(getActivity().getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+			boolean active=
+					((mActiveFeature & tech.mFeature) == tech.mFeature)
+					&& ((mActiveNetwork & tech.mActiveNetwork)!=0);
+			cache.mContent.setEnabled(active);
+			cache.mContextDescription.setEnabled(active);
 			return convertView;
 		}
 		@Override
@@ -80,6 +143,13 @@ public class TechnologiesFragment extends ListFragment
 			mAdapter.notifyDataSetChanged();
 		
 	}
+	
+	void update()
+	{
+		mActiveFeature=Application.getActiveFeature();
+		mActiveNetwork=NetworkTools.getActiveNetwork();
+		mAdapter.notifyDataSetChanged();
+	}
 	@Override
 	public void onAttach(SupportActivity activity)
 	{
@@ -100,6 +170,26 @@ public class TechnologiesFragment extends ListFragment
 		}
 	}
 
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		// Register receiver
+        getActivity().registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		getActivity().registerReceiver(mAirPlaine,new IntentFilter("android.intent.action.SERVICE_STATE"));
+
+		IntentFilter filter=new IntentFilter();
+		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+		getActivity().registerReceiver(mBluetoothReceiver, filter);
+	}
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+   		getActivity().unregisterReceiver(mNetworkStateReceiver);
+   		getActivity().unregisterReceiver(mBluetoothReceiver); 
+   		getActivity().unregisterReceiver(mAirPlaine); 
+	}
 	@Override
 	public void onDetach()
 	{

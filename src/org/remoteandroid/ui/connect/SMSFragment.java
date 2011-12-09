@@ -22,7 +22,7 @@ import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.ui.expose.InputExpose;
+import org.remoteandroid.ui.expose.TicketExpose;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;

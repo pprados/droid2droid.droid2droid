@@ -34,6 +34,7 @@ public class Constants
 	public static final String PREFERENCES_PUBLIC_KEY			="public";
 	public static final String PREFERENCES_PRIVATE_KEY			="private";
 
+	public static final String PREFERENCES_EXPOSE				="expose";
 	public static final String PREFERENCES_ACTIVE				="active";
 	public static final String PREFERENCES_ANO_ACTIVE			="ano.active";
 	public static final String PREFERENCES_ANO_WIFI_LIST		="ano.select_wifi";
@@ -46,6 +47,8 @@ public class Constants
 	
 	public static final boolean STRICT_MODE=false; 
 	
+	/** True if can connect device throw internet (and not only intranet). */
+	public static final boolean CONNECTION_WITH_INTERNET=false;
     /**
      * the intent that gets sent when deleting the notifications of outbound and
      * inbound completed transfer
@@ -163,6 +166,7 @@ public class Constants
     
 	//-----------------------------------------------------------------------------
 	// --- QRCode parameters ---
+    public static final boolean QRCODE							=true;
 	/** For debug, use classic exception. */ 
 	public static final boolean QRCODE_DEBUG					=true;
 	/** Show the current bitmap to analyse. */
@@ -176,6 +180,7 @@ public class Constants
 	
 	//-----------------------------------------------------------------------------
 	// --- SMS parameters ---
+	public static final boolean SMS								=true;
 	/** Port use to receive technical message. */
 	public static final short SMS_PORT 							=RemoteAndroidManager.DEFAULT_PORT;
 	/** Timeout to wait to receive SMS. */
@@ -183,6 +188,7 @@ public class Constants
 
 	//-----------------------------------------------------------------------------
 	// --- DTMF parameters ---
+	public static final boolean DTMF							=true;
 	public static final int DTMF_VOLUME 						= /*100*/50; // %
 	public static final int DTMF_TIMEOUT_WAIT					=60000; // 60s
 	public static final int DTMF_FREQUENCY_DELTA				=2; // +-2
@@ -191,6 +197,9 @@ public class Constants
 	public static final int DTMF_DELAY_EMISSION					=400; // Ms
 	public static final int DTMF_DELAY_START_STOP				=1000;
 
+	//-----------------------------------------------------------------------------
+	// --- NFC parameters ---
+	public static final boolean NFC								=false;
 
 	
 }

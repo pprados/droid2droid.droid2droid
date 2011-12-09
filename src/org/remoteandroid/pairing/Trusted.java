@@ -85,6 +85,7 @@ public class Trusted
 		info.name=Application.getName();
 		info.publicKey=Application.getKeyPair().getPublic();
 		info.version=Compatibility.VERSION_SDK_INT;
+		info.feature=Application.sFeature;
 		final SharedPreferences preferences=Application.getPreferences();
 		final boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
 

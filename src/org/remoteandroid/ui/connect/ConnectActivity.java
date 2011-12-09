@@ -45,7 +45,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+// TODO: getSystemAvailableFeatures ()
 public class ConnectActivity extends StyleFragmentActivity 
 implements TechnologiesFragment.Listener
 {
@@ -120,7 +122,7 @@ implements TechnologiesFragment.Listener
 		
 		mAcceptAnonymous=getIntent().getBooleanExtra(RemoteAndroidManager.EXTRA_ACCEPT_ANONYMOUS, false);
 		mFragmentManager=getSupportFragmentManager();
-		mTechnologies=Technology.initTechnologies(this);
+		mTechnologies=Technology.getTechnologies();
 		
 		mMerge=getResources().getBoolean(R.bool.connect_merge);
 		
@@ -500,9 +502,20 @@ implements TechnologiesFragment.Listener
 					
 					info=tryConnectForCookie(uri);
 				}
-				catch (IOException e)
+				catch (final IOException e)
 				{
 					if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+					if (D)
+					{
+						Application.sHandler.post(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
 				}
 				catch (SecurityException e)
 				{

@@ -402,7 +402,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				props.put("uuid", info.getUuid().toString());
 				props.put("os", info.getOs());
 				props.put("version", Integer.toString(info.getVersion()));
-				props.put("capability", Integer.toString(info.getCapability()));
+				props.put("feature", Integer.toString(info.getFeature()));
 				sServiceInfo.setText(props);
 				dns.registerService(sServiceInfo);
 				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS service "+Application.getName()+REMOTEANDROID_SERVICE+" registered");

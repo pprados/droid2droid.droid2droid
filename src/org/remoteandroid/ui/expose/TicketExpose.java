@@ -1,10 +1,11 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.TAG_EXPOSE;
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
+import static org.remoteandroid.RemoteAndroidInfo.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,16 +29,16 @@ import android.app.AlertDialog;
 import android.text.Html;
 import android.util.Log;
 
-public class InputExpose extends Expose
+public class TicketExpose extends Expose
 {
 	private static final String APIKEY="AIzaSyDL67vMUDoqKRAM0g6pyrPaWSz-QpepvjM";
 	public static final String GOOGLE_SHORTEN_API="https://www.googleapis.com/urlshortener/v1/url";
 	public static final String GOOGLE_SHORTEN="http://goo.gl/";
 	public static final String BASE_SHORTEN="http://www.remoteandroid.org/";
 	
-	InputExpose()
+	TicketExpose()
 	{
-		super(R.string.expose_input,KEY_INPUT);
+		super(R.string.expose_input,KEY_INPUT,FEATURE_SCREEN|FEATURE_NET);
 	}
 	private AlertDialog mAlertDialog;
 	private ShortenURL mShortenURL;

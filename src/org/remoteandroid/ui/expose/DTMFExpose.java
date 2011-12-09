@@ -11,12 +11,14 @@ import android.media.AudioManager;
 import android.util.Log;
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.*;
-
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.RemoteAndroidInfo.*;
 class DTMFExpose extends Expose
 {
 	DTMFExpose()
 	{
-		super(R.string.expose_sound,KEY_SOUND);
+		super(R.string.expose_sound,KEY_SOUND,FEATURE_SCREEN|FEATURE_HP);
 	}
 
 	@Override

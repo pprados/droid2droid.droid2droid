@@ -19,7 +19,6 @@
 			android:id="@+id/connect_help"
 			android:textAppearance="?android:attr/textAppearance"
 			android:gravity="top"
-			android:text="@string/connect_empty_help"
 			android:paddingTop="10dip"
 			android:paddingRight="10dip"
 		></TextView>

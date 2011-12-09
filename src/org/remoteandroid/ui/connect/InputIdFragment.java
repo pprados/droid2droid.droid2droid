@@ -12,7 +12,7 @@ import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.connect.ConnectActivity.TryConnection;
-import org.remoteandroid.ui.expose.InputExpose;
+import org.remoteandroid.ui.expose.TicketExpose;
 import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.*;
@@ -78,23 +78,23 @@ public class InputIdFragment extends AbstractBodyFragment
 			{
 				try
 				{
-					URL url=new URL(InputExpose.GOOGLE_SHORTEN+ticket);
+					URL url=new URL(TicketExpose.GOOGLE_SHORTEN+ticket);
 					HttpURLConnection conn=(HttpURLConnection)url.openConnection();
 					conn.setInstanceFollowRedirects(false);
 					int responsecode=conn.getResponseCode();
 					String loc=conn.getHeaderField("location");
 					if (responsecode==HttpURLConnection.HTTP_MOVED_PERM)
 					{
-						if (loc.startsWith(InputExpose.BASE_SHORTEN))
+						if (loc.startsWith(TicketExpose.BASE_SHORTEN))
 						{
-							loc=loc.substring(InputExpose.BASE_SHORTEN.length());
+							loc=loc.substring(TicketExpose.BASE_SHORTEN.length());
 							byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
 							Messages.Candidates candidates=Messages.Candidates.parseFrom(bytes);
 							tryConn.setUris(ProtobufConvs.toUris(candidates));
 						}
 						else
 						{
-							if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Shorten response must start with "+InputExpose.BASE_SHORTEN+" ("+loc+")");
+							if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Shorten response must start with "+TicketExpose.BASE_SHORTEN+" ("+loc+")");
 							return R.string.connect_input_message_error_get_format;
 						}
 					}

@@ -1,6 +1,7 @@
 package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.NetworkTools.*;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.PREFERENCES_IN_ONE_SCREEN;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.ListRemoteAndroidInfo;
+import org.remoteandroid.NetworkTools;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
@@ -41,6 +43,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -62,6 +65,8 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -71,6 +76,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
 
 // TODO: Sur xoom, enlever le menu contextuel
 public class EditPreferenceActivity extends PreferenceActivity implements ListRemoteAndroidInfo.DiscoverListener
@@ -83,7 +89,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private static final int MODE_KNOW_SCREEN=1 << 2;
 	private static final int MODE_ONE_SCREEN=MODE_MAIN_SCREEN|MODE_ANO_SCREEN|MODE_KNOW_SCREEN;
 	
-	private CharSequence[] mExposeValues;
+	private Expose[] 		mExposeModel;
+	private CharSequence[] 	mExposeValues;
+	private Boolean[]		mExposeActive;
 	
 	private int mMode;
 
@@ -100,6 +108,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private int mScreenType;
 	private SharedPreferences mPreferences;
 	private Preference mActive;
+	private Preference mExpose;
 	private Preference mName;
 	private Preference mScan;
 	
@@ -114,6 +123,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
             // deprecated
             // NetworkInfo ni=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
 			if (!ETHERNET) return;
+			updateDiscoverExposeButton();
         	ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni=cm.getActiveNetworkInfo();
             if (ni==null)
@@ -232,7 +242,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
             if (W) Log.w(TAG_PREFERENCE, PREFIX_LOG+"BT Type Changed "+intent);
 			if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
 			{
-		        updateDiscoverButton();
+		        updateDiscoverExposeButton();
 			}
 			
 		}
@@ -243,7 +253,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	      public void onReceive(Context context, Intent intent) 
 	      {
 	            if (D) Log.d(TAG_PREFERENCE, PREFIX_LOG+"Airplane mode changed");
-		        updateDiscoverButton();
+		        updateDiscoverExposeButton();
 	      }
 	};
 
@@ -358,10 +368,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private void initSync(Intent intent)
 	{
         // Main
-		if (PREFERENCES_IN_ONE_SCREEN)
+		if (PREFERENCES_IN_ONE_SCREEN) // FIXME
 		{
 			addPreferencesFromResource(R.xml.all_preferences);
-			initFromExpose();
 		}
 		else
 		{
@@ -380,6 +389,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		}
 
 		final Intent intentRemoteContext=new Intent(this,RemoteAndroidService.class);
+		mExpose=findPreference(PREFERENCES_EXPOSE);
+		
 		mActive=findPreference(PREFERENCES_ACTIVE);
 		mActive.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 		{
@@ -490,9 +501,13 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
             		getPreferenceScreen().removePreference(mobile);
             }
         }
+        
+        mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
+		mDiscovered=new ListRemoteAndroidInfoImpl(Application.sManager, null);
+
 	}
 	// Initialisation assynchrone (StrictMode)
-	private void initAsync(Intent intent)
+	private void initAsync(Intent intent) // TODO: en ASYNC
 	{
 		mPreferences=Application.getPreferences();
 		final boolean active=mPreferences.getBoolean(PREFERENCES_ACTIVE, false);
@@ -532,10 +547,14 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		if ((mMode & MODE_MAIN_SCREEN)!=0)
 		{
 			// Scan
-            boolean airPlane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-			mPreferenceScan.setEnabled(!airPlane && !Application.sManager.isDiscovering());
-			mDiscovered=new ListRemoteAndroidInfoImpl(Application.sManager, null);
-	        mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					updateDiscoverExposeButton();
+				}
+			});
 		}
 
 
@@ -555,16 +574,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
    		onRestoreRetainNonConfigurationInstance((Cache)getLastNonConfigurationInstance());
 	}
 	
-	private void initFromExpose()
-	{
-		mExposeValues=new CharSequence[Expose.sExpose.length];
-		for (int i=0;i<Expose.sExpose.length;++i)
-		{
-			mExposeValues[i]=getString(Expose.sExpose[i].mValue);
-		}
-	}
-	
-    private void initBonded()
+
+	private void initBonded()
     {
     	if (mDeviceList!=null)
     	{
@@ -637,7 +648,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			filter,
 			RemoteAndroidManager.PERMISSION_DISCOVER_SEND,null
 			);
-		updateDiscoverButton();		
     }
 
     @Override
@@ -829,19 +839,31 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		mDeviceList.removePreference(preference);
 	}
 	
-	private void updateDiscoverButton()
+	private void updateDiscoverExposeButton()
 	{
-        boolean airPlaneState=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-		boolean bluetoothState=false;
-		if (BLUETOOTH && BluetoothAdapter.getDefaultAdapter()!=null)
-			bluetoothState=BluetoothAdapter.getDefaultAdapter().isEnabled();
-		boolean wifiState=false;
-		if (ETHERNET)
-			wifiState=((WifiManager)Application.sAppContext.getSystemService(Context.WIFI_SERVICE)).isWifiEnabled();
+		ArrayList<CharSequence> a=new ArrayList<CharSequence>();
+		ArrayList<Expose> e=new ArrayList<Expose>();
+		ArrayList<Boolean> act=new ArrayList<Boolean>();
+		final int activeFeature=Application.getActiveFeature();
+		for (int i=0;i<Expose.sExpose.length;++i)
+		{
+			if ((Expose.sExpose[i].mFeature & Application.sFeature) == Expose.sExpose[i].mFeature)
+			{
+				a.add(getString(Expose.sExpose[i].mValue));
+				e.add(Expose.sExpose[i]);
+				act.add((Expose.sExpose[i].mFeature & activeFeature) ==Expose.sExpose[i].mFeature);
+			}
+		}
+		mExposeValues=a.toArray(new CharSequence[a.size()]);
+		mExposeModel=e.toArray(new Expose[e.size()]);
+		mExposeActive=act.toArray(new Boolean[act.size()]);
+
+		int netStatus=NetworkTools.getActiveNetwork();
+		boolean samp=(netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
 		mPreferenceScan.setEnabled(
-				(!airPlaneState && 
-				!Application.sManager.isDiscovering()) &&
-				(bluetoothState || wifiState));
+			samp
+			&& !Application.sManager.isDiscovering());
+		mExpose.setEnabled(samp);
 		
 	}
 	private void scan(final int flags)
@@ -862,7 +884,17 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	}
 	private void expose()
 	{
-		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues);
+		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues)
+				{
+					@Override
+					public View getView(int position, View convertView, ViewGroup parent)
+					{
+						// TODO Auto-generated method stub
+						View v=super.getView(position, convertView, parent);
+						((TextView)v.findViewById(android.R.id.text1)).setEnabled(mExposeActive[position]);
+						return v;
+					}
+				};
 		new AlertDialog.Builder(this)
 			.setAdapter(adapter, new DialogInterface.OnClickListener()
 			{
@@ -870,7 +902,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 				@Override
 				public void onClick(DialogInterface dialog, int which)
 				{
-					Expose.sExpose[which].startExposition(EditPreferenceActivity.this);
+					if (mExposeActive[which])
+						mExposeModel[which].startExposition(EditPreferenceActivity.this);
 				}
 			})
 			.setTitle(R.string.connect_expose_title)

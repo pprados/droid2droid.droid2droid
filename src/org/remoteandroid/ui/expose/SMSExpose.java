@@ -2,15 +2,16 @@ package org.remoteandroid.ui.expose;
 
 import org.remoteandroid.R;
 import org.remoteandroid.ui.expose.sms.SMSSendingActivity;
-
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import android.app.Activity;
 import android.content.Intent;
-
+import static org.remoteandroid.RemoteAndroidInfo.*;
 class SMSExpose extends Expose
 {
 	SMSExpose()
 	{
-		super(R.string.expose_sms,KEY_SMS);
+		super(R.string.expose_sms,KEY_SMS,FEATURE_SCREEN|FEATURE_TELEPHONY);
 	}
 
 	@Override

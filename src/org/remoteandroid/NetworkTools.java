@@ -13,11 +13,13 @@ import android.telephony.TelephonyManager;
 public class NetworkTools
 {
 	public static final int ACTIVE_NOAIRPLANE		=1<<0;
-	public static final int ACTIVE_LOCAL_NETWORK	=1<<1;
-	public static final int ACTIVE_BLUETOOTH		=1<<2;
-	public static final int ACTIVE_PHONE_DATA		=1<<3;
-	public static final int ACTIVE_PHONE_SIM		=1<<4;
-	public static final int ACTIVE_NFC				=1<<5;
+	public static final int ACTIVE_NETWORK			=1<<1;
+	public static final int ACTIVE_LOCAL_NETWORK	=1<<2;
+	public static final int ACTIVE_GLOBAL_NETWORK	=1<<3;
+	public static final int ACTIVE_BLUETOOTH		=1<<4;
+	public static final int ACTIVE_PHONE_DATA		=1<<5;
+	public static final int ACTIVE_PHONE_SIM		=1<<6;
+	public static final int ACTIVE_NFC				=1<<7;
 
 	public static int getActiveNetwork()
 	{
@@ -35,12 +37,14 @@ public class NetworkTools
 				case ConnectivityManager.TYPE_MOBILE_MMS:
 				case ConnectivityManager.TYPE_MOBILE_SUPL:
 				case ConnectivityManager.TYPE_WIMAX:
-					activeNetwork&=~ACTIVE_LOCAL_NETWORK;
+					activeNetwork|=ACTIVE_GLOBAL_NETWORK;
+					activeNetwork|=ACTIVE_NETWORK;
 					break;
 				case ConnectivityManager.TYPE_BLUETOOTH:
 				case ConnectivityManager.TYPE_ETHERNET:
 				case ConnectivityManager.TYPE_WIFI:
 					activeNetwork|=ACTIVE_LOCAL_NETWORK;
+					activeNetwork|=ACTIVE_NETWORK;
 					break;
 	        }
 		}
@@ -48,7 +52,10 @@ public class NetworkTools
 		WifiManager wifi=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
 		TelephonyManager telephone=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
 		if (telephone.getDataState()==TelephonyManager.DATA_CONNECTED)
-			activeNetwork|=ACTIVE_PHONE_DATA; 
+		{
+			activeNetwork|=ACTIVE_PHONE_DATA|ACTIVE_GLOBAL_NETWORK;
+			activeNetwork|=ACTIVE_NETWORK;
+		}
 		else
 			activeNetwork&=~ACTIVE_PHONE_DATA;
 

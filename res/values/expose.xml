@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<integer name="expose_qrcode_maxsize">0</integer>
 
 	<string name="expose">Expose</string>
     <string name="expose_title">Expose the device</string>

@@ -32,7 +32,8 @@
        
     <Preference
         android:key="expose"
-        android:title="@string/expose_title" />
+        android:dependency="active" 
+		android:title="@string/expose_title" />
 		
 	</PreferenceCategory>
 		
