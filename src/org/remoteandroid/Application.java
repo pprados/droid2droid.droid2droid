@@ -132,7 +132,7 @@ public class Application extends android.app.Application
     {
     	sCookies.addCookie(uri, cookie);
     }
-    public static void clearCookie()
+    public static void clearCookies()
     {
     	sCookies.clear();
     }

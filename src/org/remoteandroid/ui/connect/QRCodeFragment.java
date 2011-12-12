@@ -254,9 +254,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 	public void onPause()
 	{
 		super.onPause();
-		if (I)
-			Log.i(
-				TAG_CONNECT, "onPause...");
+		if (I)	Log.i(TAG_CONNECT, "onPause...");
 		if (mCache.mHandler != null)
 		{
 			mCache.mHandler.quitSynchronously();

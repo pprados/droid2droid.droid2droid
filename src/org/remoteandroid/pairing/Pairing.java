@@ -52,7 +52,7 @@ public abstract class Pairing
 	{
 		try
 		{
-			Application.clearCookie();
+			Application.clearCookies();
 		    final long threadid = Thread.currentThread().getId();
 			Msg msg = Msg.newBuilder()
 				.setType(Type.PAIRING_CHALENGE)

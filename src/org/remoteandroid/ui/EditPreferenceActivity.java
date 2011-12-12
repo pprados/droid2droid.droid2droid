@@ -616,6 +616,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
     {
        super.onResume();
 	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onResume()");
+	   initBonded();
        if ((mMode & MODE_MAIN_SCREEN)!=0)
        {
         	new AsyncTask<Void, Void, Boolean>()

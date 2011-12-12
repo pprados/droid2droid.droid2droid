@@ -202,18 +202,19 @@ public class TechnologiesFragment extends ListFragment
 		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 	}
 	
-//	@Override
-//	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-//	{
-//		return super.onCreateView(inflater, container, savedInstanceState);
-//		
-//	}
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id)
 	{
-		getListView().setItemChecked(position, true);
+		
 		if (mListener != null)
-			mListener.onTechnologieSelected(mTechnologies[position+1]);
+		{
+			final Technology tech=mTechnologies[position+1];
+			boolean active=
+					((mActiveFeature & tech.mFeature) == tech.mFeature)
+					&& ((mActiveNetwork & tech.mActiveNetwork)!=0);
+			
+			if (active) mListener.onTechnologieSelected(mTechnologies[position+1]);
+		}
 	}
 
 	@Override

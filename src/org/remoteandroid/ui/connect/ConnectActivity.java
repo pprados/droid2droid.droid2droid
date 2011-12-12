@@ -181,7 +181,7 @@ implements TechnologiesFragment.Listener
 			transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 		}
 		transaction.commit();
-		
+//mFragmentManager.executePendingTransactions();		
 		if (mTechnologiesFragment!=null)
 			mTechnologiesFragment.setTechnologies(mTechnologies); // FIXME
 		// Reconnect background thread after rotation
@@ -336,6 +336,8 @@ implements TechnologiesFragment.Listener
 	
 	public void tryConnect(final FirstStep firstStep,List<String> uris,boolean acceptAnonymous)
 	{
+		mFragmentManager.executePendingTransactions();
+		
 		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(findViewById(android.R.id.content).getWindowToken(), 0);
 		if (sTryConnections==null)
@@ -586,7 +588,8 @@ implements TechnologiesFragment.Listener
 				if (dlg!=null && result!=null)
 				{
 					ProgressDialog d=(ProgressDialog)dlg.getDialog();
-					d.setProgress(100);
+					if (d!=null)
+						d.setProgress(100);
 				}
 			}
 			else

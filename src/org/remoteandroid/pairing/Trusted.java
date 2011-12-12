@@ -604,6 +604,7 @@ public class Trusted
 				remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
 		//mInitiatingPairingContext=...
 		pairing.unpairing((AbstractProtoBufRemoteAndroid)remoteandroid,timeout);
+		Application.clearCookies();
     }
 	
     private static ConnectionType urlToType(String uri)
