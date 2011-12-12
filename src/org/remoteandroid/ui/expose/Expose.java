@@ -15,7 +15,6 @@ public abstract class Expose
 	{
 		new QRCodeExpose(),
 		new SMSExpose(),
-		new DTMFExpose(),
 		new TicketExpose()
 	};
 	

@@ -57,20 +57,6 @@ abstract class Technology
 					}
 				},
 			new Technology(
-				FEATURE_NFC,
-				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
-				R.string.connect_nfc,
-				R.string.connect_nfc_description,
-				R.string.connect_nfc_help,
-				R.string.connect_nfc_empty_help)
-				{
-					@Override
-					AbstractBodyFragment makeFragment()
-					{
-						return new NFCFragment();
-					}
-				},
-			new Technology(
 				FEATURE_TELEPHONY,
 				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
 				R.string.connect_sms,
@@ -82,20 +68,6 @@ abstract class Technology
 					AbstractBodyFragment makeFragment()
 					{
 						return new SMSFragment();
-					}
-				},
-			new Technology(
-				FEATURE_MICROPHONE,
-				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
-				R.string.connect_dtmf,
-				R.string.connect_dtmf_description,
-				R.string.connect_dtmf_help,
-				R.string.connect_dtmf_empty_help)
-				{
-					@Override
-					AbstractBodyFragment makeFragment()
-					{
-						return new DTMFFragment();
 					}
 				},
 			new Technology(
