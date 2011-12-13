@@ -9,6 +9,7 @@
 	  >
 
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="14"/>
+	
     <compatible-screens>
         <!-- all small size screens -->
         <screen android:screenSize="small" android:screenDensity="ldpi" />
@@ -20,21 +21,35 @@
         <screen android:screenSize="normal" android:screenDensity="mdpi" />
         <screen android:screenSize="normal" android:screenDensity="hdpi" />
         <screen android:screenSize="normal" android:screenDensity="xhdpi" />
+        <!-- all large size screens -->
+        <screen android:screenSize="large" android:screenDensity="ldpi" />
+        <screen android:screenSize="large" android:screenDensity="mdpi" />
+        <screen android:screenSize="large" android:screenDensity="hdpi" />
+        <screen android:screenSize="large" android:screenDensity="xhdpi" />
+        <!-- all xlarge size screens -->
+        <screen android:screenSize="xlarge" android:screenDensity="ldpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="mdpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="hdpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="xhdpi" />
     </compatible-screens>
-	<supports-screens android:xlargeScreens="true"
-                    android:largeScreens="true"
-                    android:normalScreens="true"
-                    android:smallScreens="true"
-                    android:anyDensity="true"/>
-	<user-feature android:name="android.hardware.telephony" android:required="false"/>
+    
+	<supports-screens 
+		android:xlargeScreens="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:anyDensity="true"/>
 	<uses-feature android:name="android.hardware.bluetooth" android:required="false"/>		
-	<uses-feature android:name="android.hardware.wifi" android:required="false"/>
+	<uses-feature android:name="android.hardware.camera" android:required="false"/>
+	<uses-feature android:name="android.hardware.camera.autofocus"  android:required="false"/>	
+	<uses-feature android:name="android.hardware.microphone" android:required="false"/>
 	<user-feature android:name="android.hardware.nfc" android:required="false"/>
 	<user-feature android:name="android.hardware.faketouch" android:required="false"/>
 	<user-feature android:name="android.hardware.touchscreen" android:required="false"/>
-	<uses-feature android:name="android.hardware.camera" android:required="false"/>
-	<uses-feature android:name="android.hardware.camera.autofocus"  android:required="false"/>	
-    
+	<user-feature android:name="android.hardware.telephony" android:required="false"/>
+	<user-feature android:name="android.hardware.usb.host" android:required="false" />
+	<uses-feature android:name="android.hardware.wifi" android:required="false"/>
+	
     <permission 
     	android:name="org.remoteandroid.permission.discover.SEND"
         android:label="@string/permission_discover_label"
@@ -45,7 +60,6 @@
         android:label="@string/permission_discover_label"
         android:description="@string/permission_discover_desc"
         android:protectionLevel="normal" />
-
 
 	<!-- Private privileges -->
 	<uses-permission android:name="org.remoteandroid.permission.discover.SEND"/>
@@ -80,6 +94,9 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <!-- For Audio -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     
     <application 
     	android:debuggable="true" 
@@ -99,6 +116,7 @@
 		<meta-data 
 			android:name="com.google.android.backup.api_key"
     		android:value="AEdPqrEAAAAIq1QBXQJdImC3ZV8yuCysgzPs6oXyeg9AnYIfxQ" />
+		
 		<!-- Start when device boot -->
 		<receiver android:name=".service.RemoteAndroidReceiver" 
 			android:exported="false" 
@@ -108,19 +126,7 @@
 			</intent-filter>
 		</receiver>
 
-       <!-- SMS TO REMOVE -->
-        <receiver
-            class=".ui.connect.SMSFragment$SMSReceiver"
-            android:name=".ui.connect.SMSFragment$SMSReceiver" >
-            <intent-filter android:priority="10" >
-                <action android:name="android.intent.action.DATA_SMS_RECEIVED" />
-
-                <data android:scheme="sms" />
-                <data android:port="6800" />
-            </intent-filter>
-        </receiver>
 		    
-
 		<!-- The service to listen socket -->
 		<service 
 			android:enabled="true"
@@ -153,15 +159,6 @@
                 <category android:name="android.intent.category.PREFERENCE" />               
             </intent-filter>
             
-			<!-- Intent sur URL pour pouvoir ouvrir sur QRCode -->  
-			<!-- http://xebralabs.blogspot.com/2011/03/qr-code-to-launch-your-app.html -->        
-			<!--  Avec sheme spécifique: http://stackoverflow.com/questions/5575069/can-i-invoke-a-custom-application-with-a-qr-code -->
-			<intent-filter>
-			  <action android:name="android.intent.action.VIEW"/>
-			  <category android:name="android.intent.category.BROWSABLE"/>
-			  <data android:scheme="qrcode" android:host="remoteandroid.org" android:path="/start"/>
-			</intent-filter>
-			
 			<!-- If the APK is in /system/app directory, add settings in global settings -->
  			<intent-filter>
                 <action android:name="com.android.settings.OPERATOR_APPLICATION_SETTING" />
@@ -227,50 +224,64 @@
         
         <activity 
         	android:name=".ui.connect.ConnectActivity" 
-			android:icon="@drawable/ic_launcher_remoteandroid"
+			android:icon="@drawable/ic_connect_remoteandroid"
+			android:label="@string/connect_label"
 			android:launchMode="standard" 
 			android:taskAffinity=""
 			android:exported="true"
 			android:configChanges=""
 		>
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
                 <action android:name="org.remoteandroid.action.Connect" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-            <!--  QRCode : TODO : Remove -->
          <activity 
-        	android:name=".ui.connect.qrcode.TestQRCode" 
+        	android:name=".ui.expose.QRCodeExpose$QRCodeActivity" 
+            android:label="Expose QRCode"
 			android:exported="false" 
         	android:launchMode="standard"
 			android:configChanges="orientation|screenSize"
-         >
-         </activity>
-         <activity android:name=".ui.connect.sms.SMSSendingActivity" android:launchMode="standard"></activity>
+			android:theme="@android:style/Theme.Dialog"
+         />
          
-         <activity android:name=".ui.connect.qrcode.CaptureQRCodeActivity"
-             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
-<!--             <intent-filter> -->
-<!--                 <action android:name="android.intent.action.MAIN" /> -->
-<!--                 <action android:name="org.remoteandroid.action.Connect" /> -->
-<!--                 <category android:name="android.intent.category.DEFAULT" /> -->
-<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
-<!--             </intent-filter> -->
-         </activity>
-         <activity android:name=".ui.connect.QRCodeFragment"
-             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+         <activity android:name=".ui.expose.sms.SMSSendingActivity" 
+             android:launchMode="standard"
+			android:theme="@android:style/Theme.Dialog"
+             />
              
-<!--             <intent-filter> -->
-<!--                 <action android:name="android.intent.action.MAIN" /> -->
-<!--                 <category android:name="android.intent.category.DEFAULT" /> -->
-<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
-<!--             </intent-filter> -->
-         </activity>
+             
+<!-- Tests activities -->
+<!--  expose. A virer dans fragment -->
+<uses-permission android:name="android.permission.SET_DEBUG_APP"/>
 
-    </application>
+         <activity 
+             android:name=".test.CaptureQRCodeActivity"
+             android:label="QRCode"
+             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name="org.remoteandroid.action.test.QRCODE" />
+            </intent-filter>
+         </activity>
+         <activity
+            android:name=".test.DTMFActivity" 
+            android:label="DTMF"
+            >
+            <intent-filter>
+                <action android:name="org.remoteandroid.action.test.DTMF" />
+            </intent-filter>
+         </activity>
+         <activity 
+             android:name=".ui.expose.sms.alternative.NewSMSActivity"
+             android:label="NewSMS"
+             >
+            <intent-filter>
+                <action android:name="org.remoteandroid.action.test.New" />
+            </intent-filter>
+         </activity>
+             
+	</application>
 
 
 </manifest> 

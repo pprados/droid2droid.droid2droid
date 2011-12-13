@@ -51,6 +51,10 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
         	IPDiscoverAndroids.unregisterService();
 		}
     }
+    public static boolean isStarted()
+    {
+    	return sDaemonNet!=null;
+    }
     // Bridge between server channel and NetSocketRemoteAndroid
     private UpstreamHandler mHandler=new UpstreamHandler()
     {
@@ -78,7 +82,7 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 		public void exceptionCaught(int id,Throwable e)
 		{
 			if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"Exception "+((e!=null) ? e.getMessage():"(null)"));
-            if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Exception",e); // FIXME Exception non traité
+            //if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Exception",e); // FIXME Exception non traité
 		}
     	
     };

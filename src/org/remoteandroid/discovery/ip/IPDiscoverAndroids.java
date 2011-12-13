@@ -1,6 +1,7 @@
 package org.remoteandroid.discovery.ip;
 
-import static org.remoteandroid.Constants.ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.ETHERNET_DELAY_ANTI_REPEAT_DISCOVER;
 import static org.remoteandroid.Constants.ETHERNET_GET_INFO_MDNS_TIMEOUT;
 import static org.remoteandroid.Constants.ETHERNET_LISTEN_PORT;
 import static org.remoteandroid.Constants.ETHERNET_TIME_TO_DISCOVER;
@@ -9,6 +10,7 @@ import static org.remoteandroid.Constants.REMOTEANDROID_SERVICE;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
@@ -29,21 +31,20 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ConnectionType;
+import org.remoteandroid.NetworkTools;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.binder.ip.NetSocketRemoteAndroid;
 import org.remoteandroid.discovery.DiscoverAndroids;
-import org.remoteandroid.internal.Compatibility;
+import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
-import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.internal.socket.Channel;
 import org.remoteandroid.internal.Tools;
+import org.remoteandroid.internal.socket.Channel;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
-import org.remoteandroid.service.RemoteAndroidService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -56,52 +57,73 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.util.Log;
 
-//TODO: J'ai un bug si le process commence sans avoit démarré l'agent. Dans ce cas, ce n'est pas découvert.
 //TODO: bug sur unpair pendant le scan
+//TODO: UPnp IGD http://teleal.org/projects/cling/
 
 // http://code.google.com/p/android/issues/detail?id=15
 public class IPDiscoverAndroids implements DiscoverAndroids
 {
-	private Context mApplicationContext;
 	public static volatile JmDNS sDNS;
 	static MulticastLock sLock; 
+	static volatile boolean sIsDiscovering;
+    
 
-	
 	private static BroadcastReceiver sNetworkStateReceiver=new BroadcastReceiver() 
     {
     	
         @Override
         public void onReceive(final Context context, Intent intent) 
         {
-            if (W) Log.w(TAG_DISCOVERY, PREFIX_LOG+"Network Type Changed "+intent);
-            
-            NetworkInfo ni=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            if (ni.getType()==ConnectivityManager.TYPE_WIFI && ni.getState()==NetworkInfo.State.CONNECTED)
-            {
-            	Application.sThreadPool.execute(new Runnable()
-					{
-						public void run() 
-						{
-							startMulticastDNS(context);
-						}
-					});
-            }
+            // deprecated
+            //NetworkInfo ni2=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+        	ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni=cm.getActiveNetworkInfo();
+            Log.d(TAG_DISCOVERY,PREFIX_LOG+"Network update: current="+ni);
+        	if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"Network update "+ni);
+            if (ni==null)
+            	asyncStopMulticastDNS();
             else
             {
-            	Application.sThreadPool.execute(new Runnable()
-					{
-						public void run() 
-						{
-			            	stopMulticastDNS();
-						}
-					});
+	            switch (ni.getType())
+	            {
+	            	case ConnectivityManager.TYPE_MOBILE:
+	            	case ConnectivityManager.TYPE_MOBILE_DUN:
+	            	case ConnectivityManager.TYPE_MOBILE_HIPRI:
+	            	case ConnectivityManager.TYPE_MOBILE_MMS:
+	            	case ConnectivityManager.TYPE_MOBILE_SUPL:
+		            	asyncStopMulticastDNS();
+		            	break;
+		            default:
+		            	if (ni.getState()==NetworkInfo.State.CONNECTED)
+		            	{
+    						final JmDNS dns=sDNS;
+		            		Application.sThreadPool.execute(new Runnable()
+		    				{
+		    					public void run() 
+		    					{
+		    						synchronized (IPDiscoverAndroids.class)
+		    						{
+			    						stopMulticastDNS(dns);
+			    						startMulticastDNS();
+		    						}
+		    					}
+
+		    				});
+		            	}
+		            	break;
+	            		
+	            }
             }
         }
     };
 
+	static HashMap<String,Long> mPending=new HashMap<String,Long>();
+	static void clearPending()
+	{
+		mPending.clear();
+	}
     static final ServiceListener sListener=new ServiceListener()
 	{
-		
 		@Override
 		public void serviceResolved(final ServiceEvent event)
 		{
@@ -112,46 +134,65 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				return;
 			if (Application.getUUID().toString().equals(struuid))
 				return; // It's me. Ignore.
-			
-			// Discover a remote android. Try to connect.
-			Application.sThreadPool.execute(new Runnable()
+			RemoteAndroidInfoImpl info=Trusted.getBonded(struuid);
+			if (!sIsDiscovering && info==null)
 			{
-				
-				@Override
-				public void run()
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast ignore "+dnsInfo.getName()+" because is not bounded.");
+				return;
+			}
+			// Discover a remote android. Try to connect.
+			Long timeout=mPending.get(struuid);
+			if (timeout!=null && System.currentTimeMillis()>timeout)
+			{
+				timeout=null;
+			}
+			if (timeout==null)
+			{
+				timeout=System.currentTimeMillis()+ETHERNET_DELAY_ANTI_REPEAT_DISCOVER;
+				mPending.put(struuid, timeout);
+				Application.sThreadPool.execute(new Runnable()
 				{
-					RemoteAndroidInfoImpl info=null;
-					// Update the current ip address of bonded device
-					RemoteAndroidInfoImpl boundedInfo=Trusted.update(UUID.fromString(struuid),dnsInfo.getInetAddresses());
-					if (Application.sDiscover.isDiscovering())
+					
+					@Override
+					public void run()
 					{
-						if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS Ask info for "+dnsInfo.getName()+"...");
-						info=checkRemoteAndroid(dnsInfo);
-						if (info!=null)
+						RemoteAndroidInfoImpl info=null;
+						// Update the current ip address of bonded device
+						RemoteAndroidInfoImpl boundedInfo=Trusted.update(UUID.fromString(struuid),dnsInfo.getInetAddresses());
+						if (sIsDiscovering)
 						{
-							if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Connection anonymously to "+dnsInfo.getName()+" done");
-							info.isDiscoverEthernet=true;
-							Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-							intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-							Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+							if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS Ask info for "+dnsInfo.getName()+"...");
+							info=checkRemoteAndroid(dnsInfo);
+							if (info!=null)
+							{
+								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Connection anonymously to "+dnsInfo.getName()+" done");
+								info.isDiscoverEthernet=true;
+								Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+								intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+								Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+							}
+					    	else
+					    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+dnsInfo.getName()+" not found now");
 						}
-				    	else
-				    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+dnsInfo.getName()+" not found now");
-					}
-					else
-					{
-						if (boundedInfo!=null)
+						else
 						{
-							boundedInfo.isDiscoverEthernet=true;
-							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+boundedInfo.getName()+" has Ips address.");
-							Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-							intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, boundedInfo);
-							Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-							
+							if (boundedInfo!=null)
+							{
+								boundedInfo.isDiscoverEthernet=true;
+								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+boundedInfo.getName()+" has Ips address.");
+								Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+								intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, boundedInfo);
+								Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+								
+							}
+							else
+								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Discover "+dnsInfo.getName()+" but ignore because it's not a bounded device.");
 						}
 					}
-				}
-			});
+				});
+			}
+			else
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Ignore pending "+dnsInfo.getName());
 		}
 		
 		@Override
@@ -201,11 +242,11 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 					public void run()
 					{
 						// FIXME: Suivant les telephones, le request service info ne retourne rien. Cas du Samsung I7, HTC HD 
-						if (ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT!=0)
+						if (HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY!=0)
 						{
 							try
 							{
-								Thread.sleep(ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT);
+								Thread.sleep(HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY);
 							} catch (Exception e ) {}
 						}
 		            	sDNS.requestServiceInfo(event.getType(), event.getName(), false,ETHERNET_GET_INFO_MDNS_TIMEOUT);					}
@@ -219,7 +260,6 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			RemoteAndroidManagerStub boss // FIXME: Est-ce utile ? Application.sDiscover à la place
 			)
 	{
-		mApplicationContext=context.getApplicationContext();
 	}
 	
 	public static void initIPDiscover(Context context)
@@ -231,72 +271,127 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	 * 
 	 * @see http://files.multicastdns.org/draft-cheshire-dnsext-multicastdns.txt
 	 */
+	private static volatile boolean isStarting=false;
+	private static volatile boolean isStopping=false;
+//	private static synchronized void asyncStartMulticastDNS()
+//	{
+//    	if (ETHERNET)
+//    	{
+//			if (sDNS!=null) 
+//				return;
+//			if (isStarting) 
+//				return;
+//        	Application.sThreadPool.execute(new Runnable()
+//				{
+//					public void run() 
+//					{
+//						startMulticastDNS();
+//					}
+//
+//				});
+//    	}
+//	}
 	
-	private static void startMulticastDNS(final Context context)
+	private static synchronized void asyncStopMulticastDNS()
 	{
-		if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_DONUT)
-		{
-			// Verify wrapper
-			new Runnable()
-			{
-				@Override
-				public void run()
+    	if (ETHERNET)
+    	{
+			final JmDNS dns=sDNS;
+			if (dns==null) return;
+			if (isStopping) return;
+	    	Application.sThreadPool.execute(new Runnable()
 				{
-					try
+					public void run() 
 					{
-			
-						if (sDNS!=null) return;
-						WifiManager wifi=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-					    sLock = wifi.createMulticastLock("Multicast DNS");
-				        sLock.setReferenceCounted(true);
-				        sLock.acquire();
-				
-					    int intaddr = wifi.getConnectionInfo().getIpAddress();
-					    byte[] byteaddr = new byte[] { (byte) (intaddr & 0xff), (byte) (intaddr >> 8 & 0xff),
-					               (byte) (intaddr >> 16 & 0xff), (byte) (intaddr >> 24 & 0xff) };
-					    InetAddress addr = InetAddress.getByAddress(byteaddr);
-					    JmDNS dns=JmDNS.create(addr,Application.getName());
-						//sDNS=JmDNS.create();
-						if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Init Multicast DNS done ");
-						sDNS=dns;
-						if (RemoteAndroidService.isActive())
-							registerService();
-						// Add to detect binded device
-						dns.addServiceListener(REMOTEANDROID_SERVICE,sListener);
+						stopMulticastDNS(dns);
 					}
-					catch (IOException e)
-					{
-						if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Impossible to start Multicast DNS",e);
-					}
+
+				});
+    	}
+	}
+	
+	static private void startMulticastDNS()
+	{
+		try
+		{
+
+			synchronized (IPDiscoverAndroids.class)
+			{
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS starting...");
+				if (sDNS!=null) 
+				{
+					if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS starting refused because another allready started.");
+					return;
 				}
-			}.run();
+				isStarting=true;
+				sDNS=null;
+				WifiManager wifi=(WifiManager)Application.sAppContext.getSystemService(Context.WIFI_SERVICE);
+			    sLock = wifi.createMulticastLock("Multicast DNS");
+		        sLock.setReferenceCounted(true);
+		        sLock.acquire();
+		
+			    int intaddr = wifi.getConnectionInfo().getIpAddress();
+			    byte[] byteaddr = new byte[] { (byte) (intaddr & 0xff), (byte) (intaddr >> 8 & 0xff),
+			               (byte) (intaddr >> 16 & 0xff), (byte) (intaddr >> 24 & 0xff) };
+			    InetAddress addr = InetAddress.getByAddress(byteaddr);
+			    JmDNS dns=JmDNS.create(addr,Application.getName());
+				sDNS=dns;
+				//registerService();
+				// Add to detect binded device
+				dns.addServiceListener(REMOTEANDROID_SERVICE,sListener);
+				if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS started ");
+				isStarting=false;
+				if (NetSocketRemoteAndroid.isStarted())
+				{
+					if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS re-register service");
+					registerService();
+				}
+
+			}
+		}
+		catch (IOException e)
+		{
+			if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Impossible to start Multicast DNS",e);
 		}
 	}
 	
-	public static void stopMulticastDNS()
+	static private void stopMulticastDNS(final JmDNS dns)
 	{
-		JmDNS dns=sDNS;
-		if (dns!=null)
+		if (dns==null)
+			return;
+		synchronized (IPDiscoverAndroids.class)
 		{
+			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS closing...");
+			isStopping=true;
 			sDNS=null;
+	        sLock.release();
+			// Signal all IP of bounded device are failed
+			for (RemoteAndroidInfo info:Trusted.getBonded())
+			{
+				Trusted.update(info.getUuid(),null);
+				Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+				intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+				intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE, info);
+				Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+			}
 			try
 			{
-				dns.unregisterAllServices();
-				dns.removeServiceListener(REMOTEANDROID_SERVICE,sListener);
-				dns.close();
+				dns.close(); // TODO: wait la fin des timers ?
 			}
 			catch (IOException e)
 			{
 				if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS close error",e);
 			}
 			if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS closed");
+			sServiceInfo=null;
+			isStopping=false;
 		}
 	}
 	static ServiceInfo	sServiceInfo = null;
-	public static void registerService()
+	public static synchronized void registerService()
 	{
 		final JmDNS dns=sDNS;
-		if (dns!=null)
+		if (dns!=null && sServiceInfo==null)
 		{
 			try
 			{
@@ -307,7 +402,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				props.put("uuid", info.getUuid().toString());
 				props.put("os", info.getOs());
 				props.put("version", Integer.toString(info.getVersion()));
-				props.put("capability", Integer.toString(info.getCapability()));
+				props.put("feature", Integer.toString(info.getFeature()));
 				sServiceInfo.setText(props);
 				dns.registerService(sServiceInfo);
 				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS service "+Application.getName()+REMOTEANDROID_SERVICE+" registered");
@@ -333,60 +428,54 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	 * @param max 0: infinite, else number of ip to find
 	 */
 	@Override
-	public boolean startDiscovery(long timeToDiscover,final int flags,final RemoteAndroidManagerStub discover)
+	public boolean startDiscovery(final long timeToDiscover,final int flags,final RemoteAndroidManagerStub discover)
 	{
-		final JmDNS dns=sDNS;
-		if (dns==null)
+		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP start discover...");
+		synchronized (IPDiscoverAndroids.class) // Wait starting/stopping process
 		{
-			return false;
-		}
-		if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP start discovery");
-	    boolean isNetwork= 
-	          (((ConnectivityManager) mApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo()!=null);
+			final JmDNS dns=sDNS;
+			if (dns==null)
+			{
+				if (W) Log.w(TAG_DISCOVERY,PREFIX_LOG+"IP Discover refused because mDNS not started!");
+				return false;
+			}
+		    boolean isNetwork= (NetworkTools.getActiveNetwork() & NetworkTools.ACTIVE_LOCAL_NETWORK)!=0;
 		    if (!isNetwork) 
 		    {
-				if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP disabled");
+				if (W) Log.w(TAG_DISCOVERY,PREFIX_LOG+"IP Discover refused because network is disabled");
 		    	return false;
 		    }
-		// Manage knowns device
-		Application.sThreadPool.execute(new Runnable()
+			sIsDiscovering=true;
+			try
 			{
-				@Override
-				public void run()
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS service listener...");
+				dns.addServiceListener(REMOTEANDROID_SERVICE,sListener);
+				long timeTo=timeToDiscover;
+				if (timeTo!=RemoteAndroidManager.DISCOVER_INFINITELY)
 				{
-					try
+					if (timeTo==RemoteAndroidManager.DISCOVER_BEST_EFFORT)
 					{
-						JmDNS dns=sDNS;
-						if (dns!=null)
+						timeTo=ETHERNET_TIME_TO_DISCOVER;
+					}
+					Application.sScheduledPool.schedule(new Runnable()
+					{
+						@Override
+						public void run()
 						{
-							if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS service listener");
-							dns.addServiceListener(REMOTEANDROID_SERVICE,sListener);
+							if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS delay expired.");
+							sIsDiscovering=false;
+							cancelDiscovery(discover);
 						}
-					}
-					catch (Exception e)
-					{
-						if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP error.",e);
-						// TODO
-					}
+					}, timeTo, TimeUnit.MILLISECONDS);
 				}
-	
-			});
-		if (timeToDiscover!=RemoteAndroidManager.DISCOVER_INFINITELY)
-		{
-			if (timeToDiscover==RemoteAndroidManager.DISCOVER_BEST_EFFORT)
-			{
-				timeToDiscover=ETHERNET_TIME_TO_DISCOVER;
 			}
-			Application.sScheduledPool.schedule(new Runnable()
+			catch (Exception e)
 			{
-				@Override
-				public void run()
-				{
-					cancelDiscovery(discover);
-				}
-			}, timeToDiscover, TimeUnit.MILLISECONDS);
+				if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP error.",e);
+				sIsDiscovering=false;
+			}
+			return true;
 		}
-		return true;
 	}
 
 	private static RemoteAndroidInfoImpl checkRemoteAndroid(ServiceInfo dnsinfo)
@@ -418,12 +507,17 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	@Override
 	public void cancelDiscovery(final RemoteAndroidManagerStub discover)
 	{
-		JmDNS DNS=sDNS;
-		if (DNS!=null)
+		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP cancel discover...");
+		sIsDiscovering=false;
+		clearPending();
+		JmDNS dns=sDNS;
+		if (dns!=null)
 		{
-			DNS.removeServiceListener(REMOTEANDROID_SERVICE, sListener);
+			dns.removeServiceListener(REMOTEANDROID_SERVICE, sListener);
 			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Multicast DNS stop service listener");
 		}
+		else
+			if (W) Log.w(TAG_DISCOVERY,PREFIX_LOG+"IP mDNS not started!");
 		discover.finishDiscover();
 		if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP cancel discovery");
 	}

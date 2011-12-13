@@ -5,13 +5,14 @@ import static org.remoteandroid.internal.Constants.*;
 
 import android.bluetooth.BluetoothClass;
 
+//TODO: Manage battery low !
 public class Constants
 {
 	public static final boolean DEBUG=true;
 
-	public static final boolean LOGGER_SEVERE					=false;
+	public static final boolean LOGGER_SEVERE					=false; // true
 	public static final boolean LOGGER_WARNING					=LOGGER_SEVERE;
-	public static final boolean LOGGER_INFO						=LOGGER_WARNING;
+	public static final boolean LOGGER_INFO						=false; //false;
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
 	public static final boolean LOGGER_FINER					=LOGGER_FINE;
 	public static final boolean LOGGER_FINEST					=false;//LOGGER_FINER;
@@ -20,8 +21,8 @@ public class Constants
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
 	public static final String TAG_EXPOSE						="Expose";
-	public static final String TAG_SMS							="Sms";
-	
+	public static final String TAG_SMS							=TAG_CONNECT;
+	public static final String TAG_DTMF							="DTMF"; // TAG_CONNECT
 	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
 		
 	public static final boolean PREFERENCES_IN_ONE_SCREEN		=true;
@@ -33,6 +34,7 @@ public class Constants
 	public static final String PREFERENCES_PUBLIC_KEY			="public";
 	public static final String PREFERENCES_PRIVATE_KEY			="private";
 
+	public static final String PREFERENCES_EXPOSE				="expose";
 	public static final String PREFERENCES_ACTIVE				="active";
 	public static final String PREFERENCES_ANO_ACTIVE			="ano.active";
 	public static final String PREFERENCES_ANO_WIFI_LIST		="ano.select_wifi";
@@ -45,6 +47,8 @@ public class Constants
 	
 	public static final boolean STRICT_MODE=false; 
 	
+	/** True if can connect device throw internet (and not only intranet). */
+	public static final boolean CONNECTION_WITH_INTERNET=false;
     /**
      * the intent that gets sent when deleting the notifications of outbound and
      * inbound completed transfer
@@ -99,22 +103,9 @@ public class Constants
 	public static final boolean HACK_CONNECT_FORCE_FRAGMENTS	=false;
 	
 	//-----------------------------------------------------------------------------
-	// --- QRCode parameters ---
-	/** For debug, use classic exception. */ 
-	public static final boolean QRCODE_DEBUG					=true;
-	/** Show the current bitmap to analyse. */
-	public static final boolean	QRCODE_SHOW_CURRENT_DECODE		=false;
-	/** Force auto-focus before analyse bitmap. */
-	public static final boolean QRCODE_AUTOFOCUS				=true;
-	/** Re-ask autofocus after each QRCODE_AUTOFOCUS_INTERVAL_MS. */
-	public static final boolean QRCODE_REPEAT_AUTOFOCUS			=false;
-	/** Interval between autofocus. */
-	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS	= 1000L;
-	
-	//-----------------------------------------------------------------------------
 	// --- Bluetooth parameters ---
 	/** Try to connect to anonymous devices. */
-	public static final boolean BT_DISCOVER_ANONYMOUS			=true;
+	public static final boolean BT_DISCOVER_ANONYMOUS			=false; // true;
 	/** Start an anonymous server ? */
 	public static final boolean BT_LISTEN_ANONYMOUS				=true;
 	/** Discover BT device in parallel, and at the same time, try to connect to knows devices. */
@@ -142,7 +133,7 @@ public class Constants
 	};
 
 	
-	public static /*final*/ long BT_HACK_DELAY_STARTUP			=0L; // 300L for HTC Desire HD
+	public static /*final*/ long BT_HACK_DELAY_STARTUP				=0L; // 300L for HTC Desire HD
 	public static final boolean BT_HACK_RETRY_IF_UNABLE_TO_START_SERVICE_DISCOVERY=false;
 	public static final boolean BT_HACK_WAIT_BEFORE_TRY_ANOTHER_CONNECTION=false;
 
@@ -152,7 +143,7 @@ public class Constants
 	/** IP Listen port to accept connection from remotes androids. */
 	public static final int ETHERNET_LISTEN_PORT					=RemoteAndroidManager.DEFAULT_PORT;
     /** Delay to discover others remote androids. */
-	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 20000L : 5000L;	// FIXME: 5000L;
+	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 5000L : 5000L;	// FIXME: 5000L;
 	/** Socket timeout for read message. */
     public static final int ETHERNET_TRY_TIMEOUT					=150000; 	// FIXME Timeout for try connection
 	/** Socket timeout for read message. */
@@ -164,13 +155,52 @@ public class Constants
     /** Keep the socket alive. */
     public static final boolean ETHERNET_KEEP_ALIVE					=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */
-    public static final long ETHERNET_BEFORE_GET_MDNS_INFO_TIMEOUT	=300L; // Timeout before ask mDNS info (for HTC Desire)
+    public static final long HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY	=300L; // Timeout before ask mDNS info (for HTC Desire)
 	/** Timeout to receive a service info. */
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.
-
+    public static final long ETHERNET_DELAY_ANTI_REPEAT_DISCOVER	=2000L; // Timeout to refuse same UUID
+    public static final boolean ETHERNET_REFUSE_LOCAL_IPV6	= true; 		// Else we must select the interface
 	//-----------------------------------------------------------------------------
 	// Multicast DNS service
 	// http://tools.ietf.org/html/draft-cheshire-dnsext-dns-sd-10
     public final static String REMOTEANDROID_SERVICE 				= "_remoteandroid._tcp.local.";
     
+	//-----------------------------------------------------------------------------
+	// --- QRCode parameters ---
+    public static final boolean QRCODE							=true;
+	/** For debug, use classic exception. */ 
+	public static final boolean QRCODE_DEBUG					=true;
+	/** Show the current bitmap to analyse. */
+	public static final boolean	QRCODE_SHOW_CURRENT_DECODE		=false;
+	/** Force auto-focus before analyse bitmap. */
+	public static final boolean QRCODE_AUTOFOCUS				=true;
+	/** Re-ask autofocus after each QRCODE_AUTOFOCUS_INTERVAL_MS. */
+	public static final boolean QRCODE_REPEAT_AUTOFOCUS			=false;
+	/** Interval between autofocus. */
+	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS	= 1000L;
+	
+	//-----------------------------------------------------------------------------
+	// --- SMS parameters ---
+	public static final boolean SMS								=true;
+	/** Port use to receive technical message. */
+	public static final short SMS_PORT 							=RemoteAndroidManager.DEFAULT_PORT;
+	/** Timeout to wait to receive SMS. */
+	public static final int SMS_TIMEOUT_WAIT					=60000; // 60s
+
+	//-----------------------------------------------------------------------------
+	// --- DTMF parameters ---
+	public static final boolean DTMF							=true;
+	public static final int DTMF_VOLUME 						= /*100*/50; // %
+	public static final int DTMF_TIMEOUT_WAIT					=60000; // 60s
+	public static final int DTMF_FREQUENCY_DELTA				=2; // +-2
+	public static final int DTMF_MIN_PRESENCE_START_STOP		=1;
+	public static final int DTMF_MIN_PRESENCE					=2;
+	public static final int DTMF_DELAY_EMISSION					=400; // Ms
+	public static final int DTMF_DELAY_START_STOP				=1000;
+
+	//-----------------------------------------------------------------------------
+	// --- NFC parameters ---
+	public static final boolean NFC								=false;
+
+	
 }

@@ -10,20 +10,23 @@ public abstract class Expose
 	protected static final String KEY_SOUND="SOUND";
 	protected static final String KEY_INPUT="Input";
 
+	// TODO: adapter suivant les capacités du téléphone
 	public static final Expose[] sExpose=
 	{
 		new QRCodeExpose(),
 		new SMSExpose(),
-		new SoundExpose(),
-		new InputExpose()
+		new DTMFExpose(),
+		new TicketExpose()
 	};
 	
-	Expose(int value,String key)
+	Expose(int value,String key,int feature)
 	{
 		mValue=value;
 		mKey=key;
+		mFeature=feature;
 	}
 	public abstract void startExposition(Activity context);
 	public int mValue;
 	public String mKey;
+	public int mFeature;
 }

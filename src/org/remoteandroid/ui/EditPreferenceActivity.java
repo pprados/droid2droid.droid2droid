@@ -1,12 +1,13 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.NetworkTools.*;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.PREFERENCES_IN_ONE_SCREEN;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.Constants.TIME_TO_DISCOVER;
-import static org.remoteandroid.internal.Constants.BLUETOOTH;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.ListRemoteAndroidInfo;
+import org.remoteandroid.NetworkTools;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
@@ -35,13 +37,17 @@ import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.expose.Expose;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
@@ -59,12 +65,18 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
 
 // TODO: Sur xoom, enlever le menu contextuel
 public class EditPreferenceActivity extends PreferenceActivity implements ListRemoteAndroidInfo.DiscoverListener
@@ -77,17 +89,18 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private static final int MODE_KNOW_SCREEN=1 << 2;
 	private static final int MODE_ONE_SCREEN=MODE_MAIN_SCREEN|MODE_ANO_SCREEN|MODE_KNOW_SCREEN;
 	
-	private CharSequence[] mExposeValues;
-	private CharSequence[] mExposeKeys;
+	private Expose[] 		mExposeModel;
+	private CharSequence[] 	mExposeValues;
+	private Boolean[]		mExposeActive;
 	
 	private int mMode;
 
 	// No persistante preference
 	private static final String PREFERENCES_ANO					="ano";
 	private static final String PREFERENCES_KNOWN				="known";
-	private static final String PREFERENCES_EXPOSE				="expose";
 
 	private static final String PREFERENCE_DEVICE_LIST			="lan.list";
+	private static final String PREFERENCE_EXPOSE 				= "expose";
 	private static final String PREFERENCE_SCAN 				= "scan";
 
 	private static final String ALL_WIFI="#ALL#";
@@ -95,78 +108,131 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private int mScreenType;
 	private SharedPreferences mPreferences;
 	private Preference mActive;
+	private Preference mExpose;
 	private Preference mName;
 	private Preference mScan;
 	
-	private MultiSelectListPreference mListWifi;
+	private MultiSelectListPreference mListEthernet;
 	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
     {
 		
         @Override
         public void onReceive(Context context, Intent intent) 
         {
-            if (D) Log.d(TAG_PREFERENCE, PREFIX_LOG+"IP Type Changed "+intent);
-            NetworkInfo ni=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-            //boolean failover=intent.getBooleanExtra(ConnectivityManager.EXTRA_IS_FAILOVER, false);
-            //boolean noconnectivity=intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY,false);
-            if (ni.getType()==ConnectivityManager.TYPE_WIFI)
+            if (V) Log.v(TAG_PREFERENCE, PREFIX_LOG+"IP network changed "+intent);
+            // deprecated
+            // NetworkInfo ni=(NetworkInfo)intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+			if (!ETHERNET) return;
+			updateDiscoverExposeButton();
+        	ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni=cm.getActiveNetworkInfo();
+            if (ni==null)
             {
-            	if (ni.getState()==NetworkInfo.State.CONNECTED)
-                {
-                	// Inform presence if network status change
-					if (!ETHERNET) return;
-			        WifiManager wifiManager=(WifiManager)getSystemService(Context.WIFI_SERVICE);
-			        if (wifiManager!=null)
-			        {
-			        	List<WifiConfiguration> confs=wifiManager.getConfiguredNetworks();
-			        	if (confs.size()!=0)
-			        	{
-				        	ArrayList<CharSequence> names=new ArrayList<CharSequence>();
-				        	ArrayList<CharSequence> namesKey=new ArrayList<CharSequence>();
-				        	names.add(getResources().getString(R.string.all_key));
-				        	namesKey.add(ALL_WIFI);
-				        	for (WifiConfiguration conf:confs)
-				        	{
-				        		String name=conf.SSID;
-				        		if (conf.SSID.charAt(0)=='\"')
-				        			name=name.substring(1,name.length()-1);
-				        		names.add(name);
-				        		namesKey.add(name);
-				        	}
-				        	if (names.size()!=0)
-				        	{
-					            CharSequence[] entriesArray = new CharSequence[names.size()];
-					            names.toArray(entriesArray);
-					            CharSequence[] valuesArray = new CharSequence[namesKey.size()];
-					            namesKey.toArray(valuesArray);
-					            mListWifi.setEntries(names.toArray(entriesArray));
-					        	mListWifi.setEntryValues(valuesArray);
-					        	// FIXME: default value not activated !
-					        	mListWifi.setDefaultValue(Application.getPreferences().getString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
-					        	if (mLastValue!=null) 
-					        		mListWifi.setValue(mLastValue);
-					        	mListWifi.setEnabled(true);
-				        	}
-				        	else
-				        		mListWifi.setEnabled(false); // FIXME: Et si ajout à chaud d'un réseau Wifi alors qu'il n'y en a pas ?
-			        	}
-			        	else
-			        	{
-			        		mListWifi.setEnabled(false);
-			        	}
-			        }
-			        else
-			        	mListWifi.setEnabled(false);
-                }
-            	else
-            	{
-	        		if (mListWifi!=null)
-	        			mListWifi.setEnabled(false);
-            	}
-		        updateDiscoverButton();
+        		clearEthernet();
+            }
+            else
+            {
+	            switch (ni.getType())
+	            {
+	            	case ConnectivityManager.TYPE_MOBILE:
+	            	case ConnectivityManager.TYPE_MOBILE_DUN:
+	            	case ConnectivityManager.TYPE_MOBILE_HIPRI:
+	            	case ConnectivityManager.TYPE_MOBILE_MMS:
+	            	case ConnectivityManager.TYPE_MOBILE_SUPL:
+	            		clearEthernet();
+		            	break;
+		            default:
+		            	if (ni.getState()==NetworkInfo.State.CONNECTED)
+		                {
+		            		// TODO: En cas de connexion sur un nouveau WIFI, il y a des restes de la découverte du précédant
+		                	// Inform presence if network status change
+							if (mListEthernet!=null)
+								mListEthernet.setEnabled(false);
+					        WifiManager wifiManager=(WifiManager)getSystemService(Context.WIFI_SERVICE);
+					        if (wifiManager!=null)
+					        {
+					        	List<WifiConfiguration> confs=wifiManager.getConfiguredNetworks();
+					        	if (confs.size()!=0)
+					        	{
+						        	ArrayList<CharSequence> names=new ArrayList<CharSequence>();
+						        	ArrayList<CharSequence> namesKey=new ArrayList<CharSequence>();
+						        	names.add(getResources().getString(R.string.all_key));
+						        	namesKey.add(ALL_WIFI);
+						        	for (WifiConfiguration conf:confs)
+						        	{
+						        		String name=conf.SSID;
+						        		if (conf.SSID.charAt(0)=='\"')
+						        			name=name.substring(1,name.length()-1);
+						        		names.add(name);
+						        		namesKey.add(name);
+						        	}
+						        	if (names.size()!=0)
+						        	{
+							            CharSequence[] entriesArray = new CharSequence[names.size()];
+							            names.toArray(entriesArray);
+							            CharSequence[] valuesArray = new CharSequence[namesKey.size()];
+							            namesKey.toArray(valuesArray);
+							            mListEthernet.setEntries(names.toArray(entriesArray));
+							        	mListEthernet.setEntryValues(valuesArray);
+							        	// FIXME: default value not activated !
+							        	mListEthernet.setDefaultValue(Application.getPreferences().getString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
+							        	if (mLastValue!=null) 
+							        		mListEthernet.setValue(mLastValue);
+							        	mListEthernet.setEnabled(true);
+						        	}
+						        	else
+						        		mListEthernet.setEnabled(false); // FIXME: Et si ajout à chaud d'un réseau Wifi alors qu'il n'y en a pas ?
+					        	}
+					        	else
+					        	{
+					        		mListEthernet.setEnabled(false);
+					        	}
+					        }
+					        else
+					        	mListEthernet.setEnabled(false);
+		                }
+		            	else
+		            	{
+		            		clearEthernet();
+		            	}
+		            	break;
+	            		
+	            }
             }
         }
     };
+    
+    void clearEthernet()
+    {
+		if (mListEthernet!=null)
+		{
+			ArrayList<DevicePreference> toRemove=new ArrayList<DevicePreference>();
+			mListEthernet.setEnabled(false);
+			for (DevicePreference preference:mDevicePreferenceMap.values())
+			{
+				preference.mInfo.isDiscoverEthernet=false;
+				preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
+				if (!preference.mInfo.isBonded)
+				{
+					if (!preference.mInfo.isDiscover())
+					{
+						toRemove.add(preference);
+					}
+				}
+				else
+				{
+					preference.mInfo.isDiscoverEthernet=false;
+					preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
+					preference.onDeviceAttributesChanges();
+				}
+			}
+			for (DevicePreference preference:toRemove)
+			{
+				mDevicePreferenceMap.remove(preference.mInfo.uuid);
+				mDeviceList.removePreference(preference);
+			}
+		}
+    }
     
     private BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
     {
@@ -176,7 +242,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
             if (W) Log.w(TAG_PREFERENCE, PREFIX_LOG+"BT Type Changed "+intent);
 			if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
 			{
-		        updateDiscoverButton();
+		        updateDiscoverExposeButton();
 			}
 			
 		}
@@ -187,7 +253,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	      public void onReceive(Context context, Intent intent) 
 	      {
 	            if (D) Log.d(TAG_PREFERENCE, PREFIX_LOG+"Airplane mode changed");
-		        updateDiscoverButton();
+		        updateDiscoverExposeButton();
 	      }
 	};
 
@@ -247,9 +313,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		Cache cache=new Cache();
 		if (ETHERNET)
 		{
-			cache.mValue=mListWifi.getValue();
-			cache.mEntries=mListWifi.getEntries();
-			cache.mEntryValues=mListWifi.getEntryValues();
+			cache.mValue=mListEthernet.getValue();
+			cache.mEntries=mListEthernet.getEntries();
+			cache.mEntryValues=mListEthernet.getEntryValues();
 		}
 		for (UUID uuid:mDevicePreferenceMap.keySet())
 		{
@@ -270,9 +336,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		mLastValue=cache.mValue;
 		if (ETHERNET)
 		{
-			mListWifi.setValue(cache.mValue);
-			mListWifi.setEntries(cache.mEntries);
-			mListWifi.setEntryValues(cache.mEntryValues);
+			mListEthernet.setValue(cache.mValue);
+			mListEthernet.setEntries(cache.mEntries);
+			mListEthernet.setEntryValues(cache.mEntryValues);
 		}
 		for (UUID uuid:cache.mSaved.keySet())
 		{
@@ -302,10 +368,9 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private void initSync(Intent intent)
 	{
         // Main
-		if (PREFERENCES_IN_ONE_SCREEN)
+		if (PREFERENCES_IN_ONE_SCREEN) // FIXME
 		{
 			addPreferencesFromResource(R.xml.all_preferences);
-			initFromExpose();
 		}
 		else
 		{
@@ -324,6 +389,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		}
 
 		final Intent intentRemoteContext=new Intent(this,RemoteAndroidService.class);
+		mExpose=findPreference(PREFERENCES_EXPOSE);
+		
 		mActive=findPreference(PREFERENCES_ACTIVE);
 		mActive.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 		{
@@ -401,26 +468,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			});
 
 
-			ListPreference expose=(ListPreference)findPreference(PREFERENCES_EXPOSE);
-			expose.setEntries(mExposeValues);
-			expose.setEntryValues(mExposeKeys);
-			expose.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-			{
-				@Override
-				public boolean onPreferenceChange(Preference preference, final Object newValue)
-				{
-					for (int i=0;i<Expose.sExpose.length;++i)
-					{
-						if (Expose.sExpose[i].mKey.equals(newValue))
-						{
-							Expose.sExpose[i].startExposition(EditPreferenceActivity.this);
-							break;
-						}
-					}
-					return true;
-				}
-			});
-			
 			// Scan
 			mPreferenceScan=findPreference(PREFERENCE_SCAN);
 	        mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
@@ -429,19 +476,19 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         if ((mMode & MODE_ANO_SCREEN)!=0)
         {
 	        // Level 11: MultiSelectListPreference
-	        mListWifi=(MultiSelectListPreference)findPreference(PREFERENCES_ANO_WIFI_LIST);
+	        mListEthernet=(MultiSelectListPreference)findPreference(PREFERENCES_ANO_WIFI_LIST);
 	        if (ETHERNET)
 	        {
 		        CharSequence[] empty=new CharSequence[0];
-		        mListWifi.setEntries(empty);
-		        mListWifi.setEntryValues(empty);
-		        mListWifi.setEnabled(false);
+		        mListEthernet.setEntries(empty);
+		        mListEthernet.setEntryValues(empty);
+		        mListEthernet.setEnabled(false);
 		        registerForContextMenu(getListView());
 	        }
 	        else
 	        {
-	        	((PreferenceGroup)findPreference(PREFERENCES_ANO)).removePreference(mListWifi);
-	        	mListWifi=null;
+	        	((PreferenceGroup)findPreference(PREFERENCES_ANO)).removePreference(mListEthernet);
+	        	mListEthernet=null;
 	        }
         }
 
@@ -454,9 +501,13 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
             		getPreferenceScreen().removePreference(mobile);
             }
         }
+        
+        mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
+		mDiscovered=new ListRemoteAndroidInfoImpl(Application.sManager, null);
+
 	}
 	// Initialisation assynchrone (StrictMode)
-	private void initAsync(Intent intent)
+	private void initAsync(Intent intent) // TODO: en ASYNC
 	{
 		mPreferences=Application.getPreferences();
 		final boolean active=mPreferences.getBoolean(PREFERENCES_ACTIVE, false);
@@ -496,10 +547,14 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		if ((mMode & MODE_MAIN_SCREEN)!=0)
 		{
 			// Scan
-            boolean airPlane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-			mPreferenceScan.setEnabled(!airPlane && !Application.sManager.isDiscovering());
-			mDiscovered=new ListRemoteAndroidInfoImpl(Application.sManager, null);
-	        mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					updateDiscoverExposeButton();
+				}
+			});
 		}
 
 
@@ -519,18 +574,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
    		onRestoreRetainNonConfigurationInstance((Cache)getLastNonConfigurationInstance());
 	}
 	
-	private void initFromExpose()
-	{
-		mExposeValues=new CharSequence[Expose.sExpose.length];
-		mExposeKeys=new CharSequence[Expose.sExpose.length];
-		for (int i=0;i<Expose.sExpose.length;++i)
-		{
-			mExposeValues[i]=getString(Expose.sExpose[i].mValue);
-			mExposeKeys[i]=Expose.sExpose[i].mKey;
-		}
-	}
-	
-    private void initBonded()
+
+	private void initBonded()
     {
     	if (mDeviceList!=null)
     	{
@@ -569,9 +614,10 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
    @Override
     protected void onResume() 
     {
-        super.onResume();
-        if ((mMode & MODE_MAIN_SCREEN)!=0)
-        {
+       super.onResume();
+	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onResume()");
+       if ((mMode & MODE_MAIN_SCREEN)!=0)
+       {
         	new AsyncTask<Void, Void, Boolean>()
         	{
         		protected Boolean doInBackground(Void... paramArrayOfParams) 
@@ -602,13 +648,13 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			filter,
 			RemoteAndroidManager.PERMISSION_DISCOVER_SEND,null
 			);
-		updateDiscoverButton();		
     }
 
     @Override
     protected void onPause() 
     {
     	super.onPause();
+ 	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onPause()");
 
     	if (mDiscovered!=null)
     	{
@@ -641,6 +687,11 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         		scan(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS);
         	}
             return true;
+        }
+        if (PREFERENCE_EXPOSE.equals(preference.getKey()))
+        {
+        	expose();
+        	return true;
         }
         else if (preference instanceof DevicePreference) 
         {
@@ -677,7 +728,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		if ((mMode & MODE_MAIN_SCREEN)!=0)
 		{
 			boolean isDiscovering=Application.sManager.isDiscovering();
-			findPreference(PREFERENCE_SCAN).setEnabled(!isDiscovering);
 			mPreferenceScan.setEnabled(!isDiscovering);
 			mDeviceList.setProgress(isDiscovering);
 		}
@@ -775,6 +825,47 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         }
     }
 
+	private DevicePreference addInfo(RemoteAndroidInfoImpl info)
+	{
+		DevicePreference preference=new DevicePreference(this,info);
+		mDevicePreferenceMap.put(info.getUuid(),preference);
+		mDeviceList.addPreference(preference);
+		return preference;
+	}
+	private void removeInfo(RemoteAndroidInfoImpl info)
+	{
+		DevicePreference preference=mDevicePreferenceMap.get(info.uuid);
+		mDevicePreferenceMap.remove(info.getUuid());
+		mDeviceList.removePreference(preference);
+	}
+	
+	private void updateDiscoverExposeButton()
+	{
+		ArrayList<CharSequence> a=new ArrayList<CharSequence>();
+		ArrayList<Expose> e=new ArrayList<Expose>();
+		ArrayList<Boolean> act=new ArrayList<Boolean>();
+		final int activeFeature=Application.getActiveFeature();
+		for (int i=0;i<Expose.sExpose.length;++i)
+		{
+			if ((Expose.sExpose[i].mFeature & Application.sFeature) == Expose.sExpose[i].mFeature)
+			{
+				a.add(getString(Expose.sExpose[i].mValue));
+				e.add(Expose.sExpose[i]);
+				act.add((Expose.sExpose[i].mFeature & activeFeature) ==Expose.sExpose[i].mFeature);
+			}
+		}
+		mExposeValues=a.toArray(new CharSequence[a.size()]);
+		mExposeModel=e.toArray(new Expose[e.size()]);
+		mExposeActive=act.toArray(new Boolean[act.size()]);
+
+		int netStatus=NetworkTools.getActiveNetwork();
+		boolean samp=(netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
+		mPreferenceScan.setEnabled(
+			samp
+			&& !Application.sManager.isDiscovering());
+		mExpose.setEnabled(samp);
+		
+	}
 	private void scan(final int flags)
 	{
 		if (!Application.sManager.isDiscovering())
@@ -791,34 +882,34 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			});
 		}
 	}
-	
-	private DevicePreference addInfo(RemoteAndroidInfoImpl info)
+	private void expose()
 	{
-		DevicePreference preference=new DevicePreference(this,info);
-		mDevicePreferenceMap.put(info.getUuid(),preference);
-		mDeviceList.addPreference(preference);
-		return preference;
-	}
-	private void removeInfo(RemoteAndroidInfoImpl info)
-	{
-		DevicePreference preference=mDevicePreferenceMap.get(info.uuid);
-		mDevicePreferenceMap.remove(info.getUuid());
-		mDeviceList.removePreference(preference);
-	}
-	
-	private void updateDiscoverButton()
-	{
-        boolean airPlaneState=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-		boolean bluetoothState=false;
-		if (BLUETOOTH)
-			bluetoothState=BluetoothAdapter.getDefaultAdapter().isEnabled();
-		boolean wifiState=false;
-		if (ETHERNET)
-			wifiState=((WifiManager)Application.sAppContext.getSystemService(Context.WIFI_SERVICE)).isWifiEnabled();
-		mPreferenceScan.setEnabled(
-				(!airPlaneState && 
-				!Application.sManager.isDiscovering()) &&
-				(bluetoothState || wifiState));
+		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues)
+				{
+					@Override
+					public View getView(int position, View convertView, ViewGroup parent)
+					{
+						// TODO Auto-generated method stub
+						View v=super.getView(position, convertView, parent);
+						((TextView)v.findViewById(android.R.id.text1)).setEnabled(mExposeActive[position]);
+						return v;
+					}
+				};
+		new AlertDialog.Builder(this)
+			.setAdapter(adapter, new DialogInterface.OnClickListener()
+			{
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which)
+				{
+					if (mExposeActive[which])
+						mExposeModel[which].startExposition(EditPreferenceActivity.this);
+				}
+			})
+			.setTitle(R.string.connect_expose_title)
+			.create()
+			.show();
+
 		
 	}
 }

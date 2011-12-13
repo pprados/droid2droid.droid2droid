@@ -90,7 +90,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 	}
 	
 	@Override
-	public void startDiscover(int flags,long timeToDiscover) throws RemoteException
+	public synchronized void startDiscover(int flags,long timeToDiscover) throws RemoteException
 	{
 		// FIXME Race condition ?
 		if (timeToDiscover==RemoteAndroidManager.DISCOVER_INFINITELY || timeToDiscover==RemoteAndroidManager.DISCOVER_BEST_EFFORT)
@@ -130,6 +130,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 	{
 		if (mDiscoverCount.decrementAndGet()<=0)
 		{
+			mDiscoverCount.set(0);
 			mDiscoverMaxTimeout=0;
 			if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Discover process finished");
 			mContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_DISCOVER_ANDROID),

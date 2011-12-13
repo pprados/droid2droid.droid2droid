@@ -1,97 +1,163 @@
 package org.remoteandroid.ui.connect;
 
+import java.util.ArrayList;
+
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 
 import android.app.Fragment;
 import android.content.Context;
 //import android.support.v4.app.Fragment;
+import android.telephony.TelephonyManager;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.RemoteAndroidInfo.*;
+import static org.remoteandroid.NetworkTools.*;
 
-class Technology
+abstract class Technology
 {
-	enum Type { EMPTY,DISCOVER,BOUNDED,QRCODE,NFC,SMS,SOUND,INPUT};
-	public static Technology sDefault=new Technology(Type.EMPTY, true, 0, 0, R.string.connect_empty_help);
-	private static int[] sStringIds=
+	public static Technology sDefault=new Technology(0, 0, 0, 0, R.string.connect_empty_help,0)
+	{
+		@Override
+		AbstractBodyFragment makeFragment()
 		{
-			0,0,R.string.connect_empty_help,
-			R.string.connect_discover,R.string.connect_discover_description,R.string.connect_discover_help,
-			R.string.connect_trusted,R.string.connect_trusted_description_3G,R.string.connect_trusted_help,
-			R.string.connect_qrcode,R.string.connect_qrcode_description,R.string.connect_qrcode_help,
-			R.string.connect_nfc,R.string.connect_nfc_description,R.string.connect_nfc_help,
-			R.string.connect_sms,R.string.connect_sms_description,R.string.connect_sms_help,
-			R.string.connect_sound,R.string.connect_sound_description,R.string.connect_sound_help,
-			R.string.connect_input,R.string.connect_input_description,R.string.connect_input_help
+			return new EmptyBodyFragment();
+		}
+	};
+	private static final int INTERNAL_FEATURE_NETWORK=(CONNECTION_WITH_INTERNET) ? ACTIVE_NETWORK : ACTIVE_LOCAL_NETWORK;
+	private static Technology[] sAllTechnology= new Technology[]
+		{
+			sDefault,
+			new Technology(
+				FEATURE_NET,
+				ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH,
+				R.string.connect_discover,
+				R.string.connect_discover_description,
+				R.string.connect_discover_help,
+				R.string.connect_discover_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new DiscoverFragment();
+					}
+				},
+			new Technology(
+				FEATURE_CAMERA|FEATURE_SCREEN,
+				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
+				R.string.connect_qrcode,
+				R.string.connect_qrcode_description,
+				R.string.connect_qrcode_help,
+				R.string.connect_qrcode_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new QRCodeFragment();
+					}
+				},
+			new Technology(
+				FEATURE_NFC,
+				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
+				R.string.connect_nfc,
+				R.string.connect_nfc_description,
+				R.string.connect_nfc_help,
+				R.string.connect_nfc_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new NFCFragment();
+					}
+				},
+			new Technology(
+				FEATURE_TELEPHONY,
+				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
+				R.string.connect_sms,
+				R.string.connect_sms_description,
+				R.string.connect_sms_help,
+				R.string.connect_sms_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new SMSFragment();
+					}
+				},
+			new Technology(
+				FEATURE_MICROPHONE,
+				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
+				R.string.connect_dtmf,
+				R.string.connect_dtmf_description,
+				R.string.connect_dtmf_help,
+				R.string.connect_dtmf_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new DTMFFragment();
+					}
+				},
+			new Technology(
+				FEATURE_SCREEN|FEATURE_NET,
+				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
+				R.string.connect_input,
+				R.string.connect_input_description,
+				R.string.connect_input_help,
+				R.string.connect_input_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new InputIdFragment();
+					}
+				},
+			
 		};
 	
-	Type mId;
-	boolean mStatus;
+	
+	int mFeature;
+	int mMaskActiveNetwork;
+	int mActiveNetwork;
 	int mContent;
 	int mDescription;
 	int mHelp;
-	Fragment mFragment;
+	int mEmptyHelp;
 	
-	Technology(Type id,boolean status,int content,int description,int help)
+	private Technology(
+			int feature,
+			int activeNetwork,
+			int content,int description,int help,int emptyHelp)
 	{
-		mId=id;
-		mStatus=status;
+		mFeature=feature;
+		mActiveNetwork=activeNetwork;
 		mContent=content;
 		mDescription=description;
 		mHelp=help;
+		mEmptyHelp=emptyHelp;
 	}
 	
-	public static Technology[] initTechnologies(Context context)
+	public static Technology[] getTechnologies()
 	{
 		// TODO: Filtrer suivant les capacités du terminal
-		Type[] values=Type.values();
-		Technology[] technologies=new Technology[values.length];
-		for (int i=0;i<values.length;++i)
+		ArrayList<Technology> a=new ArrayList<Technology>();
+		
+		for (int i=0;i<sAllTechnology.length;++i)
 		{
-			Type type=values[i];
-			technologies[i]=
-				new Technology(type,
-					true,
-					sStringIds[type.ordinal()*3],
-					sStringIds[type.ordinal()*3+1],
-					sStringIds[type.ordinal()*3+2]);
+			Technology tech=sAllTechnology[i];
+			if ((tech.mFeature & Application.sFeature)==tech.mFeature)
+			{
+				a.add(tech);
+			}
 		}
-		return technologies;
+		return a.toArray(new Technology[a.size()]);
 	}
-	AbstractBodyFragment makeFragment()
-	{
-		AbstractBodyFragment fragment=null;
-		switch (mId)
-		{
-			case EMPTY:
-				fragment=new EmptyBodyFragment();
-				break;
-			case DISCOVER:
-				fragment=new DiscoverFragment();
-				break;
-			case BOUNDED:
-				fragment=new TrustedFragment();
-				break;
-			case QRCODE:
-				fragment=new QRCodeFragment();
-				break;
-			case NFC:
-				fragment=new NFCFragment();
-				break;
-			case SMS:
-				fragment=new SMSFragment();
-				break;
-			case SOUND:
-				fragment=new SoundFragment();
-				break;
-			case INPUT:
-				fragment=new InputIdFragment();
-				break;
-		}
-		if (fragment!=null)
-			fragment.setTechnology(this);
-		return fragment;
-	}
+	
+	abstract AbstractBodyFragment makeFragment();
+	
 	@Override
 	public String toString()
 	{
-		return mId.toString();
+		return getClass().getName();
 	}
 }

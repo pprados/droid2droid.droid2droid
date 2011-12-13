@@ -34,6 +34,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
  * @author Yohann Melo
  * 
  */
+// FIXME: a virer
 public class TestQRCode extends Activity
 {
 	private static final int WHITE = 0xFFFFFFFF;

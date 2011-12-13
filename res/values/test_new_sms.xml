@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  TODO -->
+	<!-- Local alphabet to sort contact by name -->
+	<string name="fast_scroll_alphabet">" ABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
+	<!-- No error -->
+	<string name="noException"/>
+	<string name="currentQuery"/>
+	
+	<!-- Displayed at the top of the contacts showing the zero total number of contacts found when "Only contacts with phones" not selected -->
+	<string name="listFoundAllContactsZero">Contact not found.</string>
+	<!-- Displayed at the top of the contacts showing the total number of contacts found when "Only contacts with phones" not selected -->
+	<plurals name="listFoundAllContacts">
+		<item quantity="one">One contact found.</item>
+		<item quantity="other">Found %d contacts</item>
+	</plurals>
+	<!-- The text displayed when the contacts list is empty while displaying all contacts -->
+	<string name="noMatchingContacts">No matching contact found.</string>
+	<!-- Truncate the response to limit the memory usage or it's a limitation of the remote serveur-->
+	<string name="err_truncated">Response truncated. Network error or server limitation.</string>
+	<!-- The body in dialog when search online results -->
+	<string name="search_wait">Please wait...</string>
+	<!-- The body in dialog when search online results -->
+	<!-- The title in dialog when search online results -->
+	<string name="search_title">Search contacts</string>
+
+	<string name="search_wait">Please wait...</string>
+    <string name="help_first_time">To search for a contact, press <font fgcolor="#ffffffff"><b>Menu</b></font> and touch:\n\n
+        <li> <font fgcolor="#ffffffff"><b>Search</b></font> to enter a name, a phone number or an email.\n\n</li>
+        <!--<li><font fgcolor="#ffffffff"><b>Accounts</b></font> to add or configure an account with contacts you can sync to the phone.\n\n</li>-->
+        <li> <font fgcolor="#ffffffff"><b>Imports</b></font> to connect internal contact with remote accounts.\n\n</li>
+        <li> <font fgcolor="#ffffffff"><b>Extensions</b></font> to add modules for a new type of directory.</li>
+    </string>
+	    	    	    	    	    	    
+</resources>

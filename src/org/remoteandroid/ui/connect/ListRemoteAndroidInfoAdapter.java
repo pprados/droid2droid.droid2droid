@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.ListRemoteAndroidInfo;
+import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.ListRemoteAndroidInfo.DiscoverListener;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +33,12 @@ public class ListRemoteAndroidInfoAdapter extends BaseAdapter implements Discove
 	private Filter mFilter;
 	private int mResId;
 	private DiscoverListener mListener;
-	
+	private int mColorTextDark_nodisable;
+	private int mColorTextDark;
+
 	public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo)
 	{
-		this(context,listInfo,android.R.layout.two_line_list_item);
+		this(context,listInfo,R.layout.discover_device);
 	}
 	public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo,int resid)
 	{
@@ -42,11 +46,14 @@ public class ListRemoteAndroidInfoAdapter extends BaseAdapter implements Discove
 	}
 	public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo,Filter filter)
 	{
-		this(context,listInfo,android.R.layout.two_line_list_item,filter);
+		this(context,listInfo,R.layout.discover_device,filter);
 	}
 	public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo,int resid,Filter filter)
 	{
+		Resources resource=context.getResources();
 		mContext=context;
+		mColorTextDark_nodisable=resource.getColor(android.R.color.primary_text_dark_nodisable); 
+		mColorTextDark=resource.getColor(android.R.color.tertiary_text_dark);
 		mListInfo=listInfo;
 		mFilter=filter;
 		mResId=resid;
@@ -116,8 +123,16 @@ public class ListRemoteAndroidInfoAdapter extends BaseAdapter implements Discove
 		tag.mText1.setText(info.getName());
 		if (tag.mText2!=null)
 		{
-			tag.mText2.setText(Application.getTechnologies(info, false));
+			StringBuilder b=new StringBuilder(Application.getTechnologies(info, false));
+			if (info.isDiscover()) b.append( mContext.getString(R.string.connect_device_paired));
+			tag.mText2.setText(b);
 		}
+		tag.mText1.setTextColor((info.isDiscover() && !parent.isEnabled()) 
+				? mColorTextDark_nodisable 
+				: mColorTextDark);
+		tag.mText2.setTextColor((info.isDiscover() && !parent.isEnabled()) 
+				? mColorTextDark_nodisable 
+				: mColorTextDark);
 		return view;
 	}
 	

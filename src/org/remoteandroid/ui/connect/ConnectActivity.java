@@ -1,6 +1,7 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.HACK_CONNECT_FORCE_FRAGMENTS;
+import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.NetworkTools;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.Pair;
@@ -22,10 +24,15 @@ import org.remoteandroid.ui.StyleFragmentActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,21 +41,63 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.Window;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
+import android.widget.Toast;
 
+// TODO: getSystemAvailableFeatures ()
 public class ConnectActivity extends StyleFragmentActivity 
 implements TechnologiesFragment.Listener
 {
 	static final int DIALOG_TRY_CONNECTION=1;
 	private static TryConnection sTryConnections;
 	
+	private BroadcastReceiver mPhoneStateReceiver=new BroadcastReceiver() 
+    {
+		
+        @Override
+        public void onReceive(Context context, Intent intent) 
+        {
+        	onReceivePhoneEvent(context,intent);
+        }
+    };
+    
+	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
+    {
+		
+        @Override
+        public void onReceive(Context context, Intent intent) 
+        {
+        	onReceiveNetworkEvent(context,intent);
+        }
+    };
+    
+    private BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
+    {
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			onReceiveBluetoothEvent(context,intent);
+		}
+    };
+	private BroadcastReceiver mAirPlane = new BroadcastReceiver() 
+	{
+	      @Override
+	      public void onReceive(Context context, Intent intent) 
+	      {
+	            onReceiveAirplaneEvent(context,intent);
+	      }
+	};
+	
 	FragmentManager mFragmentManager;
 	TechnologiesFragment mTechnologiesFragment;
 	AbstractBodyFragment mBodyFragment;
 
 	Technology[] mTechnologies;
-	
+	public int mActiveNetwork;
+
 	private boolean mMerge;
 	
 	private boolean mAcceptAnonymous;
@@ -66,12 +115,14 @@ implements TechnologiesFragment.Listener
 		// TODO: patch de l'icone
 		//setTheme(android.R.style.Theme_Light_NoTitleBar);
 		// TODO: placer tous les styles dans des wrappers de style pour pouvoir les adapter
-		//requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
+        this.setContentView(new TextView(this)); // Hack to activate the progress bar
+		setProgressBarIndeterminateVisibility(Boolean.FALSE);
 		
 		mAcceptAnonymous=getIntent().getBooleanExtra(RemoteAndroidManager.EXTRA_ACCEPT_ANONYMOUS, false);
 		mFragmentManager=getSupportFragmentManager();
-		mTechnologies=Technology.initTechnologies(this);
+		mTechnologies=Technology.getTechnologies();
 		
 		mMerge=getResources().getBoolean(R.bool.connect_merge);
 		
@@ -140,6 +191,98 @@ implements TechnologiesFragment.Listener
 			tryConnections.mActivity=new WeakReference<ConnectActivity>(this);
 			tryConnections.mProgressDialog=(ConnectDialogFragment)mFragmentManager.findFragmentByTag("dialog");
 		}
+	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		mActiveNetwork=NetworkTools.getActiveNetwork();
+		registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		registerReceiver(mAirPlane,new IntentFilter("android.intent.action.SERVICE_STATE"));
+		IntentFilter filter=new IntentFilter();
+		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+		filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
+		registerReceiver(mBluetoothReceiver, filter);
+		
+	}
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+   		unregisterReceiver(mNetworkStateReceiver);
+		unregisterReceiver(mBluetoothReceiver); 
+		unregisterReceiver(mAirPlane); 
+	}
+	
+	void onReceivePhoneEvent(Context context,Intent intent)
+	{
+		if (intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED))
+		{
+			// TODO
+		}
+	}
+	void onReceiveNetworkEvent(Context context,Intent intent)
+	{
+		if (mBodyFragment!=null)
+			mBodyFragment.onReceiveNetworkEvent(context,intent);
+		
+		ConnectivityManager conn=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+		if (conn==null || conn.getActiveNetworkInfo()==null)
+		{
+			mActiveNetwork&=~NetworkTools.ACTIVE_LOCAL_NETWORK;
+		}
+		else
+		{
+			int type=conn.getActiveNetworkInfo().getType();
+			switch (type)
+			{
+				case ConnectivityManager.TYPE_MOBILE:
+				case ConnectivityManager.TYPE_MOBILE_DUN:
+				case ConnectivityManager.TYPE_MOBILE_HIPRI:
+				case ConnectivityManager.TYPE_MOBILE_MMS:
+				case ConnectivityManager.TYPE_MOBILE_SUPL:
+				case ConnectivityManager.TYPE_WIMAX:
+					mActiveNetwork&=~NetworkTools.ACTIVE_LOCAL_NETWORK;
+					break;
+				case ConnectivityManager.TYPE_BLUETOOTH:
+				case ConnectivityManager.TYPE_ETHERNET:
+				case ConnectivityManager.TYPE_WIFI:
+					mActiveNetwork|=NetworkTools.ACTIVE_LOCAL_NETWORK;
+					break;
+	        }
+		}
+		onUpdateActiveNetwork();
+	}
+	void onReceiveBluetoothEvent(Context context, Intent intent)
+	{
+		if (mBodyFragment!=null)
+			mBodyFragment.onReceiveBluetoothEvent(context,intent);
+		if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
+		{
+			int state=intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_DISCONNECTED);
+			if (state==BluetoothAdapter.STATE_ON)
+				mActiveNetwork|=NetworkTools.ACTIVE_BLUETOOTH;
+			else
+				mActiveNetwork&=~NetworkTools.ACTIVE_BLUETOOTH;
+			onUpdateActiveNetwork();
+		}
+	}
+	void onReceiveAirplaneEvent(Context context,Intent intent)
+	{
+		if (mBodyFragment!=null)
+			mBodyFragment.onReceiveAirplaneEvent(context,intent);
+	}
+	
+	void onUpdateActiveNetwork()
+	{
+		if (mBodyFragment!=null)
+			mBodyFragment.onUpdateActiveNetwork();
+	}
+
+	int getActiveNetwork()
+	{
+		return mActiveNetwork;
 	}
 	
 	@Override
@@ -265,7 +408,6 @@ implements TechnologiesFragment.Listener
 	};
 	public static class ConnectDialogFragment extends DialogFragment
 	{
-
 		public static ConnectDialogFragment newInstance()
 		{
 			return new ConnectDialogFragment();
@@ -311,6 +453,13 @@ implements TechnologiesFragment.Listener
 		private List<String> mUris;
 		private WeakReference<ConnectActivity> mActivity=new WeakReference<ConnectActivity>(null);
 		private boolean mAcceptAnonymous;
+		private int mMessage;
+		
+		public void publishMessage(int message,int val)
+		{
+			mMessage=message;
+			publishProgress(val);
+		}
 		
 		TryConnection(boolean acceptAnonymous)
 		{
@@ -326,6 +475,7 @@ implements TechnologiesFragment.Listener
 			mUris=uris;
 		}
 
+		
 		@Override
 		protected Object doInBackground(Void...params)
 		{
@@ -342,19 +492,30 @@ implements TechnologiesFragment.Listener
 			for (int i=0;i<mUris.size();++i)
 			{
 				RemoteAndroidInfoImpl info=null;
+				String uri=mUris.get(i);
 				try
 				{
 					if (isCancelled())
 						return null;
-					String uri=mUris.get(i);
-					publishProgress(i+firststep);
+					publishMessage(R.string.connect_try_connect,i+firststep);
 					if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 					
 					info=tryConnectForCookie(uri);
 				}
-				catch (IOException e)
+				catch (final IOException e)
 				{
 					if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+					if (D)
+					{
+						Application.sHandler.post(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+							}
+						});
+					}
 				}
 				catch (SecurityException e)
 				{
@@ -369,6 +530,7 @@ implements TechnologiesFragment.Listener
 				}
 				if (info!=null) // Cool
 				{
+					if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Connection for cookie with "+uri);
 					return info;
 				}
 				
@@ -385,8 +547,10 @@ implements TechnologiesFragment.Listener
 				ProgressDialog d=(ProgressDialog)dlg.getDialog();
 				if (d!=null)
 				{
+					d.setMessage(Application.sAppContext.getText(mMessage));
 					int firststep=(mFirstStep==null) ? 0 : 1;
 					d.setProgress(values[0]*100/(mUris.size()+firststep));
+					
 				}
 			}
 		}

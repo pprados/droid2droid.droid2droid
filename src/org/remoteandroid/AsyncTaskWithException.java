@@ -1,10 +1,15 @@
 package org.remoteandroid;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import android.os.AsyncTask;
 
 public abstract class AsyncTaskWithException<Params,Progress,Result>
 {
-	private AsyncTask<Params,Progress,Object> mAsync=new AsyncTask<Params,Progress,Object>()
+	class Wrapper extends AsyncTask<Params,Progress,Object>
 	{
 
 		@Override
@@ -19,6 +24,11 @@ public abstract class AsyncTaskWithException<Params,Progress,Result>
 				return e;
 			}
 		}
+		@Override
+		protected void onPreExecute()
+		{
+			AsyncTaskWithException.this.onPreExecute();
+		}
 		@SuppressWarnings("unchecked")
 		@Override
 		protected final void onPostExecute(Object result)
@@ -30,15 +40,90 @@ public abstract class AsyncTaskWithException<Params,Progress,Result>
 			else
 				AsyncTaskWithException.this.onPostExecute((Result)result);
 		}
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void onCancelled(Object result)
+		{
+			AsyncTaskWithException.this.onCancelled((Result)result);
+		}
+		@Override
+		protected void onCancelled()
+		{
+			AsyncTaskWithException.this.onCancelled();
+		}
+		protected void onProgressUpdate(Progress... values)
+		{
+			AsyncTaskWithException.this.onProgressUpdate(values);
+		}
+		void publish(Progress... values)
+		{
+			publishProgress(values);
+		}
 	};
+	private Wrapper mAsync=new Wrapper();
+	
 	protected abstract Result doInBackground(Params... params) throws Exception;
 	protected abstract void onException(Throwable e);
+	protected void onCancelled(Result result)
+	{
+		
+	}
+	protected void onCancelled()
+	{
+	}
+	protected void onPreExecute()
+	{
+		
+	}
+	protected void onProgressUpdate(Progress... values)
+	{
+		
+	}
 	protected void onPostExecute(Result result)
 	{
 		
 	}
+	protected final void publishProgress(Progress... values)
+	{
+		mAsync.publish(values);
+	}
 	public void execute(Params...params)
 	{
 		mAsync.execute(params);
+	}
+	public final AsyncTaskWithException<Params, Progress, Result>	 executeOnExecutor(Executor exec, Params... params)
+	{
+		mAsync.executeOnExecutor(exec, params);
+		return this;
+	}
+	public final boolean	 cancel(boolean mayInterruptIfRunning)
+	{
+		return mAsync.cancel(mayInterruptIfRunning);
+	}
+	public final AsyncTask.Status	 getStatus()
+	{
+		return mAsync.getStatus();
+	}
+//	public final Result	 get() throws InterruptedException, ExecutionException
+//	{
+//		Object rc=mAsync.get();
+//		if (rc instanceof Throwable)
+//		{
+//			return null;
+//		}
+//		return (Result)rc;
+//	}
+//	public final Result	 get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
+//	{
+//		Object rc=mAsync.get(timeout,unit);
+//		if (rc instanceof Throwable)
+//		{
+//			return null;
+//		}
+//		return (Result)rc;
+//	}
+	public final boolean	 isCancelled()
+	{
+		return mAsync.isCancelled();
 	}
 }

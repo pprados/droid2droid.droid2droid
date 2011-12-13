@@ -2,6 +2,8 @@ package org.remoteandroid;
 
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.RemoteAndroidInfo.*;
+import static org.remoteandroid.NetworkTools.*;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.PREFERENCES_PRIVATE_KEY;
 import static org.remoteandroid.Constants.PREFERENCES_PUBLIC_KEY;
@@ -48,6 +50,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.FeatureInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -259,6 +263,9 @@ public class Application extends android.app.Application
 		}
 		// Init crash dump
 		//TODO /*if (!D)*/ ACRA.init(this);
+
+		
+		initFeature();
 		
 		sAppContext = this;
 		if (V) Log.v(TAG, PREFIX_LOG+'[' + Compatibility.MANUFACTURER + "] Application.onCreate...");
@@ -298,6 +305,49 @@ public class Application extends android.app.Application
 		}
 		
 	}
+	public static int sFeature;
+	private void initFeature()
+	{
+		int f=0;
+		f|=FEATURE_SCREEN;
+		for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
+		{
+			if (BLUETOOTH && "android.hardware.bluetooth".equals(feature.name))		f|=FEATURE_BT;
+			else if (QRCODE && "android.hardware.camera".equals(feature.name))		f|=FEATURE_CAMERA;
+			else if (DTMF && "android.hardware.microphone".equals(feature.name))	f|=FEATURE_MICROPHONE;
+			else if (NFC && "android.hardware.nfc".equals(feature.name))			f|=FEATURE_NFC;
+			else if (SMS && "android.hardware.telephony".equals(feature.name))		f|=FEATURE_TELEPHONY;
+			else if (ETHERNET && "android.hardware.wifi".equals(feature.name))		f|=FEATURE_WIFI|FEATURE_NET;
+		}
+		sFeature=f;
+		
+	}
+	public static int getActiveFeature()
+	{
+		int f=Application.sFeature & FEATURE_SCREEN|FEATURE_HP|FEATURE_MICROPHONE|FEATURE_CAMERA;
+		int netStatus=NetworkTools.getActiveNetwork();
+		if ((netStatus & ACTIVE_NOAIRPLANE)!=0)
+		{
+			if ((netStatus & ACTIVE_BLUETOOTH)!=0)
+			{
+				f|=FEATURE_BT;
+			}
+			if ((netStatus & ACTIVE_PHONE_DATA|ACTIVE_LOCAL_NETWORK)!=0)
+			{
+				f|=FEATURE_NET;
+			}
+			if ((netStatus & ACTIVE_NFC)!=0)
+			{
+				f|=FEATURE_NFC;
+			}
+		}
+		if ((netStatus & ACTIVE_PHONE_SIM)!=0)
+		{
+			f|=FEATURE_TELEPHONY;
+		}
+		return f;
+	}
+	
 	
 	private void disableConnectionReuseIfNecessary() 
 	{
@@ -420,7 +470,7 @@ public class Application extends android.app.Application
 			if (strUuid == null)
 			{
 				sUuid = UUID.randomUUID();
-				if (V) Log.v(TAG,PREFIX_LOG+"Generate key pair...");
+				if (V) Log.v(TAG,PREFIX_LOG+"Generate key pair..."); // FIXME: Ca prend du temps lors du premier lancement. Ajouter boite d'attente.
 				sKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 				if (editor == null)
 					editor = preferences.edit();

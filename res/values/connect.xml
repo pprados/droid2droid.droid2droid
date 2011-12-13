@@ -4,40 +4,30 @@
 	<!-- Hack for Honneycomb combatility -->
 	<style name="activated"/>
 
-	<bool name="connect_merge">false</bool>
+	<string name="connect_label">Connect Androids</string>
 
+	<bool name="connect_merge">false</bool>
+	<string name="connect_try">Connect...</string>
+
+	<string name="connect_expose_title">Expose with...</string>
+	<string name="connect_try_connect">Connect...</string>
+	
 	<string name="connect_alert_title">Alert</string>
 	<string name="connect_alert_connection_impossible">Connection to remote device impossible!</string>
 	<string name="connect_alert_pairing_impossible">Pairing to remote device impossible!</string>
 	    	
-	    	
-	<string name="connect_empty_help">Select an approach to detect a remote device\n\n
-        <li><font fgcolor="#ffffffff"><b>Discovers devices</b></font> propose to search a devices at proximity (same WIFI or Bluetooth).\n\n</li>
-        <li><font fgcolor="#ffffffff"><b>Bounded devices</b></font> present a list of bounded devices.\n\n</li>
-        <li><font fgcolor="#ffffffff"><b>Scan QRCode</b></font> propose to connect two devices with an image with black and white dot (QRCode). One device present the QRCode, the other scan the code.\n\n</li>
-        <li><font fgcolor="#ffffffff"><b>Scan NFC</b></font> propose to use the Near field Communication.\n\n</li>
-        <li><font fgcolor="#ffffffff"><b>Send SMS</b></font> propose to receive an SMS from a remote device.\n\n</li>
-        <li><font fgcolor="#ffffffff"><b>Music</b></font> propose to receive a sound from a remote device.\n\n</li>
-        <li><font fgcolor="#ffffffff"><b>Enter ID</b></font> propose to create a short identification for the current connection in the remote device. You must enter this id with the keyboard to initiate the communication.\n\n</li>
-    </string>
-    
-	<string name="connect_trusted">Trusted device</string>
-	<string name="connect_trusted_description_3G">All bounded devices.</string>
-	<string name="connect_trusted_description_BT_WIFI">All bounded devices present in current Wifi network
-		or with Bluetooths.</string>
-	<string name="connect_trusted_description_BT">All bounded devices with Bluetooths.</string>
-	<string name="connect_trusted_description_WIFI">All bounded devices present in current Wifi
-		network.</string>
-	<string name="connect_trusted_help">Select a trusted device.</string>
-    
-
+	<string name="connect_empty_help"><big>Select an approach to detect a remote device\n\n</big></string>
+	    
 	<string name="connect_discover">Discovers</string>
 	<string name="connect_discover_description">Discovers devices in proximity.</string>
 	<string name="connect_discover_help">Discover the devices if they are connected in the same WIFI network or have the bluetooth activated.
 	Then, select one discovered device to connect and/or pairing.
     </string>
+	<string name="connect_discover_empty_help">
+        <p><b>Discovers</b> devices proximity (WIFI and Bluetooth).\n\n</p>
+	</string>
+    <string name="connect_device_paired">Paired.</string>
 
-	<string name="connect_try">Connect...</string>
 	<string name="connect_qrcode">QRCode</string>
 	<string name="connect_qrcode_description">Scan QRCode from remote device.</string>
 	<string name="connect_qrcode_help">In the remote device\n
@@ -47,7 +37,12 @@
 		<li>Present the QRCode;\n</li>
 		Then, scan the QRCode to initiate the connection between devices.
     </string>
-
+	<string name="connect_qrcode_empty_help">
+        <p><b>QRCode</b> propose to connect two devices with the camera and a QRCode. One device expose the QRCode and this one scan the code.\n\n</p>
+	</string>
+<!-- 	<string name="connect_qrcode_empty_help"> -->
+<!--         <li><font fgcolor="#ffffffff"><b>Scan QRCode</b></font> propose to connect two devices with an image with black and white dot (QRCode). One device present the QRCode, the other scan the code.\n\n</li> -->
+<!-- 	</string> -->
 	<string name="connect_nfc">NFC</string>
 	<string name="connect_nfc_description">Scan NFC from remote device.</string>
 	<string name="connect_nfc_help">In the remote device\n
@@ -58,16 +53,32 @@
 		<li>Send an SMS;\n</li>
 		Then, wait to receive this message.
     </string>
+	<string name="connect_nfc_empty_help">
+        <font fgcolor="#ffffffff"><b>NFC</b></font> propose to use the Near field Communication.\n\n
+	</string>
 
-	<string name="connect_sms">SMS</string>
+	<string name="connect_sms">Short messages</string>
 	<string name="connect_sms_description">Receive an SMS to remote device.</string>
-	<string name="connect_sms_help">Wait a SMS from a remote device.
-    </string>
+	<string name="connect_sms_help">Wait a SMS from a remote device.</string>
+	<string name="connect_sms_error_invalides_sms">Impossible to received short messages.</string>
+	<!-- Title for the sms disambiguation dialog -->
+	<string name="connect_sms_disambig_title">Using</string>
+	<string name="connect_sms_execute">Start</string>
+	<string name="connect_sms_wait">Wait short messages...</string>
+	<string name="connect_sms_empty_help">
+        <font fgcolor="#ffffffff"><b>Short messages</b></font> propose to receive an SMS from a remote device.\n\n
+	</string>
+<!-- TODO -->
+    <dimen name="connect_sms_left_margin">0dp</dimen>
+    <dimen name="connect_sms_right_margin">0dp</dimen>
 
-	<string name="connect_sound">Sound</string>
-	<string name="connect_sound_description">Listen a special sound.</string>
-	<string name="connect_sound_help">Listen a sound with the connection informations.
-    </string>
+	<string name="connect_dtmf">Sounds</string>
+	<string name="connect_dtmf_description">Listen a special sound.</string>
+	<string name="connect_dtmf_help">Listen a sound with the connection informations.</string>
+	<string name="connect_dtmf_execute">Start</string>
+	<string name="connect_dtmf_empty_help">
+        <font fgcolor="#ffffffff"><b>Sounds</b></font> propose to analyse a sound from a remote device.\n\n
+	</string>
 
 	<string name="connect_input_expose_title">Expose</string>
 	<string name="connect_input_message">Ticket number: &lt;b&gt;%1$s&lt;/b&gt;</string>
@@ -76,7 +87,7 @@
 	<string name="connect_input_message_error_get_format">Invalid ticket. Check case and try again.</string>
 	<string name="connect_input_enter_code">Enter ticket</string>
 	    	    	    	
-	<string name="connect_input">Manual id</string>
+	<string name="connect_input">Ticket</string>
 	<string name="connect_input_description">Enter published id from remote device.</string>
 	<string name="connect_input_help">In the remote device\n
 		<li>Start the application \'Remote Android\';\n</li>
@@ -84,6 +95,9 @@
 		<li>Select \'Input\';\n</li>
 		Then, enter the displayed code and validate to initiate a connection.
     </string>
+	<string name="connect_input_empty_help">
+        <font fgcolor="#ffffffff"><b>Ticket</b></font> propose to create a short identification for the current connection in the remote device. You must enter this id with the keyboard to initiate the communication.\n\n
+	</string>
 	
 	<!-- Next button in wizard -->
 	<dimen name="button_minWidth">90sp</dimen>

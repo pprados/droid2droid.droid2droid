@@ -100,7 +100,7 @@ public class BluetoothServerSocketChannel implements Runnable
 							{
 								if (!mAdapter.isEnabled())
 									return;
-								if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"BT listen on "+uuid);
+								if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"BT listen on "+uuid);
 		    					srvSocket=mAdapter.listenUsingRfcommWithServiceRecord("RemoteAndroid", uuid);
 		    					mSrvSockets.add(srvSocket);
 		    					manageBluetoothSocket(uuid, srvSocket,true);

@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.binder.UpstreamHandler;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.socket.ip.NetworkSocketChannel;
@@ -72,7 +73,7 @@ class NetServerSocketChannel implements Runnable
 					return;
 				if (mSocket==null) // Sometime, with quick on/off
 					return;
-				if (V) Log.v(TAG_SERVER_BIND,"IP Accept socket...");
+				if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"IP Accept socket...");
 				final Socket socket=mSocket.accept();
 				if (V) Log.v(TAG_SERVER_BIND,"IP Accept socket done.");
 				socket.setTcpNoDelay(true);
@@ -114,10 +115,11 @@ class NetServerSocketChannel implements Runnable
 							}
 							catch (Exception e)
 							{
-								if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Server socket ("+e.getMessage()+")");
-								mHandler.exceptionCaught(id,e);
 								try
 								{
+									if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Server socket ("+e.getMessage()+")");
+									if (!socket.isClosed())
+										mHandler.exceptionCaught(id,e);
 									if (!socket.isClosed()) socket.close();
 								}
 								catch (Exception e1)
