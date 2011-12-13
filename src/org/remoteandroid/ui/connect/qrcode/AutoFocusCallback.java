@@ -45,6 +45,8 @@ final class AutoFocusCallback implements Camera.AutoFocusCallback
 
 	public void onAutoFocus(boolean success, Camera camera)
 	{
+		
+		
 		if (mAutoFocusHandler != null)
 		{
 			if (V) Log.v(TAG_QRCODE, "2. Got auto-focus callback");

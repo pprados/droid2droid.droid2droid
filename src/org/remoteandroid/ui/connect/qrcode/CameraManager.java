@@ -6,6 +6,7 @@ import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,7 +59,7 @@ public final class CameraManager
 
 	private static int MAX_FRAME_WIDTH;// = MAX_FRAME_HEIGHT;
 
-	private static final float DESIRED_FRAME_SIZE_BASELINE = 250f; // theorical
+	private static float DESIRED_FRAME_SIZE_BASELINE = 250f; // theorical
 																	// size
 
 	private static CameraManager sCameraManager;
@@ -281,7 +282,7 @@ public final class CameraManager
 	{
 
 		this.mConfigManager = new CameraConfigurationManager(context);
-
+		
 		mPreviewCallback = new PreviewCallback(mConfigManager);
 		mAutoFocusCallback = new AutoFocusCallback();
 	}
@@ -323,6 +324,7 @@ public final class CameraManager
 		// ORIENTATION[rotation]);
 		//setCameraParameters();
 		mCamera.setPreviewDisplay(holder);
+		
 		if (!mInitialized)
 		{
 			mInitialized = true;
@@ -348,6 +350,11 @@ public final class CameraManager
 		// if (prefs.getBoolean(PreferencesActivity.KEY_FRONT_LIGHT, false)) {
 		// FlashlightManager.enableFlashlight();
 		// }
+		
+//		//TODO choose a better solution than hard coding the frame baseline
+//		if(mConfigManager.getScreenResolution().x > 1023 || mConfigManager.getScreenResolution().y > 1023){
+//			CameraManager.DESIRED_FRAME_SIZE_BASELINE = 400;
+//		}
 	}
 
 	/**
@@ -416,6 +423,7 @@ public final class CameraManager
 		}
 	}
 
+	boolean debugAutoFocus = false;
 	/**
 	 * Asks the camera hardware to perform an autofocus.
 	 * 
@@ -424,18 +432,36 @@ public final class CameraManager
 	 */
 	public void requestAutoFocus(Handler handler, int message)
 	{
+		
 		if (mCamera != null && mPreviewing)
 		{
+//			try
+//			{
+//				Thread.sleep(1000);
+//			}
+//			catch (InterruptedException e)
+//			{
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			mAutoFocusCallback.setHandler(
 				handler, message);
 			if (V)
 				Log.v(
 					TAG_CONNECT, "Requesting auto-focus callback");
-			if (QRCODE_AUTOFOCUS)
+			//if (QRCODE_AUTOFOCUS)
+			String focusMode = mCamera.getParameters().getFocusMode(); 
+			if (focusMode.compareTo(Camera.Parameters.FOCUS_MODE_AUTO) == 0){
 				mCamera.autoFocus(mAutoFocusCallback);
-			else
+				if(V) 
+					Log.v(TAG_CONNECT, PREFIX_LOG + " is in auto focus mode");
+			}
+			else {
 				mAutoFocusCallback.onAutoFocus(
 					true, mCamera);
+				if(W) 
+					Log.w(TAG_CONNECT, PREFIX_LOG + " is not in auto focus mode");
+			}
 		}
 	}
 
