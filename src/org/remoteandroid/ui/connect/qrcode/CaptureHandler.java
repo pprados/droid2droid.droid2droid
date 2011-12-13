@@ -95,8 +95,8 @@ public final class CaptureHandler extends Handler
 				// continuous AF. It does seem to hunt a bit, but I'm not sure
 				// what else to do.
 				if (mState == State.DECODE)
-				{
-					CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
+				{		
+					CameraManager.get().requestAutoFocus(this, R.id.auto_focus);					
 				}
 				else
 					CameraManager.get().stopPreview();
@@ -174,8 +174,11 @@ public final class CaptureHandler extends Handler
 
 	private void restartPreviewAndDecode()
 	{
+
+		
 		if (V) Log.v(TAG_QRCODE, "1. restartPreviewAndDecode...");
 		mState = State.AUTOFOCUS;
+		this.sendEmptyMessage(R.id.start_decode);
 		if (!QRCODE_REPEAT_AUTOFOCUS)
 			CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
 		mWrapper.drawViewfinder();

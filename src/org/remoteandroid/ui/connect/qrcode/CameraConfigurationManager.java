@@ -102,6 +102,8 @@ final class CameraConfigurationManager
 	void setDesiredCameraParameters(Camera camera)
 	{
 		Camera.Parameters parameters = camera.getParameters();
+		//parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+		//parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_SHADE);
 		if (D)
 			Log.d(
 				TAG_QRCODE, "Setting preview size: " + mCameraResolution);
