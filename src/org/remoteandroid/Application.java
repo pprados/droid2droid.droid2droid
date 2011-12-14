@@ -210,8 +210,6 @@ public class Application extends android.app.Application
 	{
 		StringBuilder buf = new StringBuilder();
 		// Show networks technologies
-		if (info.isConnectableWithBluetooth())
-			buf.append(sBTName).append(sGroupingSeparator);
 		if (info.isConnectableWithIP())
 			buf.append(sIPName).append(sGroupingSeparator);
 		if (buf.length() > 0)
@@ -312,8 +310,7 @@ public class Application extends android.app.Application
 		f|=FEATURE_SCREEN;
 		for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
 		{
-			if (BLUETOOTH && "android.hardware.bluetooth".equals(feature.name))		f|=FEATURE_BT;
-			else if (QRCODE && "android.hardware.camera".equals(feature.name))		f|=FEATURE_CAMERA;
+			if (QRCODE && "android.hardware.camera".equals(feature.name))		f|=FEATURE_CAMERA;
 			else if (DTMF && "android.hardware.microphone".equals(feature.name))	f|=FEATURE_MICROPHONE;
 			else if (NFC && "android.hardware.nfc".equals(feature.name))			f|=FEATURE_NFC;
 			else if (SMS && "android.hardware.telephony".equals(feature.name))		f|=FEATURE_TELEPHONY;
@@ -661,17 +658,6 @@ public class Application extends android.app.Application
 //			Log.d("INFO","Version.sdk int:"+Build.VERSION.SDK_INT);
 //			Log.d("INFO","--------------------------");
 //		}		
-		// TODO: Samsung7
-		if (Build.FINGERPRINT.equals("htc_wwe/htc_ace/ace:2.3.3/GRI40/87995:user/release-keys"))
-		{
-			BLUETOOTH=false;
-			BT_DISCOVERY_IN_PARALLEL=false;
-			BT_DISCOVER_ANONYMOUS_IN_PARALLELE=false;
-			BT_INFORM_PRESENCE_IN_PARALLEL=false;
-			BT_HACK_DELAY_STARTUP=300L;
-			// http://code.google.com/p/android/issues/detail?id=8407
-			ETHERNET_CAN_RECEIVE_MULTICAST=false;
-		}
 	}
 	
 }

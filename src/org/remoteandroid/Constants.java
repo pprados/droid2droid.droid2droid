@@ -103,41 +103,6 @@ public class Constants
 	public static final boolean HACK_CONNECT_FORCE_FRAGMENTS	=false;
 	
 	//-----------------------------------------------------------------------------
-	// --- Bluetooth parameters ---
-	/** Try to connect to anonymous devices. */
-	public static final boolean BT_DISCOVER_ANONYMOUS			=false; // true;
-	/** Start an anonymous server ? */
-	public static final boolean BT_LISTEN_ANONYMOUS				=true;
-	/** Discover BT device in parallel, and at the same time, try to connect to knows devices. */
-	public static /*final*/ boolean BT_DISCOVER_ANONYMOUS_IN_PARALLELE=true;
-	/** Retry x times if error with BT socket before stop.*/
-	public static final int BT_MAX_LOOP_BEFORE_STOP				=1;
-	/** Try to connect to all known device in parallel. */
-	public static /*final*/ boolean BT_DISCOVERY_IN_PARALLEL	=false; // BUG with Xoom
-	/** When the bluetooth is on, agent informe my presence. */
-	public static final boolean BT_INFORM_PRESENCE				=true;
-	/** Try to connect to all known device in parallel. */
-	public static /*final*/ boolean BT_INFORM_PRESENCE_IN_PARALLEL=true; // true
-	/** Wait 2s for flush data before close BT socket. */
-	public static final boolean BT_WAIT_BEFORE_CLOSE_SOCKET		=true; // true. for flush last packet 
-
-	/** Classes of devices to try with an anonmymous BT connection. */
-	public static int[] BT_DEVICE_CLASSES=
-	{ 
-		BluetoothClass.Device.PHONE_SMART, 
-	};
-	/** Major classes of devices to try with an anonmymous BT connection. */
-	public static int[] BT_MAJOR_DEVICE_CLASSES=
-	{
-		BluetoothClass.Device.Major.COMPUTER,
-	};
-
-	
-	public static /*final*/ long BT_HACK_DELAY_STARTUP				=0L; // 300L for HTC Desire HD
-	public static final boolean BT_HACK_RETRY_IF_UNABLE_TO_START_SERVICE_DISCOVERY=false;
-	public static final boolean BT_HACK_WAIT_BEFORE_TRY_ANOTHER_CONNECTION=false;
-
-	//-----------------------------------------------------------------------------
 	// --- Ethernet parameters ---
     public static boolean ETHERNET_CAN_RECEIVE_MULTICAST 			= true;
 	/** IP Listen port to accept connection from remotes androids. */

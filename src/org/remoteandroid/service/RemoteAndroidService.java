@@ -8,7 +8,6 @@ import static org.remoteandroid.Constants.LOCK_ASK_DOWNLOAD;
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.Constants.TAG_SERVER_BIND;
-import static org.remoteandroid.internal.Constants.BLUETOOTH;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
@@ -16,16 +15,13 @@ import static org.remoteandroid.internal.Constants.V;
 import org.remoteandroid.Application;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.Constants;
-import org.remoteandroid.binder.bluetooth.BluetoothRemoteAndroid;
 import org.remoteandroid.binder.ip.NetSocketRemoteAndroid;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.ui.Notifications;
 
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -53,8 +49,6 @@ public class RemoteAndroidService extends Service
     	if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Start RemoteAndroidService");
     	
     	mNotification=new Notifications(this);
-    	if (BLUETOOTH)
-    		BluetoothAdapter.getDefaultAdapter();
     	
     	Application.sThreadPool.execute(new Runnable()
     	{
@@ -96,14 +90,6 @@ public class RemoteAndroidService extends Service
 		{
 			//new TestBluetooth().test();
 			NetSocketRemoteAndroid.startDaemon(getApplicationContext(),mNotification);
-			if (BLUETOOTH)
-			{
-				if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
-				{
-					BluetoothRemoteAndroid.startDaemon(getApplicationContext(),mNotification);
-				}
-			}
-	
 	    	if (Constants.SHOW_SERVICE_NOTIFICATION)
 	    	{
 	    		mNotification.serviceShow(this);
@@ -123,10 +109,6 @@ public class RemoteAndroidService extends Service
 	{
 		NetSocketRemoteAndroid.stopDaemon(getApplicationContext());
 		IPDiscoverAndroids.unregisterService();
-		if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
-		{
-			BluetoothRemoteAndroid.stopDaemon();
-		}
 	}
 
 	// Invoqué par les notifications

@@ -1,8 +1,11 @@
 package org.remoteandroid.service;
 
-import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,18 +13,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ConnectionType;
 import org.remoteandroid.Cookies;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.DiscoverAndroids;
-import org.remoteandroid.discovery.bluetooth.BluetoothDiscoverAndroids;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
-import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.IRemoteAndroidManager;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -81,11 +81,6 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 		if (ETHERNET)
 		{
 			mDrivers.add(new IPDiscoverAndroids(mContext,this));
-		}
-		if (BLUETOOTH)
-		{
-			BluetoothAdapter.getDefaultAdapter();
-			mDrivers.add(new BluetoothDiscoverAndroids(mContext,this));
 		}
 	}
 	

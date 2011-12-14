@@ -403,18 +403,6 @@ public class Trusted
 				builder.setBssid(ByteString.copyFrom(mactoByteArray(info.getBSSID())));
 			}
 		}
-		if (BLUETOOTH)
-		{
-			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
-			if (adapter!=null && adapter.isEnabled())
-			{
-				if (BT_LISTEN_ANONYMOUS && Build.VERSION.SDK_INT>=Compatibility.VERSION_GINGERBREAD_MR1)
-				{
-					builder.setBluetoothAnonmymous(true);
-				}
-				builder.setBluetoothMac(Tools.byteArrayToLong(mactoByteArray(adapter.getAddress())));
-			}
-		}
 		return builder.build();
 	}
 	private static byte[] mactoByteArray(String bssid)
