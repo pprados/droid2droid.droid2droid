@@ -67,6 +67,7 @@ import android.util.Log;
 
 // TODO: Bug lors de l'installation en mode burst
 // TODO: Verifier si pas bug lors de l'activation/desactivation du wifi, pour la déclaration mDNS
+// TODO: fermer le service en cas de perte d'énergie
 
 //@ReportsCrashes(formKey = "dDg0Wkx6MS1wLXV4QlFxMXJON2c0SHc6MQ")
 public class Application extends android.app.Application
