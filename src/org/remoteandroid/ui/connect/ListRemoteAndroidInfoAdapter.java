@@ -124,13 +124,14 @@ public class ListRemoteAndroidInfoAdapter extends BaseAdapter implements Discove
 		if (tag.mText2!=null)
 		{
 			StringBuilder b=new StringBuilder(Application.getTechnologies(info, false));
-			if (info.isDiscover()) b.append( mContext.getString(R.string.connect_device_paired));
+			if (info.isDiscover()) b.append(' ').append( mContext.getString(R.string.connect_device_paired));
 			tag.mText2.setText(b);
 		}
-		tag.mText1.setTextColor((info.isDiscover() && !parent.isEnabled()) 
+		boolean enabled=parent.isEnabled();
+		tag.mText1.setTextColor(enabled 
 				? mColorTextDark_nodisable 
 				: mColorTextDark);
-		tag.mText2.setTextColor((info.isDiscover() && !parent.isEnabled()) 
+		tag.mText2.setTextColor(enabled 
 				? mColorTextDark_nodisable 
 				: mColorTextDark);
 		return view;

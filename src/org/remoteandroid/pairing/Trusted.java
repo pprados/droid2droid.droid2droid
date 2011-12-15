@@ -429,7 +429,7 @@ public class Trusted
 				uri=uris.get(i);
 				Intent intent=new Intent(Intent.ACTION_MAIN,Uri.parse(uri));
 				intent.putExtra(AbstractRemoteAndroidImpl.EXTRA_FOR_PAIRING, true);
-				Application.sManager.bindRemoteAndroid(
+				Application.getManager().bindRemoteAndroid(
 						intent, 
 						new  ServiceConnection()
 						{
@@ -524,7 +524,7 @@ public class Trusted
 				uri=uris[i];
 				Intent intent=new Intent(Intent.ACTION_MAIN,Uri.parse(uri));
 				intent.putExtra(AbstractRemoteAndroidImpl.EXTRA_FOR_PAIRING, true);
-				Application.sManager.bindRemoteAndroid(
+				Application.getManager().bindRemoteAndroid(
 						intent, 
 						new  ServiceConnection()
 						{

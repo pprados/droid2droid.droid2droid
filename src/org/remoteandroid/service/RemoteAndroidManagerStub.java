@@ -50,7 +50,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 		{
 			try
 			{
-				cookie=Application.sManager.askCookie(Uri.parse(uri));
+				cookie=Application.getManager().askCookie(Uri.parse(uri));
 				if (cookie!=0)
 					mCookies.addCookie(uri, cookie);
 			}

@@ -58,7 +58,7 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 		mText = (TextView)mViewer.findViewById(R.id.connect_help);
 		mList = (ListView)mViewer.findViewById(R.id.connect_discover_list);
 		mList.setOnItemClickListener(this);
-		mManager=RemoteAndroidManager.getManager(getActivity());
+		mManager=Application.getManager();
 		mListInfo=mManager.newDiscoveredAndroid(this);
 		mAdapter=new ListRemoteAndroidInfoAdapter(getActivity().getApplicationContext(),
 				mListInfo);
@@ -142,7 +142,15 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 		try
 		{
 			if (mListInfo!=null)
+			{
 				mListInfo.close();
+				if (D) mListInfo=null;
+			}
+			if (mManager!=null)
+			{
+				mManager.close();
+				if (D) mManager=null;
+			}
 		}
 		catch (IOException e)
 		{

@@ -294,7 +294,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
     	if (context.mPairing==null)
     	{
     		context.mPairing=new SimplePairing(mContext,Application.sHandler,context.mClientInfo, 
-    				Application.sManager.getInfos(),getType());
+    				Application.getManager().getInfos(),getType());
     	}
     	
 		return context.mPairing.server(context,msg,cookie);

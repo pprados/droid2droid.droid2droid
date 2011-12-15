@@ -54,15 +54,15 @@ implements TechnologiesFragment.Listener
 	static final int DIALOG_TRY_CONNECTION=1;
 	private static TryConnection sTryConnections;
 	
-	private BroadcastReceiver mPhoneStateReceiver=new BroadcastReceiver() 
-    {
-		
-        @Override
-        public void onReceive(Context context, Intent intent) 
-        {
-        	onReceivePhoneEvent(context,intent);
-        }
-    };
+//	private BroadcastReceiver mPhoneStateReceiver=new BroadcastReceiver() 
+//    {
+//		
+//        @Override
+//        public void onReceive(Context context, Intent intent) 
+//        {
+//        	onReceivePhoneEvent(context,intent);
+//        }
+//    };
     
 	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
     {
@@ -619,7 +619,7 @@ implements TechnologiesFragment.Listener
 	}
 	public static RemoteAndroidInfoImpl tryConnectForCookie(String uri) throws SecurityException, IOException
 	{
-		Pair<RemoteAndroidInfoImpl,Long> msg=Application.sManager.askMsgCookie(Uri.parse(uri));
+		Pair<RemoteAndroidInfoImpl,Long> msg=Application.getManager().askMsgCookie(Uri.parse(uri));
 		if (msg==null || msg.second==0)
 			throw new SecurityException();
 		return msg.first;

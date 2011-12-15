@@ -503,7 +503,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         }
         
         mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
-		mDiscovered=new ListRemoteAndroidInfoImpl(Application.sManager, null);
+		mDiscovered=new ListRemoteAndroidInfoImpl(Application.getManager(), null);
 
 	}
 	// Initialisation assynchrone (StrictMode)
@@ -623,7 +623,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
         	{
         		protected Boolean doInBackground(Void... paramArrayOfParams) 
         		{
-        			return Application.sManager.isDiscovering();
+        			return Application.getManager().isDiscovering();
         		}
         		protected void onPostExecute(Boolean result) 
         		{
@@ -673,8 +673,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
     protected void onUserLeaveHint() 
     {
         super.onUserLeaveHint();
-        if (Application.sManager.isDiscovering())
-        	Application.sManager.cancelDiscover();
+        if (Application.getManager().isDiscovering())
+        	Application.getManager().cancelDiscover();
     }
     
     @Override
@@ -683,7 +683,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 
         if (PREFERENCE_SCAN.equals(preference.getKey())) 
         {
-        	if (!Application.sManager.isDiscovering())
+        	if (!Application.getManager().isDiscovering())
         	{
         		scan(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS);
         	}
@@ -728,7 +728,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	{
 		if ((mMode & MODE_MAIN_SCREEN)!=0)
 		{
-			boolean isDiscovering=Application.sManager.isDiscovering();
+			boolean isDiscovering=Application.getManager().isDiscovering();
 			mPreferenceScan.setEnabled(!isDiscovering);
 			mDeviceList.setProgress(isDiscovering);
 		}
@@ -742,7 +742,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			try
 			{
 				boolean airPlane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-				boolean isDiscovering=!airPlane && Application.sManager.isDiscovering();
+				boolean isDiscovering=!airPlane && Application.getManager().isDiscovering();
 				mPreferenceScan.setEnabled(!isDiscovering);
 				mDeviceList.setProgress(isDiscovering);
 			} catch (Throwable e)
@@ -863,13 +863,13 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		boolean samp=(netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
 		mPreferenceScan.setEnabled(
 			samp
-			&& !Application.sManager.isDiscovering());
+			&& !Application.getManager().isDiscovering());
 		mExpose.setEnabled(samp);
 		
 	}
 	private void scan(final int flags)
 	{
-		if (!Application.sManager.isDiscovering())
+		if (!Application.getManager().isDiscovering())
 		{
 			initBonded();
 			Application.sThreadPool.execute(new Runnable()
@@ -878,7 +878,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 				@Override
 				public void run()
 				{
-					Application.sManager.startDiscover(flags,TIME_TO_DISCOVER);
+					Application.getManager().startDiscover(flags,TIME_TO_DISCOVER);
 				}
 			});
 		}

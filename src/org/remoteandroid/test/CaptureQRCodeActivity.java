@@ -229,8 +229,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mViewfinderView.getLocationOnScreen(location);
 		Rect r = new Rect();
 		v.getLocalVisibleRect(r);
-		if (D) Log.d(
-			TAG_QRCODE, "rect=" + r);
+		if (D) Log.d(TAG_QRCODE, "rect=" + r);
 	}
 
 	@Override
@@ -238,8 +237,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	{
 		super.onResume();
 		resetStatusView();
-		if (D) Log.d(
-			TAG_QRCODE, "resume");
+		if (V) Log.v(TAG_QRCODE, "onResume");
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (mHasSurface)
@@ -294,9 +292,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	protected void onPause()
 	{
 		super.onPause();
-		if (I)
-			Log.i(
-				TAG_QRCODE, "onPause...");
+		if (V) Log.v(TAG_QRCODE, "onPause...");
 		if (mCache.mHandler != null)
 		{
 			mCache.mHandler.quitSynchronously();
@@ -311,9 +307,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	protected void onDestroy()
 	{
 		
-		if (I)
-			Log.i(
-				TAG_QRCODE, "onDestroy...");
+		if (V) Log.v(TAG_QRCODE, "onDestroy...");
 		mCache.mInactivityTimer.shutdown();
 		this.mViewfinderView.detachHandler();
 		super.onDestroy();
@@ -323,8 +317,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		if (D) Log.d(
-			TAG_QRCODE, "onconfigchanged");
+		if (V) Log.v(TAG_QRCODE, "onConfigurationChanged");
 		CameraManager.init(this); // FIXME: Attention fuite mémoire sur le this !
 		CameraManager.get().closeDriver();
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
@@ -404,8 +397,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	
 	public void surfaceCreated(SurfaceHolder holder)
 	{
-		if (D) Log.d(
-			TAG_QRCODE, "surface created");
+		if (D) Log.d(TAG_QRCODE, "surface created");
 		if (!mHasSurface)
 		{	
 			mHasSurface = true;
@@ -424,8 +416,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height)
 	{
-		if (D) Log.d(
-			TAG_QRCODE, "surface changed");
+		if (D) Log.d(TAG_QRCODE, "surface changed");
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
@@ -444,9 +435,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	public void handleDecode(Result rawResult, Bitmap barcode)
 	{
-		if (I)
-			Log.i(
-				TAG_QRCODE, "handle valide decode " + rawResult);
+		if (I) Log.i(TAG_QRCODE, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		ViewfinderView.CURRENT_POINT_OPACITY = 0xFF;
 		mViewfinderView.drawResultBitmap(barcode);
@@ -460,9 +449,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		if (I)
-			Log.i(
-				TAG_QRCODE, "handle valide decode " + rawResult);
+		if (I) Log.i(TAG_QRCODE, "handle valide decode " + rawResult);
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}
 
@@ -553,18 +540,14 @@ public final class CaptureQRCodeActivity extends Activity implements
 		}
 		catch (IOException ioe)
 		{
-			if (W)
-				Log.w(
-					TAG_QRCODE, ioe);
+			if (W) Log.w(TAG_QRCODE, ioe);
 			displayFrameworkBugMessageAndExit();
 		}
 		catch (RuntimeException e)
 		{
 			// Barcode Scanner has seen crashes in the wild of this variety:
 			// java.?lang.?RuntimeException: Fail to connect to camera service
-			if (W)
-				Log.w(
-					TAG_QRCODE, "Unexpected error initializating camera", e);
+			if (W) Log.w(TAG_QRCODE, "Unexpected error initializating camera", e);
 			displayFrameworkBugMessageAndExit();
 		}
 	}
@@ -597,9 +580,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public Point scaledRotatePoint(Point p, int orientation, int canvasW, int canvasH)
 	{
 		Point tmp = new Point();
-		if (D)
-			Log.d(
-				TAG_QRCODE, "rotating result points to match the device orientation");
+		if (D) Log.d(TAG_QRCODE, "rotating result points to match the device orientation");
 
 //		if (orientation == CameraManager.sOrientation[0]){
 //			tmp.x = canvasW - p.y;

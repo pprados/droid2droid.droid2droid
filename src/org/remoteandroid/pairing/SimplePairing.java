@@ -253,7 +253,7 @@ public class SimplePairing extends Pairing
 	        		.setPairingstep(6)
 	        		.setCookie(cookie)
 	        		.setRc(rc)
-	        		.setIdentity(ProtobufConvs.toIdentity(Application.sManager.getInfos())) // Publish alls informations
+	        		.setIdentity(ProtobufConvs.toIdentity(Application.getManager().getInfos())) // Publish alls informations
 	        		.build();
 		        
 			default:

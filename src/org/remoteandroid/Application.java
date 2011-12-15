@@ -92,7 +92,7 @@ public class Application extends android.app.Application
 	public static String	sPackageName;
 
 	
-	public static RemoteAndroidManagerImpl sManager;
+	private static RemoteAndroidManagerImpl sManager;
 	
 	public static RemoteAndroidManagerStub sDiscover;
 	
@@ -144,7 +144,10 @@ public class Application extends android.app.Application
 		waitInit();
 		return sUuid;
 	}
-
+	public static RemoteAndroidManagerImpl getManager()
+	{
+		return sManager;
+	}
 	public static String getName()
 	{
 		waitInit();
@@ -276,7 +279,7 @@ public class Application extends android.app.Application
 			sDeviceId = "UnknownDevice";
 		// Manage the discover service
 		sDiscover=new RemoteAndroidManagerStub(this);
-		RemoteAndroidManagerImpl.setManager(sDiscover);
+		//FIXMERemoteAndroidManagerImpl.setManager(sDiscover);
 		sManager=new RemoteAndroidManagerImpl(sAppContext);
 		IPDiscoverAndroids.initIPDiscover(this);
 		new Thread()
