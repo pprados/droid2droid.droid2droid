@@ -51,7 +51,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.FeatureInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -377,12 +379,35 @@ public class Application extends android.app.Application
 		final long packageLastModified=new File(RemoteAndroidManagerImpl.sAppInfo.publicSourceDir).lastModified();
 		if (packageLastModified>lastCopied)
 		{
+			String jarname=SHARED_LIB+".jar";
+			{
+				final String packageName="org.remoteandroid";
+				PackageInfo info;
+				try
+				{
+					info = sAppContext.getPackageManager().getPackageInfo(packageName, 0/*PackageManager.GET_CONFIGURATIONS*/);
+					String jar=info.applicationInfo.dataDir+"/files/"+jarname;
+					File old=new File(info.applicationInfo.dataDir+"/files",SHARED_LIB+".jar"+".old");
+					if (old.exists())
+						old.delete();
+					if (new File(jar).exists())
+					{
+						new File(jar).renameTo(old);
+					}
+				}
+				catch (NameNotFoundException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 			InputStream in=null;
 			OutputStream out=null;
 			try
 			{// TODO: Eviter de refaire si c'est déjà correct
-				in=getAssets().open(SHARED_LIB);
-				out=openFileOutput(SHARED_LIB, Context.MODE_WORLD_READABLE);
+				in=getAssets().open(jarname);
+				out=openFileOutput(jarname, Context.MODE_WORLD_READABLE);
 				byte[] buf=new byte[1024*4];
 				for (;;)
 				{

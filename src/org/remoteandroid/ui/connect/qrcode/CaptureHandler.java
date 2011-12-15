@@ -114,7 +114,7 @@ public final class CaptureHandler extends Handler
 				}
 				else if (E)
 					Log.e(
-						TAG_QRCODE, "allrealdy in decode state");
+						TAG_QRCODE, "alrealdy in decode state");
 				break;
 
 			case R.id.current_decode:
