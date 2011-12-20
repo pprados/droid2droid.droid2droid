@@ -139,22 +139,15 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 	public void onDestroy()
 	{
 		super.onDestroy();
-		try
+		if (mListInfo!=null)
 		{
-			if (mListInfo!=null)
-			{
-				mListInfo.close();
-				if (D) mListInfo=null;
-			}
-			if (mManager!=null)
-			{
-				mManager.close();
-				if (D) mManager=null;
-			}
+			mListInfo.close();
+			if (D) mListInfo=null;
 		}
-		catch (IOException e)
+		if (mManager!=null)
 		{
-			if (W) Log.w(TAG_CONNECT,"Error when close discover list info ("+e.getMessage()+")");
+			mManager.close();
+			if (D) mManager=null;
 		}
 	}
 	

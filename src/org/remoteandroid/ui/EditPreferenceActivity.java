@@ -361,7 +361,13 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		final Intent intent=getIntent();
 		checkMode(intent);
 		initSync(intent);
-		initAsync(intent);
+		new Thread()
+		{
+			public void run() 
+			{
+				initAsync(intent);
+			}
+		}.start();
 	}
 
 	// Initialisation synchrone
@@ -506,8 +512,8 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		mDiscovered=new ListRemoteAndroidInfoImpl(Application.getManager(), null);
 
 	}
-	// Initialisation assynchrone (StrictMode)
-	private void initAsync(Intent intent) // TODO: en ASYNC
+	// Initialisation asynchrone
+	private void initAsync(Intent intent) 
 	{
 		mPreferences=Application.getPreferences();
 		final boolean active=mPreferences.getBoolean(PREFERENCES_ACTIVE, false);
@@ -571,7 +577,14 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	        }
         }
 
-   		onRestoreRetainNonConfigurationInstance((Cache)getLastNonConfigurationInstance());
+        runOnUiThread(new Runnable()
+        {
+        	@Override
+        	public void run()
+        	{
+           		onRestoreRetainNonConfigurationInstance((Cache)getLastNonConfigurationInstance());
+        	}
+        });
 	}
 	
 
@@ -842,31 +855,42 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	
 	private void updateDiscoverExposeButton()
 	{
-		ArrayList<CharSequence> a=new ArrayList<CharSequence>();
-		ArrayList<Expose> e=new ArrayList<Expose>();
-		ArrayList<Boolean> act=new ArrayList<Boolean>();
-		final int activeFeature=Application.getActiveFeature();
-		for (int i=0;i<Expose.sExpose.length;++i)
+		new AsyncTask<Void, Void, Boolean>()
 		{
-			if ((Expose.sExpose[i].mFeature & Application.sFeature) == Expose.sExpose[i].mFeature)
+			@Override
+			protected Boolean doInBackground(Void... params)
 			{
-				a.add(getString(Expose.sExpose[i].mValue));
-				e.add(Expose.sExpose[i]);
-				act.add((Expose.sExpose[i].mFeature & activeFeature) ==Expose.sExpose[i].mFeature);
-			}
-		}
-		mExposeValues=a.toArray(new CharSequence[a.size()]);
-		mExposeModel=e.toArray(new Expose[e.size()]);
-		mExposeActive=act.toArray(new Boolean[act.size()]);
+				ArrayList<CharSequence> a=new ArrayList<CharSequence>();
+				ArrayList<Expose> e=new ArrayList<Expose>();
+				ArrayList<Boolean> act=new ArrayList<Boolean>();
+				final int activeFeature=Application.getActiveFeature();
+				for (int i=0;i<Expose.sExpose.length;++i)
+				{
+					if ((Expose.sExpose[i].mFeature & Application.sFeature) == Expose.sExpose[i].mFeature)
+					{
+						a.add(getString(Expose.sExpose[i].mValue));
+						e.add(Expose.sExpose[i]);
+						act.add((Expose.sExpose[i].mFeature & activeFeature) ==Expose.sExpose[i].mFeature);
+					}
+				}
+				mExposeValues=a.toArray(new CharSequence[a.size()]);
+				mExposeModel=e.toArray(new Expose[e.size()]);
+				mExposeActive=act.toArray(new Boolean[act.size()]);
 
-		int netStatus=NetworkTools.getActiveNetwork();
-		boolean samp=(netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
-		mPreferenceScan.setEnabled(
-			samp
-			&& !Application.getManager().isDiscovering());
-		mExpose.setEnabled(samp);
-		
+				int netStatus=NetworkTools.getActiveNetwork();
+				return (netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
+			}
+			@Override
+			protected void onPostExecute(Boolean result)
+			{
+				mPreferenceScan.setEnabled(
+					result
+					&& !Application.getManager().isDiscovering());
+				mExpose.setEnabled(result);
+			}
+		}.execute();
 	}
+	
 	private void scan(final int flags)
 	{
 		if (!Application.getManager().isDiscovering())

@@ -254,7 +254,7 @@
              
 <!-- Tests activities -->
 <!--  expose. A virer dans fragment -->
-<uses-permission android:name="android.permission.SET_DEBUG_APP"/>
+<!-- <uses-permission android:name="android.permission.SET_DEBUG_APP"/> -->
 
          <activity 
              android:name=".test.CaptureQRCodeActivity"

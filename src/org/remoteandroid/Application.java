@@ -279,7 +279,7 @@ public class Application extends android.app.Application
 			sDeviceId = "UnknownDevice";
 		// Manage the discover service
 		sDiscover=new RemoteAndroidManagerStub(this);
-		//FIXMERemoteAndroidManagerImpl.setManager(sDiscover);
+//RemoteAndroidManagerImpl.setManager(sDiscover); // FIXME
 		sManager=new RemoteAndroidManagerImpl(sAppContext);
 		IPDiscoverAndroids.initIPDiscover(this);
 		new Thread()

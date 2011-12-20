@@ -112,9 +112,6 @@ public final class CaptureHandler extends Handler
 					CameraManager.get().requestPreviewFrame(
 						mDecodeThread.getHandler(), R.id.decode);
 				}
-				else if (E)
-					Log.e(
-						TAG_QRCODE, "alrealdy in decode state");
 				break;
 
 			case R.id.current_decode:

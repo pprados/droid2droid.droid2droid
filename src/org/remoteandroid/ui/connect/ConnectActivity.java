@@ -577,7 +577,7 @@ implements TechnologiesFragment.Listener
 						@Override
 						public void run()
 						{
-							if (dlg!=null && dlg.getFragmentManager()!=null)
+							if (dlg!=null && dlg.getFragmentManager()!=null && dlg.isVisible())
 							{
 								dlg.dismiss();
 							}

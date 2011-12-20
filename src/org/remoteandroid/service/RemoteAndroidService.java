@@ -21,7 +21,9 @@ import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.ui.Notifications;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -88,6 +90,10 @@ public class RemoteAndroidService extends Service
 		// Start daemon
 		try
 		{
+//	    	getPackageManager().setComponentEnabledSetting(new ComponentName(this,this.getClass()),
+//    	        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+//    	        PackageManager.DONT_KILL_APP);    	
+    	
 			//new TestBluetooth().test();
 			NetSocketRemoteAndroid.startDaemon(getApplicationContext(),mNotification);
 	    	if (Constants.SHOW_SERVICE_NOTIFICATION)

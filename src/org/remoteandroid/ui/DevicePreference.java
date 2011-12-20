@@ -48,8 +48,6 @@ public class DevicePreference extends Preference
 
 	private CharSequence				mPairing;
 
-	private Handler						mHandler			= new Handler();
-
 	public DevicePreference(Context context)
 	{
 		super(context);
@@ -189,7 +187,7 @@ public class DevicePreference extends Preference
 			{
 				try
 				{
-					new Trusted(getContext().getApplicationContext(), mHandler)
+					new Trusted(getContext().getApplicationContext(), Application.sHandler)
 							.pairWith(mInfo.uris);
 				}
 				finally
@@ -224,7 +222,7 @@ public class DevicePreference extends Preference
 			{
 				try
 				{
-					new Trusted(getContext().getApplicationContext(), mHandler)
+					new Trusted(getContext().getApplicationContext(), Application.sHandler)
 							.unpairWith(mInfo);
 				}
 				finally
