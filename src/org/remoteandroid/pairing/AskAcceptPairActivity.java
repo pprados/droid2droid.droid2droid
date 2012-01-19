@@ -19,6 +19,7 @@ import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+// TODO: protect with android:filterTouchesWhenObscured="true" ?
 public final class AskAcceptPairActivity extends FragmentActivity implements
 		DialogInterface.OnClickListener
 {

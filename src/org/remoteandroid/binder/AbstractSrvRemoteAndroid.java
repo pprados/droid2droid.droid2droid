@@ -943,20 +943,15 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 					@Override
 					public void run()
 					{
-						if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv start install apk activity");
-						Intent intent = new Intent(mContext,InstallApkActivity.class);
-						intent.putExtra(InstallApkActivity.EXTRA_FILENAME, fileName.toString());
-						intent.putExtra(EXTRA_INSTALLER_PACKAGE_NAME,mContext.getPackageName()); // Trace the installer package (this app.)
-						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_FROM_BACKGROUND);
-						mContext.startActivity(intent);	
+						InstallApkActivity.startActivity(mContext,fileName);
 					}
 				});
-				if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv wait LOCK_WAIT_INSTALL");
+				if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"Wait LOCK_WAIT_INSTALL");
 	    		String event=(String)CommunicationWithLock.getResult(LOCK_WAIT_INSTALL,timeout);
-				if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"srv Install finished with "+event);
+				if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Install finished with "+event);
 	    		if (!CANCEL.equals(event)) // no timeout
 	    		{
-					if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"srv Install ok");
+					if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Install ok");
 	    			return true;
 	    		}	    			
 		    } 

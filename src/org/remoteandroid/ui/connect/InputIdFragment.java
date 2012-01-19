@@ -92,7 +92,7 @@ public class InputIdFragment extends AbstractBodyFragment
 							loc=loc.substring(TicketExpose.BASE_SHORTEN.length());
 							byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
 							Messages.Candidates candidates=Messages.Candidates.parseFrom(bytes);
-							tryConn.setUris(ProtobufConvs.toUris(candidates));
+							tryConn.setUris(ProtobufConvs.toUris(Application.sAppContext,candidates));
 						}
 						else
 						{

@@ -150,8 +150,9 @@ public class SimplePairing extends Pairing
 			resp = remoteAndroid.sendRequestAndReadResponse(msg,timeout);
 			if ((resp.getType() != Type.PAIRING_CHALENGE) || resp.getPairingstep()!=6)
 				return false;
-			remoteAndroid.mInfo=ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
-			Application.sDiscover.addCookie(uri, resp.getCookie());
+			remoteAndroid.mInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
+			if (accept)
+				Application.sDiscover.addCookie(uri, resp.getCookie());
 			return accept && resp.getRc();
 		}
 		catch (RemoteException e)
@@ -236,7 +237,7 @@ public class SimplePairing extends Pairing
 				
 			case 5:
 				boolean rc=finishAskUser();
-				connContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(msg.getIdentity());
+				connContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,msg.getIdentity());
 				if (mType==ConnectionType.BT)
 				{
 					connContext.mClientInfo.isDiscoverBT=true;
@@ -247,6 +248,11 @@ public class SimplePairing extends Pairing
 				}
 				if (rc && msg.getRc())
 					Trusted.registerDevice(mAppContext,connContext);
+				else
+				{
+					cookie=-1;
+					Application.removeCookie(connContext.mClientInfo.uuid.toString());
+				}
 		        return Msg.newBuilder()
 	        		.setType(Type.PAIRING_CHALENGE)
 	        		.setThreadid(msg.getThreadid())
@@ -278,7 +284,13 @@ public class SimplePairing extends Pairing
 		final Intent intent = new Intent(mAppContext,AskAcceptPairActivity.class);
 		intent.putExtra(AskAcceptPairActivity.EXTRA_DEVICE, device);
 		intent.putExtra(AskAcceptPairActivity.EXTRA_PASSKEY, passkey);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_FROM_BACKGROUND|Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+		intent.setFlags(
+			Intent.FLAG_ACTIVITY_NEW_TASK
+			|Intent.FLAG_FROM_BACKGROUND
+			|Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+			|Intent.FLAG_ACTIVITY_NO_ANIMATION
+			//|Intent.FLAG_ACTIVITY_NO_HISTORY
+			);
 		mHandler.post(new Runnable()
 		{
 			@Override

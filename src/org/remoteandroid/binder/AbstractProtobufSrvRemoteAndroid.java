@@ -77,7 +77,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		// Save type
             		conContext.mType=getType();
             		// and remote infos
-            		conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(msg.getIdentity());
+            		conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(mContext,msg.getIdentity());
 		    		if (PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE)
 		    		{
                 		// Auto register binded bluetooth devices
@@ -131,6 +131,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 	        		// Connect for cookie but refuse anonymous ?
         			if (SECURITY && (type==Type.CONNECT_FOR_COOKIE) && !acceptAnonymous)
         			{
+        				Application.removeCookie(conContext.mClientInfo.uuid.toString());
         				if (!Trusted.isBonded(conContext.mClientInfo))
         				{
         					if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject no bounded device "+conContext.mClientInfo.getName());

@@ -4,10 +4,10 @@
 	android:key="container"
 	android:title="@string/settings_label"
 >
-	<PreferenceCategory 
+<!-- 	<PreferenceCategory 
 		android:title="@string/settings_remote_android"
 	>		
-		<CheckBoxPreference 
+ -->		<CheckBoxPreference 
 			android:title="@string/remote_control_title" 
 			android:summary="@string/remote_control_summary" 
 			android:key="active"
@@ -35,8 +35,8 @@
         android:dependency="active" 
 		android:title="@string/expose_title" />
 		
-	</PreferenceCategory>
-		
+<!-- 	</PreferenceCategory>
+ -->		
 	<PreferenceCategory 
 		android:title="@string/anonymous"
 		android:key="ano"

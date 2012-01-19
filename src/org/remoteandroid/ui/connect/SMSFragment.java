@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
@@ -147,7 +148,7 @@ public class SMSFragment extends AbstractBodyFragment
 					byte[] bytes = mQueue.poll(
 						SMS_TIMEOUT_WAIT, TimeUnit.MILLISECONDS);
 					Messages.Candidates candidates = Messages.Candidates.parseFrom(bytes);
-					tryConn.setUris(ProtobufConvs.toUris(candidates));
+					tryConn.setUris(ProtobufConvs.toUris(Application.sAppContext,candidates));
 					return 0;
 				}
 				catch (Exception e)

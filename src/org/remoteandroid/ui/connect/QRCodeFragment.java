@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
@@ -406,7 +407,7 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 			getBytes(s, 0, s.length(), data, 0);//rawResult.getText().getBytes();
 			//data = s.getBytes();
 			candidates = Messages.Candidates.parseFrom(data);
-			activity.tryConnect(null, ProtobufConvs.toUris(candidates), activity.isAcceptAnonymous());
+			activity.tryConnect(null, ProtobufConvs.toUris(Application.sAppContext,candidates), activity.isAcceptAnonymous());
 		}
 		catch (InvalidProtocolBufferException e)
 		{

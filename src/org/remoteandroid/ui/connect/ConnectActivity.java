@@ -2,6 +2,7 @@ package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.HACK_CONNECT_FORCE_FRAGMENTS;
 import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -13,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.NetworkTools;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
@@ -197,7 +198,7 @@ implements TechnologiesFragment.Listener
 	protected void onResume()
 	{
 		super.onResume();
-		mActiveNetwork=NetworkTools.getActiveNetwork();
+		mActiveNetwork=NetworkTools.getActiveNetwork(Application.sAppContext);
 		registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		registerReceiver(mAirPlane,new IntentFilter("android.intent.action.SERVICE_STATE"));
 		IntentFilter filter=new IntentFilter();
@@ -250,6 +251,9 @@ implements TechnologiesFragment.Listener
 				case ConnectivityManager.TYPE_WIFI:
 					mActiveNetwork|=NetworkTools.ACTIVE_LOCAL_NETWORK;
 					break;
+	            default:
+	            	if (W) Log.w(TAG_DISCOVERY,PREFIX_LOG+"Unknown network type "+type);
+	            	break;
 	        }
 		}
 		onUpdateActiveNetwork();

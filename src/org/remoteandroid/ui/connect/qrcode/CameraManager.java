@@ -451,16 +451,24 @@ public final class CameraManager
 					TAG_CONNECT, "Requesting auto-focus callback");
 			//if (QRCODE_AUTOFOCUS)
 			String focusMode = mCamera.getParameters().getFocusMode(); 
-			if (focusMode.compareTo(Camera.Parameters.FOCUS_MODE_AUTO) == 0){
+			if (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
+			{
+				// FIXME: ICS
+			}
+			else if (focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
+			{
+				// FIXME: ICS
+			}
+			else if (!focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
+			{
 				mCamera.autoFocus(mAutoFocusCallback);
 				if(V) 
 					Log.v(TAG_CONNECT, PREFIX_LOG + " is in auto focus mode");
 			}
-			else {
-				mAutoFocusCallback.onAutoFocus(
-					true, mCamera);
-				if(W) 
-					Log.w(TAG_CONNECT, PREFIX_LOG + " is not in auto focus mode");
+			else 
+			{
+				mAutoFocusCallback.onAutoFocus(true, mCamera);
+				if(W) Log.w(TAG_CONNECT, PREFIX_LOG + " is not in auto focus mode");
 			}
 		}
 	}

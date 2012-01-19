@@ -92,7 +92,7 @@ public class Trusted
 		try
 		{
 			Messages.Candidates candidates = getConnectMessage(context);
-			info.uris=ProtobufConvs.toUris(candidates);
+			info.uris=ProtobufConvs.toUris(Application.sAppContext,candidates);
 		}
 		catch (UnknownHostException e)
 		{
@@ -361,12 +361,20 @@ public class Trusted
 				{
 					InetAddress add=(InetAddress)addrs.nextElement();
 					if (V) Log.v(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
-					if (network.getName().startsWith("sit")) // vpn ?
-						continue;
-					if (network.getName().startsWith("dummy")) // ipv6 in ipv4
-						continue;
-					if (add.isLoopbackAddress())
-						continue;
+					if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_GINGERBREAD)
+					{
+						if (network.isLoopback() || network.isVirtual() || !network.isUp())
+							continue;
+					}
+					else
+					{
+						if (network.getName().startsWith("sit")) // vpn ?
+							continue;
+						if (network.getName().startsWith("dummy")) // ipv6 in ipv4
+							continue;
+						if (network.getName().startsWith("lo"))
+							continue;
+					}
 					if (!all.contains(add))
 					{
 						if (add instanceof Inet4Address)
@@ -517,6 +525,7 @@ public class Trusted
 	{
 		try
 		{
+			Application.clearCookies();
 			String[] uris=info.getUris();
 			String uri=null;
 			for (int i=0;i<uris.length;++i)
@@ -588,11 +597,11 @@ public class Trusted
 	}
     public void unpairing(AbstractRemoteAndroidImpl remoteandroid,ConnectionType type,long timeout)
     {
+		Application.clearCookies();
 		SimplePairing pairing=new SimplePairing(mAppContext,mHandler,
 				remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
 		//mInitiatingPairingContext=...
 		pairing.unpairing((AbstractProtoBufRemoteAndroid)remoteandroid,timeout);
-		Application.clearCookies();
     }
 	
     private static ConnectionType urlToType(String uri)

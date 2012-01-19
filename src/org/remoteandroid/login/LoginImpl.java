@@ -67,7 +67,7 @@ public class LoginImpl extends Login
 				throw new SecurityException("Reject login process");
 			}
 			
-			RemoteAndroidInfoImpl remoteInfo=ProtobufConvs.toRemoteAndroidInfo(resp.getIdentity());
+			RemoteAndroidInfoImpl remoteInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
 			
 			// Step 2: Resolve the chalenge and send a new chalenge with remote public key
 			msg = Msg.newBuilder()

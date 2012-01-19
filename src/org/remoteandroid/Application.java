@@ -1,23 +1,38 @@
 package org.remoteandroid;
 
-import static org.remoteandroid.internal.Constants.*;
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.RemoteAndroidInfo.*;
-import static org.remoteandroid.NetworkTools.*;
+import static org.remoteandroid.Constants.DTMF;
+import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.Constants.PREFERENCES_BACKNAME;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.PREFERENCES_PRIVATE_KEY;
 import static org.remoteandroid.Constants.PREFERENCES_PUBLIC_KEY;
 import static org.remoteandroid.Constants.PREFERENCES_UUID;
+import static org.remoteandroid.Constants.QRCODE;
+import static org.remoteandroid.Constants.SMS;
 import static org.remoteandroid.Constants.STRICT_MODE;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_BT;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_CAMERA;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_HP;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_MICROPHONE;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_TELEPHONY;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_WIFI;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.SHARED_LIB;
+import static org.remoteandroid.internal.Constants.USE_SHAREDLIB;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -34,12 +49,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import javax.jmdns.impl.DNSRecord.IPv6Address;
-
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
-import org.remoteandroid.internal.Constants;
 import org.remoteandroid.internal.Login;
+import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.login.LoginImpl;
@@ -52,7 +65,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Handler;
@@ -130,6 +142,10 @@ public class Application extends android.app.Application
     public static long getCookie(String uri)
     {
     	return sCookies.getCookie(uri);
+    }
+    public static void removeCookie(String uri)
+    {
+    	sCookies.removeCookie(uri);
     }
     public static void addCookie(String uri,long cookie)
     {
@@ -328,23 +344,23 @@ public class Application extends android.app.Application
 	public static int getActiveFeature()
 	{
 		int f=Application.sFeature & FEATURE_SCREEN|FEATURE_HP|FEATURE_MICROPHONE|FEATURE_CAMERA;
-		int netStatus=NetworkTools.getActiveNetwork();
-		if ((netStatus & ACTIVE_NOAIRPLANE)!=0)
+		int netStatus=NetworkTools.getActiveNetwork(Application.sAppContext);
+		if ((netStatus & NetworkTools.ACTIVE_NOAIRPLANE)!=0)
 		{
-			if ((netStatus & ACTIVE_BLUETOOTH)!=0)
+			if ((netStatus & NetworkTools.ACTIVE_BLUETOOTH)!=0)
 			{
 				f|=FEATURE_BT;
 			}
-			if ((netStatus & ACTIVE_PHONE_DATA|ACTIVE_LOCAL_NETWORK)!=0)
+			if ((netStatus & NetworkTools.ACTIVE_PHONE_DATA|NetworkTools.ACTIVE_LOCAL_NETWORK)!=0)
 			{
 				f|=FEATURE_NET;
 			}
-			if ((netStatus & ACTIVE_NFC)!=0)
+			if ((netStatus & NetworkTools.ACTIVE_NFC)!=0)
 			{
 				f|=FEATURE_NFC;
 			}
 		}
-		if ((netStatus & ACTIVE_PHONE_SIM)!=0)
+		if ((netStatus & NetworkTools.ACTIVE_PHONE_SIM)!=0)
 		{
 			f|=FEATURE_TELEPHONY;
 		}

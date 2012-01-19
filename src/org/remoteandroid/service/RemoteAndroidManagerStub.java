@@ -57,7 +57,23 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 			catch (SecurityException e)
 			{
 				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
-				return -1;
+				ArrayList<String> uris=new ArrayList<String>();
+				uris.add(uri);
+				if (new Trusted(mContext, Application.sHandler)
+					.pairWith(uris)==null)
+					return -1;
+				try
+				{
+					cookie=Application.getManager().askCookie(Uri.parse(uri));
+					if (cookie!=0)
+						mCookies.addCookie(uri, cookie);
+					return cookie;
+				}
+				catch (IOException ee)
+				{
+					if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie after pairing impossible ("+ee.getMessage()+")");
+					return -1;
+				}
 			}
 			catch (IOException e)
 			{

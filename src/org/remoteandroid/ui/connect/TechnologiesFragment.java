@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.NetworkTools;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.DevicePreference;
 
@@ -147,7 +147,7 @@ public class TechnologiesFragment extends ListFragment
 	void update()
 	{
 		mActiveFeature=Application.getActiveFeature();
-		mActiveNetwork=NetworkTools.getActiveNetwork();
+		mActiveNetwork=NetworkTools.getActiveNetwork(Application.sAppContext);
 		mAdapter.notifyDataSetChanged();
 	}
 	@Override

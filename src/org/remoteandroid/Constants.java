@@ -8,11 +8,13 @@ import android.bluetooth.BluetoothClass;
 //TODO: Manage battery low !
 public class Constants
 {
+	public static final int REMOTE_ANDROID_VERSION=1;
+	
 	public static final boolean DEBUG=true;
 
 	public static final boolean LOGGER_SEVERE					=false; // true
 	public static final boolean LOGGER_WARNING					=LOGGER_SEVERE;
-	public static final boolean LOGGER_INFO						=false; //false;
+	public static final boolean LOGGER_INFO						=true; //false; // Trace JmDNS
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
 	public static final boolean LOGGER_FINER					=LOGGER_FINE;
 	public static final boolean LOGGER_FINEST					=false;//LOGGER_FINER;
@@ -25,8 +27,6 @@ public class Constants
 	public static final String TAG_DTMF							="DTMF"; // TAG_CONNECT
 	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
 		
-	public static final boolean PREFERENCES_IN_ONE_SCREEN		=true;
-	
 	public static final String PREFERENCES_DEVICE_ID			="deviceid";
 	public static final String PREFERENCES_NAME					="name";
 	public static final String PREFERENCES_BACKNAME				="backname";
@@ -108,7 +108,7 @@ public class Constants
 	/** IP Listen port to accept connection from remotes androids. */
 	public static final int ETHERNET_LISTEN_PORT					=RemoteAndroidManager.DEFAULT_PORT;
     /** Delay to discover others remote androids. */
-	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 5000L : 5000L;	// FIXME: 5000L;
+	public static final long ETHERNET_TIME_TO_DISCOVER				=(D) ? 15000L : 5000L;	// FIXME: 5000L;
 	/** Socket timeout for read message. */
     public static final int ETHERNET_TRY_TIMEOUT					=150000; 	// FIXME Timeout for try connection
 	/** Socket timeout for read message. */
@@ -121,6 +121,9 @@ public class Constants
     public static final boolean ETHERNET_KEEP_ALIVE					=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */
     public static final long HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY	=300L; // Timeout before ask mDNS info (for HTC Desire)
+    public static final boolean HACK_ORDER_SERVICE_RESOLVED = true;				// Bug with mDNS when requestServiceInfo() multi times.
+    public static final long ETHERNET_WAIT_SERVICE_INFO_TIMEOUT		=1000L; 
+    
 	/** Timeout to receive a service info. */
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.
     public static final long ETHERNET_DELAY_ANTI_REPEAT_DISCOVER	=2000L; // Timeout to refuse same UUID

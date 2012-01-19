@@ -11,8 +11,8 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.NetworkTools.*;
 import static org.remoteandroid.RemoteAndroidInfo.*;
-import static org.remoteandroid.NetworkTools.*;
 
 abstract class Technology
 {

@@ -54,11 +54,13 @@
     	android:name="org.remoteandroid.permission.discover.SEND"
         android:label="@string/permission_discover_label"
         android:description="@string/permission_discover_desc"
+        android:permissionGroup="android.permission-group.NETWORK"
         android:protectionLevel="signature" />
     <permission 
     	android:name="org.remoteandroid.permission.discover.RECEIVE"
         android:label="@string/permission_discover_label"
         android:description="@string/permission_discover_desc"
+        android:permissionGroup="android.permission-group.NETWORK"
         android:protectionLevel="normal" />
 
 	<!-- Private privileges -->
@@ -98,6 +100,9 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     
+    <!-- For NFC -->
+    <uses-permission android:name="android.permission.NFC" />
+    
     <application 
     	android:debuggable="true" 
     	android:icon="@drawable/ic_launcher_remoteandroid" 
@@ -112,6 +117,7 @@
     	android:backupAgent=".service.RemoteAndroidBackup" 
     	android:allowBackup="false"
     	android:hardwareAccelerated="true"
+    	android:theme="@style/MyTheme"
     >
 		<meta-data 
 			android:name="com.google.android.backup.api_key"

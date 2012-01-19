@@ -156,7 +156,7 @@ public class RemoteAndroidService extends Service
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"onBind mBoss="+Application.sDiscover);
+		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"onBind mBoss="+Application.sDiscover);
 		return Application.sDiscover;
 	}
 }
