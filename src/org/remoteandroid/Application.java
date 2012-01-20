@@ -117,6 +117,7 @@ public class Application extends android.app.Application
 	
 	public static final ScheduledThreadPoolExecutor sScheduledPool=new ScheduledThreadPoolExecutor(5);
 	public static final ExecutorService sThreadPool=Executors.newCachedThreadPool();
+	public static final ExecutorService sSingleThread=Executors.newSingleThreadExecutor();
 	public static Handler sHandler=new Handler();
 
 	

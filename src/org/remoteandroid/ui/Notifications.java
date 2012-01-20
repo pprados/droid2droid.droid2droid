@@ -108,8 +108,6 @@ public class Notifications
         		}
         	}.run();
         }
-//        else // No notification
-//        	service.startService(service)
     }
     public void serviceCancel()
     {

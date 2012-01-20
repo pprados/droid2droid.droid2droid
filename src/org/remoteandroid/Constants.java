@@ -1,9 +1,8 @@
 package org.remoteandroid;
 
-import org.remoteandroid.RemoteAndroidManager;
-import static org.remoteandroid.internal.Constants.*;
-
-import android.bluetooth.BluetoothClass;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.PROBE_INTERVAL_MS;
+import static org.remoteandroid.internal.Constants.PROBE_SENT;
 
 //TODO: Manage battery low !
 public class Constants
@@ -14,12 +13,13 @@ public class Constants
 
 	public static final boolean LOGGER_SEVERE					=false; // true
 	public static final boolean LOGGER_WARNING					=LOGGER_SEVERE;
-	public static final boolean LOGGER_INFO						=true; //false; // Trace JmDNS
+	public static final boolean LOGGER_INFO						=false; //false; // Trace JmDNS
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
 	public static final boolean LOGGER_FINER					=LOGGER_FINE;
 	public static final boolean LOGGER_FINEST					=false;//LOGGER_FINER;
 
 	public static final String TAG_DISCOVERY					="Discovery";
+	public static final String TAG_MDNS							="MDNS";
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
 	public static final String TAG_EXPOSE						="Expose";
@@ -116,13 +116,16 @@ public class Constants
     /** Flush current data before close the socket. */
     public static final boolean ETHERNET_SO_LINGER					=true; 		// Vide les derniers paquets avant la fermeture du socket
     /** Timeout to flush the last datas. */
-    public static final int ETHERNET_SO_LINGER_TIMEOUT				=50000; 		// FIXME Delay for flush last packets
+    public static final int ETHERNET_SO_LINGER_TIMEOUT				=50000; 	// FIXME Delay for flush last packets
     /** Keep the socket alive. */
     public static final boolean ETHERNET_KEEP_ALIVE					=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */
-    public static final long HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY	=300L; // Timeout before ask mDNS info (for HTC Desire)
-    public static final boolean HACK_ORDER_SERVICE_RESOLVED = true;				// Bug with mDNS when requestServiceInfo() multi times.
-    public static final long ETHERNET_WAIT_SERVICE_INFO_TIMEOUT		=1000L; 
+    public static final long HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY=300L; 	// Timeout before ask mDNS info (for HTC Desire)
+    public static final long ETHERNET_WAIT_SERVICE_INFO_TIMEOUT		=1000L;
+    /** True if want to reset MDNS when used change from WIFI to another WIFI network. */
+    public static final boolean HACK_WIFI_CHANGED_RESTART_MDNS		=true;
+    /** Invalide IP in network devices when shutdown wifi and shuton wifi quickly. */
+    public static final long HACK_WAIT_BEFORE_RESTART_MDNS			=500;
     
 	/** Timeout to receive a service info. */
     public static final long ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.

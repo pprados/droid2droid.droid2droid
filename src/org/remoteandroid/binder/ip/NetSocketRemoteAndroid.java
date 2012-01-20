@@ -38,7 +38,7 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
         {
         	sDaemonNet=new NetSocketRemoteAndroid(context, notifications);
         	sDaemonNet.start();
-        	IPDiscoverAndroids.registerService();
+        	IPDiscoverAndroids.asyncRegisterService();
         }
     }
     public static void stopDaemon(Context context)
@@ -48,7 +48,7 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 		{
 			sDaemonNet.stop();
 			sDaemonNet=null;
-        	IPDiscoverAndroids.unregisterService();
+        	IPDiscoverAndroids.asyncUnregisterService();
 		}
     }
     public static boolean isStarted()

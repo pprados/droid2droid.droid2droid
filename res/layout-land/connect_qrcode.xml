@@ -19,8 +19,6 @@
 		android:paddingRight="10dip"
 		android:paddingTop="10dip"
 		android:gravity="top"
-		android:layout_alignParentTop="true"
-		android:layout_alignParentLeft="true"
 		android:lineSpacingMultiplier="0.92"
 		android:text="@string/connect_qrcode_help"
 		android:layout_height="match_parent" />
@@ -30,7 +28,6 @@
 		style="?android:attr/listSeparatorTextViewStyle"
 		android:gravity="center_vertical"
 		android:paddingLeft="5dip"
-		android:layout_toRightOf="@+id/connect_help"
 		android:layout_width="1dp"
 		android:layout_weight="1"
 		android:layout_height="fill_parent" />

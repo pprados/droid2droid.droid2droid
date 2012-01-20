@@ -14,7 +14,7 @@
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"
       android:background="@color/transparent"
-      android:layout_centerInParent="true"/>
+      />
 
 
   <TextView android:id="@+id/status_view"

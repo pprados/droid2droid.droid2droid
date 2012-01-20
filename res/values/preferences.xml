@@ -60,7 +60,7 @@
     
     <string name="device_paired">Paired. </string>
     <string name="device_not_paired">Pair with this device. </string>
-    <string name="device_pairing_summary">Pairing... </string>
+    <string name="device_pairing_summary">Pairing&#8230;</string>
     <string name="device_context_pair">Pair</string>
     <string name="device_context_unpair">Unpair</string>
     

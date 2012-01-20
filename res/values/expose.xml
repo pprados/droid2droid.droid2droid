@@ -13,7 +13,7 @@
 
 	<string name="expose_sms_help">Send an message to another device.</string>
 	<string name="expose_sms_field_help">Name or phone number.</string>
-	<string name="expose_sms_send">Send...</string>
+	<string name="expose_sms_send">Send&#8230;</string>
 	<string name="expose_sms_error_title">SMS error</string>
 	<string name="expose_sms_error_message">Impossible to send message!</string>
 </resources>

@@ -7,10 +7,10 @@
 	<string name="connect_label">Connect Androids</string>
 
 	<bool name="connect_merge">false</bool>
-	<string name="connect_try">Connect...</string>
+	<string name="connect_try">Connect&#8230;</string>
 
-	<string name="connect_expose_title">Expose with...</string>
-	<string name="connect_try_connect">Connect...</string>
+	<string name="connect_expose_title">Expose with&#8230;</string>
+	<string name="connect_try_connect">Connect&#8230;</string>
 	
 	<string name="connect_alert_title">Alert</string>
 	<string name="connect_alert_connection_impossible">Connection to remote device impossible!</string>
@@ -64,7 +64,7 @@
 	<!-- Title for the sms disambiguation dialog -->
 	<string name="connect_sms_disambig_title">Using</string>
 	<string name="connect_sms_execute">Start</string>
-	<string name="connect_sms_wait">Wait short messages...</string>
+	<string name="connect_sms_wait">Wait short messages&#8230;</string>
 	<string name="connect_sms_empty_help">
         <font fgcolor="#ffffffff"><b>Short messages</b></font> propose to receive an SMS from a remote device.\n\n
 	</string>

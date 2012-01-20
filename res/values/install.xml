@@ -3,7 +3,7 @@
   xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
 >
     <!-- If system/app, signal download is finish -->
-    <string name="autoinstall_caption">Installing...</string>
+    <string name="autoinstall_caption">Installing&#8230;</string>
     <string name="autoinstall_ticket">Installing %1$s.</string>
     
     <!-- If system/app, signal application is successufull installed -->

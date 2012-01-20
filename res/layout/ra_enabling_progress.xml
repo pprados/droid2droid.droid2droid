@@ -25,7 +25,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="wrap_content">
 
         <ProgressBar android:id="@+android:id/progress"
             android:layout_width="wrap_content"

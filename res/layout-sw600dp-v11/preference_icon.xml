@@ -5,6 +5,7 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:gravity="center_vertical"
     android:paddingLeft="16dip"
+    android:baselineAligned="false"
     android:paddingRight="?android:attr/scrollbarSize">
 
     <LinearLayout
@@ -22,7 +23,7 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_marginLeft="32dip"
         android:layout_marginRight="6dip"

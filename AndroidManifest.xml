@@ -136,7 +136,7 @@
 		<!-- The service to listen socket -->
 		<service 
 			android:enabled="true"
-			android:exported="true"
+			android:exported="false"
 			android:label="@string/service_label" 
 			android:icon="@drawable/ic_launcher_remoteandroid" 
 			android:description="@string/service_description" 
@@ -147,7 +147,19 @@
 			</intent-filter>
 		</service>
 
-		<!--  Activity to parameter service -->
+		<!-- The service to bind services TODO: description-->
+		<service 
+			android:enabled="true"
+			android:exported="true"
+			android:label="@string/service_label" 
+			android:icon="@drawable/ic_launcher_remoteandroid" 
+			android:description="@string/service_description" 
+			android:name=".service.RemoteAndroidBinderService">
+			<intent-filter>
+				<action android:name="org.remoteandroid.service.RemoteAndroidBinder"/>
+			</intent-filter>
+		</service>
+				<!--  Activity to parameter service -->
         <activity 
         	android:name=".ui.EditPreferenceActivity"
         	android:exported="true"

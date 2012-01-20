@@ -16,7 +16,7 @@
         android:layout_gravity="center" />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dip"
         android:layout_marginRight="6dip"

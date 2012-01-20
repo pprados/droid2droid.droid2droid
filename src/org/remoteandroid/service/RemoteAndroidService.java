@@ -52,15 +52,6 @@ public class RemoteAndroidService extends Service
     	
     	mNotification=new Notifications(this);
     	
-    	Application.sThreadPool.execute(new Runnable()
-    	{
-    		@Override
-    		public void run()
-    		{
-    	   		if (Application.getPreferences().getBoolean(PREFERENCES_ACTIVE, false))
-    	   			startDaemon();
-    		}
-    	});
     }
 
     @Override
@@ -69,9 +60,15 @@ public class RemoteAndroidService extends Service
     	super.onDestroy();
     	sMe=null;
     	if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Stop RemoteAndroidService");
-    	stopDiscovery();
-		stopDaemon();
-    	stopSelf();
+    	Application.sSingleThread.execute(new Runnable()
+    	{
+    		public void run() 
+    		{
+            	stopDiscovery();
+        		stopDaemon();
+//            	stopSelf();
+    		}
+    	});
     }
 	private void stopDiscovery()
 	{
@@ -114,11 +111,10 @@ public class RemoteAndroidService extends Service
 	private void stopDaemon()
 	{
 		NetSocketRemoteAndroid.stopDaemon(getApplicationContext());
-		IPDiscoverAndroids.unregisterService();
+		IPDiscoverAndroids.asyncUnregisterService();
 	}
 
 	// Invoqué par les notifications
-//[[7	
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) 
 	{
@@ -148,15 +144,26 @@ public class RemoteAndroidService extends Service
 						mNotification.mNotificationMgr.cancel(id);
 				}
 			}
+			else
+			{
+//		    	Application.sSingleThread.execute(new Runnable()
+//		    	{
+//		    		@Override
+//		    		public void run()
+//		    		{
+//		    	   		if (Application.getPreferences().getBoolean(PREFERENCES_ACTIVE, false))
+//		    	   			startDaemon();
+//		    		}
+//		    	});
+	   			startDaemon();
+			}
 		}
         return (DEBUG ? START_NOT_STICKY : START_STICKY);
     }    
-//]]    
-
+	
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"onBind mBoss="+Application.sDiscover);
-		return Application.sDiscover;
+		return null;
 	}
 }

@@ -384,33 +384,16 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			{
 				if (((Boolean)newValue).booleanValue())
 				{
-					Application.sThreadPool.execute(new Runnable()
-					{
-						public void run()
-						{
-							startService(intentRemoteContext);
-						}
-					});
+					startService(intentRemoteContext);
 					delayEnableActive();
 				}
 				else
 				{
-					Application.sThreadPool.execute(new Runnable()
-					{
-						public void run()
-						{
-							stopService(intentRemoteContext);
-						}
-					});
+					if (!stopService(intentRemoteContext))
+						if (E) Log.e(TAG_SERVER_BIND,PREFIX_LOG+"Impossible to stop service");
 					delayEnableActive(); 
 				}
-				Application.sThreadPool.execute(new Runnable()
-				{
-					public void run()
-					{
-						mPreferences.edit().putBoolean(PREFERENCES_ACTIVE, ((Boolean)newValue).booleanValue()).commit();
-					}
-				});
+				mPreferences.edit().putBoolean(PREFERENCES_ACTIVE, ((Boolean)newValue).booleanValue()).commit();
 				return true;
 			}
 			// Bug with BT with version GINGERBREAD_MR1
@@ -504,19 +487,19 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			}
 			if (!isStarted)
 			{
-				Application.sThreadPool.execute(new Runnable()
-				{
-					
-					@Override
-					public void run()
-					{
+//				Application.sThreadPool.execute(new Runnable()
+//				{
+//					
+//					@Override
+//					public void run()
+//					{
 						if (startService(intentRemoteContext)==null)
 						{
 							if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"Impossible to start the service");
 							// TODO
 						}
-					}
-				});
+//					}
+//				});
 			}
 		}
 		// Device name

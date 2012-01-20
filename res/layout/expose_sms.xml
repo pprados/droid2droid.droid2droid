@@ -4,14 +4,14 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
+    android:baselineAligned="false"
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
     <LinearLayout
         android:id="@+id/smsRelativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/line"
+        android:layout_height="0dip"
         android:layout_marginTop="10dp"
         android:layout_weight="1.0"
         android:orientation="vertical" >
@@ -25,8 +25,6 @@
 		android:paddingRight="0dip"
 		android:paddingTop="10dip"
 		android:paddingBottom="10dip"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
 		android:lineSpacingMultiplier="0.92"
 		android:gravity="center_vertical" android:text="@string/expose_sms_help"/>
 

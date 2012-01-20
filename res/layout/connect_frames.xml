@@ -5,6 +5,7 @@
 	android:layout_height="match_parent"
 	android:orientation="horizontal"
 	android:layout_weight="70"
+	android:baselineAligned="false"
 >
 
 	<FrameLayout
