@@ -454,21 +454,22 @@ public final class CameraManager
 			if (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
 			{
 				// FIXME: ICS
+				mCamera.autoFocus(mAutoFocusCallback);
 			}
 			else if (focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
 			{
 				// FIXME: ICS
+				mCamera.autoFocus(mAutoFocusCallback);
 			}
 			else if (!focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
 			{
 				mCamera.autoFocus(mAutoFocusCallback);
-				if(V) 
-					Log.v(TAG_CONNECT, PREFIX_LOG + " is in auto focus mode");
+				if (V) Log.v(TAG_CONNECT, PREFIX_LOG + " is in auto focus mode");
 			}
 			else 
 			{
 				mAutoFocusCallback.onAutoFocus(true, mCamera);
-				if(W) Log.w(TAG_CONNECT, PREFIX_LOG + " is not in auto focus mode");
+				if (W) Log.w(TAG_CONNECT, PREFIX_LOG + " is not in auto focus mode");
 			}
 		}
 	}

@@ -65,6 +65,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
+import android.os.Build;
 import android.util.Log;
 
 //TODO: bug sur unpair pendant le scan
@@ -432,7 +433,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 						for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
 						{
 							NetworkInterface network=networks.nextElement();
-							if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_GINGERBREAD)
+							if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
 							{
 								if (network.isLoopback() || network.isVirtual() || !network.isUp())
 									continue;

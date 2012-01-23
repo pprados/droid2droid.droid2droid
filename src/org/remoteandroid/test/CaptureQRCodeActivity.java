@@ -50,6 +50,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -83,8 +84,7 @@ import com.google.zxing.ResultPoint;
  * @author Sean Owen
  * @author Yohann Melo
  */
-public final class CaptureQRCodeActivity extends Activity implements
-		SurfaceHolder.Callback, KeyEvent.Callback, Wrapper
+public final class CaptureQRCodeActivity extends Activity implements SurfaceHolder.Callback, KeyEvent.Callback, Wrapper
 {
 	private static final boolean NO_CAMERA = false;
 
@@ -94,8 +94,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 		DISPLAYABLE_METADATA_TYPES = new HashSet<ResultMetadataType>(5);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.ISSUE_NUMBER);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.SUGGESTED_PRICE);
-		DISPLAYABLE_METADATA_TYPES
-				.add(ResultMetadataType.ERROR_CORRECTION_LEVEL);
+		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.ERROR_CORRECTION_LEVEL);
 		DISPLAYABLE_METADATA_TYPES.add(ResultMetadataType.POSSIBLE_COUNTRY);
 	}
 
@@ -131,7 +130,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 
 	private void setParams()
 	{
-		//CameraManager.camera_orientation = getResources().getConfiguration().orientation;
+		// CameraManager.camera_orientation =
+		// getResources().getConfiguration().orientation;
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
@@ -150,7 +150,8 @@ public final class CaptureQRCodeActivity extends Activity implements
 		setParams();
 
 		final ImageButton btn = (ImageButton) findViewById(R.id.connect_qrcode_btn_camera);
-		//if the SDK version is FROYO or better, we can switch front/back camera
+		// if the SDK version is FROYO or better, we can switch front/back
+		// camera
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
 		{
 			new Runnable()
@@ -164,34 +165,41 @@ public final class CaptureQRCodeActivity extends Activity implements
 						@Override
 						public void onClick(View v)
 						{
-							//switch to next camera
-							CameraManager.camera = (CameraManager.camera + 1)
-									% Camera.getNumberOfCameras();
+							// switch to next camera
+							int numberOfCamera = 1;
+							if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD)
+							{
+								numberOfCamera = Camera.getNumberOfCameras();
+							}
+							CameraManager.camera = (CameraManager.camera + 1) % numberOfCamera;
 							onPause();
 							setParams();
 							onResume();
 						}
 					});
-					
+
 				}
 			}.run();
-					}
-//		else
-//			btn.setClickable(false);
-		
+		}
+		// else
+		// btn.setClickable(false);
+
 		mViewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		mStatusView = (TextView) findViewById(R.id.status_view);
 
-//		  RotateAnimation ranim = (RotateAnimation)AnimationUtils.loadAnimation(this, R.anim.rotate_anim);
-//		  ranim.setFillAfter(true); //For the textview to remain at the same place after the rotation
-//		  mStatusView.setAnimation(ranim);
-//		  
+		// RotateAnimation ranim =
+		// (RotateAnimation)AnimationUtils.loadAnimation(this,
+		// R.anim.rotate_anim);
+		// ranim.setFillAfter(true); //For the textview to remain at the same
+		// place after the rotation
+		// mStatusView.setAnimation(ranim);
+		//
 		mCache = (Cache) getLastNonConfigurationInstance();
 		mHasSurface = false;
 		View v = findViewById(R.id.main_layout); // FIXME: remove id
-		//int[] location = new int[2];
-		
-		//mViewfinderView.getLocationOnScreen(location);
+		// int[] location = new int[2];
+
+		// mViewfinderView.getLocationOnScreen(location);
 		Rect r = new Rect();
 		v.getLocalVisibleRect(r);
 		if (mCache == null)
@@ -210,7 +218,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 			if (mCache.mHandler != null)
 				mCache.mHandler.setWrapper(this);
 		}
-		//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		// setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
 
 	@Override
@@ -229,7 +237,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mViewfinderView.getLocationOnScreen(location);
 		Rect r = new Rect();
 		v.getLocalVisibleRect(r);
-		if (D) Log.d(TAG_QRCODE, "rect=" + r);
+		if (D)
+			Log.d(
+				TAG_QRCODE, "rect=" + r);
 	}
 
 	@Override
@@ -237,7 +247,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 	{
 		super.onResume();
 		resetStatusView();
-		if (V) Log.v(TAG_QRCODE, "onResume");
+		if (V)
+			Log.v(
+				TAG_QRCODE, "onResume");
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (mHasSurface)
@@ -260,39 +272,38 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mCache.mBeepManager.updatePrefs();
 		mCache.mInactivityTimer.onResume();
 	}
-	
-	
-	
+
 	private int getRotation()
 	{
-		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
-		
+		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
+		{
+
 			Integer job = new Callable<Integer>()
 			{
-				public Integer call() 
+				public Integer call()
 				{
 					return getWindowManager().getDefaultDisplay().getRotation();
 				}
-			
-				
+
 			}.call();
 			return job;
 		}
+		else if (getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight())
+			return Surface.ROTATION_0;
 		else
-			if(getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight())
-				return Surface.ROTATION_0;
-			else
-				return Surface.ROTATION_90;
-			//return getResources().getConfiguration().orientation;
-			//return getWindowManager().getDefaultDisplay().getOrientation();
-		
+			return Surface.ROTATION_90;
+		// return getResources().getConfiguration().orientation;
+		// return getWindowManager().getDefaultDisplay().getOrientation();
+
 	}
 
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
-		if (V) Log.v(TAG_QRCODE, "onPause...");
+		if (V)
+			Log.v(
+				TAG_QRCODE, "onPause...");
 		if (mCache.mHandler != null)
 		{
 			mCache.mHandler.quitSynchronously();
@@ -306,8 +317,10 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	protected void onDestroy()
 	{
-		
-		if (V) Log.v(TAG_QRCODE, "onDestroy...");
+
+		if (V)
+			Log.v(
+				TAG_QRCODE, "onDestroy...");
 		mCache.mInactivityTimer.shutdown();
 		this.mViewfinderView.detachHandler();
 		super.onDestroy();
@@ -317,8 +330,11 @@ public final class CaptureQRCodeActivity extends Activity implements
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		if (V) Log.v(TAG_QRCODE, "onConfigurationChanged");
-		CameraManager.init(this); // FIXME: Attention fuite mémoire sur le this !
+		if (V)
+			Log.v(
+				TAG_QRCODE, "onConfigurationChanged");
+		CameraManager.init(this); // FIXME: Attention fuite mémoire sur le this
+									// !
 		CameraManager.get().closeDriver();
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -330,8 +346,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (keyCode == KeyEvent.KEYCODE_FOCUS
-				|| keyCode == KeyEvent.KEYCODE_CAMERA)
+		if (keyCode == KeyEvent.KEYCODE_FOCUS || keyCode == KeyEvent.KEYCODE_CAMERA)
 		{
 			// Handle these events so they don't launch the Camera app
 			return true;
@@ -359,52 +374,55 @@ public final class CaptureQRCodeActivity extends Activity implements
 				FlashlightManager.setFlashlight(mCache.mFlashState);
 				return true;
 			case R.id.context_qrcode_camera:
-				if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO){
-					new Runnable(){
+				if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_FROYO)
+				{
+					new Runnable()
+					{
 						@Override
-						public void run() {
-							CameraManager.camera = (CameraManager.camera + 1)
-									% Camera.getNumberOfCameras();
+						public void run()
+						{
+							CameraManager.camera = (CameraManager.camera + 1) % Camera.getNumberOfCameras();
 						}
 					}.run();
 				}
-					
-					
+
 				this.onPause();
 				this.onResume();
 				return true;
-			case  R.id.context_qrcode_debugitem:
-				
+			case R.id.context_qrcode_debugitem:
+
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
-//
-//	static final int CAMERA_PARAMETERS_REQUEST = 1110;
-//	protected void onActivityResult(int requestCode, int resultCode,
-//            Intent data) {
-//        if (requestCode == CAMERA_PARAMETERS_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//            	Bundle bundle = data.getExtras();
-//            	int zoom = bundle.getInt("zoom", 1);
-//            	String flashMode = bundle.getString("flashmode");
-//            	
-//            	CameraManager.get().setParameters(zoom,flashMode);
-//            }
-//        }
-//    }
 
-	
+	//
+	// static final int CAMERA_PARAMETERS_REQUEST = 1110;
+	// protected void onActivityResult(int requestCode, int resultCode,
+	// Intent data) {
+	// if (requestCode == CAMERA_PARAMETERS_REQUEST) {
+	// if (resultCode == RESULT_OK) {
+	// Bundle bundle = data.getExtras();
+	// int zoom = bundle.getInt("zoom", 1);
+	// String flashMode = bundle.getString("flashmode");
+	//
+	// CameraManager.get().setParameters(zoom,flashMode);
+	// }
+	// }
+	// }
+
 	public void surfaceCreated(SurfaceHolder holder)
 	{
-		if (D) Log.d(TAG_QRCODE, "surface created");
+		if (D)
+			Log.d(
+				TAG_QRCODE, "surface created");
 		if (!mHasSurface)
-		{	
+		{
 			mHasSurface = true;
 			if (!NO_CAMERA)
 				initCamera(
 					holder, getRotation());
-			
+
 		}
 	}
 
@@ -413,16 +431,17 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mHasSurface = false;
 	}
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height)
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 	{
-		if (D) Log.d(TAG_QRCODE, "surface changed");
+		if (D)
+			Log.d(
+				TAG_QRCODE, "surface changed");
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
 		CameraManager.density = metrics.density;
-//		CameraManager.get().setScreenResolutionValues(
-//			new Point(width, height));
+		// CameraManager.get().setScreenResolutionValues(
+		// new Point(width, height));
 	}
 
 	/**
@@ -435,7 +454,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	public void handleDecode(Result rawResult, Bitmap barcode)
 	{
-		if (I) Log.i(TAG_QRCODE, "handle valide decode " + rawResult);
+		if (I)
+			Log.i(
+				TAG_QRCODE, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		ViewfinderView.CURRENT_POINT_OPACITY = 0xFF;
 		mViewfinderView.drawResultBitmap(barcode);
@@ -449,7 +470,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 	@Override
 	public void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		if (I) Log.i(TAG_QRCODE, "handle valide decode " + rawResult);
+		if (I)
+			Log.i(
+				TAG_QRCODE, "handle valide decode " + rawResult);
 		mViewfinderView.drawPreviousBitmap(barcode);
 	}
 
@@ -471,8 +494,7 @@ public final class CaptureQRCodeActivity extends Activity implements
 				R.color.qrcode_result_image_border));
 			paint.setStrokeWidth(3.0f);
 			paint.setStyle(Paint.Style.STROKE);
-			Rect border = new Rect(2, 2, barcode.getWidth() - 2,
-					barcode.getHeight() - 2);
+			Rect border = new Rect(2, 2, barcode.getWidth() - 2, barcode.getHeight() - 2);
 			canvas.drawRect(
 				border, paint);
 
@@ -484,11 +506,9 @@ public final class CaptureQRCodeActivity extends Activity implements
 				drawLine(
 					canvas, paint, points[0], points[1]);
 			}
-			else if (points.length == 4
-					&& (rawResult.getBarcodeFormat().equals(
-						BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat()
-							.equals(
-								BarcodeFormat.EAN_13)))
+			else if (points.length == 4 && (rawResult.getBarcodeFormat().equals(
+				BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat().equals(
+				BarcodeFormat.EAN_13)))
 			{
 				// Hacky special case -- draw two lines, for the barcode and
 				// metadata
@@ -507,16 +527,16 @@ public final class CaptureQRCodeActivity extends Activity implements
 					Point p = new Point();
 					p.x = (int) point.getX();
 					p.y = (int) point.getY();
-					p = this.scaledRotatePoint(p, CameraManager.get().getRotation() , canvas.getWidth(), canvas.getHeight());
+					p = this.scaledRotatePoint(
+						p, CameraManager.get().getRotation(), canvas.getWidth(), canvas.getHeight());
 					canvas.drawPoint(
 						p.x, p.y, paint);
 				}
 			}
 		}
 	}
-	
-	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
-			ResultPoint b)
+
+	private static void drawLine(Canvas canvas, Paint paint, ResultPoint a, ResultPoint b)
 	{
 		canvas.drawLine(
 			a.getX(), a.getY(), b.getX(), b.getY(), paint);
@@ -535,19 +555,22 @@ public final class CaptureQRCodeActivity extends Activity implements
 				mCache.mHandler = new CaptureHandler(this);
 			}
 			CameraManager.get().setScreenResolutionValues(
-					new Point(mViewfinderView.getWidth(), mViewfinderView
-							.getHeight()));
+				new Point(mViewfinderView.getWidth(), mViewfinderView.getHeight()));
 		}
 		catch (IOException ioe)
 		{
-			if (W) Log.w(TAG_QRCODE, ioe);
+			if (W)
+				Log.w(
+					TAG_QRCODE, ioe);
 			displayFrameworkBugMessageAndExit();
 		}
 		catch (RuntimeException e)
 		{
 			// Barcode Scanner has seen crashes in the wild of this variety:
 			// java.?lang.?RuntimeException: Fail to connect to camera service
-			if (W) Log.w(TAG_QRCODE, "Unexpected error initializating camera", e);
+			if (W)
+				Log.w(
+					TAG_QRCODE, "Unexpected error initializating camera", e);
 			displayFrameworkBugMessageAndExit();
 		}
 	}
@@ -576,37 +599,41 @@ public final class CaptureQRCodeActivity extends Activity implements
 		mViewfinderView.drawViewfinder();
 	}
 
-
 	public Point scaledRotatePoint(Point p, int orientation, int canvasW, int canvasH)
 	{
 		Point tmp = new Point();
-		if (D) Log.d(TAG_QRCODE, "rotating result points to match the device orientation");
+		if (D)
+			Log.d(
+				TAG_QRCODE, "rotating result points to match the device orientation");
 
-//		if (orientation == CameraManager.sOrientation[0]){
-//			tmp.x = canvasW - p.y;
-//			tmp.y = p.x;
-//		}
-//		else
-//			if (orientation == CameraManager.sOrientation[1]){
-//				tmp.x = p.x;
-//				tmp.y = p.y;
-//			}
-//			else
-//				if (orientation == CameraManager.sOrientation[2]){
-//					tmp.x = p.y;
-//					tmp.y = canvasH - p.x;
-//				}
-//				else
-//					if (orientation == CameraManager.sOrientation[3]){
-//						tmp.x = canvasW - p.x;
-//						tmp.y = canvasH - p.y; 
-//					}
-		if(CameraManager.get().camera == Camera.CameraInfo.CAMERA_FACING_BACK)
-			switch(orientation){
+		// if (orientation == CameraManager.sOrientation[0]){
+		// tmp.x = canvasW - p.y;
+		// tmp.y = p.x;
+		// }
+		// else
+		// if (orientation == CameraManager.sOrientation[1]){
+		// tmp.x = p.x;
+		// tmp.y = p.y;
+		// }
+		// else
+		// if (orientation == CameraManager.sOrientation[2]){
+		// tmp.x = p.y;
+		// tmp.y = canvasH - p.x;
+		// }
+		// else
+		// if (orientation == CameraManager.sOrientation[3]){
+		// tmp.x = canvasW - p.x;
+		// tmp.y = canvasH - p.y;
+		// }
+		if ((Build.VERSION.SDK_INT>Build.VERSION_CODES.GINGERBREAD)
+		    && (CameraManager.get().camera == Camera.CameraInfo.CAMERA_FACING_BACK))
+		{
+			switch (orientation)
+			{
 				case 90:
 					tmp.x = canvasW - p.y;
 					tmp.y = p.x;
-				break;
+					break;
 				case 0:
 					tmp.x = p.x;
 					tmp.y = p.y;
@@ -614,30 +641,34 @@ public final class CaptureQRCodeActivity extends Activity implements
 				case 270:
 					tmp.x = p.y;
 					tmp.y = canvasH - p.x;
-				break;
+					break;
 				case 180:
 					tmp.x = canvasW - p.x;
-					tmp.y = canvasH - p.y; 
-				break;
+					tmp.y = canvasH - p.y;
+					break;
 			}
+		}
 		else
-			switch(orientation){
-			case 0:
-				tmp.x = p.x;
-				tmp.y = p.y;
-			break;
-			case 90:
-				tmp.x = canvasW - p.y;
-				tmp.y = canvasH - p.x;
-				break;
-			case 180:
-				tmp.x = p.x;
-				tmp.y = canvasH - p.y;
-			break;
-			case 270:
-				tmp.x = p.x;
-				tmp.y = p.y; 
-			break;
+		{
+			switch (orientation)
+			{
+				case 0:
+					tmp.x = p.x;
+					tmp.y = p.y;
+					break;
+				case 90:
+					tmp.x = canvasW - p.y;
+					tmp.y = canvasH - p.x;
+					break;
+				case 180:
+					tmp.x = p.x;
+					tmp.y = canvasH - p.y;
+					break;
+				case 270:
+					tmp.x = p.x;
+					tmp.y = p.y;
+					break;
+			}
 		}
 		return tmp;
 	}

@@ -55,6 +55,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -414,7 +415,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 
 		// Device name
 		mName=findPreference(PREFERENCES_NAME);
-		mName.setSummary(Application.getName());
 		findPreference(PREFERENCES_NAME).setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 		{
 			
@@ -469,6 +469,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private void initAsync(Intent intent) 
 	{
 		mPreferences=Application.getPreferences();
+		mName.setSummary(Application.getName());
 		final boolean active=mPreferences.getBoolean(PREFERENCES_ACTIVE, false);
 		final Intent intentRemoteContext=new Intent(this,RemoteAndroidService.class);
 		final ActivityManager am=(ActivityManager)getSystemService(ACTIVITY_SERVICE);
@@ -556,11 +557,11 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
     {
        super.onResume();
 	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onResume()");
-	   initBonded();
     	new AsyncTask<Void, Void, Boolean>()
     	{
     		protected Boolean doInBackground(Void... paramArrayOfParams) 
     		{
+    			initBonded();
     			return Application.getManager().isDiscovering();
     		}
     		protected void onPostExecute(Boolean result) 
@@ -572,20 +573,23 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
     	}.execute();
         
 		// Register receiver
-        registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		registerReceiver(mAirPlaine,new IntentFilter("android.intent.action.SERVICE_STATE"));
-		IntentFilter filter=new IntentFilter();
-		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-		filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
-		registerReceiver(mBluetoothReceiver, filter);
-		
-		filter=new IntentFilter(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-//		filter.addAction(RemoteAndroidManager.ACTION_STOP_DISCOVER_ANDROID);
-		registerReceiver(
-			mRemoteAndroidReceiver, 
-			filter,
-			RemoteAndroidManager.PERMISSION_DISCOVER_SEND,null
-			);
+    	if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+    	{
+	        registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+			registerReceiver(mAirPlaine,new IntentFilter("android.intent.action.SERVICE_STATE"));
+			IntentFilter filter=new IntentFilter();
+			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
+			registerReceiver(mBluetoothReceiver, filter);
+			
+			filter=new IntentFilter(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+	//		filter.addAction(RemoteAndroidManager.ACTION_STOP_DISCOVER_ANDROID);
+			registerReceiver(
+				mRemoteAndroidReceiver, 
+				filter,
+				RemoteAndroidManager.PERMISSION_DISCOVER_SEND,null
+				);
+    	}
     }
 
     @Override

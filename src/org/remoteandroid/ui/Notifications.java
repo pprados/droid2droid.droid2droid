@@ -1,7 +1,9 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.SHOW_FINAL_NOTIF_AFTER_DOWNLOAD;
+import static org.remoteandroid.Constants.*;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
 
 import org.remoteandroid.Constants;
@@ -17,6 +19,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.util.Log;
 import android.widget.RemoteViews;
 public class Notifications
 {
@@ -58,7 +62,7 @@ public class Notifications
 		Intent notificationIntent = new Intent(mContext, EditPreferenceActivity.class);
 		Notification notification=null;
 		// deprecated
-        if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_ECLAIR_0_1)
+        if (Build.VERSION.SDK_INT>Build.VERSION_CODES.ECLAIR_0_1)
 		{
 			new Runnable()
 			{
@@ -70,7 +74,7 @@ public class Notifications
 		}
 		else
 			mNotificationMgr.cancel(NOTIFICATION_ID_INBOUND);
-		if (Compatibility.VERSION_SDK_INT<Compatibility.VERSION_HONEYCOMB)
+		if (Build.VERSION.SDK_INT<Build.VERSION_CODES.HONEYCOMB)
 		{
 	    	notification = new Notification(
 		    		R.drawable.ic_stat_remoteandroid, 
@@ -96,19 +100,110 @@ public class Notifications
 				mContext.getText(R.string.service_start_title),
 				mContext.getText(R.string.service_start_message), 
 				PendingIntent.getActivity(mContext, 0, notificationIntent, 0));
-        if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_ECLAIR)
-		
-        {
-        	final Notification fnotification=notification;
-        	new Runnable()
-        	{
-        		public void run() 
-        		{
-        			service.startForeground(ONGOING_NOTIFICATION, fnotification);
-        		}
-        	}.run();
-        }
+    	final Notification fnotification=notification;
+    	new Runnable()
+    	{
+    		public void run() 
+    		{
+    			service.startForeground(ONGOING_NOTIFICATION, fnotification);
+    		}
+    	}.run();
     }
+    
+    //----------------
+    // TODO: For 1.6 compatibility
+//    private NotificationManager mNM;
+//    private Method mSetForeground;
+//    private Method mStartForeground;
+//    private Method mStopForeground;
+//    private Object[] sSetForegroundArgs = new Object[1];
+//    private Object[] mStartForegroundArgs = new Object[2];
+//    private Object[] mStopForegroundArgs = new Object[1];
+//    
+//    void initStartForegroundCompat()
+//    {
+//    	mNM = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+//	    try 
+//	    {
+//	        mStartForeground = getClass().getMethod("startForeground",mStartForegroundSignature);
+//	        mStopForeground = getClass().getMethod("stopForeground",mStopForegroundSignature);
+//	        return;
+//	    } 
+//	    catch (NoSuchMethodException e) 
+//	    {
+//	        // Running on an older platform.
+//	        mStartForeground = mStopForeground = null;
+//	    }
+//   	    try 
+//   	    {
+//    	        mSetForeground = getClass().getMethod("setForeground",mSetForegroundSignature);
+//    	} 
+//   	    catch (NoSuchMethodException e) 
+//    	{
+//            // Should not happen.
+//   	        throw new IllegalStateException("OS doesn't have Service.startForeground OR Service.setForeground!");
+//    	}
+//    }
+//    
+//    private void invokeMethod(Method method, Object[] args) 
+//    {
+//        try 
+//        {
+//            method.invoke(this, args);
+//        } 
+//        catch (InvocationTargetException e) 
+//        {
+//            // Should not happen.
+//            if (W) Log.w(TAG_SERVER_BIND,"Unable to invoke method", e);
+//        } 
+//        catch (IllegalAccessException e) 
+//        {
+//            // Should not happen.
+//            if (W) Log.w(TAG_SERVER_BIND, "Unable to invoke method", e);
+//        }
+//    }
+//
+//    /**
+//     * This is a wrapper around the new startForeground method, using the older
+//     * APIs if it is not available.
+//     */
+//    void startForegroundCompat(int id, Notification notification) 
+//    {
+//        // If we have the new startForeground API, then use it.
+//        if (mStartForeground != null) {
+//            mStartForegroundArgs[0] = Integer.valueOf(id);
+//            mStartForegroundArgs[1] = notification;
+//            invokeMethod(mStartForeground, mStartForegroundArgs);
+//            return;
+//        }
+//
+//        // Fall back on the old API.
+//        mSetForegroundArgs[0] = Boolean.TRUE;
+//        invokeMethod(mSetForeground, mSetForegroundArgs);
+//        mNM.notify(id, notification);
+//    }
+//
+//    /**
+//     * This is a wrapper around the new stopForeground method, using the older
+//     * APIs if it is not available.
+//     */
+//    void stopForegroundCompat(int id) 
+//    {
+//        // If we have the new stopForeground API, then use it.
+//        if (mStopForeground != null) {
+//            mStopForegroundArgs[0] = Boolean.TRUE;
+//            invokeMethod(mStopForeground, mStopForegroundArgs);
+//            return;
+//        }
+//
+//        // Fall back on the old API.  Note to cancel BEFORE changing the
+//        // foreground state, since we could be killed at that point.
+//        mNM.cancel(id);
+//        mSetForegroundArgs[0] = Boolean.FALSE;
+//        invokeMethod(mSetForeground, mSetForegroundArgs);
+//    }
+    //----------------
+    
     public void serviceCancel()
     {
     	mNotificationMgr.cancel(NOTIFICATION_ID_INBOUND);

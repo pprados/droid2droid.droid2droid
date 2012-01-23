@@ -1,0 +1,10 @@
+TODO: modifier le code pour etre compatible "injection de dépendance" et supprimer les variables statiques via EAApplication en injection. Facilite la création des tests.
+
+Connection sans découverte:
+- Connection avec une url IP vers un Android non apparié refusant les ano
+	* Accepter l'appariement
+	* Refuser l'appariement
+- Connection avec une url IP vers un Android apparié refusant les ano, puis supprimer l'appariement, et redemander une connexion pour réutiliser le cookie
+
+- Connection, installation application, refuser lors du download, puis recommancer la connexion et cette fois ci, accepter l'installation.
+- Connection, installation application, refuser après le download, puis recommancer la connexion et cette fois ci, accepter l'installation.

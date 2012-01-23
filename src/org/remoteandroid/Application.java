@@ -58,6 +58,7 @@ import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
+import org.remoteandroid.ui.connect.qrcode.CameraManager;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -66,6 +67,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Camera;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -179,7 +181,7 @@ public class Application extends android.app.Application
 		return sKeyPair;
 	}
 	
-	private static void waitInit()
+	private static void waitInit() // FIXME: Remove this method
 	{
 		while (!sAsyncInitDone)
 		{
@@ -254,20 +256,6 @@ public class Application extends android.app.Application
 		
 		super.onCreate();
 
-		if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
-		{
-			// VerifyWrapper
-			new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					BluetoothAdapter.getDefaultAdapter();
-				}
-			}.run();
-		}
-
 		enableStrictMode();
 		enableHttpResponseCache();
 		disableConnectionReuseIfNecessary();
@@ -297,7 +285,7 @@ public class Application extends android.app.Application
 		// Manage the discover service
 		sDiscover=new RemoteAndroidManagerStub(this);
 //RemoteAndroidManagerImpl.setManager(sDiscover); // FIXME
-		sManager=new RemoteAndroidManagerImpl(sAppContext);
+		sManager=new RemoteAndroidManagerImpl(this,sDiscover);
 		IPDiscoverAndroids.initIPDiscover(this);
 		new Thread()
 		{
@@ -331,13 +319,23 @@ public class Application extends android.app.Application
 	{
 		int f=0;
 		f|=FEATURE_SCREEN;
-		for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
 		{
-			if (QRCODE && "android.hardware.camera".equals(feature.name))		f|=FEATURE_CAMERA;
-			else if (DTMF && "android.hardware.microphone".equals(feature.name))	f|=FEATURE_MICROPHONE;
-			else if (NFC && "android.hardware.nfc".equals(feature.name))			f|=FEATURE_NFC;
-			else if (SMS && "android.hardware.telephony".equals(feature.name))		f|=FEATURE_TELEPHONY;
-			else if (ETHERNET && "android.hardware.wifi".equals(feature.name))		f|=FEATURE_WIFI|FEATURE_NET;
+			for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
+			{
+				if (QRCODE && "android.hardware.camera".equals(feature.name))		f|=FEATURE_CAMERA;
+				else if (DTMF && "android.hardware.microphone".equals(feature.name))	f|=FEATURE_MICROPHONE;
+				else if (NFC && "android.hardware.nfc".equals(feature.name))			f|=FEATURE_NFC;
+				else if (SMS && "android.hardware.telephony".equals(feature.name))		f|=FEATURE_TELEPHONY;
+				else if (ETHERNET && "android.hardware.wifi".equals(feature.name))		f|=FEATURE_WIFI|FEATURE_NET;
+			}
+		}
+		else
+		{
+			if (CameraManager.get()!=null)								f|=FEATURE_CAMERA;
+			if (getSystemService(Context.AUDIO_SERVICE)!=null)			f|=FEATURE_MICROPHONE;
+			if (getSystemService(Context.TELEPHONY_SERVICE)!=null)		f|=FEATURE_TELEPHONY;
+			if (getSystemService(Context.WIFI_SERVICE)!=null)			f|=FEATURE_WIFI|FEATURE_NET;
 		}
 		sFeature=f;
 		
@@ -476,25 +474,6 @@ public class Application extends android.app.Application
 			if (V) Log.v(TAG, PREFIX_LOG+"Application init preferences.");
 			Login.sLogin=new LoginImpl();
 			String adapterName=null;
-			if (Compatibility.VERSION_SDK_INT>Compatibility.VERSION_DONUT)
-			{
-				// VerifyWrapper
-				adapterName=new PrivilegedAction<String>()
-				{
-
-					@Override
-					public String run()
-					{
-						BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
-						
-						if (adapter!=null)
-						{
-							return adapter.getName();
-						}
-						return null;
-					}
-				}.run();
-			}
 			sPreferences=sAppContext.getSharedPreferences(Application.sDeviceId, Context.MODE_PRIVATE);
 			final SharedPreferences preferences = sPreferences;
 			Editor editor = null;
@@ -549,7 +528,7 @@ public class Application extends android.app.Application
 			if (V)
 				Log.v(TAG, PREFIX_LOG+'[' + Compatibility.MANUFACTURER + "] deviceId=" + sDeviceId + " name="
 						+ sName + " backName=" + sBackName + " uuid=" + sUuid);
-			sAsyncInitDone=true;
+			sAsyncInitDone=true; // FIXME:
 			
 			
 		}
@@ -569,7 +548,7 @@ public class Application extends android.app.Application
 
 	public static void enableStrictMode()
 	{
-		if (D && STRICT_MODE && Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_GINGERBREAD)
+		if (D && STRICT_MODE && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
 		{
 	         StrictMode.setThreadPolicy(
 	        		 new StrictMode.ThreadPolicy.Builder()
@@ -586,7 +565,7 @@ public class Application extends android.app.Application
 	}
 	public static void dataChanged()
 	{
-		if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_FROYO)
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO)
 		{
 			new Runnable()
 			{

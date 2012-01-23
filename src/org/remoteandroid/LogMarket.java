@@ -20,7 +20,7 @@ public class LogMarket
 	static
 	{
 		// Pour version 2.2
-		if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_FROYO)
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO)
 		{
 			_wtf=new WTF()
 			{

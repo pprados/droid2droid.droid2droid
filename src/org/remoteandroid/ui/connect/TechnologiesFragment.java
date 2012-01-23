@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ListFragment;
@@ -178,16 +179,20 @@ public class TechnologiesFragment extends ListFragment
         getActivity().registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		getActivity().registerReceiver(mAirPlaine,new IntentFilter("android.intent.action.SERVICE_STATE"));
 
-		IntentFilter filter=new IntentFilter();
-		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-		getActivity().registerReceiver(mBluetoothReceiver, filter);
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+		{
+			IntentFilter filter=new IntentFilter();
+			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+			getActivity().registerReceiver(mBluetoothReceiver, filter);
+		}
 	}
 	@Override
 	public void onPause()
 	{
 		super.onPause();
    		getActivity().unregisterReceiver(mNetworkStateReceiver);
-   		getActivity().unregisterReceiver(mBluetoothReceiver); 
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+			getActivity().unregisterReceiver(mBluetoothReceiver); 
    		getActivity().unregisterReceiver(mAirPlaine); 
 	}
 	@Override

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.telephony.PhoneNumberUtils;
 import android.widget.ArrayAdapter;
@@ -114,11 +115,21 @@ public final class PhoneDisambigDialog implements DialogInterface.OnClickListene
 
 		public boolean shouldCollapseWith(PhoneItem phoneItem)
 		{
-			if (PhoneNumberUtils.compare(
-				PhoneDisambigDialog.this.mContext, phoneNumber,
-				phoneItem.phoneNumber))
+			if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
 			{
-				return true;
+				if (PhoneNumberUtils.compare(
+					PhoneDisambigDialog.this.mContext, phoneNumber,
+					phoneItem.phoneNumber))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				if (PhoneNumberUtils.compare(phoneNumber,phoneItem.phoneNumber))
+				{
+					return true;
+				}
 			}
 			return false;
 		}
@@ -130,7 +141,7 @@ public final class PhoneDisambigDialog implements DialogInterface.OnClickListene
 	}
 	private static final String[] sProjectionPhone =
 	{ 
-		Phone.NUMBER, 
+		Phone.NUMBER,  // TODO: Use old API for ECLAIR
 	};
 	private static final int POS_PHONE_NUMBER=0;
 

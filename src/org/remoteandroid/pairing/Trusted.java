@@ -361,7 +361,7 @@ public class Trusted
 				{
 					InetAddress add=(InetAddress)addrs.nextElement();
 					if (V) Log.v(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
-					if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_GINGERBREAD)
+					if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
 					{
 						if (network.isLoopback() || network.isVirtual() || !network.isUp())
 							continue;

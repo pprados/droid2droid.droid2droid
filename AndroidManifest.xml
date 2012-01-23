@@ -159,7 +159,8 @@
 				<action android:name="org.remoteandroid.service.RemoteAndroidBinder"/>
 			</intent-filter>
 		</service>
-				<!--  Activity to parameter service -->
+		
+		<!--  Activity to parameter service -->
         <activity 
         	android:name=".ui.EditPreferenceActivity"
         	android:exported="true"

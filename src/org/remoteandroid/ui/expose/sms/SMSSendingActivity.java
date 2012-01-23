@@ -253,6 +253,7 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 				}
 				else
 				{
+					// TODO: Use old API for ECLAIR
 					final Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
 					final InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(mContentResolver, uri);
 					if (input != null)

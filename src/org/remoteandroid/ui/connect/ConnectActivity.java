@@ -21,6 +21,7 @@ import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
+import org.remoteandroid.ui.connect.qrcode.CameraManager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,6 +37,7 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -201,10 +203,13 @@ implements TechnologiesFragment.Listener
 		mActiveNetwork=NetworkTools.getActiveNetwork(Application.sAppContext);
 		registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		registerReceiver(mAirPlane,new IntentFilter("android.intent.action.SERVICE_STATE"));
-		IntentFilter filter=new IntentFilter();
-		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-		filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
-		registerReceiver(mBluetoothReceiver, filter);
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+		{
+			IntentFilter filter=new IntentFilter();
+			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
+			registerReceiver(mBluetoothReceiver, filter);
+		}
 		
 	}
 	@Override
@@ -212,7 +217,8 @@ implements TechnologiesFragment.Listener
 	{
 		super.onPause();
    		unregisterReceiver(mNetworkStateReceiver);
-		unregisterReceiver(mBluetoothReceiver); 
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+			unregisterReceiver(mBluetoothReceiver); 
 		unregisterReceiver(mAirPlane); 
 	}
 	
@@ -262,6 +268,7 @@ implements TechnologiesFragment.Listener
 	{
 		if (mBodyFragment!=null)
 			mBodyFragment.onReceiveBluetoothEvent(context,intent);
+		
 		if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
 		{
 			int state=intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_DISCONNECTED);
@@ -632,6 +639,13 @@ implements TechnologiesFragment.Listener
 
 	private boolean hasCamera()
 	{
-	    return (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA));
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+		{
+			return (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA));
+		}
+		else
+		{
+			return (CameraManager.get()!=null);
+		}
 	}
 }
