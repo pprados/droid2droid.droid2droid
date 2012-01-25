@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="edit_photo_size">65dip</dimen>
+   
+    <dimen name="preference_widget_width">64dp</dimen>
+    <dimen name="preference_fragment_padding_side">48dp</dimen>
+    <dimen name="preference_icon_minWidth">56dp</dimen>
+    
+</resources>

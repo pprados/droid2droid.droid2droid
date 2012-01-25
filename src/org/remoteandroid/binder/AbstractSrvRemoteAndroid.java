@@ -1,7 +1,6 @@
 package org.remoteandroid.binder;
 
 import static org.remoteandroid.Constants.ACTION_CLEAR_PROPOSED;
-import static org.remoteandroid.Constants.EXTRA_INSTALLER_PACKAGE_NAME;
 import static org.remoteandroid.Constants.LOCK_ASK_DOWNLOAD;
 import static org.remoteandroid.Constants.LOCK_WAIT_INSTALL;
 import static org.remoteandroid.Constants.NOTIFY_NEW_APK;
@@ -38,6 +37,7 @@ import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.IRemoteAndroid;
 import org.remoteandroid.internal.Login;
+import org.remoteandroid.internal.NormalizeIntent;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Pairing;
 import org.remoteandroid.service.RemoteAndroidService;
@@ -56,7 +56,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.net.Uri;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -226,7 +225,8 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			{
 				case AbstractProtoBufRemoteAndroid.BIND_OID:
 					ComponentName[] name=new ComponentName[1];
-					i=bindOID(connid,(Intent)data.readParcelable(Intent.class.getClassLoader()),data.readInt(),name,timeout);
+					Intent intent=NormalizeIntent.readIntent(data);
+					i=bindOID(connid,intent,data.readInt(),name,timeout);
 					reply.writeNoException();
 					reply.writeParcelable(name[0], 0);
 					reply.writeInt(i);

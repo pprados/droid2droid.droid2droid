@@ -19,6 +19,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
@@ -454,7 +455,8 @@ public final class CameraManager
 			if (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
 			{
 				// FIXME: ICS
-				mCamera.autoFocus(mAutoFocusCallback);
+				if (Build.VERSION.SDK_INT<Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+					mCamera.autoFocus(mAutoFocusCallback);
 			}
 			else if (focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
 			{

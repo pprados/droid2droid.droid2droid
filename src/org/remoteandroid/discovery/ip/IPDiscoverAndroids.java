@@ -10,7 +10,7 @@ import static org.remoteandroid.Constants.REMOTEANDROID_SERVICE;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
@@ -480,7 +480,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				        sLock.acquire();
 				
 				        MergeJmDNS dns;
-				        if (addripv6!=null)
+				        if (!ETHERNET_ONLY_IPV4 && addripv6!=null)
 				        {
 				        	dns=MergeJmDNS.create(null,addripv6,Application.getName());
 				        }

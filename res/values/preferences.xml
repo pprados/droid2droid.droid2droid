@@ -12,7 +12,7 @@
 	<string name="settings_remote_android">Remote Android</string>
 
     <string name="remote_control">Accept remote control</string>
-    <string name="explain">Share this device with others Android.\nAnother device can use it for a better experience.</string>
+    <string name="explain">Share this device with others Android.</string>
 
 	<string name="device_name">Device name</string>
     <string name="device_name_title">Device Name</string>
@@ -20,18 +20,18 @@
 
 	<string name="anonymous">Anonymous</string>
     <string name="proximity_active_title">Share with proximity</string>
-    <string name="proximity_active_summary">Accept anonymous connections from same WIFI network or bluetooths devices.</string>
+    <string name="proximity_active_summary">Accept anonymous connections.</string>
     <string name="dialog_title_wifi_preference">Only some WIFI Network</string>
     <string name="all_key">&lt;all&gt;</string>
     
     <string name="host_summary">Use one of this host name to connect to this device.</string>
 
     <string name="remote_control_title">Share this device</string>
-    <string name="remote_control_summary">Accept to share this device. Another Android can invoke local application.</string>
+    <string name="remote_control_summary">Accept to share this device.</string>
 
     <string name="accept_all_title">Applications</string>
     <string name="accept_all_summary">Accept to download all proposed applications before check to install.</string>
-    <string name="accept_all_3G_summary">Accept to download all proposed applications before check to install. Can consume data bandwith.</string>
+    <string name="accept_all_3G_summary">Accept to download all proposed applications. Can consume data.</string>
 
     <string name="select_wifi_title">Select WIFI network</string>
     <string name="select_wifi_summary">Accept only for selected WIFI network.</string>

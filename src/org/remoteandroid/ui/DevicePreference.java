@@ -16,12 +16,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
+import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -102,7 +104,7 @@ public class DevicePreference extends Preference
 	{
 		super.onBindView(view);
 
-		TextView text = (TextView) ((LinearLayout) view).findViewById(android.R.id.title);
+		TextView text = (TextView) ((ViewGroup) view).findViewById(android.R.id.title);
 		text.setTextColor((mInfo.isDiscover() && !mIsBusy) ? 
 				getContext().getResources().getColor(android.R.color.primary_text_dark_nodisable) 
 				: getContext().getResources().getColor(android.R.color.tertiary_text_dark));

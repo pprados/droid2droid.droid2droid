@@ -5,14 +5,13 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:gravity="center_vertical"
-    android:paddingRight="?android:attr/scrollbarSize"
+    android:paddingRight="?android:attr/scrollbarSize">
     android:baselineAligned="false"
-    >
     
 <!--     android:paddingLeft="16dip" -->
     
     <RelativeLayout
-        android:layout_width="0dip"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginLeft="10dip"
