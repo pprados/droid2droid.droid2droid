@@ -249,6 +249,7 @@
 			android:taskAffinity=""
 			android:exported="true"
 			android:configChanges=""
+			android:permission="android.permission.INTERNET"
 		>
             <intent-filter>
                 <action android:name="org.remoteandroid.action.Connect" />

@@ -256,6 +256,11 @@ public class Application extends android.app.Application
 		
 		super.onCreate();
 
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
+		{
+			BluetoothAdapter.getDefaultAdapter();
+		}
+
 		enableStrictMode();
 		enableHttpResponseCache();
 		disableConnectionReuseIfNecessary();
@@ -284,7 +289,6 @@ public class Application extends android.app.Application
 			sDeviceId = "UnknownDevice";
 		// Manage the discover service
 		sDiscover=new RemoteAndroidManagerStub(this);
-//RemoteAndroidManagerImpl.setManager(sDiscover); // FIXME
 		sManager=new RemoteAndroidManagerImpl(this,sDiscover);
 		IPDiscoverAndroids.initIPDiscover(this);
 		new Thread()

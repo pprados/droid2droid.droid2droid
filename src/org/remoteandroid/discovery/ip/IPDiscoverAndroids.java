@@ -23,6 +23,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.JmmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
@@ -67,6 +69,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 //TODO: bug sur unpair pendant le scan
 //TODO: UPnp IGD http://teleal.org/projects/cling/
@@ -75,60 +78,83 @@ import android.util.Log;
 public class IPDiscoverAndroids implements DiscoverAndroids
 {
 	// FIXME: Utiliser Jmmdns pour s'enregistrer sur toutes les interfaces http://sourceforge.net/projects/jmdns/forums/forum/324612/topic/4729651
-	static class MergeJmDNS
+	static class MultipleJmDNS
 	{
-		JmDNS mDNS4;
-		JmDNS mDNS6;
-		
-		static MergeJmDNS create(Inet4Address ipv4,Inet6Address ipv6,String name) throws IOException
+		private ArrayList<JmDNS> mJmdns    = new ArrayList<JmDNS>();
+		MultipleJmDNS(String name) throws IOException
 		{
-			MergeJmDNS rc=new MergeJmDNS();
-			if (ipv4!=null) 
+			for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
 			{
-			    if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Create mDNS for "+ipv4);						
-				rc.mDNS4=JmDNS.create(ipv4,Application.getName());
+				NetworkInterface network=networks.nextElement();
+				if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+				{
+					if (network.isLoopback() || !network.isUp())
+						continue;
+				}
+				else
+				{
+					if (network.getName().startsWith("sit")) // vpn ?
+						continue;
+					if (network.getName().startsWith("dummy")) // ipv6 in ipv4
+						continue;
+					if (network.getName().startsWith("lo")) // ipv6 in ipv4
+						continue;
+				}
+				for (Enumeration<InetAddress> addrs=network.getInetAddresses();addrs.hasMoreElements();)
+				{
+					final InetAddress addr=addrs.nextElement();
+					if (ETHERNET_ONLY_IPV4 && !(addr instanceof Inet4Address))
+						continue;
+					if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"mDNS add "+addr);
+					mJmdns.add(JmDNS.create(addr));
+				}
 			}
-			if (ipv6!=null) 
-			{
-			    if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Create mDNS for "+ipv6);						
-				rc.mDNS6=JmDNS.create(ipv6,Application.getName());
-			}
-			return rc;
 		}
 
 		void addServiceListener(String type, ServiceListener listener)
 		{
-			if (mDNS4!=null) mDNS4.addServiceListener(type, listener);
-			if (mDNS6!=null) mDNS6.addServiceListener(type, listener);
+			for (int i=mJmdns.size()-1;i>=0;--i)
+			{
+				mJmdns.get(i).addServiceListener(type, listener);
+			}
 		}
 		void requestServiceInfo(String type, String name, boolean persistent, long timeout)
 		{
-			if (mDNS4!=null) mDNS4.requestServiceInfo(type, name,persistent,timeout);
-			if (mDNS6!=null) mDNS6.requestServiceInfo(type, name,persistent,timeout);
+			for (int i=mJmdns.size()-1;i>=0;--i)
+			{
+				mJmdns.get(i).requestServiceInfo(type, name, persistent, timeout);
+			}
 		}
 		void removeServiceListener(String type, ServiceListener listener)
 		{
-			if (mDNS4!=null) mDNS4.removeServiceListener(type, listener);
-			if (mDNS6!=null) mDNS6.removeServiceListener(type, listener);
+			for (int i=mJmdns.size()-1;i>=0;--i)
+			{
+				mJmdns.get(i).removeServiceListener(type, listener);
+			}
 		}
 		void registerService(ServiceInfo info) throws IOException
 		{
-			if (mDNS4!=null) mDNS4.registerService(info);
-			if (mDNS6!=null) mDNS6.registerService(info);
+			for (int i=mJmdns.size()-1;i>=0;--i)
+			{
+				mJmdns.get(i).registerService(info.clone());
+			}
 		}
 		void unregisterService(ServiceInfo info)
 		{
-			if (mDNS4!=null) mDNS4.unregisterService(info);
-			if (mDNS6!=null) mDNS6.unregisterService(info);
+			for (int i=mJmdns.size()-1;i>=0;--i)
+			{
+				mJmdns.get(i).unregisterAllServices(); // FIXME: 
+			}
 		}
 		void close() throws IOException
 		{
-			if (mDNS4!=null) mDNS4.close();
-			if (mDNS6!=null) mDNS6.close();
+			for (int i=mJmdns.size()-1;i>=0;--i)
+			{
+				mJmdns.get(i).close(); 
+			}
 		}
 	}
-//	public static volatile JmDNS sDNS;
-	public static volatile MergeJmDNS sDNS;
+	public static volatile MultipleJmDNS sDNS;
 	static MulticastLock sLock; 
 	static volatile boolean sIsDiscovering;
 	static ServiceInfo	sServiceInfo = null;
@@ -213,11 +239,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 					return;
 			if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS service added "+event.getName()+", wait service info...");
 			// Required to force serviceResolved to be called again (after the first search)
-			final MergeJmDNS dns=sDNS;
-            if (dns!=null)
-            {
-            	dns.requestServiceInfo(event.getType(), event.getName(), false,ETHERNET_GET_INFO_MDNS_TIMEOUT);
-            }
+           	event.getDNS().requestServiceInfo(event.getType(), event.getName(), false,ETHERNET_GET_INFO_MDNS_TIMEOUT);
 		}
 		@Override
 		public void serviceResolved(final ServiceEvent event)
@@ -343,7 +365,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	public boolean startDiscovery(final long timeToDiscover,final int flags,final RemoteAndroidManagerStub discover)
 	{
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP start discover...");
-		final MergeJmDNS dns=sDNS;
+		final MultipleJmDNS dns=sDNS;
 		if (dns==null)
 		{
 			if (W) Log.w(TAG_MDNS,PREFIX_LOG+"IP Discover refused because MDNS not started!");
@@ -479,13 +501,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				        sLock.setReferenceCounted(true);
 				        sLock.acquire();
 				
-				        MergeJmDNS dns;
-				        if (!ETHERNET_ONLY_IPV4 && addripv6!=null)
-				        {
-				        	dns=MergeJmDNS.create(null,addripv6,Application.getName());
-				        }
-				        else
-				        	dns=MergeJmDNS.create((Inet4Address)addr,null,Application.getName());
+				        MultipleJmDNS dns=new MultipleJmDNS(Application.getName());
 						// Add to detect binded device
 						if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Register listener");						
 						dns.addServiceListener(REMOTEANDROID_SERVICE,sListener);
@@ -514,7 +530,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			{
 				public void run() 
 				{
-					final MergeJmDNS dns=sDNS;
+					final MultipleJmDNS dns=sDNS;
 					if (sDNS==null || isStopping) 
 					{
 						return;
@@ -555,7 +571,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	{
 		try
 		{	
-			MergeJmDNS dns=sDNS;
+			MultipleJmDNS dns=sDNS;
 			if (dns!=null && sServiceInfo==null)
 			{
 				sServiceInfo = 
@@ -585,7 +601,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			@Override
 			public void run()
 			{
-				final MergeJmDNS dns=sDNS;
+				final MultipleJmDNS dns=sDNS;
 				if (dns!=null && sServiceInfo!=null)
 				{
 					if (D) Log.d(TAG_MDNS,PREFIX_LOG+"Unregister service");						
@@ -619,7 +635,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			@Override
 			public void run()
 			{
-				final MergeJmDNS dns=sDNS;
+				final MultipleJmDNS dns=sDNS;
 				if (dns!=null && sServiceInfo!=null)
 				{
 					dns.removeServiceListener(REMOTEANDROID_SERVICE, sListener);
@@ -640,6 +656,24 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 		   )
 		{	
 			String[] urls=dnsinfo.getURLs("tcp");
+			for (int i=0;i<urls.length;++i)
+			{
+				String url=urls[i];
+				int nb=0;
+				int idx=-1;
+				while ((idx=url.indexOf(':',idx+1))!=-1)
+					++nb;
+				if (nb>2) // It's ipv6
+				{
+					int last=url.lastIndexOf(':');
+					url=url.substring(0,6)+ // tcp://
+							'['+
+							url.substring(6,last)+
+							']'+
+							url.substring(last);
+					urls[i]=url;
+				}
+			}
 			if (urls.length>0)
 			{
 				String uri=urls[0];
@@ -730,10 +764,21 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				return null;
 			}
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			if (E && !D) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error ("+e.getMessage()+")");
 			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error",e);
+			if (D) 
+			{
+				Application.sHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+					}
+				});
+			}
 			return null;
 		}
 		finally

@@ -1,6 +1,6 @@
 package org.remoteandroid;
 
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PROBE_INTERVAL_MS;
 import static org.remoteandroid.internal.Constants.PROBE_SENT;
 
@@ -11,12 +11,12 @@ public class Constants
 	
 	public static final boolean DEBUG=true;
 
-	public static final boolean LOGGER_SEVERE					=false; // true
-	public static final boolean LOGGER_WARNING					=LOGGER_SEVERE;
-	public static final boolean LOGGER_INFO						=false; //false; // Trace JmDNS
+	public static final boolean LOGGER_SEVERE					=E;
+	public static final boolean LOGGER_WARNING					=W;
+	public static final boolean LOGGER_INFO						=false; //I
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
 	public static final boolean LOGGER_FINER					=LOGGER_FINE;
-	public static final boolean LOGGER_FINEST					=false;//LOGGER_FINER;
+	public static final boolean LOGGER_FINEST					=false;//V
 
 	public static final String TAG_DISCOVERY					="Discovery";
 	public static final String TAG_MDNS							="MDNS";

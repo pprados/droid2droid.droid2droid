@@ -3,7 +3,7 @@ package org.remoteandroid.ui.connect;
 import static org.remoteandroid.Constants.HACK_CONNECT_FORCE_FRAGMENTS;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.W;
@@ -23,6 +23,7 @@ import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -115,9 +116,16 @@ implements TechnologiesFragment.Listener
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// TODO: patch de l'icone
 		//setTheme(android.R.style.Theme_Light_NoTitleBar);
 		// TODO: placer tous les styles dans des wrappers de style pour pouvoir les adapter
+		PackageManager pm=getPackageManager();
+		if (pm.checkPermission(Manifest.permission.ACCESS_NETWORK_STATE, getCallingPackage())!=PackageManager.PERMISSION_GRANTED)
+		{
+			if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Allowed "+Manifest.permission.ACCESS_NETWORK_STATE+" permission");
+			setResult(-1);
+			finish();
+			return;
+		}
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
         this.setContentView(new TextView(this)); // Hack to activate the progress bar
@@ -502,6 +510,9 @@ implements TechnologiesFragment.Listener
 				}
 				firststep=1;
 			}
+			
+			// TODO: Ne pas utiliser les technos non acceptés par le caller
+			// if (pm.checkPermission(Manifest.permission.BLUETOOTH, getCallingPackage())!=PackageManager.PERMISSION_GRANTED)
 			for (int i=0;i<mUris.size();++i)
 			{
 				RemoteAndroidInfoImpl info=null;
