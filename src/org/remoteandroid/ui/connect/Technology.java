@@ -42,6 +42,20 @@ abstract class Technology
 					}
 				},
 			new Technology(
+				FEATURE_NFC,
+				ACTIVE_LOCAL_NETWORK,
+				R.string.connect_nfc,
+				R.string.connect_nfc_description,
+				R.string.connect_nfc_help,
+				R.string.connect_nfc_empty_help)
+				{
+					@Override
+					AbstractBodyFragment makeFragment()
+					{
+						return new NfcFragment();
+					}
+				},
+			new Technology(
 				FEATURE_CAMERA|FEATURE_SCREEN,
 				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
 				R.string.connect_qrcode,

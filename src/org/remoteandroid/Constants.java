@@ -171,7 +171,7 @@ public class Constants
 
 	//-----------------------------------------------------------------------------
 	// --- NFC parameters ---
-	public static final boolean NFC								=false;
+	public static final boolean NFC								=true;
 
 	
 }

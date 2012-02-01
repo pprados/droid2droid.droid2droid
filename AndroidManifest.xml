@@ -49,6 +49,7 @@
 	<user-feature android:name="android.hardware.telephony" android:required="false"/>
 	<user-feature android:name="android.hardware.usb.host" android:required="false" />
 	<uses-feature android:name="android.hardware.wifi" android:required="false"/>
+	<uses-feature android:name="android.hardware.nfc" android:required="false" />
 	
     <permission 
     	android:name="org.remoteandroid.permission.discover.SEND"
@@ -257,6 +258,21 @@
             </intent-filter>
         </activity>
 
+        <activity-alias 
+            	android:enabled="true"
+                android:exported="true"
+                android:icon="@drawable/ic_connect_remoteandroid"
+                android:label="@string/connect_label"
+                android:name=".ui.connect.NfcConnectActivity"
+                android:targetActivity=".ui.connect.ConnectActivity" >
+<!--                 android:permission="com.android.nfc.permission.NFCEE_ADMIN" -->
+  			<intent-filter>
+			  <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+			  <category android:name="android.intent.category.DEFAULT"/>
+			  <data android:mimeType="application/org.remoteandroid"/>
+			</intent-filter>            
+		</activity-alias>
+        
          <activity 
         	android:name=".ui.expose.QRCodeExpose$QRCodeActivity" 
             android:label="Expose QRCode"
@@ -299,6 +315,15 @@
             <intent-filter>
                 <action android:name="org.remoteandroid.action.test.New" />
             </intent-filter>
+         </activity>
+         
+
+         <!-- Hack : for write nfc with RemoteAndroidInfo -->
+         <activity android:launchMode="standard" android:name=".ui.connect.nfc.WriteNfcActivity">
+		    <intent-filter>
+			    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+			    <category android:name="android.intent.category.DEFAULT"/>
+		    </intent-filter>
          </activity>
              
 	</application>

@@ -63,6 +63,7 @@
     <string name="device_pairing_summary">Pairing&#8230;</string>
     <string name="device_context_pair">Pair</string>
     <string name="device_context_unpair">Unpair</string>
+    <string name="device_context_write_nfc">Write NFC</string>
     
     <string name="err_pairing_aborted">Pairing aborted</string>
 

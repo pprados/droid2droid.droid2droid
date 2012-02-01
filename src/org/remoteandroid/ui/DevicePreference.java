@@ -1,16 +1,20 @@
 package org.remoteandroid.ui;
 
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
+import static org.remoteandroid.Constants.*;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -154,6 +158,22 @@ public class DevicePreference extends Preference
 		inflater.inflate(mInfo.isBonded ? R.menu.context_device_bonded
 				: R.menu.context_device_unbonded, menu);
 		menu.setHeaderTitle(mInfo.getName());
+		boolean nfc=false;
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+		{
+			try
+			{
+				nfc=(NfcAdapter.getDefaultAdapter()!=null);
+			}
+			catch (UnsupportedOperationException e)
+			{
+				// Ignore
+			}
+		}
+		if (!NFC || !nfc)
+		{
+			menu.removeItem(R.id.context_write_nfc);
+		}
 	}
 
 	public boolean onContextItemSelected(MenuItem item)
@@ -166,6 +186,10 @@ public class DevicePreference extends Preference
 			case R.id.context_unpair:
 				unpair();
 				break;
+    		case R.id.context_write_nfc:
+    			Intent intent=new Intent(getContext(),WriteNfcActivity.class);
+    			intent.putExtra("info", mInfo);
+    			getContext().startActivity(intent);
 
 		}
 		return false;

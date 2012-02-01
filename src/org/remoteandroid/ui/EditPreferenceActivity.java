@@ -21,6 +21,7 @@ import static org.remoteandroid.internal.NetworkTools.ACTIVE_GLOBAL_NETWORK;
 import static org.remoteandroid.internal.NetworkTools.ACTIVE_LOCAL_NETWORK;
 import static org.remoteandroid.internal.NetworkTools.ACTIVE_NFC;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,15 +34,19 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.ListRemoteAndroidInfoImpl;
+import org.remoteandroid.internal.Messages.Identity;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidService;
+import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 import org.remoteandroid.ui.expose.Expose;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -55,11 +60,17 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcEvent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -79,7 +90,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 // TODO: Sur xoom, enlever le menu contextuel
-public class EditPreferenceActivity extends PreferenceActivity implements ListRemoteAndroidInfo.DiscoverListener
+public class EditPreferenceActivity extends PreferenceActivity 
+implements ListRemoteAndroidInfo.DiscoverListener
 {
 	private static final String ACTION_LAN="org.remoteandroid.action.LAN";
 	private static final String ACTION_WAN="org.remoteandroid.action.WAN";
@@ -88,8 +100,6 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 	private CharSequence[] 	mExposeValues;
 	private Boolean[]		mExposeActive;
 	
-	private int mMode;
-
 	// No persistante preference
 	private static final String PREFERENCES_ANO					="ano";
 	private static final String PREFERENCES_KNOWN				="known";
@@ -100,13 +110,14 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 
 	private static final String ALL_WIFI="#ALL#";
 
-	private int mScreenType;
 	private SharedPreferences mPreferences;
 	private Preference mActive;
 	private Preference mExpose;
 	private Preference mName;
 	private Preference mScan;
 	
+	private NfcAdapter mNfcAdapter;
+
 	private MultiSelectListPreference mListEthernet;
 	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
     {
@@ -297,6 +308,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
     private ProgressGroup mDeviceList;
 	private ListRemoteAndroidInfoImpl mDiscovered;
 	private HashMap<UUID, DevicePreference> mDevicePreferenceMap = new HashMap<UUID, DevicePreference>();
+	
 	static class Cache
 	{
 		String mValue;
@@ -360,6 +372,10 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		getPreferenceManager().setSharedPreferencesName(Application.sDeviceId);
 		final Intent intent=getIntent();
 		initSync(intent);
+		
+		exposeNFC();
+        // Register callback
+		
 		new Thread()
 		{
 			public void run() 
@@ -368,7 +384,42 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			}
 		}.start();
 	}
+	
+	private void exposeNFC()
+	{
+		// Check for available NFC Adapter
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+	        if (mNfcAdapter != null) 
+	        {
+	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+	        	{
 
+					@Override
+					public NdefMessage createNdefMessage(NfcEvent event)
+					{
+						return EditPreferenceActivity.createNdefMessage(EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this));
+					}
+	        		
+	        	}, this);
+	        }
+		}
+	}
+    private void unregisterNfc()
+    {
+    	if (NFC && mNfcAdapter!=null)
+    	{
+    		mNfcAdapter.disableForegroundDispatch(this);
+    	}
+    }
+	
+    @Override
+    public void onNewIntent(Intent intent) 
+    {
+        // onResume gets called after this to handle the intent
+        setIntent(intent);
+    }
 	// Initialisation synchrone
 	private void initSync(Intent intent)
 	{
@@ -592,6 +643,24 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 				RemoteAndroidManager.PERMISSION_DISCOVER_SEND,null
 				);
     	}
+    	
+    	// NFC: Check to see that the Activity started due to an Android Beam
+        if (NFC && NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) 
+        {
+            if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Invoke by NFC");
+            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+	        // only one message sent during the beam
+	        NdefMessage msg = (NdefMessage) rawMsgs[0];
+	        // record 0 contains the MIME type, record 1 is the AAR, if present
+	        if (D) Log.d(TAG_EXPOSE,new String(msg.getRecords()[0].getPayload()));
+        }    	
+        if (NFC && mNfcAdapter!=null)
+        {
+    		// FIXME: Active diffusion en loop. Deprecated
+    		PendingIntent pendingIntent = 
+    				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+    		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+        }
     }
 
     @Override
@@ -610,6 +679,7 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 		unregisterReceiver(mRemoteAndroidReceiver); 
 		unregisterReceiver(mBluetoothReceiver); 
 		unregisterReceiver(mAirPlaine); 
+		unregisterNfc();
     }
     
     @Override
@@ -859,6 +929,23 @@ public class EditPreferenceActivity extends PreferenceActivity implements ListRe
 			.create()
 			.show();
 
+		
+	}
+
+	private static final byte[] NDEF_MIME_TYPE="application/org.remoteandroid".getBytes(Charset.forName("US-ASCII"));
+	
+	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
+	{
+		Identity identity=ProtobufConvs.toIdentity(info);
+		byte[] payload=identity.toByteArray();
+		return new NdefMessage(
+			new NdefRecord[]
+			{
+				NdefRecord.createApplicationRecord("org.remoteandroid"),
+				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
+				NdefRecord.createUri("www.remotandroid.org")
+			}
+		);
 		
 	}
 }

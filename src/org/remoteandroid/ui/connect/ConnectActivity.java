@@ -2,7 +2,7 @@ package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.HACK_CONNECT_FORCE_FRAGMENTS;
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -37,9 +37,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -217,6 +221,40 @@ implements TechnologiesFragment.Listener
 			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
 			registerReceiver(mBluetoothReceiver, filter);
+		}
+		checkNdef();
+		
+	}
+    public void onNewIntent(Intent intent) {
+        // onResume gets called after this to handle the intent
+        setIntent(intent);
+    }	
+	private void checkNdef()
+	{
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			Intent intent=getIntent();
+			if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) 
+			{
+		        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		        if (rawMsgs != null) 
+		        {
+		        	for (int i = 0; i < rawMsgs.length; i++) 
+		            {
+		        		NdefMessage msg = (NdefMessage) rawMsgs[i];
+		        		NdefRecord[] records=msg.getRecords();
+		        		for (int j=0;j<records.length;++j)
+		        		{
+		        			NdefRecord record=records[j];
+		        			if (record.getTnf()==NdefRecord.TNF_MIME_MEDIA)
+		        			{
+		        				byte[] data=record.getPayload();
+		        				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Receive NFC record");
+		        			}
+		        		}
+		            }
+		        }
+		    }
 		}
 		
 	}

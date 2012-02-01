@@ -48,10 +48,7 @@
 	<string name="connect_nfc_help">In the remote device\n
 		<li>Start the application \'Remote Android\';\n</li>
 		<li>Select \'Expose the device\';\n</li>
-		<li>Select \'SMS\';\n</li>
-		<li>Select the phone number of the current device;\n</li>
-		<li>Send an SMS;\n</li>
-		Then, wait to receive this message.
+		<li>Approch the two devices.\n</li>
     </string>
 	<string name="connect_nfc_empty_help">
         <font fgcolor="#ffffffff"><b>NFC</b></font> propose to use the Near field Communication.\n\n
