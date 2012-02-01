@@ -7,6 +7,8 @@ import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.EditPreferenceActivity;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -26,10 +28,14 @@ import android.widget.Toast;
 // TODO: améliorer l'interface
 public class WriteNfcActivity extends Activity
 {
+	public static final String EXTRA_INFO="info";
+	public static final String EXTRA_EXPOSE="expose";
+	
 	NfcAdapter mNfcAdapter;
 
-	RemoteAndroidInfo mInfo;
-	TextView mText;
+	private RemoteAndroidInfo mInfo;
+	private boolean mExpose;
+	private TextView mText;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -40,7 +46,8 @@ public class WriteNfcActivity extends Activity
 		setContentView(R.layout.write_nfc);
 		mText=(TextView)findViewById(R.id.help);
 		Intent intent=getIntent();
-		mInfo=(RemoteAndroidInfo)intent.getParcelableExtra("info");
+		mInfo=(RemoteAndroidInfo)intent.getParcelableExtra(EXTRA_INFO);
+		mExpose=intent.getBooleanExtra(EXTRA_EXPOSE,true);
 		if (mInfo==null)
 		{
 			mInfo=Trusted.getInfo(this);
@@ -109,7 +116,6 @@ public class WriteNfcActivity extends Activity
 		try
 		{
 			String[] techList=tag.getTechList();
-			Log.d("NFC",""+techList); //[android.nfc.tech.NfcA, android.nfc.tech.Ndef] ou [android.nfc.tech.MifareClassic, android.nfc.tech.NfcA, android.nfc.tech.Ndef]
 			String ndefName=Ndef.class.getName();
 			int i=0;
 			for (;i<techList.length;++i)
@@ -117,15 +123,20 @@ public class WriteNfcActivity extends Activity
 				if (techList[i].equals(ndefName))
 					break;
 			}
-			if (i==techList.length) return;
+			if (i==techList.length) 
+			{
+				Toast.makeText(this, R.string.nfc_error_unknown_format, Toast.LENGTH_LONG).show();
+				return;
+			}
 			
 			if (!tech.isWritable())
 			{
-				Log.e("NFC", "No writable");
+				if (E) Log.e(TAG_NFC, PREFIX_LOG+"NFC No writable");
+				Toast.makeText(this, R.string.nfc_error_no_writable, Toast.LENGTH_LONG).show();
 				return;
 			}
 			tech.connect();
-			NdefMessage msg=EditPreferenceActivity.createNdefMessage(this,mInfo);
+			NdefMessage msg=EditPreferenceActivity.createNdefMessage(this,mInfo,mExpose);
 			tech.writeNdefMessage(msg);
 		}
 		finally

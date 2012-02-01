@@ -34,7 +34,9 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.ListRemoteAndroidInfoImpl;
+import org.remoteandroid.internal.Messages.BroadcastMsg;
 import org.remoteandroid.internal.Messages.Identity;
+import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -44,6 +46,7 @@ import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 import org.remoteandroid.ui.expose.Expose;
 
+import android.animation.AnimatorSet.Builder;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -399,7 +402,9 @@ implements ListRemoteAndroidInfo.DiscoverListener
 					@Override
 					public NdefMessage createNdefMessage(NfcEvent event)
 					{
-						return EditPreferenceActivity.createNdefMessage(EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this));
+						return EditPreferenceActivity.createNdefMessage(
+							EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this),
+							true); // Expose
 					}
 	        		
 	        	}, this);
@@ -933,10 +938,14 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	}
 
 	
-	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
+	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info,boolean expose)
 	{
-		Identity identity=ProtobufConvs.toIdentity(info);
-		byte[] payload=identity.toByteArray();
+		Messages.BroadcastMsg.Builder broadcastBuilder = Messages.BroadcastMsg.newBuilder();
+		Messages.BroadcastMsg msg=broadcastBuilder
+			.setType(expose ? Messages.BroadcastMsg.Type.EXPOSE : Messages.BroadcastMsg.Type.CONNECT)
+			.setIdentity(ProtobufConvs.toIdentity(info))
+			.build();
+		byte[] payload=msg.toByteArray();
 		return new NdefMessage(
 			new NdefRecord[]
 			{

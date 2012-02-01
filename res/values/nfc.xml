@@ -5,4 +5,6 @@
 	<string name="nfc_write">Write...</string>
 	<string name="nfc_writed">Writed.</string>
 	<string name="nfc_error">Error.</string>
+	<string name="nfc_error_no_writable">NFC no writable.</string>
+	<string name="nfc_error_unknown_format">Format unknown.</string>
 </resources>

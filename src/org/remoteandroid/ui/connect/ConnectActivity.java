@@ -268,12 +268,15 @@ implements TechnologiesFragment.Listener
 		        			{
 		        				try
 								{
-			        				byte[] payload=record.getPayload();
-			        				Messages.Identity.Builder identityBuilder = Messages.Identity.newBuilder();
-									Identity identity=identityBuilder.mergeFrom(payload).build();
-									RemoteAndroidInfo info=ProtobufConvs.toRemoteAndroidInfo(this,identity);
-									if (D) Log.d(TAG_NFC,PREFIX_LOG+"info="+info);
-									tryConnect(null, Arrays.asList(info.getUris()), true);
+			        				Messages.BroadcastMsg bmsg=Messages.BroadcastMsg.newBuilder().mergeFrom(record.getPayload()).build();
+			        				if (bmsg.getType()==Messages.BroadcastMsg.Type.EXPOSE)
+			        				{
+										RemoteAndroidInfo info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
+										if (D) Log.d(TAG_NFC,PREFIX_LOG+"info="+info);
+										tryConnect(null, Arrays.asList(info.getUris()), true);
+			        				}
+			        				else
+										if (W) Log.d(TAG_NFC,PREFIX_LOG+"Connect tag. Ignore.");
 								}
 								catch (InvalidProtocolBufferException e)
 								{

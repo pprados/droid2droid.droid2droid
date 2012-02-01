@@ -188,7 +188,8 @@ public class DevicePreference extends Preference
 				break;
     		case R.id.context_write_nfc:
     			Intent intent=new Intent(getContext(),WriteNfcActivity.class);
-    			intent.putExtra("info", mInfo);
+    			intent.putExtra(WriteNfcActivity.EXTRA_INFO, mInfo);
+    			intent.putExtra(WriteNfcActivity.EXTRA_EXPOSE, true);
     			getContext().startActivity(intent);
 
 		}
