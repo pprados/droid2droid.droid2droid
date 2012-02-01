@@ -113,7 +113,7 @@ public abstract class StyleFragmentActivity extends FragmentActivity
 				mTheme = super.getTheme();
 				return mTheme;
 			}
-			mTheme = mResources.newTheme();
+			mTheme = getResources().newTheme();
 			mTheme.applyStyle(mThemeResource, true);
 		}
 		return mTheme;

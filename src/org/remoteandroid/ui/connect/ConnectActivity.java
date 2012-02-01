@@ -10,22 +10,33 @@ import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.Messages.Identity;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.Pair;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.internal.Messages.Msg;
+import org.remoteandroid.internal.socket.Channel;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.StyleFragmentActivity;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -40,6 +51,7 @@ import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -61,6 +73,8 @@ implements TechnologiesFragment.Listener
 {
 	static final int DIALOG_TRY_CONNECTION=1;
 	private static TryConnection sTryConnections;
+	
+	NfcAdapter mNfcAdapter;
 	
 //	private BroadcastReceiver mPhoneStateReceiver=new BroadcastReceiver() 
 //    {
@@ -231,30 +245,49 @@ implements TechnologiesFragment.Listener
     }	
 	private void checkNdef()
 	{
-		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
+		if (NFC && nfcManager!=null)
 		{
+			mNfcAdapter=nfcManager.getDefaultAdapter();
 			Intent intent=getIntent();
 			if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) 
 			{
-		        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+				// Check the caller. Refuse spoof events
+				checkCallingPermission("com.android.nfc.permission.NFCEE_ADMIN");
+
+				Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 		        if (rawMsgs != null) 
 		        {
 		        	for (int i = 0; i < rawMsgs.length; i++) 
 		            {
 		        		NdefMessage msg = (NdefMessage) rawMsgs[i];
-		        		NdefRecord[] records=msg.getRecords();
-		        		for (int j=0;j<records.length;++j)
+		        		for (NdefRecord record:msg.getRecords())
 		        		{
-		        			NdefRecord record=records[j];
-		        			if (record.getTnf()==NdefRecord.TNF_MIME_MEDIA)
+		        			if ((record.getTnf()==NdefRecord.TNF_MIME_MEDIA) 
+		        					&& Arrays.equals(NDEF_MIME_TYPE, record.getType()))
 		        			{
-		        				byte[] data=record.getPayload();
-		        				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Receive NFC record");
+		        				try
+								{
+			        				byte[] payload=record.getPayload();
+			        				Messages.Identity.Builder identityBuilder = Messages.Identity.newBuilder();
+									Identity identity=identityBuilder.mergeFrom(payload).build();
+									RemoteAndroidInfo info=ProtobufConvs.toRemoteAndroidInfo(this,identity);
+									if (D) Log.d(TAG_NFC,PREFIX_LOG+"info="+info);
+									tryConnect(null, Arrays.asList(info.getUris()), true);
+								}
+								catch (InvalidProtocolBufferException e)
+								{
+									if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
+								}
 		        			}
 		        		}
 		            }
 		        }
 		    }
+    		PendingIntent pendingIntent = 
+    				PendingIntent.getActivity(this, 0, 
+    					new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+    		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
 		}
 		
 	}

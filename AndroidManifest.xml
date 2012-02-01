@@ -250,12 +250,20 @@
 			android:taskAffinity=""
 			android:exported="true"
 			android:configChanges=""
-			android:permission="android.permission.INTERNET"
 		>
+			android:permission="android.permission.INTERNET" !TODO
             <intent-filter>
                 <action android:name="org.remoteandroid.action.Connect" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            
+			<intent-filter>
+			    <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+			    <category android:name="android.intent.category.DEFAULT"/>
+			   <data
+			       android:mimeType="application/org.remoteandroid" 
+	               />
+			</intent-filter>			
         </activity>
 
         <activity-alias 
@@ -265,7 +273,6 @@
                 android:label="@string/connect_label"
                 android:name=".ui.connect.NfcConnectActivity"
                 android:targetActivity=".ui.connect.ConnectActivity" >
-<!--                 android:permission="com.android.nfc.permission.NFCEE_ADMIN" -->
   			<intent-filter>
 			  <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 			  <category android:name="android.intent.category.DEFAULT"/>
@@ -300,6 +307,7 @@
                 <action android:name="org.remoteandroid.action.test.QRCODE" />
             </intent-filter>
          </activity>
+         
          <activity
             android:name=".test.DTMFActivity" 
             android:label="DTMF"
@@ -308,6 +316,7 @@
                 <action android:name="org.remoteandroid.action.test.DTMF" />
             </intent-filter>
          </activity>
+         
          <activity 
              android:name=".ui.expose.sms.alternative.NewSMSActivity"
              android:label="NewSMS"
@@ -318,8 +327,11 @@
          </activity>
          
 
-         <!-- Hack : for write nfc with RemoteAndroidInfo -->
-         <activity android:launchMode="standard" android:name=".ui.connect.nfc.WriteNfcActivity">
+         <!-- Write RemoteAndroidInfo on NFC -->
+         <activity 
+             android:launchMode="standard" 
+             android:name=".ui.connect.nfc.WriteNfcActivity"
+             android:exported="false">
 		    <intent-filter>
 			    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
 			    <category android:name="android.intent.category.DEFAULT"/>

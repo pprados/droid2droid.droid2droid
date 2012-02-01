@@ -36,6 +36,7 @@ public class WriteNfcActivity extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		getSystemService(NFC_SERVICE);
 		setContentView(R.layout.write_nfc);
 		mText=(TextView)findViewById(R.id.help);
 		Intent intent=getIntent();
@@ -61,14 +62,6 @@ public class WriteNfcActivity extends Activity
 		NdefMessage[] msgs;
 		
 		mText.setText(R.string.nfc_waiting);
-		// Demaré à cause d'un tag ?
-		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction()))
-		{
-			// Check the caller
-			checkCallingPermission("com.android.nfc.permission.NFCEE_ADMIN");
-			Tag tag=(Tag)getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-			//writeTag(tag)
-		}
 		PendingIntent pendingIntent = 
 				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);

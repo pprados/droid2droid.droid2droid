@@ -4,6 +4,8 @@ import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PROBE_INTERVAL_MS;
 import static org.remoteandroid.internal.Constants.PROBE_SENT;
 
+import java.nio.charset.Charset;
+
 //TODO: Manage battery low !
 public class Constants
 {
@@ -172,6 +174,7 @@ public class Constants
 	//-----------------------------------------------------------------------------
 	// --- NFC parameters ---
 	public static final boolean NFC								=true;
+	public static final byte[] NDEF_MIME_TYPE					="application/org.remoteandroid".getBytes(Charset.forName("US-ASCII"));
 
 	
 }

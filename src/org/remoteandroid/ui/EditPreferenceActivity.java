@@ -932,7 +932,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		
 	}
 
-	private static final byte[] NDEF_MIME_TYPE="application/org.remoteandroid".getBytes(Charset.forName("US-ASCII"));
 	
 	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
 	{
