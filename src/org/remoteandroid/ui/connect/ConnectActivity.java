@@ -236,14 +236,15 @@ implements TechnologiesFragment.Listener
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
 			registerReceiver(mBluetoothReceiver, filter);
 		}
-		checkNdef();
+		onNdefDiscovered();
 		
 	}
     public void onNewIntent(Intent intent) {
         // onResume gets called after this to handle the intent
         setIntent(intent);
     }	
-	private void checkNdef()
+    // TODO: enregister à la main. Receive an expose because the user push from other device
+	private void onNdefDiscovered()
 	{
 		NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
 		if (NFC && nfcManager!=null)
@@ -294,6 +295,7 @@ implements TechnologiesFragment.Listener
 		}
 		
 	}
+	
 	@Override
 	protected void onPause()
 	{

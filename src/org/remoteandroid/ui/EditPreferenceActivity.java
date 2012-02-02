@@ -12,6 +12,7 @@ import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.SCHEME_TCP;
+import static org.remoteandroid.internal.Constants.TAG_NFC;
 import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
@@ -23,6 +24,7 @@ import static org.remoteandroid.internal.NetworkTools.ACTIVE_NFC;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +48,8 @@ import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 import org.remoteandroid.ui.expose.Expose;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import android.animation.AnimatorSet.Builder;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -66,6 +70,7 @@ import android.net.wifi.WifiManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcManager;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
 import android.os.AsyncTask;
@@ -216,38 +221,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
         }
     };
     
-    void clearEthernet()
-    {
-		if (mListEthernet!=null)
-		{
-			ArrayList<DevicePreference> toRemove=new ArrayList<DevicePreference>();
-			mListEthernet.setEnabled(false);
-			for (DevicePreference preference:mDevicePreferenceMap.values())
-			{
-				preference.mInfo.isDiscoverEthernet=false;
-				preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
-				if (!preference.mInfo.isBonded)
-				{
-					if (!preference.mInfo.isDiscover())
-					{
-						toRemove.add(preference);
-					}
-				}
-				else
-				{
-					preference.mInfo.isDiscoverEthernet=false;
-					preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
-					preference.onDeviceAttributesChanges();
-				}
-			}
-			for (DevicePreference preference:toRemove)
-			{
-				mDevicePreferenceMap.remove(preference.mInfo.uuid);
-				mDeviceList.removePreference(preference);
-			}
-		}
-    }
-    
     private BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
     {
 		@Override
@@ -277,7 +250,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		public void onReceive(Context context, Intent intent)
 		{
 			final String action=intent.getAction();
-			if (intent.hasExtra(RemoteAndroidManager.EXTRA_UPDATE))
+			//if (intent.hasExtra(RemoteAndroidManager.EXTRA_UPDATE))
 			{
 				
 				if (RemoteAndroidManager.ACTION_DISCOVER_ANDROID.equals(action))
@@ -323,6 +296,38 @@ implements ListRemoteAndroidInfo.DiscoverListener
 
 	private Handler mHandler=new Handler();
 	
+    void clearEthernet()
+    {
+		if (mListEthernet!=null)
+		{
+			ArrayList<DevicePreference> toRemove=new ArrayList<DevicePreference>();
+			mListEthernet.setEnabled(false);
+			for (DevicePreference preference:mDevicePreferenceMap.values())
+			{
+				preference.mInfo.isDiscoverEthernet=false;
+				preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
+				if (!preference.mInfo.isBonded)
+				{
+					if (!preference.mInfo.isDiscover())
+					{
+						toRemove.add(preference);
+					}
+				}
+				else
+				{
+					preference.mInfo.isDiscoverEthernet=false;
+					preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
+					preference.onDeviceAttributesChanges();
+				}
+			}
+			for (DevicePreference preference:toRemove)
+			{
+				mDevicePreferenceMap.remove(preference.mInfo.uuid);
+				mDeviceList.removePreference(preference);
+			}
+		}
+    }
+    
 	public Object onRetainNonConfigurationInstance() 
 	{
 		Cache cache=new Cache();
@@ -376,7 +381,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		final Intent intent=getIntent();
 		initSync(intent);
 		
-		exposeNFC();
+		nfcExpose();
         // Register callback
 		
 		new Thread()
@@ -388,7 +393,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		}.start();
 	}
 	
-	private void exposeNFC()
+	private void nfcExpose()
 	{
 		// Check for available NFC Adapter
 		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -411,7 +416,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	        }
 		}
 	}
-    private void unregisterNfc()
+    private void nfcUnregister()
     {
     	if (NFC && mNfcAdapter!=null)
     	{
@@ -473,7 +478,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 
 		// Device name
 		mName=findPreference(PREFERENCES_NAME);
-		findPreference(PREFERENCES_NAME).setOnPreferenceChangeListener(new OnPreferenceChangeListener()
+		mName.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 		{
 			
 			@Override
@@ -520,7 +525,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
         }
         
         mDeviceList = (ProgressGroup) findPreference(PREFERENCE_DEVICE_LIST);
-		mDiscovered=new ListRemoteAndroidInfoImpl(Application.getManager(), null);
 
 	}
 	// Initialisation asynchrone
@@ -614,6 +618,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
     protected void onResume() 
     {
        super.onResume();
+       mDiscovered=new ListRemoteAndroidInfoImpl(Application.getManager(), null);
 	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onResume()");
     	new AsyncTask<Void, Void, Boolean>()
     	{
@@ -649,24 +654,66 @@ implements ListRemoteAndroidInfo.DiscoverListener
 				);
     	}
     	
-    	// NFC: Check to see that the Activity started due to an Android Beam
-        if (NFC && NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) 
-        {
-            if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Invoke by NFC");
-            Parcelable[] rawMsgs = getIntent().getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-	        // only one message sent during the beam
-	        NdefMessage msg = (NdefMessage) rawMsgs[0];
-	        // record 0 contains the MIME type, record 1 is the AAR, if present
-	        if (D) Log.d(TAG_EXPOSE,new String(msg.getRecords()[0].getPayload()));
-        }    	
-        if (NFC && mNfcAdapter!=null)
-        {
-    		// FIXME: Active diffusion en loop. Deprecated
-    		PendingIntent pendingIntent = 
-    				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-    		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-        }
+    	nfcCheckDiscovered();
     }
+	private void nfcCheckDiscovered()
+	{
+		if (Build.VERSION.SDK_INT<Build.VERSION_CODES.HONEYCOMB) return;
+		NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
+		if (NFC && nfcManager!=null)
+		{
+			mNfcAdapter=nfcManager.getDefaultAdapter();
+			if (mNfcAdapter!=null)
+			{
+				Intent intent=getIntent();
+				if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) 
+				{
+					// Check the caller. Refuse spoof events
+					checkCallingPermission("com.android.nfc.permission.NFCEE_ADMIN");
+	
+					Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+			        if (rawMsgs != null) 
+			        {
+			        	for (int i = 0; i < rawMsgs.length; i++) 
+			            {
+			        		NdefMessage msg = (NdefMessage) rawMsgs[i];
+			        		for (NdefRecord record:msg.getRecords())
+			        		{
+			        			if ((record.getTnf()==NdefRecord.TNF_MIME_MEDIA) 
+			        					&& Arrays.equals(NDEF_MIME_TYPE, record.getType()))
+			        			{
+			        				try
+									{
+				        				Messages.BroadcastMsg bmsg=Messages.BroadcastMsg.newBuilder().mergeFrom(record.getPayload()).build();
+				        				//if (bmsg.getType()==Messages.BroadcastMsg.Type.CONNECT)
+				        				{
+											RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
+											info.isDiscoverNFC=true;
+											info.isBonded=Trusted.isBonded(info);
+	//										intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+	//										intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+	//										Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+											onDiscover(info, true);
+				        				}
+//				        				else
+//											if (W) Log.d(TAG_NFC,PREFIX_LOG+"Connect tag. Ignore.");
+									}
+									catch (InvalidProtocolBufferException e)
+									{
+										if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
+									}
+			        			}
+			        		}
+			            }
+			        }
+			    }
+	    		PendingIntent pendingIntent = 
+	    				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+	    		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+			}
+		}
+		
+	}
 
     @Override
     protected void onPause() 
@@ -684,7 +731,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		unregisterReceiver(mRemoteAndroidReceiver); 
 		unregisterReceiver(mBluetoothReceiver); 
 		unregisterReceiver(mAirPlaine); 
-		unregisterNfc();
+		nfcUnregister();
     }
     
     @Override
@@ -951,7 +998,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 			{
 				NdefRecord.createApplicationRecord("org.remoteandroid"),
 				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-				NdefRecord.createUri("www.remotandroid.org")
+//				NdefRecord.createUri("www.remotandroid.org")
 			}
 		);
 		

@@ -24,9 +24,14 @@ import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.TabsAdapter;
+
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.support.v4.app.ActionBar;
+import android.support.v4.app.ActionBar.Tab;
+import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
@@ -40,7 +45,7 @@ public class TicketExpose extends Expose
 	
 	TicketExpose()
 	{
-		super(R.string.expose_input,KEY_INPUT,FEATURE_SCREEN|FEATURE_NET);
+		super(R.string.expose_ticket,KEY_INPUT,FEATURE_SCREEN|FEATURE_NET);
 	}
 	private AlertDialog mAlertDialog;
 	private ShortenURL mShortenURL;
@@ -149,5 +154,12 @@ public class TicketExpose extends Expose
 			final String message = String.format(mAlertDialog.getContext().getResources().getString(R.string.connect_input_message), result);
 			mAlertDialog.setMessage(Html.fromHtml(message));
 		}
+	}
+	
+	@Override
+	public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+	{
+		tabsAdapter.addTab(actionBar.newTab()
+	        .setText(R.string.expose_ticket), ExposeTicketFragment.class, null);
 	}
 }

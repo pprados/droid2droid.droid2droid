@@ -12,12 +12,16 @@ import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.TabsAdapter;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActionBar;
+import android.support.v4.app.ActionBar.Tab;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
@@ -174,5 +178,12 @@ class QRCodeExpose extends Expose
 	public void startExposition(Activity activity)
 	{
 		activity.startActivity(new Intent(activity,QRCodeActivity.class));
+	}
+	
+	@Override
+	public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+	{
+		tabsAdapter.addTab(actionBar.newTab()
+	        .setText(R.string.expose_qrcode), ExposeQRCodeFragment.class, null);
 	}
 }

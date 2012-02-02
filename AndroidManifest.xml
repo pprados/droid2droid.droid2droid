@@ -49,7 +49,6 @@
 	<user-feature android:name="android.hardware.telephony" android:required="false"/>
 	<user-feature android:name="android.hardware.usb.host" android:required="false" />
 	<uses-feature android:name="android.hardware.wifi" android:required="false"/>
-	<uses-feature android:name="android.hardware.nfc" android:required="false" />
 	
     <permission 
     	android:name="org.remoteandroid.permission.discover.SEND"
@@ -151,7 +150,6 @@
 		<!-- The service to bind services TODO: description-->
 		<service 
 			android:enabled="true"
-			android:exported="true"
 			android:label="@string/service_label" 
 			android:icon="@drawable/ic_launcher_remoteandroid" 
 			android:description="@string/service_description" 
@@ -162,6 +160,33 @@
 		</service>
 		
 		<!--  Activity to parameter service -->
+        <activity 
+            android:enabled="true"
+        	android:name=".ui.MainActivity"
+        	android:exported="true"
+        	android:launchMode="singleTask"
+        	android:label="@string/app_name" 
+        	android:description="@string/main_description" 
+        	android:icon="@drawable/ic_launcher_remoteandroid"
+			android:configChanges="orientation|screenSize"
+        	>
+<!--             <intent-filter> -->
+<!--                 <action android:name="android.intent.action.MAIN" /> -->
+<!--                 <category android:name="android.intent.category.LAUNCHER" /> -->
+<!--             </intent-filter> -->
+        </activity>
+        <activity 
+            android:enabled="true"
+        	android:name=".ui.expose.ExposeActivity"
+        	android:exported="true"
+        	android:launchMode="singleTask"
+        	android:label="@string/app_name" 
+        	android:description="@string/main_description" 
+        	android:icon="@drawable/ic_launcher_remoteandroid"
+			android:configChanges="orientation|screenSize"
+        	/>
+        		
+        <!--  Activity to parameter service -->
         <activity 
         	android:name=".ui.EditPreferenceActivity"
         	android:exported="true"
@@ -257,28 +282,28 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             
-			<intent-filter>
-			    <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-			    <category android:name="android.intent.category.DEFAULT"/>
-			   <data
-			       android:mimeType="application/org.remoteandroid" 
-	               />
-			</intent-filter>			
+<!-- 			<intent-filter> -->
+<!-- 			    <action android:name="android.nfc.action.NDEF_DISCOVERED"/> -->
+<!-- 			    <category android:name="android.intent.category.DEFAULT"/> -->
+<!-- 			   <data -->
+<!-- 			       android:mimeType="application/org.remoteandroid"  -->
+<!-- 	               /> -->
+<!-- 			</intent-filter>			 -->
         </activity>
 
-        <activity-alias 
-            	android:enabled="true"
-                android:exported="true"
-                android:icon="@drawable/ic_connect_remoteandroid"
-                android:label="@string/connect_label"
-                android:name=".ui.connect.NfcConnectActivity"
-                android:targetActivity=".ui.connect.ConnectActivity" >
-  			<intent-filter>
-			  <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-			  <category android:name="android.intent.category.DEFAULT"/>
-			  <data android:mimeType="application/org.remoteandroid"/>
-			</intent-filter>            
-		</activity-alias>
+<!--         <activity-alias  -->
+<!--             	android:enabled="true" -->
+<!--                 android:exported="true" -->
+<!--                 android:icon="@drawable/ic_connect_remoteandroid" -->
+<!--                 android:label="@string/connect_label" -->
+<!--                 android:name=".ui.connect.NfcConnectActivity" -->
+<!--                 android:targetActivity=".ui.connect.ConnectActivity" > -->
+<!--   			<intent-filter> -->
+<!-- 			  <action android:name="android.nfc.action.NDEF_DISCOVERED"/> -->
+<!-- 			  <category android:name="android.intent.category.DEFAULT"/> -->
+<!-- 			  <data android:mimeType="application/org.remoteandroid"/> -->
+<!-- 			</intent-filter>             -->
+<!-- 		</activity-alias> -->
         
          <activity 
         	android:name=".ui.expose.QRCodeExpose$QRCodeActivity" 
@@ -337,8 +362,24 @@
 			    <category android:name="android.intent.category.DEFAULT"/>
 		    </intent-filter>
          </activity>
-             
-	</application>
+
+         <!-- Propagate Remote android discoved when tag is presented. -->
+         <activity 
+             android:launchMode="standard" 
+             android:name=".ui.connect.nfc.BroadcastConnectActivity"
+             android:exported="true"
+             android:noHistory="true"
+			 android:excludeFromRecents="true"
+			 
+             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+             android:configChanges="orientation|screenSize">
+			<intent-filter>
+  				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+  				<category android:name="android.intent.category.DEFAULT"/>
+  				<data android:mimeType="application/org.remoteandroid"/>
+			</intent-filter>
+		</activity>
+    </application>
 
 
 </manifest> 

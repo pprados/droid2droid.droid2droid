@@ -48,6 +48,7 @@ public class Constants
 	public static final int LOCK_ASK_PAIRING=30000;
 	
 	public static final boolean STRICT_MODE=false; 
+	public static final boolean HACK_UUID=true; // FIXME: false
 	
 	/** True if can connect device throw internet (and not only intranet). */
 	public static final boolean CONNECTION_WITH_INTERNET=false;
@@ -174,7 +175,7 @@ public class Constants
 	//-----------------------------------------------------------------------------
 	// --- NFC parameters ---
 	public static final boolean NFC								=true;
-	public static final byte[] NDEF_MIME_TYPE					="application/org.remoteandroid".getBytes(Charset.forName("US-ASCII"));
+	public static final byte[] NDEF_MIME_TYPE					="application/org.remoteandroid".getBytes();//Charset.forName("US-ASCII"));
 
 	
 }

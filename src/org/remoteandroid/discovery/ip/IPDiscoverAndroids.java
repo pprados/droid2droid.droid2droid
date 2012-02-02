@@ -751,6 +751,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info.");
 				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
 				info.isDiscoverEthernet=true;
+				info.isBonded=Trusted.isBonded(info);
 				// I find it !
 				//if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+info.getName()+" found ("+uri+")");
 				return info;

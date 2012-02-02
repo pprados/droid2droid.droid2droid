@@ -1,6 +1,6 @@
 package org.remoteandroid;
 
-import static org.remoteandroid.Constants.DTMF;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.PREFERENCES_BACKNAME;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
@@ -19,7 +19,7 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_TELEPHONY;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_WIFI;
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
@@ -495,7 +495,26 @@ public class Application extends android.app.Application
 			String strUuid = preferences.getString(PREFERENCES_UUID, null);
 			if (strUuid == null)
 			{
-				sUuid = UUID.randomUUID();
+				if (HACK_UUID)
+				{
+					String finger=Build.MODEL;
+					if ("Xoom".equals(finger))
+						sUuid=new UUID(0,1);
+					else if ("Galaxy Nexus".equals(finger))
+						sUuid=new UUID(0,2);
+					else if ("Desire HD".equals(finger))
+						sUuid=new UUID(0,3);
+					else if ("Milestone".equals(finger))
+						sUuid=new UUID(0,4);
+					else if ("HTC Magic".equals(finger))
+						sUuid=new UUID(0,5);
+					else if ("I7500".equals(finger))
+						sUuid=new UUID(0,6);
+					
+					
+				}
+				else
+					sUuid = UUID.randomUUID();
 				if (V) Log.v(TAG,PREFIX_LOG+"Generate key pair..."); // FIXME: Ca prend du temps lors du premier lancement. Ajouter boite d'attente.
 				sKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 				if (editor == null)

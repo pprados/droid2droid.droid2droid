@@ -22,6 +22,7 @@ import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.internal.Tools;
 
 import android.os.RemoteException;
 import android.util.Log;
@@ -75,7 +76,7 @@ public class LoginImpl extends Login
 				.setThreadid(threadid)
 				.setChallengestep(3)
 				.setChallenge1(ByteString.copyFrom(uncipher(resp.getChallenge1().toByteArray(),Application.getKeyPair().getPrivate())))
-				.setChallenge2(ByteString.copyFrom(cipher(longToByteArray(challenge),remoteInfo.getPublicKey())))
+				.setChallenge2(ByteString.copyFrom(cipher(Tools.longToByteArray(challenge),remoteInfo.getPublicKey())))
 				.build();
 			resp = android.sendRequestAndReadResponse(msg,timeout);
 			android.checkStatus(resp.getStatus());
@@ -86,7 +87,7 @@ public class LoginImpl extends Login
 			}
 
 			// Step 3: check remote resolve the chalenge and keep cookie
-			long resolvedChallenge=toLong(resp.getChallenge2().toByteArray());
+			long resolvedChallenge=Tools.byteArrayToLong(resp.getChallenge2().toByteArray());
 			if (challenge!=resolvedChallenge)
 			{
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Invalide challenge");
@@ -122,12 +123,12 @@ public class LoginImpl extends Login
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())
 						.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
-						.setChallenge1(ByteString.copyFrom(cipher(longToByteArray(mChallenge),conContext.mClientInfo.publicKey)))
+						.setChallenge1(ByteString.copyFrom(cipher(Tools.longToByteArray(mChallenge),conContext.mClientInfo.publicKey)))
 						.setChallengestep(2)
 						.build();
 				case 3:
 					// Receive the result challenge and a new challenge
-					long resolvedChallenge=toLong(msg.getChallenge1().toByteArray());
+					long resolvedChallenge=Tools.byteArrayToLong(msg.getChallenge1().toByteArray());
 					if (mChallenge!=resolvedChallenge)
 						throw new GeneralSecurityException("Chalenge failed");
 					return Msg.newBuilder()
@@ -172,31 +173,5 @@ public class LoginImpl extends Login
 		return cipher.doFinal(challenge);
 	}
 	
-	private static long toLong(byte[] data) 
-	{
-	    return (long)(
-	            (long)(0xff & data[0]) << 56  |
-	            (long)(0xff & data[1]) << 48  |
-	            (long)(0xff & data[2]) << 40  |
-	            (long)(0xff & data[3]) << 32  |
-	            (long)(0xff & data[4]) << 24  |
-	            (long)(0xff & data[5]) << 16  |
-	            (long)(0xff & data[6]) << 8   |
-	            (long)(0xff & data[7]) << 0
-	            );
-	}
-	private static byte[] longToByteArray(long data) 
-	{
-		return new byte[] {
-			(byte)((data >> 56) & 0xff),
-			(byte)((data >> 48) & 0xff),
-			(byte)((data >> 40) & 0xff),
-			(byte)((data >> 32) & 0xff),
-			(byte)((data >> 24) & 0xff),
-			(byte)((data >> 16) & 0xff),
-			(byte)((data >> 8 ) & 0xff),
-			(byte)((data >> 0) & 0xff),
-			};
-	}
 
 }

@@ -4,5 +4,9 @@
     <item
         android:id="@+id/context_unpair"
         android:title="@string/device_context_unpair" />
-
+    <item 
+        android:id="@+id/context_write_nfc" 
+        android:menuCategory="secondary"
+        android:title="@string/device_context_write_nfc"
+        />
  </menu>
