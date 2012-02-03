@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="main_description">Remote Android</string>
+	<string name="main_expose">Expose...</string>
+	<string name="main_connect">Connect...</string>
+	
+	<string name="main_ic_menu_help">Help</string>
+	<string name="main_ic_menu_config">Settings</string>
+</resources>

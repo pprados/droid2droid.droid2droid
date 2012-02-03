@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.expose.sms;
+package org.remoteandroid.ui;
 
 import java.util.ArrayList;
 import java.util.Iterator;

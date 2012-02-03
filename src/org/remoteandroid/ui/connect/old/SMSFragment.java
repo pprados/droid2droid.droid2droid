@@ -1,34 +1,27 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.SMS_PORT;
+import static org.remoteandroid.Constants.SMS_TIMEOUT_WAIT;
+import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_SMS;
-import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.I;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.internal.Constants.W;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.ui.expose.TicketExpose;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;

@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.ETHERNET;
@@ -69,8 +69,8 @@ public class TechnologiesFragment extends ListFragment
 			
 		}
     };
-    private int mActiveFeature;
-    private int mActiveNetwork;
+    private long mActiveFeature;
+    private long mActiveNetwork;
     
 	interface Listener
 	{

@@ -581,7 +581,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				props.put("uuid", info.getUuid().toString());
 				props.put("os", info.getOs());
 				props.put("osversion", Integer.toString(info.getVersion()));
-				props.put("feature", Integer.toString(info.getFeature()));
+				props.put("feature", Long.toString(info.getFeature()));
 				props.put("raversion", Integer.toString(REMOTE_ANDROID_VERSION));
 				sServiceInfo.setText(props);
 				dns.registerService(sServiceInfo);

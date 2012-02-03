@@ -1,6 +1,8 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.Constants.*;
+
+import android.provider.ContactsContract.Contacts;
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.PREFERENCES_BACKNAME;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
@@ -10,7 +12,7 @@ import static org.remoteandroid.Constants.PREFERENCES_UUID;
 import static org.remoteandroid.Constants.QRCODE;
 import static org.remoteandroid.Constants.SMS;
 import static org.remoteandroid.Constants.STRICT_MODE;
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_BT;
+import static org.remoteandroid.RemoteAndroidInfo.*;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_CAMERA;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_HP;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_MICROPHONE;
@@ -29,6 +31,7 @@ import static org.remoteandroid.internal.Constants.USE_SHAREDLIB;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,19 +63,26 @@ import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.graphics.Camera;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.provider.ContactsContract;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 
 // La stratégie de gestion des paramètres est la suivante:
 // Un fichier preferences identifié par deviceid. 
@@ -318,35 +328,40 @@ public class Application extends android.app.Application
 		}
 		
 	}
-	public static int sFeature;
+	public static long sFeature;
 	private void initFeature()
 	{
-		int f=0;
+		long f=0;
 		f|=FEATURE_SCREEN;
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
 		{
 			for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
 			{
-				if (QRCODE && "android.hardware.camera".equals(feature.name))		f|=FEATURE_CAMERA;
-				else if (DTMF && "android.hardware.microphone".equals(feature.name))	f|=FEATURE_MICROPHONE;
-				else if (NFC && "android.hardware.nfc".equals(feature.name))			f|=FEATURE_NFC;
-				else if (SMS && "android.hardware.telephony".equals(feature.name))		f|=FEATURE_TELEPHONY;
-				else if (ETHERNET && "android.hardware.wifi".equals(feature.name))		f|=FEATURE_WIFI|FEATURE_NET;
+				if (QRCODE && "android.hardware.camera".equals(feature.name))					f|=FEATURE_CAMERA;
+				else if (SOUND && "android.hardware.microphone".equals(feature.name))			f|=FEATURE_MICROPHONE|FEATURE_HP;
+				else if (NFC && "android.hardware.nfc".equals(feature.name))					f|=FEATURE_NFC;
+				else if (SMS && "android.hardware.telephony".equals(feature.name))				f|=FEATURE_TELEPHONY;
+				else if (ETHERNET && "android.hardware.wifi".equals(feature.name))				f|=FEATURE_WIFI|FEATURE_NET;
+				else if (WIFI_DIRECT && "android.hardware.wifi.direct".equals(feature.name)) 	f|=FEATURE_WIFI_DIRECT;
+				else if (BUMP && "android.hardware.location.gps".equals(feature.name)) 			f|=FEATURE_LOCATION;
+				else if (BUMP && "android.hardware.sensor.accelerometer".equals(feature.name)) 	f|=FEATURE_ACCELEROMETER;
+				else if (BT && "android.hardware.bluetooth".equals(feature.name)) 				f|=FEATURE_BLUETOOTH;
+				else if ("android.hardware.microphone".equals(feature.name)) 					f|=FEATURE_MICROPHONE;
 			}
 		}
 		else
 		{
 			if (CameraManager.get()!=null)								f|=FEATURE_CAMERA;
-			if (getSystemService(Context.AUDIO_SERVICE)!=null)			f|=FEATURE_MICROPHONE;
+			if (getSystemService(Context.AUDIO_SERVICE)!=null)			f|=FEATURE_MICROPHONE|FEATURE_HP;
 			if (getSystemService(Context.TELEPHONY_SERVICE)!=null)		f|=FEATURE_TELEPHONY;
 			if (getSystemService(Context.WIFI_SERVICE)!=null)			f|=FEATURE_WIFI|FEATURE_NET;
 		}
 		sFeature=f;
 		
 	}
-	public static int getActiveFeature()
+	public static long getActiveFeature()
 	{
-		int f=Application.sFeature & FEATURE_SCREEN|FEATURE_HP|FEATURE_MICROPHONE|FEATURE_CAMERA;
+		long f=Application.sFeature & FEATURE_SCREEN|FEATURE_HP|FEATURE_MICROPHONE|FEATURE_CAMERA;
 		int netStatus=NetworkTools.getActiveNetwork(Application.sAppContext);
 		if ((netStatus & NetworkTools.ACTIVE_NOAIRPLANE)!=0)
 		{
@@ -467,7 +482,30 @@ public class Application extends android.app.Application
 			}
 		}
 	}
-	
+
+	private static final String[] sProjection =
+		{ 
+			Contacts.DISPLAY_NAME 
+		};
+	private static String getUserName()
+	{
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			ContentResolver cr = sAppContext.getContentResolver();
+			Cursor cur = null;
+			try
+			{
+				cur=cr.query(ContactsContract.Profile.CONTENT_URI,new String[]{ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY}, null, null, null);
+				if (cur.moveToNext())
+					return cur.getString(0);
+			}
+			finally
+			{
+				if (cur!=null) cur.close();
+			}
+		}
+		return null;
+	}
 	private void asyncInit() throws Error
 	{
 		try
@@ -478,15 +516,26 @@ public class Application extends android.app.Application
 			if (V) Log.v(TAG, PREFIX_LOG+"Application init preferences.");
 			Login.sLogin=new LoginImpl();
 			String adapterName=null;
+			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
+			if (adapter!=null)
+				adapterName=adapter.getName();
+			String userName=getUserName();
 			sPreferences=sAppContext.getSharedPreferences(Application.sDeviceId, Context.MODE_PRIVATE);
 			final SharedPreferences preferences = sPreferences;
 			Editor editor = null;
 			sName = preferences.getString(PREFERENCES_NAME, null);
 			if (sName == null)
 			{
-				if (adapterName != null)
+				if (userName!=null)
+				{
+					sBackName=userName;
+				}
+				else if (adapterName != null)
 				{
 					sBackName = adapterName;
+				}
+				if (sBackName!=null)
+				{
 					if (editor == null)
 						editor = preferences.edit();
 					editor.putString(PREFERENCES_BACKNAME, sBackName).commit();
@@ -669,6 +718,12 @@ public class Application extends android.app.Application
 		return e;
 	}
 
+	static public void hideSoftKeyboard(Activity context)
+	{
+		InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(context.findViewById(android.R.id.content).getWindowToken(), 0);
+				
+	}
 	static
 	{
 		setDeviceParameter();

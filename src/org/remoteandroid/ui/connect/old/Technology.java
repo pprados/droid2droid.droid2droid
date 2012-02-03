@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import java.util.ArrayList;
 
@@ -101,7 +101,7 @@ abstract class Technology
 		};
 	
 	
-	int mFeature;
+	long mFeature;
 	int mMaskActiveNetwork;
 	int mActiveNetwork;
 	int mContent;
@@ -110,7 +110,7 @@ abstract class Technology
 	int mEmptyHelp;
 	
 	private Technology(
-			int feature,
+			long feature,
 			int activeNetwork,
 			int content,int description,int help,int emptyHelp)
 	{

@@ -60,7 +60,26 @@
             android:dialogTitle="@string/dialog_title_wifi_preference" 
            	android:persistent="true"
        />
-	</PreferenceCategory>
+		<CheckBoxPreference 
+			android:key="ano.active"
+			android:dependency="active" 
+			android:title="@string/proximity_active_qrcode_title" 
+			android:summary="@string/proximity_active_qrcode_summary" 
+			android:persistent="true" 
+			android:defaultValue="true" 
+			android:enabled="true" 
+			android:selectable="true"/>
+       		<CheckBoxPreference 
+			android:key="ano.active"
+			android:dependency="active" 
+			android:title="@string/proximity_active_nfc_title" 
+			android:summary="@string/proximity_active_nfc_summary" 
+			android:persistent="true" 
+			android:defaultValue="true" 
+			android:enabled="true" 
+			android:selectable="true"/>
+			
+       	</PreferenceCategory>
 
 
  	<PreferenceCategory 

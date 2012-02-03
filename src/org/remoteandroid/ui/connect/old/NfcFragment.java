@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;

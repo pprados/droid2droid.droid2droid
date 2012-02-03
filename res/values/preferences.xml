@@ -21,6 +21,10 @@
 	<string name="anonymous">Anonymous</string>
     <string name="proximity_active_title">Share with proximity</string>
     <string name="proximity_active_summary">Accept anonymous connections.</string>
+    <string name="proximity_active_qrcode_title">If start with QRCode</string>
+    <string name="proximity_active_qrcode_summary">Accept anonymous connections initiated with QRCODE.</string>
+    <string name="proximity_active_nfc_title">If start with NFC</string>
+    <string name="proximity_active_nfc_summary">Accept anonymous connections initiated with NFC.</string>
     <string name="dialog_title_wifi_preference">Only some WIFI Network</string>
     <string name="all_key">&lt;all&gt;</string>
     

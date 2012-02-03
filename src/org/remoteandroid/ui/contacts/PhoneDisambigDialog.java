@@ -1,11 +1,13 @@
-package org.remoteandroid.ui.expose.sms;
+package org.remoteandroid.ui.contacts;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.R;
-import org.remoteandroid.ui.expose.sms.Collapser.Collapsible;
+import org.remoteandroid.ui.Collapser;
+import org.remoteandroid.ui.Collapser.Collapsible;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -24,18 +26,23 @@ import android.widget.ListAdapter;
  */
 public final class PhoneDisambigDialog implements DialogInterface.OnClickListener,DialogInterface.OnDismissListener
 {
+	public interface CallBack
+	{
+		public void sendData(final String receiver);
+	}
+	private Context mContext;
 
-	private SMSSendingActivity mContext;
-
+	private CallBack mCallback;
 	private AlertDialog mDialog;
 
 	private ListAdapter mPhonesAdapter;
 
 	private ArrayList<PhoneItem> mPhoneItemList;
 
-	public PhoneDisambigDialog(SMSSendingActivity context, long id)
+	public PhoneDisambigDialog(Context context, CallBack callback,long id)
 	{
 		mContext = context;
+		mCallback=callback;
 
 		makePhoneItemsList(id);
 		Collapser.collapseList(mPhoneItemList);
@@ -69,7 +76,7 @@ public final class PhoneDisambigDialog implements DialogInterface.OnClickListene
 		{
 			PhoneItem phoneItem = mPhoneItemList.get(which);
 			String phoneNumber = phoneItem.phoneNumber;
-			mContext.sendData(phoneNumber);
+			mCallback.sendData(phoneNumber);
 			dialog.dismiss();
 		}
 		else

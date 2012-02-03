@@ -1,11 +1,12 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.TAG_EXPOSE;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
-import static org.remoteandroid.RemoteAndroidInfo.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,48 +25,45 @@ import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
+import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
-
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.os.Bundle;
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.ActionBar.Tab;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class TicketExpose extends Expose
+
+public class ExposeTicketFragment extends AbstractBodyFragment
 {
 	private static final String APIKEY="AIzaSyDL67vMUDoqKRAM0g6pyrPaWSz-QpepvjM";
 	public static final String GOOGLE_SHORTEN_API="https://www.googleapis.com/urlshortener/v1/url";
 	public static final String GOOGLE_SHORTEN="http://goo.gl/";
 	public static final String BASE_SHORTEN="http://www.remoteandroid.org/";
-	
-	TicketExpose()
+
+	public static class Provider extends FeatureTab
 	{
-		super(R.string.expose_ticket,KEY_INPUT,FEATURE_SCREEN|FEATURE_NET);
+		
+		Provider()
+		{
+			super(FEATURE_SCREEN|FEATURE_NET);
+		}
+
+		@Override
+		public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+		{
+			tabsAdapter.addTab(actionBar.newTab()
+		        .setText(R.string.expose_ticket), ExposeTicketFragment.class, null);
+		}
 	}
-	private AlertDialog mAlertDialog;
-	private ShortenURL mShortenURL;
-	private Activity mActivity;
 	
-	@Override
-	public void startExposition(Activity activity)
-	{
-		mActivity=activity;
-		final String message = String.format(activity.getResources().getString(R.string.connect_input_message), "...");
-		mAlertDialog=new AlertDialog.Builder(activity)
-			.setIcon(android.R.drawable.ic_dialog_info)
-			.setTitle(R.string.connect_input_expose_title)
-			.setMessage(Html.fromHtml(message))
-			.setPositiveButton(android.R.string.ok, null)
-			.create();
-		mShortenURL=new ShortenURL();
-		mShortenURL.execute();
-		mAlertDialog.show();
-	}
 	static final Pattern sPattern=Pattern.compile(" *\"(.*)\": *\"(.*)\".*");
 	//http://code.google.com/intl/fr-FR/apis/urlshortener/v1/getting_started.html#APIKey
 	class ShortenURL extends AsyncTaskWithException<Void, Void, String>
@@ -74,7 +72,7 @@ public class TicketExpose extends Expose
 		@Override
 		protected String doInBackground(Void... params) throws MalformedURLException, IOException
 		{
-			Messages.Candidates candidates=Trusted.getConnectMessage(mAlertDialog.getContext());
+			Messages.Candidates candidates=Trusted.getConnectMessage(getActivity());
 			byte[] bytes=candidates.toByteArray();
 			String base64=Base64.encodeToString(bytes, Base64.URL_SAFE|Base64.NO_WRAP);
 			HttpURLConnection connection=null;
@@ -123,8 +121,7 @@ public class TicketExpose extends Expose
 		@Override
 		protected void onException(final Throwable e)
 		{
-			mAlertDialog.cancel();
-			if (mActivity.isFinishing()) 
+			if (getActivity().isFinishing()) 
 				return;
 			if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Error when load shorten url",e);
 			if (D)
@@ -138,28 +135,33 @@ public class TicketExpose extends Expose
 					}
 				});
 			}
-			mAlertDialog=new AlertDialog.Builder(mActivity)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setTitle(R.string.connect_input_expose_title)
-				.setMessage(R.string.connect_input_message_error_set_internet)
-				.setPositiveButton(android.R.string.ok, null)
-				.create();
-			mAlertDialog.show(); // FIXME: BUG en cas d'arret de l'application. Unable to add window
+			mTicket.setText(R.string.connect_input_message_error_set_internet);
 
 		}
 		@Override
 		protected void onPostExecute(String result)
 		{
 			if (D) Log.d(TAG_EXPOSE, PREFIX_LOG+"Ticket="+result);
-			final String message = String.format(mAlertDialog.getContext().getResources().getString(R.string.connect_input_message), result);
-			mAlertDialog.setMessage(Html.fromHtml(message));
+			final String message = String.format(getResources().getString(R.string.expose_ticket_message), result);
+			mTicket.setText(Html.fromHtml(message));
 		}
 	}
 	
+	TextView mTicket;
+	ShortenURL mShortenURL;
+	
 	@Override
-	public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+	public void onCreate(Bundle savedInstanceState)
 	{
-		tabsAdapter.addTab(actionBar.newTab()
-	        .setText(R.string.expose_ticket), ExposeTicketFragment.class, null);
+		super.onCreate(savedInstanceState);
+		mShortenURL=new ShortenURL();
+		mShortenURL.execute();
+	}
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		View main=inflater.inflate(R.layout.expose_ticket, container, false);
+		mTicket=(TextView)main.findViewById(R.id.ticket);
+		return main;
 	}
 }

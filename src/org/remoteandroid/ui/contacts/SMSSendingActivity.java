@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.expose.sms;
+package org.remoteandroid.ui.contacts;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,9 +14,9 @@ import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.ui.connect.SMSFragment;
-import org.remoteandroid.ui.connect.ConnectActivity.ConnectDialogFragment;
-import org.remoteandroid.ui.connect.ConnectActivity.TryConnection;
+import org.remoteandroid.ui.connect.old.SMSFragment;
+import org.remoteandroid.ui.connect.old.ConnectActivity.ConnectDialogFragment;
+import org.remoteandroid.ui.connect.old.ConnectActivity.TryConnection;
 import org.remoteandroid.ui.connect.qrcode.FinishListener;
 
 import android.app.Activity;
@@ -64,7 +64,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class SMSSendingActivity extends FragmentActivity implements TextWatcher, OnScrollListener
+public class SMSSendingActivity extends FragmentActivity 
+implements TextWatcher, OnScrollListener, PhoneDisambigDialog.CallBack
 {
 	static class Cache
 	{
@@ -152,7 +153,8 @@ public class SMSSendingActivity extends FragmentActivity implements TextWatcher,
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long arg3)
 			{
 				final long id = (Long) adapter.getItemAtPosition(position);
-				final PhoneDisambigDialog phoneDialog = new PhoneDisambigDialog(SMSSendingActivity.this, id);
+				final PhoneDisambigDialog phoneDialog = 
+						new PhoneDisambigDialog(SMSSendingActivity.this, SMSSendingActivity.this,id);
 				phoneDialog.show();
 			}
 		});

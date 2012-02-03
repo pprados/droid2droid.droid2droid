@@ -71,6 +71,9 @@
 	<!-- Reset when boot -->
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
+	<!-- For propose default name -->
+	<uses-permission android:name="android.permission.READ_PROFILE"/>
+	
 	<!-- For using wifi -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -366,7 +369,7 @@
          <!-- Propagate Remote android discoved when tag is presented. -->
          <activity 
              android:launchMode="standard" 
-             android:name=".ui.connect.nfc.BroadcastConnectActivity"
+             android:name=".ui.connect.old.nfc.BroadcastConnectActivity"
              android:exported="true"
              android:noHistory="true"
 			 android:excludeFromRecents="true"

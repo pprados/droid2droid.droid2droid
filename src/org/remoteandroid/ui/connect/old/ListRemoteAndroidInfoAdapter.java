@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import java.util.ArrayList;
 import java.util.List;

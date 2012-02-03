@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,14 +10,8 @@ import android.view.ViewGroup;
 
 public abstract class AbstractBodyFragment extends Fragment
 {
-	Technology mTechnology;
-	
 	protected AbstractBodyFragment()
 	{
-	}
-	protected void setTechnology(Technology technology)
-	{
-		mTechnology=technology;
 	}
 
 	protected void onReceiveNetworkEvent(Context context,Intent intent)
@@ -36,7 +30,5 @@ public abstract class AbstractBodyFragment extends Fragment
 	{
 		
 	}
-	@Override
-	public abstract View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
 	
 }

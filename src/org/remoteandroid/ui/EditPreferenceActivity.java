@@ -1,10 +1,13 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
+import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.PREFERENCES_EXPOSE;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.Constants.TAG_SERVER_BIND;
 import static org.remoteandroid.Constants.TIME_TO_DISCOVER;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
@@ -17,12 +20,7 @@ import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
 import static org.remoteandroid.internal.Constants.WAN;
-import static org.remoteandroid.internal.NetworkTools.ACTIVE_BLUETOOTH;
-import static org.remoteandroid.internal.NetworkTools.ACTIVE_GLOBAL_NETWORK;
-import static org.remoteandroid.internal.NetworkTools.ACTIVE_LOCAL_NETWORK;
-import static org.remoteandroid.internal.NetworkTools.ACTIVE_NFC;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,32 +34,21 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.ListRemoteAndroidInfoImpl;
-import org.remoteandroid.internal.Messages.BroadcastMsg;
-import org.remoteandroid.internal.Messages.Identity;
 import org.remoteandroid.internal.Messages;
-import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidService;
-import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
-import org.remoteandroid.ui.expose.Expose;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-
-import android.animation.AnimatorSet.Builder;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -70,14 +57,13 @@ import android.net.wifi.WifiManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcManager;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
+import android.nfc.NfcManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.Preference;
@@ -92,10 +78,9 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 // TODO: Sur xoom, enlever le menu contextuel
 public class EditPreferenceActivity extends PreferenceActivity 
@@ -104,7 +89,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	private static final String ACTION_LAN="org.remoteandroid.action.LAN";
 	private static final String ACTION_WAN="org.remoteandroid.action.WAN";
 	
-	private Expose[] 		mExposeModel;
 	private CharSequence[] 	mExposeValues;
 	private Boolean[]		mExposeActive;
 	
@@ -901,40 +885,40 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	
 	private void updateDiscoverExposeButton()
 	{
-		new AsyncTask<Void, Void, Boolean>()
-		{
-			@Override
-			protected Boolean doInBackground(Void... params)
-			{
-				ArrayList<CharSequence> a=new ArrayList<CharSequence>();
-				ArrayList<Expose> e=new ArrayList<Expose>();
-				ArrayList<Boolean> act=new ArrayList<Boolean>();
-				final int activeFeature=Application.getActiveFeature();
-				for (int i=0;i<Expose.sExpose.length;++i)
-				{
-					if ((Expose.sExpose[i].mFeature & Application.sFeature) == Expose.sExpose[i].mFeature)
-					{
-						a.add(getString(Expose.sExpose[i].mValue));
-						e.add(Expose.sExpose[i]);
-						act.add((Expose.sExpose[i].mFeature & activeFeature) ==Expose.sExpose[i].mFeature);
-					}
-				}
-				mExposeValues=a.toArray(new CharSequence[a.size()]);
-				mExposeModel=e.toArray(new Expose[e.size()]);
-				mExposeActive=act.toArray(new Boolean[act.size()]);
-
-				int netStatus=NetworkTools.getActiveNetwork(Application.sAppContext);
-				return (netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
-			}
-			@Override
-			protected void onPostExecute(Boolean result)
-			{
-				mPreferenceScan.setEnabled(
-					result
-					&& !Application.getManager().isDiscovering());
-				mExpose.setEnabled(result);
-			}
-		}.execute();
+//		new AsyncTask<Void, Void, Boolean>()
+//		{
+//			@Override
+//			protected Boolean doInBackground(Void... params)
+//			{
+//				ArrayList<CharSequence> a=new ArrayList<CharSequence>();
+//				ArrayList<Expose> e=new ArrayList<Expose>();
+//				ArrayList<Boolean> act=new ArrayList<Boolean>();
+//				final long activeFeature=Application.getActiveFeature();
+//				for (int i=0;i<Expose.sExpose.length;++i)
+//				{
+//					if ((Expose.sExpose[i].mFeature & Application.sFeature) == Expose.sExpose[i].mFeature)
+//					{
+//						a.add(getString(Expose.sExpose[i].mValue));
+//						e.add(Expose.sExpose[i]);
+//						act.add((Expose.sExpose[i].mFeature & activeFeature) ==Expose.sExpose[i].mFeature);
+//					}
+//				}
+//				mExposeValues=a.toArray(new CharSequence[a.size()]);
+//				mExposeModel=e.toArray(new Expose[e.size()]);
+//				mExposeActive=act.toArray(new Boolean[act.size()]);
+//
+//				int netStatus=NetworkTools.getActiveNetwork(Application.sAppContext);
+//				return (netStatus & (ACTIVE_LOCAL_NETWORK|ACTIVE_BLUETOOTH|ACTIVE_NFC|ACTIVE_GLOBAL_NETWORK))!=0;
+//			}
+//			@Override
+//			protected void onPostExecute(Boolean result)
+//			{
+//				mPreferenceScan.setEnabled(
+//					result
+//					&& !Application.getManager().isDiscovering());
+//				mExpose.setEnabled(result);
+//			}
+//		}.execute();
 	}
 	
 	private void scan(final int flags)
@@ -955,32 +939,32 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	}
 	private void expose()
 	{
-		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues)
-				{
-					@Override
-					public View getView(int position, View convertView, ViewGroup parent)
-					{
-						// TODO Auto-generated method stub
-						View v=super.getView(position, convertView, parent);
-						((TextView)v.findViewById(android.R.id.text1)).setEnabled(mExposeActive[position]);
-						return v;
-					}
-				};
-		new AlertDialog.Builder(this)
-			.setAdapter(adapter, new DialogInterface.OnClickListener()
-			{
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which)
-				{
-					if (mExposeActive[which])
-						mExposeModel[which].startExposition(EditPreferenceActivity.this);
-				}
-			})
-			.setTitle(R.string.connect_expose_title)
-			.create()
-			.show();
-
+//		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues)
+//				{
+//					@Override
+//					public View getView(int position, View convertView, ViewGroup parent)
+//					{
+//						// TODO Auto-generated method stub
+//						View v=super.getView(position, convertView, parent);
+//						((TextView)v.findViewById(android.R.id.text1)).setEnabled(mExposeActive[position]);
+//						return v;
+//					}
+//				};
+//		new AlertDialog.Builder(this)
+//			.setAdapter(adapter, new DialogInterface.OnClickListener()
+//			{
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which)
+//				{
+//					if (mExposeActive[which])
+//						mExposeModel[which].startExposition(EditPreferenceActivity.this);
+//				}
+//			})
+//			.setTitle(R.string.connect_expose_title)
+//			.create()
+//			.show();
+//
 		
 	}
 

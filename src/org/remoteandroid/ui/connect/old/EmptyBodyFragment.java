@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
@@ -19,7 +19,7 @@ public class EmptyBodyFragment extends AbstractBodyFragment
 	{
 		View v=inflater.inflate(R.layout.connect_empty, container, false);
 		TextView txt=(TextView)v.findViewById(R.id.connect_help);
-		int feature=Application.sFeature;
+		long feature=Application.sFeature;
 		Technology[] techs=Technology.getTechnologies();
 		SpannableStringBuilder builder=new SpannableStringBuilder(getText(R.string.connect_empty_help));
 		for (int i=1;i<techs.length;++i)

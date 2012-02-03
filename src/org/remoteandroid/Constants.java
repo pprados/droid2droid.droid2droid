@@ -163,7 +163,7 @@ public class Constants
 
 	//-----------------------------------------------------------------------------
 	// --- DTMF parameters ---
-	public static final boolean DTMF							=true;
+	public static final boolean SOUND							=false;
 	public static final int DTMF_VOLUME 						= /*100*/50; // %
 	public static final int DTMF_TIMEOUT_WAIT					=60000; // 60s
 	public static final int DTMF_FREQUENCY_DELTA				=2; // +-2
@@ -177,5 +177,16 @@ public class Constants
 	public static final boolean NFC								=true;
 	public static final byte[] NDEF_MIME_TYPE					="application/org.remoteandroid".getBytes();//Charset.forName("US-ASCII"));
 
+	//-----------------------------------------------------------------------------
+	// --- WIFI direct ---
+	public static final boolean WIFI_DIRECT						=false;
+	
+	//-----------------------------------------------------------------------------
+	// --- Bump ---
+	public static final boolean BUMP							=false;
+	
+	//-----------------------------------------------------------------------------
+	// --- Bluetooth ---
+	public static final boolean BT								=false;
 	
 }

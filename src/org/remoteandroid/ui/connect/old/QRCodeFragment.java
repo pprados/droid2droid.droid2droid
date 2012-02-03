@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect;
+package org.remoteandroid.ui.connect.old;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_QRCODE;
@@ -122,10 +122,6 @@ public class QRCodeFragment extends AbstractBodyFragment implements SurfaceHolde
 		
 		CameraManager.density = metrics.density;
 		
-		if (I)
-			Log.i(
-				TAG_CONNECT, "onCreateView...");
-
 		Window window = getActivity().getWindow();
 
 		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

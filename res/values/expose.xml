@@ -2,19 +2,42 @@
 <resources>
 	<integer name="expose_qrcode_maxsize">0</integer>
 
+	<!-- TODO -->
+	<string name="expose_help0_wifi">Check if the devices shared the same WIFI network;\n</string>
+	<string name="expose_help0_bt">Check if the devices activate the Bluetooth;\n</string>
+	<string name="expose_help0_wifi_bt">Check if the devices shared the same WIFI network or activate the Bluetooth;\n</string>
+		
 	<string name="expose">Expose</string>
     <string name="expose_title">Expose the device</string>
 	<string name="expose_summary">For connect with another</string>
 	<string name="expose_dialog_title">Select exposition</string>
-	<string name="expose_qrcode">QRCode</string>
-	<string name="expose_sms">Short Message</string>
 	<string name="expose_nfc">NFC</string>
-	<string name="expose_sound">Sound</string>
 	<string name="expose_ticket">Ticket</string>
 
+	<string name="expose_qrcode">QRCode</string>
+	<string name="expose_qrcode_help">Scan this code with another device.</string>
+			
+	<string name="expose_sms">Short Message</string>
 	<string name="expose_sms_help">Send an message to another device.</string>
 	<string name="expose_sms_field_help">Name or phone number.</string>
 	<string name="expose_sms_send">Send&#8230;</string>
 	<string name="expose_sms_error_title">SMS error</string>
 	<string name="expose_sms_error_message">Impossible to send message!</string>
+	
+	<string name="expose_ticket">Ticket</string>
+	<string name="expose_ticket_help">The approach is accessible for all devices, just with a keyboard.
+In other device, select connect/Ticket and enter this value.\n</string>
+	<string name="expose_ticket_message">%1$s</string>		
+
+	<string name="expose_nfc">NFC</string>
+	<string name="expose_nfc_help">Activate the Near Field Communication and touch the other device.</string>
+				
+	<string name="expose_bump">BumpC</string>
+	<string name="expose_bump_help">Bump the devices.</string>
+
+	<string name="expose_wifi_direct">Wifi direct</string>
+	<string name="expose_wifi_direct_help">Connect Wifi Direct.</string>
+						
+	<string name="expose_sound">Sound</string>
+	<string name="expose_sound_help">Listen.</string>
 </resources>
