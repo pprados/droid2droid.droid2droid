@@ -1,0 +1,53 @@
+package org.remoteandroid.internal;
+
+option java_package = "org.remoteandroid.install";
+option java_outer_classname = "InstallMarket";
+option optimize_for = LITE_RUNTIME;
+
+/*
+POST /market/api/ApiRequest HTTP/1.1
+Content-Lenght: ...
+Content-Type: application/x-www-form-urlencoded
+Host: android.clients.google.com
+Connection: Keep-Alive
+User-Agent: Android-Market/2 (dream DRC83); gzip
+
+version=2&request=<base64 du protobuf>
+
+App ID: target app to be installed
+• Can be derived from dissecting market requests
+– Auth token: 
+AccountManager accountManager = AccountManager.get(getApplicationContext());
+Account acct= getAccount(accountManager);
+accountManager.getAuthToken(acct,"android",false,new GetAuthTokenCallback(),null);
+
+*/
+message UnknownThing {
+	optional fixed64 mgoogle = 12;
+}
+message InstallRequest {
+	optional string appId = 1;
+}
+
+message RequestContext {
+	required string authSubToken = 1; // authsub token for service 'android'
+	required int32 unknown1 = 2; // always 0
+	required int32 version = 3; // always 1002
+	required string androidId = 4; // android id converted to hexadecimal
+	optional string deviceAndSdkVersion = 5; // ro.product.device ':' ro.build.version.sdk
+	optional string userLanguage = 6; // ro.product.locale.language
+	optional string userCountry = 7; // ro.product.locale.region
+	optional string operatorAlpha = 8; // gsm.operator.alpha
+	optional string simOperatorAlpha = 9; // gsm.sim.operator.alpha
+	optional string operatorNumeric = 10; // gsm.operator.numeric
+	optional string simOperatorNumeric = 11; // sim.gsm.operator.numeric
+	optional UnknwnThing unknown12 = 12;
+	optional string unknown13 = 13;
+}
+
+message Request {
+	optional RequestContext context = 1;
+	repeated group RequestGroup = 2 {
+		optional InstallRequest installRequest = 10;
+	}
+}

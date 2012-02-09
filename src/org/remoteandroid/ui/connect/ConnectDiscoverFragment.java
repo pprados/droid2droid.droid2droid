@@ -7,7 +7,6 @@ import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.remoteandroid.Application;
@@ -21,13 +20,13 @@ import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.expose.ExposeBumpFragment;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,9 +37,16 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ConnectDiscoverFragment extends AbstractConnectFragment implements OnItemClickListener, DiscoverListener
+public class ConnectDiscoverFragment extends AbstractConnectFragment 
+implements OnItemClickListener, DiscoverListener
 {
-	protected static final String KEY_DISCOVER="Discover";
+	private View mViewer;
+	private TextView mUsage;
+	private ListView mList;
+	private RemoteAndroidManager mManager;
+	private ListRemoteAndroidInfo mListInfo;
+	private ListRemoteAndroidInfoAdapter mAdapter;
+	
 	public static class Provider extends FeatureTab
 	{
 		Provider()
@@ -48,10 +54,10 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 			super(FEATURE_SCREEN|FEATURE_NET);
 		}
 		@Override
-		public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
 			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_bump), ExposeBumpFragment.class, null);
+		        .setText(R.string.connect_discover), ConnectDiscoverFragment.class, null);
 		}
 	}	
 	public interface Filter
@@ -217,20 +223,12 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 		}
 	}
 	
-	private View mViewer;
-	private TextView mText;
-	private ListView mList;
-	private RemoteAndroidManager mManager;
-	private ListRemoteAndroidInfo mListInfo;
-	private ListRemoteAndroidInfoAdapter mAdapter;
-	
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		setProgressBarIndeterminateVisibility(true);
 		mViewer = (View) inflater.inflate(R.layout.connect_discover, container, false);
-		mText = (TextView)mViewer.findViewById(R.id.connect_help);
+		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		mList = (ListView)mViewer.findViewById(R.id.connect_discover_list);
 		mList.setOnItemClickListener(this);
 		mManager=Application.getManager();
@@ -246,7 +244,6 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 		
 		mAdapter.setListener(this);
 		mList.setAdapter(mAdapter);
-		onUpdateActiveNetwork();
 		return mViewer;
 	}
 	
@@ -254,17 +251,26 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		RemoteAndroidInfo info=mAdapter.getItem(position);
-		tryConnect(null, Arrays.asList(info.getUris()), true);
+		showConnect(info.getUris(), true);
 	}
 
 	@Override
 	public void onResume()
 	{
 		super.onResume();
-		int active=getActiveNetwork();
+		ConnectActivity activity=(ConnectActivity)getActivity();
+		final int active=activity.getActiveNetwork();
 		//TODO: ACTIVE_PHONE_DATA lors du NAT traversal
-		if ((active & NetworkTools.ACTIVE_NOAIRPLANE|NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK)!=0)
-			mListInfo.start(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+		new AsyncTask<Void, Void, Void>()
+		{
+			@Override
+			protected Void doInBackground(Void... params)
+			{
+				if ((active & NetworkTools.ACTIVE_NOAIRPLANE|NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK)!=0)
+					mListInfo.start(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+				return null;
+			}
+		}.execute();
 	}
 	
 	@Override
@@ -275,30 +281,52 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 		setProgressBarIndeterminateVisibility(false);
 	}
 	
-	protected void onUpdateActiveNetwork()
+	@Override
+	protected void updateStatus(int activeNetwork)
 	{
-		int active=getActiveNetwork();
-		if ((active & (NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK))!=0)
+		if (mListInfo==null)
+			return;
+		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+		if (airplane)
 		{
-			if (!Application.sDiscover.isDiscovering())
-			{
-				mListInfo.start(NetworkTools.ACTIVE_NOAIRPLANE|RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,RemoteAndroidManager.DISCOVER_BEST_EFFORT);
-			}
-			setEnabled(true);
+			mUsage.setText(R.string.connect_discover_help_airplane);
+			mList.setVisibility(View.GONE);
+			progress(false);
+		}
+		else
+		if ((activeNetwork & (NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK))!=0)
+		{
+			mUsage.setText(R.string.connect_discover_help);
+			mList.setVisibility(View.VISIBLE);
+			mList.setEnabled(true);
 		}
 		else
 		{
-			setEnabled(false);
+			mUsage.setText(R.string.connect_discover_help_wifi_or_bt);
 			mListInfo.cancel();
+			mList.setVisibility(View.GONE);
+			mList.setEnabled(false);
+			progress(false);
 		}
 	}
 	
-	private void setEnabled(boolean enabled)
+	@Override
+	public void onPageSelected()
 	{
-		mViewer.setEnabled(enabled);
-		mText.setEnabled(enabled);
-		mList.setEnabled(enabled);
-		mAdapter.notifyDataSetChanged();
+		super.onPageSelected();
+		if (Application.sDiscover.isDiscovering())
+			setProgressBarIndeterminateVisibility(true);
+		if (mListInfo!=null && !Application.sDiscover.isDiscovering())
+		{
+			mListInfo.start(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,
+				RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+		}
+	}
+	@Override
+	public void onPageUnselected()
+	{
+		super.onPageUnselected();
+		setProgressBarIndeterminateVisibility(false);
 	}
 	@Override
 	public void onDestroy()
@@ -320,16 +348,30 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 	public void onDiscoverStart()
 	{
 		setProgressBarIndeterminateVisibility(true);
+		progress(true);
 	}
 
 	@Override
 	public void onDiscoverStop()
 	{
 		setProgressBarIndeterminateVisibility(false);
+		progress(false);
 	}
 	
 	@Override
 	public void onDiscover(RemoteAndroidInfo remoteAndroidInfo, boolean update)
 	{
+	}
+	
+	private void progress(boolean onoff)
+	{
+		if (onoff)
+		{
+			getActivity().setProgressBarIndeterminate(true);
+		}
+		else
+		{
+			getActivity().setProgressBarIndeterminate(false);
+		}
 	}
 }

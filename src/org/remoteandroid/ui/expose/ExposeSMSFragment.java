@@ -11,7 +11,6 @@ import org.remoteandroid.ui.contacts.AbstractSMSFragment;
 import org.remoteandroid.ui.contacts.SMSSendingActivity.SendSMSDialogFragment;
 
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.FragmentActivity;
 
 public class ExposeSMSFragment extends AbstractSMSFragment
 {
@@ -23,7 +22,7 @@ public class ExposeSMSFragment extends AbstractSMSFragment
 		}
 
 		@Override
-		public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
 			tabsAdapter.addTab(actionBar.newTab()
 		        .setText(R.string.expose_sms), ExposeSMSFragment.class, null);

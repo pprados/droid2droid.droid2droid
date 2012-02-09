@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/main_expose"
+        style="@style/home_button"
+        android:background="@drawable/home_expose"
+        android:text="@string/main_expose"
+         />
+
+    <Button
+        android:id="@+id/main_connect"
+        style="@style/home_button"
+        android:layout_below="@+id/main_expose"
+        android:background="@drawable/home_connect"
+        android:text="@string/main_connect" />
+
+</RelativeLayout>

@@ -1,9 +1,8 @@
 package org.remoteandroid.ui;
 
-import org.remoteandroid.ui.TabsAdapter;
+import org.remoteandroid.ui.connect.AbstractConnectFragment;
 
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.FragmentActivity;
 
 // TODO: meme classe que Expose ?
 public abstract class FeatureTab
@@ -14,6 +13,6 @@ public abstract class FeatureTab
 	{
 		mFeature=feature;
 	}
-	public abstract void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar);
+	public abstract void createTab(TabsAdapter tabsAdapter, ActionBar actionBar);
 
 }

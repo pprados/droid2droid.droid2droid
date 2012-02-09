@@ -71,7 +71,7 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 		
 		mAdapter.setListener(this);
 		mList.setAdapter(mAdapter);
-		onUpdateActiveNetwork();
+		onUpdateActiveNetwork(((ConnectActivity)getActivity()).getActiveNetwork());
 		return mViewer;
 	}
 	
@@ -107,13 +107,13 @@ public class DiscoverFragment extends AbstractBodyFragment implements OnItemClic
 
 	}
 	
-	protected void onUpdateActiveNetwork()
+	@Override
+	public void onUpdateActiveNetwork(int activeNetwork)
 	{
 		ConnectActivity activity=(ConnectActivity)getActivity();
 		if (activity==null)
 			return;
-		int active=activity.getActiveNetwork();
-		if ((active & (NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK))!=0)
+		if ((activeNetwork & (NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK))!=0)
 		{
 			if (!Application.sDiscover.isDiscovering())
 			{

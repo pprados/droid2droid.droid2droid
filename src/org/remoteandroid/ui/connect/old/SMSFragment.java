@@ -163,7 +163,8 @@ public class SMSFragment extends AbstractBodyFragment
 		return mViewer;
 	}
 
-	protected void onUpdateActiveNetwork()
+	@Override
+	public void onUpdateActiveNetwork(int activeNetwork)
 	{
 		ConnectActivity activity = (ConnectActivity) getActivity();
 		if (activity == null)

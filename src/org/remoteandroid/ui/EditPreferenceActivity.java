@@ -86,9 +86,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public class EditPreferenceActivity extends PreferenceActivity 
 implements ListRemoteAndroidInfo.DiscoverListener
 {
-	private static final String ACTION_LAN="org.remoteandroid.action.LAN";
-	private static final String ACTION_WAN="org.remoteandroid.action.WAN";
-	
 	private CharSequence[] 	mExposeValues;
 	private Boolean[]		mExposeActive;
 	
@@ -97,7 +94,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	private static final String PREFERENCES_KNOWN				="known";
 
 	private static final String PREFERENCE_DEVICE_LIST			="lan.list";
-	private static final String PREFERENCE_EXPOSE 				= "expose";
 	private static final String PREFERENCE_SCAN 				= "scan";
 
 	private static final String ALL_WIFI="#ALL#";
@@ -218,7 +214,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 			
 		}
     };
-	private BroadcastReceiver mAirPlaine = new BroadcastReceiver() 
+	private BroadcastReceiver mAirPlane = new BroadcastReceiver() 
 	{
 	      @Override
 	      public void onReceive(Context context, Intent intent) 
@@ -623,7 +619,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
     	if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
     	{
 	        registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-			registerReceiver(mAirPlaine,new IntentFilter("android.intent.action.SERVICE_STATE"));
+			registerReceiver(mAirPlane,new IntentFilter("android.intent.action.SERVICE_STATE"));
 			IntentFilter filter=new IntentFilter();
 			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
@@ -714,7 +710,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
    		unregisterReceiver(mNetworkStateReceiver);
 		unregisterReceiver(mRemoteAndroidReceiver); 
 		unregisterReceiver(mBluetoothReceiver); 
-		unregisterReceiver(mAirPlaine); 
+		unregisterReceiver(mAirPlane); 
 		nfcUnregister();
     }
     
@@ -737,11 +733,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
         		scan(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS);
         	}
             return true;
-        }
-        if (PREFERENCE_EXPOSE.equals(preference.getKey()))
-        {
-        	expose();
-        	return true;
         }
         else if (preference instanceof DevicePreference) 
         {
@@ -937,37 +928,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
 			});
 		}
 	}
-	private void expose()
-	{
-//		ArrayAdapter<CharSequence> adapter=new ArrayAdapter<CharSequence>(this,android.R.layout.simple_dropdown_item_1line,mExposeValues)
-//				{
-//					@Override
-//					public View getView(int position, View convertView, ViewGroup parent)
-//					{
-//						// TODO Auto-generated method stub
-//						View v=super.getView(position, convertView, parent);
-//						((TextView)v.findViewById(android.R.id.text1)).setEnabled(mExposeActive[position]);
-//						return v;
-//					}
-//				};
-//		new AlertDialog.Builder(this)
-//			.setAdapter(adapter, new DialogInterface.OnClickListener()
-//			{
-//				
-//				@Override
-//				public void onClick(DialogInterface dialog, int which)
-//				{
-//					if (mExposeActive[which])
-//						mExposeModel[which].startExposition(EditPreferenceActivity.this);
-//				}
-//			})
-//			.setTitle(R.string.connect_expose_title)
-//			.create()
-//			.show();
-//
-		
-	}
-
 	
 	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info,boolean expose)
 	{

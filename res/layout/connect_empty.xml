@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:gravity="center_horizontal"
+    style="tab_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
 >
 	<ScrollView
 		android:id="@+id/scrollView1"
@@ -14,13 +13,11 @@
 		<TextView
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent"
-			android:paddingLeft="10dip"
 			android:lineSpacingMultiplier="0.92"
 			android:id="@+id/connect_help"
 			android:textAppearance="?android:attr/textAppearance"
 			android:gravity="top"
-			android:paddingTop="10dip"
-			android:paddingRight="10dip"
+	        android:padding="10dip"
 		></TextView>
 	</ScrollView>
 </RelativeLayout>

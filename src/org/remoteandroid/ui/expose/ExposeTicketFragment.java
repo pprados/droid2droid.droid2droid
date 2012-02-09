@@ -19,26 +19,25 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.remoteandroid.Application;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class ExposeTicketFragment extends AbstractBodyFragment
@@ -47,6 +46,9 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 	public static final String GOOGLE_SHORTEN_API="https://www.googleapis.com/urlshortener/v1/url";
 	public static final String GOOGLE_SHORTEN="http://goo.gl/";
 	public static final String BASE_SHORTEN="http://www.remoteandroid.org/";
+
+	TextView mUsage;
+	TextView mTicket;
 
 	public static class Provider extends FeatureTab
 	{
@@ -57,7 +59,7 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 		}
 
 		@Override
-		public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
 			tabsAdapter.addTab(actionBar.newTab()
 		        .setText(R.string.expose_ticket), ExposeTicketFragment.class, null);
@@ -124,19 +126,19 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 			if (getActivity().isFinishing()) 
 				return;
 			if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Error when load shorten url",e);
-			if (D)
-			{
-				Application.sHandler.post(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
-					}
-				});
-			}
-			mTicket.setText(R.string.connect_input_message_error_set_internet);
-
+//			if (D)
+//			{
+//				Application.sHandler.post(new Runnable()
+//				{
+//					@Override
+//					public void run()
+//					{
+//						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+//					}
+//				});
+//			}
+			mUsage.setText(R.string.connect_ticket_message_error_set_internet);
+			mTicket.setVisibility(View.INVISIBLE);
 		}
 		@Override
 		protected void onPostExecute(String result)
@@ -147,21 +149,40 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 		}
 	}
 	
-	TextView mTicket;
-	ShortenURL mShortenURL;
 	
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		mShortenURL=new ShortenURL();
-		mShortenURL.execute();
-	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View main=inflater.inflate(R.layout.expose_ticket, container, false);
+		mUsage=(TextView)main.findViewById(R.id.usage);
 		mTicket=(TextView)main.findViewById(R.id.ticket);
 		return main;
+	}
+	@Override
+	protected void updateStatus(int activeNetwork)
+	{
+		if (V) Log.v("Frag","ExposeQRCodeFragment.updateHelp...");
+		if (mUsage==null) // Not yet initialized
+			return;
+		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+		if (airplane)
+		{
+			mUsage.setText(R.string.expose_ticket_help_airplane);
+			mTicket.setVisibility(View.INVISIBLE);
+		}
+		else
+		{
+			if ((activeNetwork & NetworkTools.ACTIVE_INTERNET_NETWORK)==0)
+			{
+				mUsage.setText(R.string.expose_ticket_help_internet);
+				mTicket.setVisibility(View.INVISIBLE);
+			}
+			else
+			{
+				mUsage.setText(R.string.expose_ticket_help);
+				mTicket.setVisibility(View.VISIBLE);
+				new ShortenURL().execute();
+			}
+		}
 	}
 }

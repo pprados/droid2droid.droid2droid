@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 public class MainFragment extends Fragment
 {
@@ -29,9 +30,6 @@ public class MainFragment extends Fragment
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-//		SVG svg = SVGParser.getSVGFromResource(getResources(), R.raw.android_body);
-//	    Picture picture = svg.getPicture();
-//	    mDrawable = svg.createPictureDrawable();		
 	}
 	
 	View mViewer;
@@ -39,8 +37,7 @@ public class MainFragment extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		mViewer =inflater.inflate(R.layout.expose_connect, container, false);
-//		((ImageView)mViewer.findViewById(R.id.img)).setImageDrawable(mDrawable);
+		mViewer =inflater.inflate(R.layout.main_expose_connect, container, false);
 		
 		((Button)mViewer.findViewById(R.id.main_expose)).setOnClickListener(new Button.OnClickListener()
 		{

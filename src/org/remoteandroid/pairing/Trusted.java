@@ -408,7 +408,9 @@ public class Trusted
 			if (wifi!=null && wifi.isWifiEnabled())
 			{
 				WifiInfo info=wifi.getConnectionInfo();
-				builder.setBssid(ByteString.copyFrom(mactoByteArray(info.getBSSID())));
+				if (V) Log.v(TAG_EXPOSE,"bssid="+info.getBSSID());
+				if (info.getBSSID()!=null)
+					builder.setBssid(ByteString.copyFrom(mactoByteArray(info.getBSSID())));
 			}
 		}
 		return builder.build();
@@ -427,14 +429,14 @@ public class Trusted
 	
 	// ---------------------------------
 	private AbstractRemoteAndroidImpl mRemoteAndroid;
-	public RemoteAndroidInfoImpl pairWith(List<String> uris)
+	public RemoteAndroidInfoImpl pairWith(String[] uris)
 	{
 		try
 		{
 			String uri=null;
-			for (int i=0;i<uris.size();++i)
+			for (int i=0;i<uris.length;++i)
 			{
-				uri=uris.get(i);
+				uri=uris[i];
 				Intent intent=new Intent(Intent.ACTION_MAIN,Uri.parse(uri));
 				intent.putExtra(AbstractRemoteAndroidImpl.EXTRA_FOR_PAIRING, true);
 				Application.getManager().bindRemoteAndroid(

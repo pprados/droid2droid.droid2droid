@@ -186,7 +186,6 @@ implements TextWatcher, OnScrollListener, PhoneDisambigDialog.CallBack
 				convertView = mInflater.inflate(R.layout.connect_sms_list_item_icon_text, parent, false);
 
 				holder = new Cache();
-				holder.text = (TextView) convertView.findViewById(R.id.text);
 				holder.icon = (ImageView) convertView.findViewById(R.id.icon);
 				holder.name = (TextView) convertView.findViewById(R.id.name);
 

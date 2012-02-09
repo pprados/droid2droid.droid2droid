@@ -215,7 +215,7 @@ public class DevicePreference extends Preference
 				try
 				{
 					new Trusted(getContext().getApplicationContext(), Application.sHandler)
-							.pairWith(mInfo.uris);
+							.pairWith(mInfo.uris.toArray(new String[0]));
 				}
 				finally
 				{

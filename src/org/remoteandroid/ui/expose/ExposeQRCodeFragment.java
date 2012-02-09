@@ -4,6 +4,7 @@ import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -20,8 +21,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Writer;
@@ -48,7 +50,7 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 		}
 
 		@Override
-		public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
 			tabsAdapter.addTab(actionBar.newTab()
 		        .setText(R.string.expose_qrcode), ExposeQRCodeFragment.class, null);
@@ -56,11 +58,10 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 	}
 	
 	private static final int WHITE = 0xFFFFFFFF;
-
 	private static final int BLACK = 0xFF000000;
 
+	private TextView mUsage;
 	private ImageView mImg;
-
 	private float mScreenBrightness;
 
 	private int mMax;
@@ -68,25 +69,110 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 	@Override
 	public void onResume()
 	{
+		if (V) Log.v("Frag","ExposeQRCodeFragment.onResume");
 		super.onResume();
-		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-		mScreenBrightness=layoutParams.screenBrightness;
-		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
-		layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
-		getActivity().getWindow().setAttributes(layoutParams);
+//		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
+//		mScreenBrightness=layoutParams.screenBrightness;
+//		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
+//		layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
+//		getActivity().getWindow().setAttributes(layoutParams);
 		mImg.requestFocus();
 	}
 
 	@Override
 	public void onPause()
 	{
+		if (V) Log.v("Frag","ExposeQRCodeFragment.onPause");
 		super.onPause();
+//		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
+//		layoutParams.screenBrightness = mScreenBrightness;
+//		layoutParams.flags&=~LayoutParams.FLAG_KEEP_SCREEN_ON;
+//		getActivity().getWindow().setAttributes(layoutParams);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		if (V) Log.v("Frag","ExposeQRCodeFragment.onCreateView");
+		View main=inflater.inflate(R.layout.expose_qrcode, container, false);
+
+		mUsage=(TextView)main.findViewById(R.id.usage);
+		mImg=(ImageView)main.findViewById(R.id.qrcode);
+		main.setFocusable(false);
+		return main;
+	}
+
+	
+	@Override
+	protected void updateStatus(int activeNetwork)
+	{
+		if (V) Log.v("Frag","ExposeQRCodeFragment.updateHelp...");
+		if (mUsage==null) // Not yet initialized
+			return;
+		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+		if (airplane)
+		{
+			mUsage.setText(R.string.expose_qrcode_help_airplane);
+			mImg.setVisibility(View.GONE);
+		}
+		else
+		{
+			mUsage.setText(R.string.expose_qrcode_help);
+			mImg.setVisibility(View.VISIBLE);
+			
+			WindowManager manager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+			Display display = manager.getDefaultDisplay();
+			int width = display.getWidth();
+			int height = display.getHeight();
+			int smallerDimension = width < height ? width : height;
+			smallerDimension = smallerDimension * 7 / 8;
+			final int smallerDim = smallerDimension;
+
+			mImg.setBackgroundColor(WHITE);
+			mMax=getResources().getInteger(R.integer.expose_qrcode_maxsize);
+			if (mMax==0)
+				mMax=smallerDim;
+			mImg.setMinimumHeight(mMax);
+			mImg.setMinimumWidth(mMax);
+
+			new AsyncTask<Void, Void, Bitmap>()
+			{
+				@Override
+				protected Bitmap doInBackground(Void... params)
+				{
+					return buildQRCode(mMax);
+				}
+
+				@Override
+				protected void onPostExecute(Bitmap bitmap)
+				{
+					if (bitmap != null)
+					{
+						mImg.setImageBitmap(bitmap);
+						if (getActivity()!=null)
+						{
+							WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
+							mScreenBrightness=layoutParams.screenBrightness;
+							layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
+							layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
+							getActivity().getWindow().setAttributes(layoutParams);
+						}
+					}
+				}
+			}.execute();
+		}
+	}
+
+	@Override
+	public void onPageUnselected()
+	{
+		super.onPageUnselected();
 		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
 		layoutParams.screenBrightness = mScreenBrightness;
 		layoutParams.flags&=~LayoutParams.FLAG_KEEP_SCREEN_ON;
 		getActivity().getWindow().setAttributes(layoutParams);
 	}
-
+//---------------------------
 	private static Bitmap buildQRCode(int smallerDimension)
 	{
 		BarcodeFormat format = BarcodeFormat.QR_CODE;
@@ -145,48 +231,5 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 		bitmap.recycle();
 		return dimbitmap;
 	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-	{
-		View main=inflater.inflate(R.layout.expose_qrcode, container, false);
-		WindowManager manager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-		Display display = manager.getDefaultDisplay();
-		int width = display.getWidth();
-		int height = display.getHeight();
-		int smallerDimension = width < height ? width : height;
-		smallerDimension = smallerDimension * 7 / 8;
-		final int smallerDim = smallerDimension;
-
-		mImg=(ImageView)main.findViewById(R.id.qrcode);
-		mImg.setBackgroundColor(WHITE);
-		mMax=getResources().getInteger(R.integer.expose_qrcode_maxsize);
-		if (mMax==0)
-			mMax=smallerDim;
-		mImg.setMinimumHeight(mMax);
-		mImg.setMinimumWidth(mMax);
-//		setContentView(mImg);
-
-		new AsyncTask<Void, Void, Bitmap>()
-		{
-			@Override
-			protected Bitmap doInBackground(Void... params)
-			{
-				return buildQRCode(mMax);
-			}
-
-			@Override
-			protected void onPostExecute(Bitmap bitmap)
-			{
-				if (bitmap != null)
-				{
-					mImg.setImageBitmap(bitmap);
-				}
-			}
-		}.execute();
-		main.setFocusable(false);
-		return main;
-	}
-	
 
 }

@@ -60,6 +60,9 @@ public class Constants
     public static final String ACTION_CLEAR_PROPOSED 			= "org.remoteaandroid.intent.action.CLEAR_PROPOSED";
     public static final String ACTION_CLEAR_DOWNLOAD 			= "org.remoteaandroid.intent.action.CLEAR_DOWNLOAD";
     
+    /** Timer for refresh progression */
+	public static final int PROGRESS_TIMER=50;
+
 	/** Expiration delay before purge discovery device. */
 	public long PURGE_FRESH_DISCOVERY_MS=PROBE_INTERVAL_MS*(PROBE_SENT+1);
     /** Delay to discover others remote androids. */
@@ -163,7 +166,7 @@ public class Constants
 
 	//-----------------------------------------------------------------------------
 	// --- DTMF parameters ---
-	public static final boolean SOUND							=false;
+	public static final boolean SOUND							=true;
 	public static final int DTMF_VOLUME 						= /*100*/50; // %
 	public static final int DTMF_TIMEOUT_WAIT					=60000; // 60s
 	public static final int DTMF_FREQUENCY_DELTA				=2; // +-2
@@ -179,14 +182,14 @@ public class Constants
 
 	//-----------------------------------------------------------------------------
 	// --- WIFI direct ---
-	public static final boolean WIFI_DIRECT						=false;
+	public static final boolean WIFI_DIRECT						=true;
 	
 	//-----------------------------------------------------------------------------
 	// --- Bump ---
-	public static final boolean BUMP							=false;
+	public static final boolean BUMP							=true;
 	
 	//-----------------------------------------------------------------------------
 	// --- Bluetooth ---
-	public static final boolean BT								=false;
+	public static final boolean BT								=true;
 	
 }

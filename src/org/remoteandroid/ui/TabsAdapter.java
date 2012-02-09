@@ -3,6 +3,8 @@ package org.remoteandroid.ui;
 import java.util.ArrayList;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
+import static org.remoteandroid.internal.Constants.*;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -33,17 +35,18 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
 	private final ActionBar mActionBar;
 
 	private final ViewPager mViewPager;
-
+	
 	static final class TabInfo
 	{
-		private final Class<?> clss;
+		private final Class<?> mClss;
 
-		private final Bundle args;
+		private final Bundle mArgs;
+		AbstractBodyFragment mFragment;
 
-		TabInfo(Class<?> _class, Bundle _args)
+		TabInfo(Class<?> clazz, Bundle args)
 		{
-			clss = _class;
-			args = _args;
+			mClss = clazz;
+			mArgs = args;
 		}
 	}
 	private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
@@ -78,53 +81,61 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
 	public Fragment getItem(int position)
 	{
 		TabInfo info = mTabs.get(position);
-		return Fragment.instantiate(mContext, info.clss.getName(), info.args);
+		if (info.mFragment==null)
+		{
+			info.mFragment=(AbstractBodyFragment)Fragment.instantiate(mContext, info.mClss.getName(), info.mArgs);
+		}
+		return info.mFragment;
 	}
 
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
 	{
-//		hideSoftKeyboard();
 	}
 
 	@Override
 	public void onPageSelected(int position)
 	{
+		if (V) Log.v("Frag","onPageSelected("+position+")...");
 		mActionBar.setSelectedNavigationItem(position);
-		int id=mViewPager.getCurrentItem();
-		Log.d("topto",""+id);
+		mTabs.get(position).mFragment.onPageSelected();
+		if (V) Log.v("Frag","onPageSelected("+position+") done");
 	}
 
 	@Override
 	public void onPageScrollStateChanged(int state)
 	{
-//		hideSoftKeyboard();
 	}
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction fft)
 	{
-		hideSoftKeyboard();
+		if (V) Log.v("Frag","onTabSelected()...");
+		Application.hideSoftKeyboard(mContext);
+		mContext.setProgressBarIndeterminateVisibility(false);
 		FragmentTransaction ft = fft;
 		if (ft == null)
 			ft = mContext.getSupportFragmentManager().beginTransaction();
 		mViewPager.setCurrentItem(tab.getPosition());
 		if (fft == null)
 			ft.commit();
+		((AbstractBodyFragment)getItem(mViewPager.getCurrentItem())).onPageSelected();
+		if (V) Log.v("Frag","onTabSelected() done");
 	}
 
-	private void hideSoftKeyboard()
-	{
-		Application.hideSoftKeyboard(mContext);
-	}
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft)
 	{
-//		hideSoftKeyboard();
 	}
 
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft)
 	{
+		((AbstractBodyFragment)getItem(mViewPager.getCurrentItem())).onPageUnselected();
+	}
+	
+	final AbstractBodyFragment getActiveFragment()
+	{
+		return mTabs.get(mViewPager.getCurrentItem()).mFragment;
 	}
 }

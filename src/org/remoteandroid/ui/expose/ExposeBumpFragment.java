@@ -11,8 +11,6 @@ import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +24,7 @@ public class ExposeBumpFragment extends AbstractBodyFragment
 			super(FEATURE_SCREEN|FEATURE_NET|FEATURE_LOCATION);
 		}
 		@Override
-		public void createTab(FragmentActivity activity,TabsAdapter tabsAdapter, ActionBar actionBar)
+		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
 			tabsAdapter.addTab(actionBar.newTab()
 		        .setText(R.string.expose_bump), ExposeBumpFragment.class, null);

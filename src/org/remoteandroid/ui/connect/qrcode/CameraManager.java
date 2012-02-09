@@ -9,6 +9,7 @@ import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.List;
 
 import org.remoteandroid.internal.Compatibility;
@@ -103,7 +104,7 @@ public final class CameraManager
 	{
 		if (sCameraManager == null)
 		{
-			sCameraManager = new CameraManager(context);
+			sCameraManager = new CameraManager(context.getApplicationContext());
 		}
 	}
 
@@ -295,29 +296,20 @@ public final class CameraManager
 	 *            frames into.
 	 * @throws IOException Indicates the camera driver failed to open.
 	 */
-	public void openDriver(SurfaceHolder holder, int rotation) throws IOException
+	public void openDriver(SurfaceHolder holder, int rotation) throws InvalidParameterException, IOException
 	{
 		if (mCamera == null)
 		{
 			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
 			{
-				new Runnable()
-				{
-
-					@Override
-					public void run()
-					{
-						mCamera = Camera.open(camera);
-					}
-
-				}.run();
+				mCamera = Camera.open(camera);
 			}
 			else
 				mCamera = Camera.open();
 
 			if (mCamera == null)
 			{
-				throw new IOException();
+				throw new InvalidParameterException("Invalid camera");
 			}
 		}
 

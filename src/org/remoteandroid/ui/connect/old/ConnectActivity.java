@@ -315,9 +315,9 @@ implements TechnologiesFragment.Listener
 	}
 	void onReceiveNetworkEvent(Context context,Intent intent)
 	{
-		if (mBodyFragment!=null)
-			mBodyFragment.onReceiveNetworkEvent(context,intent);
-		
+//		if (mBodyFragment!=null)
+//			mBodyFragment.onReceiveNetworkEvent(context,intent);
+//		
 		ConnectivityManager conn=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
 		if (conn==null || conn.getActiveNetworkInfo()==null)
 		{
@@ -350,8 +350,8 @@ implements TechnologiesFragment.Listener
 	}
 	void onReceiveBluetoothEvent(Context context, Intent intent)
 	{
-		if (mBodyFragment!=null)
-			mBodyFragment.onReceiveBluetoothEvent(context,intent);
+//		if (mBodyFragment!=null)
+//			mBodyFragment.onReceiveBluetoothEvent(context,intent);
 		
 		if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
 		{
@@ -372,7 +372,7 @@ implements TechnologiesFragment.Listener
 	void onUpdateActiveNetwork()
 	{
 		if (mBodyFragment!=null)
-			mBodyFragment.onUpdateActiveNetwork();
+			mBodyFragment.onUpdateActiveNetwork(mActiveNetwork);
 	}
 
 	int getActiveNetwork()
@@ -620,7 +620,7 @@ implements TechnologiesFragment.Listener
 				catch (SecurityException e)
 				{
 					// Accept only bounded device.
-					info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUris);
+					info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(mUris.toArray(new String[0]));
 					if (info==null)
 					{
 						if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");

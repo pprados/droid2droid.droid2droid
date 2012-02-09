@@ -1,34 +1,19 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.TAG_DISCOVERY;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.W;
-
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.ui.AbstractNetworkEventActivity;
-import org.remoteandroid.ui.MainFragment;
-import org.remoteandroid.ui.MainActivity;
-import org.remoteandroid.ui.TabsAdapter;
+import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.ActionBar;
-import android.support.v4.app.ActionBar.Tab;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuItem;
 import android.support.v4.view.ViewPager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
+import android.support.v4.view.Window;
 import android.view.MenuInflater;
+
 
 
 public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventActivity
@@ -38,29 +23,28 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     ViewPager  mViewPager;
     TabsAdapter mTabsAdapter;
 	FragmentManager mFragmentManager;
-	Fragment mFragment;
+	ActionBar mActionBar;
     
 	protected abstract FeatureTab[] getFeatureTabs();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
+		requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        requestWindowFeature(Window.FEATURE_CONTEXT_MENU);
         super.onCreate(savedInstanceState);
 
     	mFragmentManager = getSupportFragmentManager();
-    	mFragment = (MainFragment) mFragmentManager.findFragmentById(R.id.fragment);
 
     	mViewPager = new ViewPager(this);
         mViewPager.setId(R.id.body);
         setContentView(mViewPager);
-    	// setup action bar for tabs
-    	setTitle(R.string.expose);
     	
-        final ActionBar actionBar = getSupportActionBar();
-    	actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-        actionBar.setDisplayShowTitleEnabled(true);
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        mActionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+        mActionBar.setDisplayShowTitleEnabled(true);
         
         mTabsAdapter = new TabsAdapter(this, getSupportActionBar(), mViewPager);
         FeatureTab[] featureTabs=getFeatureTabs();
@@ -68,7 +52,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     	{
     		if ((featureTabs[i].mFeature & Application.sFeature) == featureTabs[i].mFeature)
     		{
-    			featureTabs[i].createTab(this,mTabsAdapter,actionBar);
+    			featureTabs[i].createTab(mTabsAdapter,mActionBar);
     		}
     	}
         if (savedInstanceState != null) 
@@ -90,6 +74,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     	super.onResume();
     	Application.hideSoftKeyboard(this);
     }
+    
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -109,14 +94,17 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				return true;
+			case R.id.config:
+				startActivity(new Intent(this, EditPreferenceActivity.class));
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
 	@Override
-	protected AbstractNetworkEventFragment getActiveFragment()
+	protected AbstractBodyFragment getActiveFragment()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return mTabsAdapter.getActiveFragment();
+//		return (AbstractBodyFragment)mTabsAdapter.getItem(mActionBar.getSelectedNavigationIndex());
 	}	
 }

@@ -559,8 +559,8 @@ public class Application extends android.app.Application
 						sUuid=new UUID(0,5);
 					else if ("I7500".equals(finger))
 						sUuid=new UUID(0,6);
-					
-					
+					else
+						sUuid = UUID.randomUUID();
 				}
 				else
 					sUuid = UUID.randomUUID();

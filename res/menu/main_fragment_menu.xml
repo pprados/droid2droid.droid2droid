@@ -3,13 +3,13 @@
 
 		
     <item android:id="@+id/config"
-          android:title="@string/main_ic_menu_config"
-    	  android:icon="@android:drawable/ic_menu_manage"
+          android:title="@string/main_ic_menu_preferences"
+    	  android:icon="@android:drawable/ic_menu_preferences"
           android:visible="true"
-          android:showAsAction="ifRoom|withText"/>           
+          android:showAsAction="ifRoom"/>           
     <item android:id="@+id/help"
           android:title="@string/main_ic_menu_help"
     	  android:icon="@android:drawable/ic_menu_help"
           android:visible="true"
-          android:showAsAction="ifRoom|withText"/>           
+          android:showAsAction="ifRoom"/>           
 </menu>

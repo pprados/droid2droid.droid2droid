@@ -94,23 +94,23 @@ public class TechnologiesFragment extends ListFragment
 			Cache cache;
 			if (convertView==null)
 			{
-				convertView=mInflater.inflate(R.layout.connect_technology, parent,false);
-				cache=new Cache();
-				cache.mContent=(TextView)convertView.findViewById(R.id.connect);
-				cache.mContextDescription=(TextView)convertView.findViewById(R.id.connect_description);
-				convertView.setTag(cache);
+//				convertView=mInflater.inflate(R.layout.connect_technology, parent,false);
+//				cache=new Cache();
+//				cache.mContent=(TextView)convertView.findViewById(R.id.connect);
+//				cache.mContextDescription=(TextView)convertView.findViewById(R.id.connect_description);
+//				convertView.setTag(cache);
 			}
 			else
 				cache=(Cache)convertView.getTag();
 			final Technology tech=mTechnologies[position+1];
-			cache.mContent.setText(tech.mContent);
-			cache.mContextDescription.setText(tech.mDescription);
-			boolean airplane=Settings.System.getInt(getActivity().getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-			boolean active=
-					((mActiveFeature & tech.mFeature) == tech.mFeature)
-					&& ((mActiveNetwork & tech.mActiveNetwork)!=0);
-			cache.mContent.setEnabled(active);
-			cache.mContextDescription.setEnabled(active);
+//			cache.mContent.setText(tech.mContent);
+//			cache.mContextDescription.setText(tech.mDescription);
+//			boolean airplane=Settings.System.getInt(getActivity().getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+//			boolean active=
+//					((mActiveFeature & tech.mFeature) == tech.mFeature)
+//					&& ((mActiveNetwork & tech.mActiveNetwork)!=0);
+//			cache.mContent.setEnabled(active);
+//			cache.mContextDescription.setEnabled(active);
 			return convertView;
 		}
 		@Override

@@ -83,20 +83,20 @@ abstract class Technology
 						return new SMSFragment();
 					}
 				},
-			new Technology(
-				FEATURE_SCREEN|FEATURE_NET,
-				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
-				R.string.connect_input,
-				R.string.connect_input_description,
-				R.string.connect_input_help,
-				R.string.connect_input_empty_help)
-				{
-					@Override
-					AbstractBodyFragment makeFragment()
-					{
-						return new InputIdFragment();
-					}
-				},
+//			new Technology(
+//				FEATURE_SCREEN|FEATURE_NET,
+//				INTERNAL_FEATURE_NETWORK|ACTIVE_BLUETOOTH,
+//				R.string.connect_input,
+//				R.string.connect_input_description,
+//				R.string.connect_input_help,
+//				R.string.connect_input_empty_help)
+//				{
+//					@Override
+//					AbstractBodyFragment makeFragment()
+//					{
+//						return new InputIdFragment();
+//					}
+//				},
 			
 		};
 	

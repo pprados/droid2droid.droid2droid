@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:gravity="center_horizontal"
+    style="tab_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
 >
 
 	<TextView
@@ -12,9 +11,7 @@
 		android:layout_width="fill_parent"
 		android:textAppearance="?android:attr/textAppearance"
 		android:layout_height="wrap_content"
-		android:paddingLeft="10dip"
-		android:paddingRight="10dip"
-		android:paddingTop="10dip"
+        android:padding="10dip"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentTop="true"
 		android:lineSpacingMultiplier="0.92"

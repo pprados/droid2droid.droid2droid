@@ -60,7 +60,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 				ArrayList<String> uris=new ArrayList<String>();
 				uris.add(uri);
 				if (new Trusted(mContext, Application.sHandler)
-					.pairWith(uris)==null)
+					.pairWith(uris.toArray(new String[0]))==null)
 					return -1;
 				try
 				{

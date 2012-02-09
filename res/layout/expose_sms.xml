@@ -1,60 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="tab_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:focusable="false"
-    android:focusableInTouchMode="false"
-    android:baselineAligned="false"
-    android:gravity="center_horizontal"
-    android:orientation="vertical" >
-
-    <LinearLayout
-        android:id="@+id/smsRelativeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_marginTop="10dp"
-        android:layout_weight="1.0"
-        android:orientation="vertical" >
+    android:orientation="vertical" 
+>
 
 	<TextView
-		android:id="@+id/connect_help"
+		android:id="@+id/usage"
 		android:layout_width="fill_parent"
-		android:textAppearance="?android:attr/textAppearance"
+		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:layout_height="wrap_content"
-		android:paddingLeft="0dip"
-		android:paddingRight="0dip"
-		android:paddingTop="10dip"
-		android:paddingBottom="10dip"
+        android:padding="10dip"
 		android:lineSpacingMultiplier="0.92"
-		android:gravity="center_vertical" android:text="@string/expose_sms_help"/>
+		android:gravity="center_vertical" 
+		android:text="@string/expose_sms_help"/>
 
+    
      <EditText
             android:id="@+id/numberEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/expose_sms_field_help"
+            android:hint="@string/expose_sms_hint"
             android:imeOptions="actionSend"
             android:inputType="textPersonName"
             android:lines="1"
             android:textSize="15dp" >
+     </EditText>
 
-            <requestFocus />
-
-        </EditText>
-
-        <ListView
-            android:id="@+id/contactListView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:dividerHeight="1dp" />
-    </LinearLayout>
-
-    <!-- <Button -->
-    <!-- android:layout_width="match_parent" -->
-    <!-- android:layout_height="wrap_content" -->
-    <!-- android:layout_alignParentBottom="true" -->
-    <!-- android:layout_below="@+id/smsRelativeLayout" -->
-    <!-- android:id="@+id/sendMsgBtn" -->
-    <!-- android:text="@string/button_ok" /> -->
+     <ListView
+         android:id="@+id/contactListView"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:dividerHeight="1dp" />
 
 </LinearLayout>

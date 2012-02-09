@@ -23,7 +23,7 @@
             android:id="@+id/name"
             android:layout_width="0dip"
             android:layout_height="0dip"
-            android:layout_above="@id/text"
+            android:layout_above="@id/icon"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_alignWithParentIfMissing="true"
