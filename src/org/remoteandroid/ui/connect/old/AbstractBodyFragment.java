@@ -10,7 +10,8 @@ import android.support.v4.app.Fragment;
 
 public abstract class AbstractBodyFragment extends Fragment
 {
-	private ContentResolver mContentResolver;
+	protected ContentResolver mContentResolver;
+	
 	protected AbstractBodyFragment()
 	{
 	}

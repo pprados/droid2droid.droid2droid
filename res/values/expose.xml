@@ -24,7 +24,7 @@
 	<string name="expose_sms_send">Send&#8230;</string>
 	<string name="expose_sms_error_title">SMS error</string>
 	<string name="expose_sms_error_message">Impossible to send message!</string>
-	<string name="expose_sms_hint">Enter a user name of phone number to send an short message.</string>
+	<string name="expose_sms_hint">User name or phone number.</string>
 	
 	<string name="expose_ticket">Ticket</string>
 	<string name="expose_ticket_help">The approach is accessible for all devices, just with a keyboard.

@@ -6,4 +6,7 @@
     <string name="permission_private_desc">Protected from others applications.</string>
     <string name="permission_private_label">Protected from others applications.</string>
 
+    <string name="permission_contentprovider_qrcode_desc">Extract QRCODE.</string>
+    <string name="permission_contentprovider_qrcode_label">Can read the QRCODE with network info.</string>
+    
 </resources>

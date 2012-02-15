@@ -39,7 +39,7 @@ public class SMSFragment extends AbstractBodyFragment
 
 	private static final String ACTION_RECEIVE_SMS = "android.intent.action.DATA_SMS_RECEIVED";
 	private static final String EXTRA_PDU="pdus";
-	public static final int MESSAGE_SIZE = SmsMessage.MAX_USER_DATA_BYTES;
+	public static final int MESSAGE_SIZE = SmsMessage.MAX_USER_DATA_BYTES-10;
 
 	private View mViewer;
 	private BlockingQueue<byte[]> mQueue = new ArrayBlockingQueue<byte[]>(10, false);

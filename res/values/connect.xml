@@ -17,7 +17,8 @@
 		
 	<string name="connect_alert_title">Alert</string>
 	<string name="connect_alert_connection_impossible">Connection to remote device impossible!</string>
-	<string name="connect_alert_pairing_impossible">Pairing to remote device impossible!</string>
+	<string name="connect_alert_never_receive_sms">Never receive SMS!</string>
+		<string name="connect_alert_pairing_impossible">Pairing to remote device impossible!</string>
 	    	
 	<string name="connect_empty_help"><big>Select an approach to detect a remote device\n\n</big></string>
 	    
@@ -72,7 +73,7 @@
 	<string name="connect_sms_empty_help">
         <font fgcolor="#ffffffff"><b>Short messages</b></font> propose to receive an SMS from a remote device.\n\n
 	</string>
-	<string name="connect_sms_hint">Enter a user name of phone number to send an short message.</string>
+	<string name="connect_sms_hint">User name or phone number.</string>
 <!-- TODO -->
     <dimen name="connect_sms_left_margin">0dp</dimen>
     <dimen name="connect_sms_right_margin">0dp</dimen>

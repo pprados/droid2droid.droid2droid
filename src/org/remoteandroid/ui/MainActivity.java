@@ -1,6 +1,7 @@
 package org.remoteandroid.ui;
 
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.ui.connect.ConnectActivity;
@@ -18,7 +19,7 @@ import android.support.v4.view.Window;
 import android.view.MenuInflater;
 
 
-
+// TODO: expose invalide si non actif
 public class MainActivity extends FragmentActivity
 implements MainFragment.CallBack
 {
@@ -31,10 +32,12 @@ implements MainFragment.CallBack
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_CONTEXT_MENU);
 		super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        setContentView(R.layout.main_activity);
 		setProgressBarIndeterminateVisibility(Boolean.FALSE); // Important: Use Boolean value !
 		mFragmentManager = getSupportFragmentManager(); // getSupportFragmentManager();
 		mFragment = (MainFragment) mFragmentManager.findFragmentById(R.id.fragment);
+		Application.startService();
 	}
 	@Override
 	protected void onResume()

@@ -36,13 +36,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+// FIXME: la boite de dialogue n'est pas conforme ICS
 public class TryConnectFragment extends DialogFragment
 {
 	public static final long ESTIMATION_CONNEXION_3G=TIMEOUT_CONNECT_WIFI;
 	
 	interface OnConnected
 	{
-		Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment);
+		Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment,Bundle param);
 		public RemoteAndroidInfoImpl onConnect(String uri) throws SecurityException, IOException;
 		void onConnected(RemoteAndroidInfoImpl uri);
 		void onCancel();
@@ -50,6 +51,7 @@ public class TryConnectFragment extends DialogFragment
 	}
 	
 	private static final String KEY_URIS="uris";
+	private static final String KEY_BUNDLE="bundle";
 
 	private View mViewer;
 	private TextView mStep;
@@ -58,14 +60,16 @@ public class TryConnectFragment extends DialogFragment
 	
 	private OnConnected mOnEvent;
 	private String[] mUris;
+	private Bundle mParams;
 
 	private TryConnection mTryConnections;
 	
-	public static final TryConnectFragment newTryConnectFragment(boolean acceptAnonymous,String[] uris)
+	public static final TryConnectFragment newTryConnectFragment(boolean acceptAnonymous,String[] uris,Bundle params)
 	{
 		TryConnectFragment fragment=new TryConnectFragment();
 		Bundle bundle=new Bundle();
 		bundle.putStringArray(KEY_URIS, uris);
+		bundle.putBundle(KEY_BUNDLE, params);
 		fragment.setArguments(bundle);
 		return fragment;
 	}
@@ -82,6 +86,7 @@ public class TryConnectFragment extends DialogFragment
 	{
 		super.onCreate(savedInstanceState);
 		mUris=getArguments().getStringArray(KEY_URIS);		
+		mParams=getArguments().getBundle(KEY_BUNDLE);
 	}
 
 	public class TryConnection extends ProgressJobs<Void, Object>
@@ -90,7 +95,7 @@ public class TryConnectFragment extends DialogFragment
 		protected Object doInBackground(Void...params)
 		{
 			
-			Object rc=mOnEvent.executePrejobs(this,TryConnectFragment.this);
+			Object rc=mOnEvent.executePrejobs(this,TryConnectFragment.this,mParams);
 			if (rc!=null) return rc;
 			long[] estimations=new long[mUris.length];
 			Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
@@ -141,7 +146,7 @@ public class TryConnectFragment extends DialogFragment
 			final String uri=uris[i];
 			try
 			{
-				if (progressJobs.isCancelled())
+				if (progressJobs.isCancelled()) // FIXME: c'est bugger, il n'y aucun traitement
 					return null;
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				if (onEvent!=null)

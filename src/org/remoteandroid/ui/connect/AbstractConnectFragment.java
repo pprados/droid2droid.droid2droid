@@ -9,6 +9,7 @@ import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
@@ -24,9 +25,9 @@ implements TryConnectFragment.OnConnected
 			activity.setProgressBarIndeterminateVisibility(value ? Boolean.TRUE : Boolean.FALSE);
 	}
 	
-	protected void showConnect(String[] uris,boolean acceptAnonymous)
+	protected void showConnect(String[] uris,boolean acceptAnonymous,Bundle param)
 	{
-		mDlg=TryConnectFragment.newTryConnectFragment(acceptAnonymous, uris);
+		mDlg=TryConnectFragment.newTryConnectFragment(acceptAnonymous, uris,param);
 		mDlg.setOnConnected(this);
 		mDlg.show(getSupportFragmentManager(), "dialog");
 	}
@@ -73,7 +74,7 @@ implements TryConnectFragment.OnConnected
 	}
 	
 	@Override
-	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment)
+	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment,Bundle param)
 	{
 		return null;
 	}

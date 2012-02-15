@@ -135,7 +135,7 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 		close(); // TODO disconnect the connexion
 	}
 	@Override
-	public boolean connect(boolean forPairing,long timeout)
+	public boolean connect(ConnectionMode mode,long cookie,long timeout)
 	{
 		// FIXE: Why ?
 		return false;

@@ -16,25 +16,25 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 	// To broadcast my infos
 	private static final FeatureTab[] sTabsBroadcast=
 		{
-			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
-			new ConnectQRCodeFragment.Provider(), 
+//			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
+//			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
-			new ConnectSoundFragment.Provider(),
-			new ConnectWifiDirectFragment.Provider(),
-			new ConnectNFCFragment.Provider(), 
-			new ConnectBumpFragment.Provider(), 
+//			new ConnectSoundFragment.Provider(),
+//			new ConnectWifiDirectFragment.Provider(),
+//			new ConnectNFCFragment.Provider(), 
+//			new ConnectBumpFragment.Provider(), 
 			new ConnectTicketFragment.Provider(), 
 		};	
 	private static final FeatureTab[] sTabsConnect=
 		{
-			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
-			new ConnectQRCodeFragment.Provider(), 
+//			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
+//			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
-			new ConnectSoundFragment.Provider(),
-			new ConnectWifiDirectFragment.Provider(),
-			new ConnectNFCFragment.Provider(), 
-			new ConnectBumpFragment.Provider(), 
-			new ConnectArroundFragment.Provider(), // Retourner un essemble de info
+//			new ConnectSoundFragment.Provider(),
+//			new ConnectWifiDirectFragment.Provider(),
+//			new ConnectNFCFragment.Provider(), 
+//			new ConnectBumpFragment.Provider(), 
+//			new ConnectArroundFragment.Provider(), // Retourner un essemble de info
 			new ConnectTicketFragment.Provider(), 
 		};	
 

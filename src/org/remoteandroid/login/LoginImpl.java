@@ -55,7 +55,7 @@ public class LoginImpl extends Login
 			
 			// Step 1: Ask a challenge with my public key
 			msg = Msg.newBuilder()
-				.setType(Type.CONNECT_FOR_COOKIE) // TODO: marier CONNECT et CONNECT_FOR_USING
+				.setType(Type.CONNECT_FOR_COOKIE)
 				.setThreadid(threadid)
 				.setChallengestep(1)
 				.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))

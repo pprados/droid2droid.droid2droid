@@ -25,11 +25,12 @@
             android:imeOptions="actionSend"
             android:inputType="textPersonName"
             android:lines="1"
-            android:textSize="15dp" >
+            android:textSize="15dp"
+            >
      </EditText>
 
      <ListView
-         android:id="@+id/contactListView"
+         android:id="@android:id/list"
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
          android:dividerHeight="1dp" />

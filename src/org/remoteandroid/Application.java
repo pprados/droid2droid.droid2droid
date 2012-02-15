@@ -2,8 +2,10 @@ package org.remoteandroid;
 
 import static org.remoteandroid.Constants.*;
 
+import android.preference.Preference;
 import android.provider.ContactsContract.Contacts;
 import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_BACKNAME;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
 import static org.remoteandroid.Constants.PREFERENCES_PRIVATE_KEY;
@@ -12,6 +14,7 @@ import static org.remoteandroid.Constants.PREFERENCES_UUID;
 import static org.remoteandroid.Constants.QRCODE;
 import static org.remoteandroid.Constants.SMS;
 import static org.remoteandroid.Constants.STRICT_MODE;
+import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.RemoteAndroidInfo.*;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_CAMERA;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_HP;
@@ -47,6 +50,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,12 +65,19 @@ import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
+import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
+import org.remoteandroid.ui.contacts.AbstractSMSFragment;
+
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentCallbacks2;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.FeatureInfo;
@@ -223,7 +234,10 @@ public class Application extends android.app.Application
 		{
 			public void run()
 			{
-				getPreferences().edit().putString(PREFERENCES_NAME, name).commit();
+				if (name==null)
+					getPreferences().edit().remove(PREFERENCES_NAME).commit();
+				else
+					getPreferences().edit().putString(PREFERENCES_NAME, name).commit();
 			}
 		}.start();
 	}
@@ -260,6 +274,7 @@ public class Application extends android.app.Application
 	@Override
 	public void onCreate()
 	{
+		sAppContext=this;
 		if (V) Log.v(TAG,PREFIX_LOG+"Application onCreate");
 		AndroidLogHandler.initLoggerHandler();
 		RemoteAndroidManagerImpl.initAppInfo(this);
@@ -291,7 +306,6 @@ public class Application extends android.app.Application
 		
 		initFeature();
 		
-		sAppContext = this;
 		if (V) Log.v(TAG, PREFIX_LOG+'[' + Compatibility.MANUFACTURER + "] Application.onCreate...");
 		sPackageName = getPackageName();
 		sDeviceId = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
@@ -639,15 +653,7 @@ public class Application extends android.app.Application
 	{
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO)
 		{
-			new Runnable()
-			{
-				
-				@Override
-				public void run()
-				{
-					RemoteAndroidBackup.dataChanged();
-				}
-			};
+			RemoteAndroidBackup.dataChanged();
 		}		
 	}
 
@@ -761,6 +767,43 @@ public class Application extends android.app.Application
 //			Log.d("INFO","Version.sdk int:"+Build.VERSION.SDK_INT);
 //			Log.d("INFO","--------------------------");
 //		}		
+	}
+	@Override
+	public void onTrimMemory(int level)
+	{
+		super.onTrimMemory(level);
+		AbstractSMSFragment.onTrimMemory(level);
+	}
+
+	public static void startService()
+	{
+		final Context context=sAppContext;
+		SharedPreferences preferences=getPreferences();
+		final boolean active=preferences.getBoolean(PREFERENCES_ACTIVE, false);
+		final Intent intentRemoteContext=new Intent(context,RemoteAndroidService.class);
+		final ActivityManager am=(ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
+		final List<ActivityManager.RunningServiceInfo> services=am.getRunningServices(100);
+		final ComponentName name=new ComponentName(context,RemoteAndroidService.class);
+		if (active)
+		{
+			boolean isStarted=false;
+			for (ActivityManager.RunningServiceInfo rs:services)
+			{
+				if (rs.service.equals(name))
+				{
+					isStarted=rs.started;
+					break;
+				}
+			}
+			if (!isStarted)
+			{
+				if (context.startService(intentRemoteContext)==null)
+				{
+					if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"Impossible to start the service");
+					// TODO
+				}
+			}
+		}
 	}
 	
 }

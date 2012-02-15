@@ -81,6 +81,7 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.zxing.common.StringUtils;
 
 // TODO: Sur xoom, enlever le menu contextuel
 public class EditPreferenceActivity extends PreferenceActivity 
@@ -438,6 +439,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 					delayEnableActive(); 
 				}
 				mPreferences.edit().putBoolean(PREFERENCES_ACTIVE, ((Boolean)newValue).booleanValue()).commit();
+				Application.dataChanged();
 				return true;
 			}
 			// Bug with BT with version GINGERBREAD_MR1
@@ -471,6 +473,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 				else
 					Application.setName(newVal);
 				mName.setSummary(Application.getName());
+				Application.dataChanged();
 				return true;
 			}
 		});
@@ -512,39 +515,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	{
 		mPreferences=Application.getPreferences();
 		mName.setSummary(Application.getName());
-		final boolean active=mPreferences.getBoolean(PREFERENCES_ACTIVE, false);
-		final Intent intentRemoteContext=new Intent(this,RemoteAndroidService.class);
-		final ActivityManager am=(ActivityManager)getSystemService(ACTIVITY_SERVICE);
-		final List<ActivityManager.RunningServiceInfo> services=am.getRunningServices(100);
-		final ComponentName name=new ComponentName(this,RemoteAndroidService.class);
-		if (active)
-		{
-			boolean isStarted=false;
-			for (ActivityManager.RunningServiceInfo rs:services)
-			{
-				if (rs.service.equals(name))
-				{
-					isStarted=rs.started;
-					break;
-				}
-			}
-			if (!isStarted)
-			{
-//				Application.sThreadPool.execute(new Runnable()
-//				{
-//					
-//					@Override
-//					public void run()
-//					{
-						if (startService(intentRemoteContext)==null)
-						{
-							if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"Impossible to start the service");
-							// TODO
-						}
-//					}
-//				});
-			}
-		}
+		Application.startService();
 		// Device name
 		// Scan
 		runOnUiThread(new Runnable()
@@ -576,7 +547,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
         	}
         });
 	}
-	
+
 
 	private void initBonded()
     {
@@ -751,15 +722,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		super.onContentChanged();
 		if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_FROYO) 
 		{
-			new Runnable()
-			{
-				
-				@Override
-				public void run()
-				{
-					RemoteAndroidBackup.dataChanged();
-				}
-			}.run();
+			Application.dataChanged();
 		}
 	}
 

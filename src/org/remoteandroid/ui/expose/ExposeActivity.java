@@ -12,11 +12,10 @@ public class ExposeActivity extends AbstractFeatureTabActivity
 	private static final FeatureTab[] sTabs=
 	{
 		new ExposeQRCodeFragment.Provider(),
-		new ExposeSMSFragment.Provider(),
-		new ExposeSoundFragment.Provider(),
-		new ExposeWifiDirectFragment.Provider(),
-		new ExposeNFCFragment.Provider(),
-		new ExposeBumpFragment.Provider(),
+//		new ExposeSoundFragment.Provider(),
+//		new ExposeWifiDirectFragment.Provider(),
+//		new ExposeNFCFragment.Provider(),
+//		new ExposeBumpFragment.Provider(),
 		new ExposeTicketFragment.Provider()
 	};
 

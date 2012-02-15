@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.contacts;
+package org.remoteandroid.ui.connect.old;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,10 +14,9 @@ import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.ui.connect.old.SMSFragment;
-import org.remoteandroid.ui.connect.old.ConnectActivity.ConnectDialogFragment;
-import org.remoteandroid.ui.connect.old.ConnectActivity.TryConnection;
 import org.remoteandroid.ui.connect.qrcode.FinishListener;
+import org.remoteandroid.ui.contacts.PhoneDisambigDialog;
+import org.remoteandroid.ui.contacts.PhoneDisambigDialog.CallBack;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -142,7 +141,7 @@ implements TextWatcher, OnScrollListener, PhoneDisambigDialog.CallBack
 	{
 		mEfficientAdapter = new EfficientAdapter(SMSSendingActivity.this);
 
-		mContactList = (ListView) findViewById(R.id.contactListView);
+		mContactList = (ListView) findViewById(android.R.id.list);
 		mContactList.setOnScrollListener(this);
 		mContactList.setFastScrollEnabled(true);
 		mContactList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);

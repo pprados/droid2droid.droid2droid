@@ -251,7 +251,7 @@ implements OnItemClickListener, DiscoverListener
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		RemoteAndroidInfo info=mAdapter.getItem(position);
-		showConnect(info.getUris(), true);
+		showConnect(info.getUris(), true,null); // FIXME: anonymous
 	}
 
 	@Override

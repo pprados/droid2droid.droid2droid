@@ -1,43 +1,46 @@
 package org.remoteandroid.ui.contacts;
 
 import static org.remoteandroid.Constants.TAG_SMS;
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_TELEPHONY;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.ui.TabsAdapter;
+import org.remoteandroid.ui.connect.AbstractConnectFragment;
 import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
-import org.remoteandroid.ui.contacts.PhoneDisambigDialog;
-import org.remoteandroid.ui.contacts.SMSSendingActivity.SendSMSDialogFragment;
 
-import android.app.Activity;
+import android.content.ComponentCallbacks2;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
-import android.support.v4.app.ActionBar;
+import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -49,239 +52,242 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.QuickContactBadge;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-//TODO: Use AsyncLoader, et loader partiel
-public class AbstractSMSFragment extends AbstractBodyFragment
-implements TextWatcher, OnScrollListener, PhoneDisambigDialog.CallBack
+public abstract class AbstractSMSFragment extends AbstractConnectFragment 
+implements OnScrollListener,
+TextWatcher,
+PhoneDisambigDialog.CallBack,
+LoaderManager.LoaderCallbacks<Cursor>
 {
-	private static final String[] sProjection =
+	private static final int LOADER_ID=0;
+	private static final String[] CONTACTS_PROJECTION =
 	{ 
-		Contacts._ID,
-		Contacts.DISPLAY_NAME 
+		Contacts._ID, 
+		Contacts.DISPLAY_NAME, 
 	};
+	private static final int POS_ID = 0;
 
-	private static final int POS_ID=0;
-	private static final int POS_DISPLAY_NAME=1;
+	private static final int FETCH_IMAGE_MSG = 1;
+	private static ExecutorService sImageFetchThreadPool = Executors.newFixedThreadPool(3);
+
+	private ContentResolver mContentResolver;
+	private View mMain;
+	private EditText mEditText;
+	private ListView mList;
+	private byte[] mSendedData;
+	private String mCurFilter;
 	
-	static class Cache
+	// This is the Adapter being used to display the list's data.
+	private SimpleCursorAdapter mAdapter;
+
+	// --------- Manage image download ----------------
+	private static HashMap<Long, Reference<Bitmap>> sBitmapCache = new HashMap<Long, Reference<Bitmap>>();;	
+	private ImageFetchHandler mHandler=new ImageFetchHandler();
+	private class ImageFetchHandler extends Handler
 	{
-		private TextView text;
+		@Override
+		public void handleMessage(final Message message)
+		{
+			if (getActivity().isFinishing())
+			{
+				return;
+			}
+			switch (message.what)
+			{
+				case FETCH_IMAGE_MSG:
+				{
+					final QuickContactBadge imageView = (QuickContactBadge) message.obj;
+					final long contactId=(long)message.arg1<<16|(long)message.arg2;
+					if (imageView == null)
+						break;
+					final Reference<Bitmap> photoRef = sBitmapCache.get(contactId);
+					if (photoRef == null)
+					{
+						setDefaultImage(imageView);;
+						break;
+					}
+					final Bitmap photo = photoRef.get();
+					
+					if (photo == null)
+					{
+						setDefaultImage(imageView);;
+						sBitmapCache.remove(contactId);
+						break;
+					}
+					imageView.setImageBitmap(photo);
+					imageView.invalidate();
+					break;
+				}
+			}
+		}
 
-		private ImageView icon;
+		public void clearImageFecthing()
+		{
+			removeMessages(FETCH_IMAGE_MSG);
+		}
+	}
 
-		private TextView name;
+	private class ImageDbFetcher implements Runnable
+	{
+		private final long mContactId;
+
+		private final ImageView mImageView;
+
+		public ImageDbFetcher(final long contactId, final ImageView imageView)
+		{
+			mContactId = contactId;
+			mImageView = imageView;
+		}
+
+		public void run()
+		{
+			if (getActivity().isFinishing())
+			{
+				return;
+			}
+
+			if (Thread.interrupted())
+			{
+				return;
+			}
+
+			Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, mContactId);
+			try
+			{
+				InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(mContentResolver, uri);
+				if (input != null)
+				{
+					Bitmap contactPhoto = BitmapFactory.decodeStream(input);
+					// TODO: resize bitmap
+					sBitmapCache.put(mContactId, 
+						new SoftReference<Bitmap>(contactPhoto)
+						);
+					input.close();
+				}
+			}
+			catch (IOException e)
+			{
+				if (W) Log.w(TAG_SMS,PREFIX_LOG+"Error when close image ("+e.getMessage()+")");
+			}
+			
+			if (Thread.interrupted())
+			{
+				return;
+			}
+
+			// Update must happen on UI thread
+			final Message msg = new Message();
+			msg.what = FETCH_IMAGE_MSG;
+			msg.obj = mImageView;
+			msg.arg1= (int)(mContactId >>> 32);
+			msg.arg2= (int)(mContactId);
+			mHandler.sendMessage(msg);
+		}
 	}
 	
-	
-	class ContactClassAsyncTask extends AsyncTask<String, Void, Void>
+	private class ContactsAdapter extends SimpleCursorAdapter
 	{
-
-		private ArrayList<String> mTmpPhoneListNumber;
-
-		private ArrayList<String> mTmpContactName;
-
-		private ArrayList<Long> mTmpListIdContact;
-
-		@Override
-		protected void onPreExecute()
+		ContactsAdapter(Context context,int layout,Cursor c,String[] from,int[] to,int flags)
 		{
-			super.onPreExecute();
-			mTmpContactName = new ArrayList<String>();
-			mTmpPhoneListNumber = new ArrayList<String>();
-			mTmpListIdContact = new ArrayList<Long>();
+			super(context,layout,c,from,to,flags);
 		}
-
-		@Override
-		protected Void doInBackground(String... filterStr)
-		{
-			Cursor cur = null;
-			if (filterStr[0].equals(""))
-			{
-				cur = mContentResolver.query(
-					Contacts.CONTENT_URI,
-						sProjection,
-						Contacts.HAS_PHONE_NUMBER+"=1", 
-						null, 
-						Contacts.DISPLAY_NAME + " ASC");
-			}
-			else
-			{
-				cur = mContentResolver.query(
-					Contacts.CONTENT_URI, 
-					sProjection, 
-					Contacts.DISPLAY_NAME	+ " LIKE ? "+
-					"AND "+ContactsContract.Contacts.HAS_PHONE_NUMBER+"=1", 
-					new String[] { filterStr[0] }, null);
-			}
-
-			if (cur == null)
-				return null;
-
-			while (cur.moveToNext())
-			{
-				final long contactId = cur.getLong(POS_ID);
-				final String name= cur.getString(POS_DISPLAY_NAME);
-				mTmpContactName.add(name);
-				mTmpListIdContact.add(contactId);
-			}
-			cur.close();
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result)
-		{
-			super.onPostExecute(result);
-
-			mContactName=mTmpContactName;
-			mListIdContact=mTmpListIdContact;
-			mEfficientAdapter.notifyDataSetChanged();
-		}
-
-	}
-	
-	public class EfficientAdapter extends BaseAdapter
-	{
-
-		private LayoutInflater mInflater;
-
-		private Drawable defaultContactIcon;
-
-		public EfficientAdapter(Context context)
-		{
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			defaultContactIcon = getResources().getDrawable(R.drawable.default_contact_icon);
-		}
-
-		@Override
-		public int getCount()
-		{
-			return mListIdContact.size();
-		}
-
-		@Override
-		public Object getItem(int position)
-		{
-			return mListIdContact.get(position);
-		}
-
-		@Override
-		public long getItemId(int position)
-		{
-			return mListIdContact.get(position);
-		}
-
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
-			Cache holder;
-			if (convertView == null)
-			{
-				convertView = mInflater.inflate(R.layout.connect_sms_list_item_icon_text, parent, false);
-
-				holder = new Cache();
-				holder.icon = (ImageView) convertView.findViewById(R.id.icon);
-				holder.name = (TextView) convertView.findViewById(R.id.name);
-
-				convertView.setTag(holder);
-			}
-			else
-				holder = (Cache) convertView.getTag();
-
-			if (!sBusy)
-			{
-				final Long contactId = mListIdContact.get(position);
-				if (sBitmapCache.containsKey(contactId))
-				{
-					holder.icon.setImageBitmap(sBitmapCache.get(contactId).get());
-				}
-				else
-				{
-					// TODO: Use old API for ECLAIR
-					final Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
-					final InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(mContentResolver, uri);
-					if (input != null)
-					{
-						final Bitmap contactPhoto = BitmapFactory.decodeStream(input);
-						sBitmapCache.put(contactId, new SoftReference<Bitmap>(contactPhoto));
-						holder.icon.setImageBitmap(contactPhoto);
-					}
-					else
-					{
-						holder.icon.setImageDrawable(defaultContactIcon);
-					}
-				}
-				holder.icon.setTag(null);
-			}
-			else
-			{
-				Long contactId = mListIdContact.get(position);
-				if (sBitmapCache.containsKey(contactId) == true)
-					holder.icon.setImageBitmap(sBitmapCache.get(contactId).get());
-				else
-					holder.icon.setImageDrawable(defaultContactIcon);
-				holder.icon.setTag(this);
-			}
-			holder.name.setText(mContactName.get(position));
-
-			return convertView;
+			return super.getView(position, convertView, parent);
 		}
-
+		/** {@inheritDoc} */
+		@Override
+		public void bindView(final View view, final Context context, final Cursor cursor)
+		{
+			super.bindView(view, context, cursor);
+			long contactId=cursor.getLong(POS_ID);
+			QuickContactBadge imageView=((QuickContactBadge)view.findViewById(R.id.icon));
+			Bitmap photo=null;
+			final Reference<Bitmap> ref = sBitmapCache.get(contactId);
+			if (ref != null)
+			{
+				photo = ref.get();
+				if (photo == null) // Lose weak reference
+				{
+					sBitmapCache.remove(contactId);
+					setDefaultImage(imageView);
+				}
+				else
+				{
+					imageView.setImageBitmap(photo);
+					return;
+				}
+			}
+			else
+				setDefaultImage(imageView);
+			sImageFetchThreadPool.execute(new ImageDbFetcher(contactId, imageView));
+		}
 	}
-	
-	
-	private View 			mMain;
-	private boolean sBusy = false;
-
-	private ContentResolver mContentResolver;
-
-	private EfficientAdapter mEfficientAdapter;
-
-	private ListView mContactList;
-
-	private ContactClassAsyncTask mContactAsync = null;
-
-	private ArrayList<String> mContactName;
-
-	private ArrayList<Long> mListIdContact;
-
-	private ArrayList<String> mSelectedContact;
-
-	private static HashMap<Long, SoftReference<Bitmap>> sBitmapCache = null;
-
-	private byte[] mSendedData;
-	protected FragmentManager mFragmentManager;
-
+	private void setDefaultImage(QuickContactBadge imageView)
+	{
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+		{
+			imageView.setImageToDefault();
+		}
+		else
+		{
+			imageView.setImageResource(R.drawable.ic_contact_list_picture);
+		}
+//		imageView.invalidate();
+	}
 	@Override
-	public void onCreate(Bundle savedInstanceState)
+	public void onLowMemory()
 	{
-		super.onCreate(savedInstanceState);
-		mListIdContact = new ArrayList<Long>();
-		mContactName = new ArrayList<String>();
-		if (sBitmapCache == null)
-			sBitmapCache = new HashMap<Long, SoftReference<Bitmap>>();
-		mContentResolver = getActivity().getContentResolver();
-		mSelectedContact = new ArrayList<String>();
+		super.onLowMemory();
+		sBitmapCache.clear();
 	}
 	
-	private void initViewElements()
+
+	//------------- Manage views --------------
+	private static final String[] COLS_VIEW=new String[]{ Contacts.DISPLAY_NAME };
+	private static final int[] MAPPING_VIEW=new int[]{ R.id.name };
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState)
 	{
-		final EditText editText = (EditText) mMain.findViewById(R.id.numberEditText);
-		editText.addTextChangedListener(this);
-		editText.setOnEditorActionListener(new OnEditorActionListener()
+		super.onActivityCreated(savedInstanceState);
+		mContentResolver=getActivity().getContentResolver();
+
+		// Create an empty adapter we will use to display the loaded data.
+		mAdapter = new ContactsAdapter(
+			getActivity(), 
+			R.layout.connect_sms_list_item_icon_text, 
+			null, 
+			COLS_VIEW, 
+			MAPPING_VIEW, 
+			0);
+		mList.setAdapter(mAdapter);
+
+		getLoaderManager().initLoader(LOADER_ID, null, this);
+	}
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		mMain=inflater.inflate(R.layout.expose_sms, container, false);
+		
+		
+		mEditText = (EditText) mMain.findViewById(R.id.numberEditText);
+		mEditText.addTextChangedListener(this);
+		mEditText.setOnEditorActionListener(new OnEditorActionListener()
 		{
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
 			{
 				if (actionId == EditorInfo.IME_ACTION_SEND)
 				{
-					final String receiver = editText.getText().toString();
+					final String receiver = mEditText.getText().toString();
 					if (mSendedData != null || receiver != null)
 						if (receiver.matches("[0123456789#*()\\- ]*"))
 							sendData(receiver);
@@ -290,147 +296,136 @@ implements TextWatcher, OnScrollListener, PhoneDisambigDialog.CallBack
 				return false;
 			}
 		});
-	}
-
-	private void initListView()
-	{
-		mEfficientAdapter = new EfficientAdapter(getActivity());
-
-		mContactList = (ListView) mMain.findViewById(R.id.contactListView);
-		mContactList.setOnScrollListener(this);
-		mContactList.setFastScrollEnabled(true);
-		mContactList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		mContactList.setAdapter(mEfficientAdapter);
-		mContactList.setOnItemClickListener(new OnItemClickListener()
+		
+		mList=(ListView)mMain.findViewById(android.R.id.list);
+		mList.setOnScrollListener(this);
+		mList.setFastScrollEnabled(true);
+		mList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		mList.setOnItemClickListener(new OnItemClickListener()
 		{
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long arg3)
 			{
-				final long id = (Long) adapter.getItemAtPosition(position);
-				
-				final PhoneDisambigDialog phoneDialog = 
-						new PhoneDisambigDialog(getActivity(), AbstractSMSFragment.this,id);
-				phoneDialog.show();
+				final long id = ((Cursor) adapter.getItemAtPosition(position)).getLong(POS_ID);
+				if (id>0)
+				{
+					Application.hideSoftKeyboard(getActivity());
+					final PhoneDisambigDialog phoneDialog = 
+							new PhoneDisambigDialog(getActivity(), AbstractSMSFragment.this,id);
+					phoneDialog.show();
+				}
 			}
 		});
-	}
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-	{
-		mMain=inflater.inflate(R.layout.expose_sms, container, false);
-		initViewElements();
-		initListView();
 		return mMain;
 	}
 	
 	@Override
-	public void onLowMemory()
+	public void onPause()
 	{
-		super.onLowMemory();
-		sBitmapCache.clear();
-
+		super.onPause();
+		mHandler.clearImageFecthing();
+	}
+	
+	// --------- Manage loader ----------------
+	public Loader<Cursor> onCreateLoader(int id, Bundle args)
+	{
+		Uri baseUri;
+		if (mCurFilter != null)
+		{
+			baseUri = Uri.withAppendedPath(Contacts.CONTENT_FILTER_URI, Uri.encode(mCurFilter));
+		}
+		else
+		{
+			baseUri = Contacts.CONTENT_URI;
+		}
+		// Now create and return a CursorLoader that will take care of
+		// creating a Cursor for the data being displayed.
+		String select = "((" + Contacts.DISPLAY_NAME + " NOTNULL) AND (" + Contacts.HAS_PHONE_NUMBER + "=1) AND ("
+				+ Contacts.DISPLAY_NAME + " != '' ))";
+		if (D) Log.d(TAG_SMS,PREFIX_LOG+"baseURI="+baseUri);
+		if (D) Log.d(TAG_SMS,PREFIX_LOG+"select="+select);
+		return new CursorLoader(getActivity(), baseUri, CONTACTS_PROJECTION, select, null,
+				Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
 	}
 
-	@Override
-	public void afterTextChanged(Editable s)
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data)
 	{
-		if (V) Log.v(TAG_SMS, s.toString());
-		if (mContactAsync != null)
-			mContactAsync.cancel(true);
-		mContactAsync = new ContactClassAsyncTask();
-		
-		mContactAsync.execute("%" + s.toString().replaceAll(" +", "%") + "%"); // FIXME: SQLI
-	}
+		// Swap the new cursor in. (The framework will take care of closing the
+		// old cursor once we return.)
+		mAdapter.swapCursor(data);
 
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after)
+		// The list should now be shown.
+		mList.setVisibility(View.VISIBLE);
+	}
+	
+	public void onLoaderReset(Loader<Cursor> loader)
 	{
+		// This is called when the last Cursor provided to onLoadFinished()
+		// above is about to be closed. We need to make sure we are no
+		// longer using it.
+		mAdapter.swapCursor(null);
 	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count)
-	{
-
-	}
-
-	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-	}
-
+	
+	// --------- Manage scroll ----------------
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
 		switch (scrollState)
 		{
 			case OnScrollListener.SCROLL_STATE_IDLE:
-				sBusy = false;
-
 				int first = view.getFirstVisiblePosition();
 				int count = view.getChildCount();
 
 				for (int i = 0; i < count; i++)
 				{
-
-					Cache holder=(Cache)view.getChildAt(i).getTag();
-					holder.icon = (ImageView) view.getChildAt(i).findViewById(R.id.icon);
-
-					if (holder.icon.getTag() != null)
+					long contactId=mAdapter.getItemId(first+i);
+					if (contactId!=0)
 					{
-						Long contactId = mListIdContact.get(first + i);
-
+						QuickContactBadge icon=(QuickContactBadge)mList.getChildAt(i).findViewById(R.id.icon);
 						if (sBitmapCache.containsKey(contactId))
 						{
-							holder.icon.setImageBitmap(sBitmapCache.get(
-								contactId).get());
+							icon.setImageBitmap(sBitmapCache.get(contactId).get());
 						}
 						else
 						{
-							Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
-							try
-							{
-								InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(mContentResolver, uri);
-								if (input != null)
-								{
-									Bitmap contactPhoto = BitmapFactory.decodeStream(input);
-									sBitmapCache.put(contactId, new SoftReference<Bitmap>(contactPhoto));
-									holder.icon.setImageBitmap(contactPhoto);
-									input.close();
-								}
-							}
-							catch (IOException e)
-							{
-								if (W) Log.w(TAG_SMS,PREFIX_LOG+"Error when close image ("+e.getMessage()+")");
-							}
+							setDefaultImage(icon);
+							sImageFetchThreadPool.execute(new ImageDbFetcher(contactId, icon));
 						}
-						holder.icon.setTag(null);
 					}
 				}
 
 				break;
-			case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL:
-				sBusy = true;
-				break;
-			case OnScrollListener.SCROLL_STATE_FLING:
-				sBusy = true;
-				break;
 		}
 	}
 	@Override
-	public void onPause()
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-		super.onPause();
-		sBitmapCache.clear();
 	}
-	
-	public void sendData(final String receiver)
+	// --------- Manage textchange ----------------
+	@Override
+	public void afterTextChanged(Editable s)
 	{
-		Application.hideSoftKeyboard(getActivity());
-		final SendSMSDialogFragment dlg=SendSMSDialogFragment.sendSMS(receiver);
-		dlg.show(mFragmentManager, "dialog");
+		String newText=s.toString();
+		mCurFilter = !TextUtils.isEmpty(newText) ? newText : null;
+		getLoaderManager().restartLoader(LOADER_ID, null, this);
+	}
 
+	@Override
+	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3)
+	{
 		
 	}
-	
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count)
+	{
+		
+	}
+	public static void onTrimMemory(int level)
+	{
+//		if (level==ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+//		{
+//			sBitmapCache.clear();
+//			if (D) Log.d(TAG_SMS,PREFIX_LOG+"Clean contacts pictures");
+//		}
+	}
 }

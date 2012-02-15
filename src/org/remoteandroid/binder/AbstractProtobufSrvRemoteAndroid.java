@@ -8,8 +8,10 @@ import static org.remoteandroid.internal.Constants.*;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.ConnectionType;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext.State;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.ProtobufConvs;
@@ -19,6 +21,7 @@ import org.remoteandroid.pairing.SimplePairing;
 import org.remoteandroid.ui.Notifications;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
@@ -52,6 +55,8 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 
     protected Msg doAndWriteReply(int connid,Msg msg,boolean btsecure) throws RemoteException, SendIntentException
 	{
+		final SharedPreferences preferences=Application.getPreferences();
+		boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
     	ConnectionContext conContext = getContext(connid);
     	Parcel data=null;
     	Parcel reply=null;
@@ -66,6 +71,31 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 					.setType(type)
 					.setThreadid(msg.getThreadid())
 					.build();
+            }
+            else if (type==Type.CONNECT_FOR_BROADCAST)
+            {
+            	if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Connect for "+type.name()+"...");
+            	RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(mContext,msg.getIdentity());
+            	if (Trusted.getBonded(info.uuid.toString())==null && !acceptAnonymous)
+            	{
+	    			return Msg.newBuilder()
+							.setType(msg.getType())
+							.setThreadid(msg.getThreadid())
+							.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
+							.build();
+            	}
+            		
+    			if (!PendingBroadcastRequest.notify(msg.getCookie(),info))
+    			{
+	    			Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+	    			intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+	    			Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+    			}
+    			return Msg.newBuilder()
+						.setType(msg.getType())
+						.setThreadid(msg.getThreadid())
+						.setStatus(AbstractRemoteAndroidImpl.STATUS_OK)
+						.build();
             }
             else if (type==Type.CONNECT || type==Type.CONNECT_FOR_PAIRING || type==Type.CONNECT_FOR_COOKIE || type==Type.CONNECT_FOR_DISCOVERING)
             {
@@ -92,8 +122,6 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             	if (type==Type.CONNECT || type==Type.CONNECT_FOR_DISCOVERING || type==Type.CONNECT_FOR_COOKIE)
             	{
             		// Check connection with anonymous
-	    			final SharedPreferences preferences=Application.getPreferences();
-	    			boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
 	        		if (SECURITY && PAIR_CHECK_WIFI_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
 	        		{
 	        			// Accept anonymous only from specific wifi network

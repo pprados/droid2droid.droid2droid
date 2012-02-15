@@ -42,6 +42,8 @@ import android.widget.Toast;
 
 public class ConnectTicketFragment extends AbstractConnectFragment
 {
+	private static final long ESTIMATION_TICKET_3G=Constants.TIMEOUT_CONNECT_WIFI*2;
+
 	private View mViewer;
 	private TextView mUsage;
 	EditText mEdit;
@@ -89,7 +91,7 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 			{
 				if (actionId==EditorInfo.IME_ACTION_DONE)
 				{
-					showConnect(new String[0], true); // FIXME: acceptano
+					showConnect(new String[0], true,null); // FIXME: acceptano
 					return true;
 				}
 				return false;
@@ -103,7 +105,7 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 			@Override
 			public void onClick(View v)
 			{
-				showConnect(new String[0], true); // FIXME: acceptano
+				showConnect(new String[0], true,null); // FIXME: acceptano
 			}
 
 		});
@@ -137,10 +139,8 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 		super.onDestroy();
 	}
 	
-	private static final long ESTIMATION_TICKET_3G=Constants.TIMEOUT_CONNECT_WIFI*2;
-
 	@Override
-	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment)
+	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment,Bundle param)
 	{
 		try
 		{

@@ -6,6 +6,8 @@ import static org.remoteandroid.internal.Constants.PROBE_SENT;
 
 import java.nio.charset.Charset;
 
+import android.telephony.SmsMessage;
+
 //TODO: Manage battery low !
 public class Constants
 {
@@ -25,7 +27,7 @@ public class Constants
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
 	public static final String TAG_EXPOSE						="Expose";
-	public static final String TAG_SMS							=TAG_CONNECT;
+	public static final String TAG_SMS							="Sms"; //TAG_CONNECT;
 	public static final String TAG_DTMF							="DTMF"; // TAG_CONNECT
 	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
 		
@@ -61,7 +63,7 @@ public class Constants
     public static final String ACTION_CLEAR_DOWNLOAD 			= "org.remoteaandroid.intent.action.CLEAR_DOWNLOAD";
     
     /** Timer for refresh progression */
-	public static final int PROGRESS_TIMER=50;
+	public static final int PROGRESS_TIMER=1000;
 
 	/** Expiration delay before purge discovery device. */
 	public long PURGE_FRESH_DISCOVERY_MS=PROBE_INTERVAL_MS*(PROBE_SENT+1);
@@ -163,6 +165,7 @@ public class Constants
 	public static final short SMS_PORT 							=RemoteAndroidManager.DEFAULT_PORT;
 	/** Timeout to wait to receive SMS. */
 	public static final int SMS_TIMEOUT_WAIT					=60000; // 60s
+	public static final int SMS_MESSAGE_SIZE					=SmsMessage.MAX_USER_DATA_BYTES-7;
 
 	//-----------------------------------------------------------------------------
 	// --- DTMF parameters ---

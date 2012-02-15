@@ -9,6 +9,7 @@ package org.remoteandroid.sharedlib;
 
 public final class Manifest {
     public static final class permission {
+        public static final String QRCODE="org.remoteandroid.permission.contentprovider.QRCODE";
         public static final String RECEIVE="org.remoteandroid.permission.discover.RECEIVE";
         public static final String SEND="org.remoteandroid.permission.discover.SEND";
     }

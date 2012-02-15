@@ -140,7 +140,7 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 				@Override
 				protected Bitmap doInBackground(Void... params)
 				{
-					return buildQRCode(mMax);
+					return buildQRCode(getActivity(),mMax);
 				}
 
 				@Override
@@ -173,19 +173,19 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 		getActivity().getWindow().setAttributes(layoutParams);
 	}
 //---------------------------
-	private static Bitmap buildQRCode(int smallerDimension)
+	public static Bitmap buildQRCode(Context context,int smallerDimension)
 	{
 		BarcodeFormat format = BarcodeFormat.QR_CODE;
 
 		try
 		{
-			Messages.Candidates candidates = Trusted.getConnectMessage(Application.sAppContext);
+			Messages.Candidates candidates = Trusted.getConnectMessage(context);
 			byte[] data = candidates.toByteArray();
 			if (data.length==0)
 				return null;
 			String contents = null;
 			contents = new String(data, 0);
-				return encodeAsBitmap(contents, format, smallerDimension);
+			return encodeAsBitmap(contents, format, smallerDimension);
 		}
 		catch (UnknownHostException e)
 		{
