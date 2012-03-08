@@ -2,7 +2,6 @@ package org.remoteandroid.ui;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.content.Intent;
 import android.os.Bundle;

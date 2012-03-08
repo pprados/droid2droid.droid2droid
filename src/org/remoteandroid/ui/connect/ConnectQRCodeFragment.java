@@ -18,7 +18,6 @@ import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.old.ConnectActivity;
 import org.remoteandroid.ui.connect.qrcode.BeepManager;
 import org.remoteandroid.ui.connect.qrcode.CameraManager;
 import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
@@ -405,8 +404,7 @@ public class ConnectQRCodeFragment extends AbstractConnectFragment implements Su
 
 			byte[] data = new byte[s.length()];
 
-			getBytes(
-				s, 0, s.length(), data, 0);// rawResult.getText().getBytes();
+			getBytes(s, 0, s.length(), data, 0);// rawResult.getText().getBytes();
 			// data = s.getBytes();
 			candidates = Messages.Candidates.parseFrom(data);
 			// TODO activity.tryConnect(null,

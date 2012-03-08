@@ -24,6 +24,7 @@ import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
+import org.remoteandroid.ui.connect.ConnectDialogFragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,6 +39,7 @@ import android.util.SparseArray;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 // TODO: utiliser le hack pour désactiver le receiver lorsque le service n'est pas actif
+// https://developer.android.com/training/monitoring-device-state/manifest-receivers.html
 // Warning: stateless instance
 public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 {
@@ -124,6 +126,8 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 			}
 		}
 	}
+	
+	// Receive SMS message
 	private void onMessage(Context context,final Messages.BroadcastMsg msg)
 	{
 		if (msg.getType()==Messages.BroadcastMsg.Type.EXPOSE)
@@ -136,6 +140,7 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 		}
 		else if (msg.getType()==Messages.BroadcastMsg.Type.CONNECT)
 		{
+			// Send call-back broadcast
         	final SharedPreferences preferences=Application.getPreferences();
 			if (preferences.getBoolean(PREFERENCES_ACTIVE, false))
 			{
@@ -163,7 +168,7 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 			if (W) Log.w(TAG_SMS,"Invalide message type");
 	}
 	
-	public static void tryAllUrisForBroadcast(long cookie,String[] uris) throws UnknownHostException, RemoteException, SecurityException, IOException 
+	private static void tryAllUrisForBroadcast(long cookie,String[] uris) throws UnknownHostException, RemoteException, SecurityException, IOException 
 	{
 		AbstractProtoBufRemoteAndroid binder=null;
 		try
@@ -174,7 +179,6 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 				Driver driver=RemoteAndroidManagerImpl.sDrivers.get(uri.getScheme());
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
-				final long threadid = Thread.currentThread().getId();
 				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
 				if (binder.connect(ConnectionMode.FOR_BROADCAST, cookie,ETHERNET_TRY_TIMEOUT))
 					break;
@@ -187,6 +191,7 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 				binder.close();
 		}
 	}
+	
 	
 	
 }

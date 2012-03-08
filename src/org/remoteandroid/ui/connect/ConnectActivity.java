@@ -1,5 +1,6 @@
 package org.remoteandroid.ui.connect;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -56,14 +57,17 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 		mBroadcast=!RemoteAndroidManager.ACTION_CONNECT_ANDROID.equals(getIntent().getAction());
 		super.onCreate(savedInstanceState);
     	setTitle(R.string.connect);
-
+		Application.startService();
 	}
 
 	public void onConnected(RemoteAndroidInfoImpl info)
 	{
-		Intent result=new Intent();
-		result.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-		setResult(RESULT_OK,result);
+		if (info!=null)
+		{
+			Intent result=new Intent();
+			result.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+			setResult(RESULT_OK,result);
+		}
 		finish();
 	}
 }

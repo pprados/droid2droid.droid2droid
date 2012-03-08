@@ -3,7 +3,6 @@ package org.remoteandroid.ui;
 import java.util.ArrayList;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 import static org.remoteandroid.internal.Constants.*;
 
 import android.content.Context;

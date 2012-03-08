@@ -25,9 +25,9 @@ import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.os.Bundle;
 import android.provider.Settings;

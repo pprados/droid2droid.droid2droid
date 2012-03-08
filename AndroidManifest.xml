@@ -157,6 +157,14 @@
 			</intent-filter>
 		</receiver>
 		    
+		<!-- Just after the application was installed from the market -->
+		<receiver
+            android:exported="true"
+            android:name=".service.RemoteAndroidMarketReceiver" >
+            <intent-filter >
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>		
 		<!-- The service to listen socket -->
 		<service 
 			android:enabled="true"

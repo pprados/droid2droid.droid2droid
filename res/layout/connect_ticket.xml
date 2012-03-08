@@ -31,7 +31,8 @@
         android:layout_below="@+id/usage"
         android:layout_toLeftOf="@android:id/button1"
         android:hint="@string/connect_ticket_hint"
-        android:inputType="textNoSuggestions" >
+        android:inputType="textNoSuggestions"
+        android:paddingBottom="10dp" >
 
     </EditText>
 

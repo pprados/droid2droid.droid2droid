@@ -1,23 +1,34 @@
 package org.remoteandroid.ui.connect;
 
+import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
+import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Arrays;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
+import org.remoteandroid.internal.Driver;
 import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
+import org.remoteandroid.internal.RemoteAndroidManagerImpl;
+import org.remoteandroid.internal.IRemoteAndroid.ConnectionMode;
+import org.remoteandroid.ui.AbstractBodyFragment;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
-public class AbstractConnectFragment extends AbstractBodyFragment
-implements TryConnectFragment.OnConnected
+public abstract class AbstractConnectFragment extends AbstractBodyFragment
+implements ConnectDialogFragment.OnConnected
 {
+	public static final long ESTIMATION_CONNEXION_3G=TIMEOUT_CONNECT_WIFI;
 	private static final int DELAY_SHOW_TERMINATE=1000;
-	private TryConnectFragment mDlg;
+	private ConnectDialogFragment mDlg;
 	protected void setProgressBarIndeterminateVisibility(boolean value)
 	{
 		ConnectActivity activity=(ConnectActivity)getActivity();
@@ -27,7 +38,7 @@ implements TryConnectFragment.OnConnected
 	
 	protected void showConnect(String[] uris,boolean acceptAnonymous,Bundle param)
 	{
-		mDlg=TryConnectFragment.newTryConnectFragment(acceptAnonymous, uris,param);
+		mDlg=ConnectDialogFragment.newTryConnectFragment(acceptAnonymous, uris,param);
 		mDlg.setOnConnected(this);
 		mDlg.show(getSupportFragmentManager(), "dialog");
 	}
@@ -68,31 +79,54 @@ implements TryConnectFragment.OnConnected
 		Toast.makeText(getActivity(), err, Toast.LENGTH_LONG).show();
 	}
 	
-	final ConnectActivity getConnectActivity()
+	protected final ConnectActivity getConnectActivity()
 	{
 		return (ConnectActivity)getActivity();
 	}
 	
 	@Override
-	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment,Bundle param)
+	public Object doTryConnect(ProgressJobs<?,?> progressJobs,
+			ConnectDialogFragment fragment,
+			String[] uris,
+			Bundle param)
 	{
-		return null;
+		long[] estimations=new long[uris.length];
+		Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
+		progressJobs.setEstimations(estimations);
+		progressJobs.resetCurrentStep();
+		return ConnectDialogFragment.tryAllUris(progressJobs,uris,this);
 	}
 
 	@Override
-	public RemoteAndroidInfoImpl onConnect(String uri) throws SecurityException, IOException
+	public Object onTryConnect(String uri) throws SecurityException, IOException, RemoteException
 	{
 		if (getConnectActivity().isBroadcast())
 		{
-			// TODO
-			return null;
+			AbstractProtoBufRemoteAndroid binder=null;
+			try
+			{
+				final Uri uuri=Uri.parse(uri);
+				Driver driver=RemoteAndroidManagerImpl.sDrivers.get(uuri.getScheme());
+				if (driver==null)
+					throw new MalformedURLException("Unknown "+uri);
+				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uuri);
+				if (binder.connect(ConnectionMode.FOR_BROADCAST, 0,ETHERNET_TRY_TIMEOUT))
+					return ProgressJobs.OK; // Hack, simulate normal connection
+				else
+					throw new IOException();
+			}
+			finally
+			{
+				if (binder!=null)
+					binder.close();
+			}
 		}
 		else
 		{
 			Pair<RemoteAndroidInfoImpl,Long> msg=Application.getManager().askMsgCookie(Uri.parse(uri));
 			if (msg==null || msg.second==0)
 				throw new SecurityException();
-			return msg.first;	
+			return msg.first;
 		}
 	}
 }

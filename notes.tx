@@ -1,0 +1,4 @@
+Ergonomie:
+- Ajouter un espace sous le champs du ticket pour éviter d'avoir un pb lors de la saisie d'un 'a' en premier caractère
+- Gérer les changements d'état des 2 boutons principaux
+- Modifier le look de la boite de dialogue de connexion pour respecter ICS (le bouton n'est pas conforme)

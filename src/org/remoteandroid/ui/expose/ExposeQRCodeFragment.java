@@ -13,9 +13,9 @@ import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -151,11 +151,11 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 						mImg.setImageBitmap(bitmap);
 						if (getActivity()!=null)
 						{
-							WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-							mScreenBrightness=layoutParams.screenBrightness;
-							layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
-							layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
-							getActivity().getWindow().setAttributes(layoutParams);
+//							WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
+//							mScreenBrightness=layoutParams.screenBrightness;
+//							layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
+//							layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
+//							getActivity().getWindow().setAttributes(layoutParams);
 						}
 					}
 				}
@@ -167,10 +167,10 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 	public void onPageUnselected()
 	{
 		super.onPageUnselected();
-		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-		layoutParams.screenBrightness = mScreenBrightness;
-		layoutParams.flags&=~LayoutParams.FLAG_KEEP_SCREEN_ON;
-		getActivity().getWindow().setAttributes(layoutParams);
+//		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
+//		layoutParams.screenBrightness = mScreenBrightness;
+//		layoutParams.flags&=~LayoutParams.FLAG_KEEP_SCREEN_ON;
+//		getActivity().getWindow().setAttributes(layoutParams);
 	}
 //---------------------------
 	public static Bitmap buildQRCode(Context context,int smallerDimension)

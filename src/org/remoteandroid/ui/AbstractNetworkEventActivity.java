@@ -17,7 +17,6 @@ import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.ui.MainFragment;
 import org.remoteandroid.ui.MainActivity;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;

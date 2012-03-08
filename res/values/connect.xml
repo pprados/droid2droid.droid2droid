@@ -10,7 +10,7 @@
 
 	<bool name="connect_merge">false</bool>
 	<string name="connect_try">Connect&#8230;</string>
-
+	
 	<string name="connect_expose_title">Expose with&#8230;</string>
 	<string name="connect_try_connect">Connect&#8230;</string>
 	<string name="connect_done">Connected</string>

@@ -16,8 +16,8 @@ import java.util.concurrent.Executors;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.connect.AbstractConnectFragment;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.content.ComponentCallbacks2;
 import android.content.ContentResolver;
@@ -59,6 +59,7 @@ import android.widget.QuickContactBadge;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+//TODO: compatibilité 1.6
 public abstract class AbstractSMSFragment extends AbstractConnectFragment 
 implements OnScrollListener,
 TextWatcher,
@@ -240,15 +241,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 		{
 			imageView.setImageResource(R.drawable.ic_contact_list_picture);
 		}
-//		imageView.invalidate();
 	}
-	@Override
-	public void onLowMemory()
-	{
-		super.onLowMemory();
-		sBitmapCache.clear();
-	}
-	
 
 	//------------- Manage views --------------
 	private static final String[] COLS_VIEW=new String[]{ Contacts.DISPLAY_NAME };
@@ -422,10 +415,10 @@ LoaderManager.LoaderCallbacks<Cursor>
 	}
 	public static void onTrimMemory(int level)
 	{
-//		if (level==ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
-//		{
-//			sBitmapCache.clear();
-//			if (D) Log.d(TAG_SMS,PREFIX_LOG+"Clean contacts pictures");
-//		}
+		if (level==ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+		{
+			sBitmapCache.clear();
+			if (D) Log.d(TAG_SMS,PREFIX_LOG+"Clean contacts pictures");
+		}
 	}
 }

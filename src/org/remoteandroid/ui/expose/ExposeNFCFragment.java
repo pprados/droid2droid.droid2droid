@@ -5,9 +5,9 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 
 import org.remoteandroid.R;
+import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.old.AbstractBodyFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.ActionBar;

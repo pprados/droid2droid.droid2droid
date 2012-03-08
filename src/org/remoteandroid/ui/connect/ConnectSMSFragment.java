@@ -53,7 +53,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 	{
 		Provider()
 		{
-			super(FEATURE_SCREEN|FEATURE_NET|FEATURE_TELEPHONY);
+			super(FEATURE_SCREEN|FEATURE_NET|FEATURE_TELEPHONY); // TODO: FEATURE_RA_ACTIVEDttt
 		}
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
@@ -73,28 +73,52 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 	}
 
 	private static long[] sBootStrapEstimations=new long[]{ESTIMATION_SEND_SMS,
-			ESTIMATION_WAIT_CALLBACK,TryConnectFragment.ESTIMATION_CONNEXION_3G*3};
+			ESTIMATION_WAIT_CALLBACK,ESTIMATION_CONNEXION_3G*3};
+	private static long[] sBootStrapEstimationsBroadcast=new long[]{ESTIMATION_SEND_SMS};
 	
 	@Override
-	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment,Bundle param)
+	public Object doTryConnect(
+			ProgressJobs<?,?> progressJobs,
+			ConnectDialogFragment fragment,
+			String[] uris,
+			Bundle param)
 	{
 		try
 		{
 			String phoneNumber=param.getString(KEY_PHONE_NUMBER);
 			progressJobs.resetCurrentStep();
-			progressJobs.setEstimations(sBootStrapEstimations);
 			
-			PendingBroadcastRequest.registerListener(this);
-			// 1. Send SMS
-			long cookie=Application.sRandom.nextLong();
-			progressJobs.incCurrentStep();
-			RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
-			Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()
-				.setType(Messages.BroadcastMsg.Type.CONNECT)
-				.setIdentity(ProtobufConvs.toIdentity(info))
-				.setCookie(cookie)
-				.build();
-			sendSMS(phoneNumber,msg.toByteArray());
+			if (getConnectActivity().isBroadcast())
+			{
+				progressJobs.setEstimations(sBootStrapEstimationsBroadcast);
+				PendingBroadcastRequest.registerListener(this);
+				// 1. Send SMS
+				long cookie=Application.sRandom.nextLong();
+				progressJobs.incCurrentStep();
+				RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
+				Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()
+					.setType(Messages.BroadcastMsg.Type.EXPOSE)
+					.setIdentity(ProtobufConvs.toIdentity(info))
+					.setCookie(cookie)
+					.build();
+				sendSMS(phoneNumber,msg.toByteArray());
+				return ProgressJobs.OK;
+			}
+			else
+			{
+				progressJobs.setEstimations(sBootStrapEstimations);
+				PendingBroadcastRequest.registerListener(this);
+				// 1. Send SMS
+				long cookie=Application.sRandom.nextLong();
+				progressJobs.incCurrentStep();
+				RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
+				Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()
+					.setType(Messages.BroadcastMsg.Type.CONNECT)
+					.setIdentity(ProtobufConvs.toIdentity(info))
+					.setCookie(cookie)
+					.build();
+				sendSMS(phoneNumber,msg.toByteArray());
+			}
 			
 			// 2. Wait callback
 			progressJobs.incCurrentStep();
@@ -108,13 +132,13 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 				return R.string.connect_alert_never_receive_sms;
 			}
 			if (D) Log.d(TAG_SMS,PREFIX_LOG+"callbacked from "+mCallBackInfo);
-			String[] uris=mCallBackInfo.getUris();
+			uris=mCallBackInfo.getUris();
 			long[] estimations=new long[uris.length+sBootStrapEstimations.length];
-			Arrays.fill(estimations, TryConnectFragment.ESTIMATION_CONNEXION_3G);
+			Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
 			System.arraycopy(sBootStrapEstimations, 0, estimations, 0, sBootStrapEstimations.length);
 			progressJobs.setEstimations(estimations);
 			progressJobs.incCurrentStep();
-			return TryConnectFragment.tryAllUris(progressJobs, uris, this);
+			return ConnectDialogFragment.tryAllUris(progressJobs, uris, this);
 		}
 		catch (final Exception e)
 		{
@@ -142,7 +166,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 	{
 		mCallBackInfo=info;
 		notify();
-		return false;
+		return true;
 	}
 	
 	private void sendSMS(String receiver,byte[] buf)
@@ -157,7 +181,6 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 		int maxsize=(SMS_MESSAGE_SIZE - 1);
 		for (int i = 0; i < buf.length; i += maxsize)
 		{
-			//publishProgress(i/maxsize);
 			boolean last = (buf.length - i) < maxsize;
 			int len = Math.min(buf.length - i, maxsize);
 			System.arraycopy(buf, i, fragment, 1, len);

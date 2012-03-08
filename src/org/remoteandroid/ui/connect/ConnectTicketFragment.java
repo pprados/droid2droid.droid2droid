@@ -140,11 +140,15 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 	}
 	
 	@Override
-	public Object executePrejobs(ProgressJobs<?,?> progressJobs,TryConnectFragment fragment,Bundle param)
+	public Object doTryConnect(
+			ProgressJobs<?,?> progressJobs,
+			ConnectDialogFragment fragment,
+			String[] uris,
+			Bundle param)
 	{
 		try
 		{
-			long[] estimations=new long[]{ESTIMATION_TICKET_3G,TryConnectFragment.ESTIMATION_CONNEXION_3G*3};
+			long[] estimations=new long[]{ESTIMATION_TICKET_3G,ESTIMATION_CONNEXION_3G*3};
 			progressJobs.resetCurrentStep();
 			progressJobs.setEstimations(estimations);
 			progressJobs.incCurrentStep();
@@ -161,12 +165,12 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 					loc=loc.substring(ExposeTicketFragment.BASE_SHORTEN.length());
 					byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
 					Messages.Candidates candidates=Messages.Candidates.parseFrom(bytes);
-					String[] uris=ProtobufConvs.toUris(Application.sAppContext,candidates).toArray(new String[0]);
+					uris=ProtobufConvs.toUris(Application.sAppContext,candidates).toArray(new String[0]);
 					estimations=new long[uris.length+1];
-					Arrays.fill(estimations, TryConnectFragment.ESTIMATION_CONNEXION_3G);
+					Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
 					estimations[0]=ESTIMATION_TICKET_3G;
 					progressJobs.setEstimations(estimations);
-					return TryConnectFragment.tryAllUris(progressJobs, uris, this);
+					return ConnectDialogFragment.tryAllUris(progressJobs, uris, this);
 				}
 				else
 				{
@@ -185,6 +189,7 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 			if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket ("+e.getMessage()+")");
 			if (D)
 			{
+				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket ("+e.getMessage()+")",e);
 				Application.sHandler.post(new Runnable()
 				{
 					@Override

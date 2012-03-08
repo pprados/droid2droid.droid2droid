@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 
 public abstract class ProgressJobs<Params,Result> extends AsyncTask<Params,Integer,Result>
 {
+	public static final Object OK=new Object();
 	public static final Object CANCEL=new Object();
 	
 	Timer mTimer=new Timer();
