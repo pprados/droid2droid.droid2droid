@@ -87,6 +87,7 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Camera;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -777,33 +778,46 @@ public class Application extends android.app.Application
 
 	public static void startService()
 	{
-		final Context context=sAppContext;
-		SharedPreferences preferences=getPreferences();
-		final boolean active=preferences.getBoolean(PREFERENCES_ACTIVE, false);
-		final Intent intentRemoteContext=new Intent(context,RemoteAndroidService.class);
-		final ActivityManager am=(ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
-		final List<ActivityManager.RunningServiceInfo> services=am.getRunningServices(100);
-		final ComponentName name=new ComponentName(context,RemoteAndroidService.class);
-		if (active)
+		new AsyncTask<Void, Void, Void>()
 		{
-			boolean isStarted=false;
-			for (ActivityManager.RunningServiceInfo rs:services)
+
+			@Override
+			protected Void doInBackground(Void... params)
 			{
-				if (rs.service.equals(name))
+				Application.getPreferences();
+				return null;
+			}
+			protected void onPostExecute(Void result) 
+			{
+				final Context context=sAppContext;
+				SharedPreferences preferences=getPreferences();
+				final boolean active=preferences.getBoolean(PREFERENCES_ACTIVE, false);
+				final Intent intentRemoteContext=new Intent(context,RemoteAndroidService.class);
+				final ActivityManager am=(ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
+				final List<ActivityManager.RunningServiceInfo> services=am.getRunningServices(100);
+				final ComponentName name=new ComponentName(context,RemoteAndroidService.class);
+				if (active)
 				{
-					isStarted=rs.started;
-					break;
+					boolean isStarted=false;
+					for (ActivityManager.RunningServiceInfo rs:services)
+					{
+						if (rs.service.equals(name))
+						{
+							isStarted=rs.started;
+							break;
+						}
+					}
+					if (!isStarted)
+					{
+						if (context.startService(intentRemoteContext)==null)
+						{
+							if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"Impossible to start the service");
+							// TODO
+						}
+					}
 				}
 			}
-			if (!isStarted)
-			{
-				if (context.startService(intentRemoteContext)==null)
-				{
-					if (E) Log.e(TAG_DISCOVERY,PREFIX_LOG+"Impossible to start the service");
-					// TODO
-				}
-			}
-		}
+		}.execute();
 	}
 	
 }

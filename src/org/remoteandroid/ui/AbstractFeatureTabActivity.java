@@ -1,28 +1,59 @@
 package org.remoteandroid.ui;
 
+import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
+import static org.remoteandroid.Constants.NFC;
+
+import java.util.Arrays;
+
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidInfo;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.ProtobufConvs;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
+import org.remoteandroid.ui.connect.ConnectNFCFragment;
 
+
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.*;
+
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcEvent;
+import android.nfc.NfcManager;
+import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.ActionBar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.Menu;
 import android.support.v4.view.MenuItem;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.Window;
+import android.util.Log;
 import android.view.MenuInflater;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 
 
 public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventActivity
 {
 	
-	
-    ViewPager  mViewPager;
-    TabsAdapter mTabsAdapter;
-	FragmentManager mFragmentManager;
-	ActionBar mActionBar;
+	protected NfcAdapter mNfcAdapter;
+	protected ViewPager  mViewPager;
+	protected TabsAdapter mTabsAdapter;
+	protected FragmentManager mFragmentManager;
+	protected ActionBar mActionBar;
     
 	protected abstract FeatureTab[] getFeatureTabs();
     
@@ -72,8 +103,45 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     {
     	super.onResume();
     	Application.hideSoftKeyboard(this);
+		registerOnNfcTag();
     }
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		unregisterOnNFCTag();
+	}
     
+	// Invoked when NFC tag detected
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		setIntent(intent);
+		final Tag tag=(Tag)intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+		if (tag!=null)
+		{
+			// Check the caller. Refuse spoof events
+			checkCallingPermission("com.android.nfc.permission.NFCEE_ADMIN");
+
+			onNfcTag(tag);
+			
+			for (int i=0;i<mTabsAdapter.getCount();++i)
+			{
+				AbstractBodyFragment fragment=(AbstractBodyFragment)mTabsAdapter.getItem(i);
+				if (fragment instanceof OnNfcEvent)
+				{
+					mTabsAdapter.onPageSelected(i);
+					((OnNfcEvent)fragment).onNfcTag(intent);
+				}
+			}
+		}
+	}
+
+	protected void onNfcTag(Tag tag)
+	{
+		
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -106,4 +174,68 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 		return mTabsAdapter.getActiveFragment();
 //		return (AbstractBodyFragment)mTabsAdapter.getItem(mActionBar.getSelectedNavigationIndex());
 	}	
+	
+	// Register a listener when another device ask my tag
+	protected void nfcExpose()
+	{
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+	        if (mNfcAdapter != null) 
+	        {
+	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+	        	{
+
+					@Override
+					public NdefMessage createNdefMessage(NfcEvent event)
+					{
+						return AbstractFeatureTabActivity.createNdefMessage(
+							AbstractFeatureTabActivity.this,Trusted.getInfo(AbstractFeatureTabActivity.this),
+							true); // Expose
+					}
+	        		
+	        	}, this);
+	        }
+		}
+	}
+	
+	protected void registerOnNfcTag()
+	{
+		NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+		PendingIntent pendingIntent = 
+				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+		
+	}
+	// Unregister the exposition of my tag
+    protected void unregisterOnNFCTag()
+    {
+    	if (NFC && mNfcAdapter!=null)
+    	{
+    		mNfcAdapter.disableForegroundDispatch(this);
+    	}
+    }
+    
+	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info,boolean expose)
+	{
+		Messages.BroadcastMsg.Builder broadcastBuilder = Messages.BroadcastMsg.newBuilder();
+		Messages.BroadcastMsg msg=broadcastBuilder
+			.setType(expose ? Messages.BroadcastMsg.Type.EXPOSE : Messages.BroadcastMsg.Type.CONNECT)
+			.setIdentity(ProtobufConvs.toIdentity(info))
+			.build();
+		byte[] payload=msg.toByteArray();
+		return new NdefMessage(
+			new NdefRecord[]
+			{
+				NdefRecord.createApplicationRecord("org.remoteandroid"),
+				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
+//				NdefRecord.createUri("www.remotandroid.org")
+			}
+		);
+		
+	}
+	
+	
+	
+	
 }

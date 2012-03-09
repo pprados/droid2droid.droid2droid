@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect.nfc;
+package org.remoteandroid.service;
 
 import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.Constants.NFC;
@@ -30,14 +30,14 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class BroadcastConnectActivity extends Activity
+// Activity to broadcast the RemoteAndroidInfo from a NFC tag.
+public class RemoteAndroidNFCReceiver extends Activity
 {
 	NfcAdapter mNfcAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		checkNdefDiscovered();
 		finish();

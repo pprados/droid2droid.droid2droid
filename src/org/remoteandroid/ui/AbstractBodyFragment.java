@@ -4,11 +4,16 @@ package org.remoteandroid.ui;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 public abstract class AbstractBodyFragment extends Fragment
 {
+	public interface OnNfcEvent
+	{
+		public void onNfcTag(Intent intent);
+	};
 	protected ContentResolver mContentResolver;
 	
 	protected AbstractBodyFragment()

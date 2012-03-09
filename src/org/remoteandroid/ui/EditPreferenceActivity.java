@@ -40,6 +40,7 @@ import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidService;
+import org.remoteandroid.ui.expose.ExposeNFCFragment;
 
 import android.app.ActivityManager;
 import android.app.PendingIntent;
@@ -388,7 +389,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 					@Override
 					public NdefMessage createNdefMessage(NfcEvent event)
 					{
-						return EditPreferenceActivity.createNdefMessage(
+						return AbstractFeatureTabActivity.createNdefMessage(
 							EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this),
 							true); // Expose
 					}
@@ -892,22 +893,4 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		}
 	}
 	
-	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info,boolean expose)
-	{
-		Messages.BroadcastMsg.Builder broadcastBuilder = Messages.BroadcastMsg.newBuilder();
-		Messages.BroadcastMsg msg=broadcastBuilder
-			.setType(expose ? Messages.BroadcastMsg.Type.EXPOSE : Messages.BroadcastMsg.Type.CONNECT)
-			.setIdentity(ProtobufConvs.toIdentity(info))
-			.build();
-		byte[] payload=msg.toByteArray();
-		return new NdefMessage(
-			new NdefRecord[]
-			{
-				NdefRecord.createApplicationRecord("org.remoteandroid"),
-				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-//				NdefRecord.createUri("www.remotandroid.org")
-			}
-		);
-		
-	}
 }

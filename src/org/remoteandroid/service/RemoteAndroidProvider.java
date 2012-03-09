@@ -90,9 +90,9 @@ public class RemoteAndroidProvider extends ContentProvider
 		    out.close();
 
 		    FileInputStream f=getContext().openFileInput("qrcode.png");
-		    ParcelFileDescriptor pfd=ParcelFileDescriptor.dup(f.getFD());
 		    f.close();
-		    return pfd;
+		    
+		    return ParcelFileDescriptor.open(getContext().getFileStreamPath("qrcode.png"), ParcelFileDescriptor.MODE_READ_ONLY);
 		}
 		catch (IOException e)
 		{

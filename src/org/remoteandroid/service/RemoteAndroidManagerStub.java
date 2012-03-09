@@ -98,6 +98,7 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 		{
 			mDrivers.add(new IPDiscoverAndroids(mContext,this));
 		}
+		Application.startService();
 	}
 	
 	@Override

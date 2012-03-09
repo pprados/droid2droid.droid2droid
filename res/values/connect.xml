@@ -61,7 +61,8 @@
 	<string name="connect_nfc_empty_help">
         <font fgcolor="#ffffffff"><b>NFC</b></font> propose to use the Near field Communication.\n\n
 	</string>
-
+	<string name="connect_nfc_invalide_tag">Invalid tag format</string>
+	
 	<string name="connect_sms">Short messages</string>
 	<string name="connect_sms_help">Send an message to another device.</string>
 	<string name="connect_sms_description">Receive an SMS to remote device.</string>

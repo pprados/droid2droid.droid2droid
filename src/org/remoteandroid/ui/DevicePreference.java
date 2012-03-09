@@ -1,26 +1,22 @@
 package org.remoteandroid.ui;
 
+import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
-import static org.remoteandroid.Constants.*;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.Preference;
-import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -28,7 +24,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -186,11 +181,6 @@ public class DevicePreference extends Preference
 			case R.id.context_unpair:
 				unpair();
 				break;
-    		case R.id.context_write_nfc:
-    			Intent intent=new Intent(getContext(),WriteNfcActivity.class);
-    			intent.putExtra(WriteNfcActivity.EXTRA_INFO, mInfo);
-    			intent.putExtra(WriteNfcActivity.EXTRA_EXPOSE, true);
-    			getContext().startActivity(intent);
 
 		}
 		return false;

@@ -165,6 +165,7 @@
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>		
+        
 		<!-- The service to listen socket -->
 		<service 
 			android:enabled="true"
@@ -227,8 +228,13 @@
         	android:description="@string/main_description" 
         	android:icon="@drawable/ic_launcher_remoteandroid"
 			android:configChanges="orientation|screenSize"
-        	/>
-
+		>
+		    <intent-filter>
+			    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+			    <category android:name="android.intent.category.DEFAULT"/>
+		    </intent-filter>
+		</activity>
+        
         <activity 
             android:enabled="true"
         	android:name=".ui.connect.ConnectActivity"
@@ -337,7 +343,7 @@
          <!-- Propagate Remote android discoved when tag is presented. -->
          <activity 
              android:launchMode="standard" 
-             android:name=".ui.connect.old.nfc.BroadcastConnectActivity"
+             android:name=".service.RemoteAndroidNFCReceiver"
              android:exported="true"
              android:noHistory="true"
 			 android:excludeFromRecents="true"

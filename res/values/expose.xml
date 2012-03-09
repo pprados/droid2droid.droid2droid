@@ -34,8 +34,15 @@ In other device, select connect/Ticket and enter this value.\n</string>
 	<string name="expose_ticket_message">%1$s</string>		
 
 	<string name="expose_nfc">NFC</string>
-	<string name="expose_nfc_help">Activate the Near Field Communication and touch the other device.</string>
-				
+	<string name="expose_nfc_help">Touch the other device or write the network information in a NFC tag.</string>
+	<string name="expose_nfc_help_no_nfc">Activate the Near Field Communication and touch the other device.</string>
+		<string name="expose_nfc_waiting">Touch a tag for writing...</string>
+	<string name="expose_nfc_write">Write...</string>
+	<string name="expose_nfc_writed">Writed.</string>
+	<string name="expose_nfc_error">Error.</string>
+	<string name="expose_nfc_error_no_writable">NFC no writable.</string>
+	<string name="expose_nfc_error_unknown_format">Format unknown.</string>
+					
 	<string name="expose_bump">BumpC</string>
 	<string name="expose_bump_help">Bump the devices.</string>
 

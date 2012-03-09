@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -120,6 +122,12 @@ public abstract class AbstractNetworkEventActivity extends FragmentActivity
 		NetworkInfo info=null;
 		if (conn != null)
 			info=conn.getActiveNetworkInfo();
+
+		NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
+		if (nfcManager.getDefaultAdapter().isEnabled())
+			mActiveNetwork|=NetworkTools.ACTIVE_NFC;
+		else
+			mActiveNetwork&=NetworkTools.ACTIVE_NFC;
 		if (conn == null || info == null)
 		{
 			mActiveNetwork &= ~NetworkTools.ACTIVE_LOCAL_NETWORK|NetworkTools.ACTIVE_GLOBAL_NETWORK|NetworkTools.ACTIVE_INTERNET_NETWORK;
