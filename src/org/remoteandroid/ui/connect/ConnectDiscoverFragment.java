@@ -1,20 +1,16 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ListRemoteAndroidInfo;
-import org.remoteandroid.ListRemoteAndroidInfo.DiscoverListener;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
@@ -27,7 +23,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActionBar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,13 +33,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class ConnectDiscoverFragment extends AbstractConnectFragment 
-implements OnItemClickListener, DiscoverListener
+implements OnItemClickListener
 {
 	private View mViewer;
 	private TextView mUsage;
 	private ListView mList;
-	private RemoteAndroidManager mManager;
-	private ListRemoteAndroidInfo mListInfo;
+	private List<RemoteAndroidInfo> mListInfo;
 	private ListRemoteAndroidInfoAdapter mAdapter;
 	
 	public static class Provider extends FeatureTab
@@ -64,78 +58,39 @@ implements OnItemClickListener, DiscoverListener
 	{
 		public boolean filter(RemoteAndroidInfo info);
 	}
-	public class ListRemoteAndroidInfoAdapter extends BaseAdapter implements DiscoverListener
+	public class ListRemoteAndroidInfoAdapter extends BaseAdapter 
+	implements Discover.Listener
 	{
-		private ListRemoteAndroidInfo mListInfo;
-		private List<RemoteAndroidInfo> mListFilter;
+		private List<RemoteAndroidInfo> mListInfo;
 		private Context mContext;
-		private Filter mFilter;
-		private int mResId;
-		private DiscoverListener mListener;
 		private int mColorTextDark_nodisable;
 		private int mColorTextDark;
 
-		public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo)
-		{
-			this(context,listInfo,R.layout.discover_device);
-		}
-		public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo,int resid)
-		{
-			this(context,listInfo,resid,null);
-		}
-		public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo,Filter filter)
-		{
-			this(context,listInfo,R.layout.discover_device,filter);
-		}
-		public ListRemoteAndroidInfoAdapter(Context context,ListRemoteAndroidInfo listInfo,int resid,Filter filter)
+		public ListRemoteAndroidInfoAdapter(Context context,List<RemoteAndroidInfo> listInfo)
 		{
 			Resources resource=context.getResources();
 			mContext=context;
 			mColorTextDark_nodisable=resource.getColor(android.R.color.primary_text_dark_nodisable); 
 			mColorTextDark=resource.getColor(android.R.color.tertiary_text_dark);
 			mListInfo=listInfo;
-			mFilter=filter;
-			mResId=resid;
-			
-			if (filter==null)
-			{
-				mListFilter=mListInfo;
-			}
-			else
-			{
-				mListFilter=new ArrayList<RemoteAndroidInfo>();
-				for (int i=0;i<mListInfo.size();++i)
-				{
-					RemoteAndroidInfo info=mListInfo.get(i);
-					if (mFilter.filter(info))
-					{
-						mListFilter.add(info);
-					}
-				}
-			}
-			listInfo.setListener(this);
 		}
 
-		public void setListener(DiscoverListener listener)
-		{
-			mListener=listener;
-		}
 		@Override
 		public int getCount()
 		{
-			return mListFilter.size();
+			return mListInfo.size();
 		}
 
 		@Override
 		public RemoteAndroidInfo getItem(int position)
 		{
-			return mListFilter.get(position);
+			return mListInfo.get(position);
 		}
 
 		@Override
 		public long getItemId(int position)
 		{
-			return mListFilter.get(position).hashCode();
+			return mListInfo.get(position).hashCode();
 		}
 
 		class Tag
@@ -150,7 +105,7 @@ implements OnItemClickListener, DiscoverListener
 			if (view==null)
 			{
 				final LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				view = inflater.inflate(mResId, parent, false);
+				view = inflater.inflate(R.layout.discover_device, parent, false);
 				tag=new Tag();
 				tag.mText1=((TextView)view.findViewById(android.R.id.text1));
 				tag.mText2=((TextView)view.findViewById(android.R.id.text2));
@@ -158,7 +113,7 @@ implements OnItemClickListener, DiscoverListener
 			}
 			else
 				tag=(Tag)view.getTag();
-			RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)mListFilter.get(position);
+			RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)mListInfo.get(position);
 			tag.mText1.setText(info.getName());
 			if (tag.mText2!=null)
 			{
@@ -179,47 +134,41 @@ implements OnItemClickListener, DiscoverListener
 		@Override
 		public void onDiscoverStart()
 		{
-			if (mListener!=null)
-				mListener.onDiscoverStart();
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					setProgressBarIndeterminateVisibility(true);
+					progress(true);
+				}
+			});
 		}
 		@Override
 		public void onDiscoverStop()
 		{
-			if (mListener!=null)
-				mListener.onDiscoverStop();
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					setProgressBarIndeterminateVisibility(false);
+					progress(false);
+				}
+			});
 		}
 		@Override
-		public void onDiscover(RemoteAndroidInfo remoteAndroidInfo, boolean update)
+		public void onDiscover(final RemoteAndroidInfo remoteAndroidInfo)
 		{
-			notifyDataSetChanged();
-			if (mFilter!=null)
+			getActivity().runOnUiThread(new Runnable()
 			{
-				for (int i=0;i<mListFilter.size();++i)
+				@Override
+				public void run()
 				{
-					RemoteAndroidInfo info=mListFilter.get(i);
-					if (info.getUuid().equals(remoteAndroidInfo.getUuid()))
-					{
-						if (!mFilter.filter(info))
-						{
-							// The change exclude the previous record
-							mListFilter.remove(info);
-							return;
-						}
-					}
+					mListInfo.add(remoteAndroidInfo);
+					notifyDataSetChanged();
 				}
-				// Unknown record
-				if (mFilter.filter(remoteAndroidInfo))
-				{
-					// Add new record
-					mListFilter.add(remoteAndroidInfo);
-				}
-				else
-				{
-					Log.d(TAG_DISCOVERY,PREFIX_LOG+" reject "+remoteAndroidInfo);
-				}
-			}
-			if (mListener!=null)
-				mListener.onDiscover(remoteAndroidInfo, update);
+			});
 		}
 	}
 	
@@ -231,8 +180,7 @@ implements OnItemClickListener, DiscoverListener
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		mList = (ListView)mViewer.findViewById(R.id.connect_discover_list);
 		mList.setOnItemClickListener(this);
-		mManager=Application.getManager();
-		mListInfo=mManager.newDiscoveredAndroid(this);
+		mListInfo=new ArrayList<RemoteAndroidInfo>();
 		mAdapter=new ListRemoteAndroidInfoAdapter(getActivity().getApplicationContext(),
 				mListInfo);
 		for (RemoteAndroidInfo inf:Trusted.getBonded())
@@ -242,7 +190,6 @@ implements OnItemClickListener, DiscoverListener
 			mListInfo.add(info);
 		}
 		
-		mAdapter.setListener(this);
 		mList.setAdapter(mAdapter);
 		return mViewer;
 	}
@@ -267,18 +214,22 @@ implements OnItemClickListener, DiscoverListener
 			protected Void doInBackground(Void... params)
 			{
 				if ((active & NetworkTools.ACTIVE_NOAIRPLANE|NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK)!=0)
-					mListInfo.start(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+				{
+					Discover.getDiscover().startDiscover(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+				}
 				return null;
 			}
 		}.execute();
+		Discover.getDiscover().registerListener(mAdapter);
 	}
 	
 	@Override
 	public void onPause()
 	{
 		super.onPause();
-		mListInfo.cancel();
+		Discover.getDiscover().cancelDiscover();
 		setProgressBarIndeterminateVisibility(false);
+		Discover.getDiscover().unregisterListener(mAdapter);
 	}
 	
 	@Override
@@ -303,7 +254,7 @@ implements OnItemClickListener, DiscoverListener
 		else
 		{
 			mUsage.setText(R.string.connect_discover_help_wifi_or_bt);
-			mListInfo.cancel();
+			Discover.getDiscover().cancelDiscover();
 			mList.setVisibility(View.GONE);
 			mList.setEnabled(false);
 			progress(false);
@@ -318,8 +269,7 @@ implements OnItemClickListener, DiscoverListener
 			setProgressBarIndeterminateVisibility(true);
 		if (mListInfo!=null && !Application.sDiscover.isDiscovering())
 		{
-			mListInfo.start(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,
-				RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+			Discover.getDiscover().startDiscover(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS,RemoteAndroidManager.DISCOVER_BEST_EFFORT);
 		}
 	}
 	@Override
@@ -332,35 +282,6 @@ implements OnItemClickListener, DiscoverListener
 	public void onDestroy()
 	{
 		super.onDestroy();
-		if (mListInfo!=null)
-		{
-			mListInfo.close();
-			if (D) mListInfo=null;
-		}
-		if (mManager!=null)
-		{
-			mManager.close();
-			if (D) mManager=null;
-		}
-	}
-	
-	@Override
-	public void onDiscoverStart()
-	{
-		setProgressBarIndeterminateVisibility(true);
-		progress(true);
-	}
-
-	@Override
-	public void onDiscoverStop()
-	{
-		setProgressBarIndeterminateVisibility(false);
-		progress(false);
-	}
-	
-	@Override
-	public void onDiscover(RemoteAndroidInfo remoteAndroidInfo, boolean update)
-	{
 	}
 	
 	private void progress(boolean onoff)

@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.Cookies;
+import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.DiscoverAndroids;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
@@ -27,15 +28,22 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
+import org.remoteandroid.discovery.Discover;
 
 public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
+implements Discover.Listener
 {
-	private ArrayList<DiscoverAndroids> mDrivers=new ArrayList<DiscoverAndroids>();
-	private long mDiscoverMaxTimeout=0L;
-	private Context mContext;
-	private AtomicInteger mDiscoverCount=new AtomicInteger(0);
-	
 	private Cookies mCookies=new Cookies();
+	private Context mContext;
+	private long mDiscoverMaxTimeout=0L;
+	
+	
+	public RemoteAndroidManagerStub(Context context)
+	{
+		mContext=context.getApplicationContext();
+		Discover.getDiscover().registerListener(this);
+		Application.startService();
+	}
 	
 	/**
 	 * 
@@ -91,20 +99,9 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 	{
 		mCookies.removeCookie(uri);
 	}
-	public RemoteAndroidManagerStub(Context context)
-	{
-		mContext=context.getApplicationContext();
-		if (ETHERNET)
-		{
-			mDrivers.add(new IPDiscoverAndroids(mContext,this));
-		}
-		Application.startService();
-	}
-	
 	@Override
 	public synchronized void startDiscover(int flags,long timeToDiscover) throws RemoteException
 	{
-		// FIXME Race condition ?
 		if (timeToDiscover==RemoteAndroidManager.DISCOVER_INFINITELY || timeToDiscover==RemoteAndroidManager.DISCOVER_BEST_EFFORT)
 		{
 			mDiscoverMaxTimeout=Long.MAX_VALUE;
@@ -116,58 +113,25 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 			if (end>mDiscoverMaxTimeout)
 				mDiscoverMaxTimeout=end;
 		}
-
-		if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Discover process started");
-		mContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_START_DISCOVER_ANDROID),
-				RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-
-		for (DiscoverAndroids driver:mDrivers)
-    	{
-    		if (driver.startDiscovery(timeToDiscover,flags,this))
-    		{
-    			mDiscoverCount.incrementAndGet();
-    		}
-    	}
-		if (mDiscoverCount.get()==0)
-		{
-			if (timeToDiscover==RemoteAndroidManager.DISCOVER_BEST_EFFORT)
-			{
-				mDiscoverMaxTimeout=0;
-				finishDiscover();
-			}
-		}
+		Discover.getDiscover().startDiscover(flags, timeToDiscover);
 	}
 
 	public void finishDiscover()
 	{
-		if (mDiscoverCount.decrementAndGet()<=0)
-		{
-			mDiscoverCount.set(0);
-			mDiscoverMaxTimeout=0;
-			if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Discover process finished");
-			mContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_DISCOVER_ANDROID),
-					RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-		}
+		mDiscoverMaxTimeout=0;
+		Discover.getDiscover().finishDiscover();
 	}
 	@Override
 	public void cancelDiscover() throws RemoteException
 	{
-		if (isDiscovering())
-		{
-			mDiscoverMaxTimeout=0;
-	    	for (DiscoverAndroids driver:mDrivers)
-	    	{
-	    		driver.cancelDiscovery(this);
-	    	}
-		}
+		mDiscoverMaxTimeout=0;
+		Discover.getDiscover().cancelDiscover();
 	}
 	@Override
 	public boolean isDiscovering()
 	{
-		boolean rc=System.currentTimeMillis()<mDiscoverMaxTimeout;
-		return rc;
+		return System.currentTimeMillis()<mDiscoverMaxTimeout;
 	}
-
 	@Override
 	public RemoteAndroidInfoImpl getInfo()
 	{
@@ -185,5 +149,39 @@ public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 	{
 		RemoteAndroidManagerImpl.setLogInternal(type, state);
 	}
+
+	// -------- Propagate events
+	@Override
+	public void onDiscoverStart()
+	{
+		if (mDiscoverMaxTimeout!=0)
+		{
+			mContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_START_DISCOVER_ANDROID),
+				RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+		}
+	}
+	
+	@Override
+	public void onDiscoverStop()
+	{
+		if (mDiscoverMaxTimeout!=0)
+		{
+			mContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_DISCOVER_ANDROID),
+				RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+		}
+	}
+	
+	@Override
+	public void onDiscover(RemoteAndroidInfo info)
+	{
+		if (mDiscoverMaxTimeout!=0)
+		{
+			Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+			intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+			intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE, info);
+			Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+		}
+	}
+
 
 }

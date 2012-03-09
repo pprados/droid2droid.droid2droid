@@ -4,6 +4,6 @@ import org.remoteandroid.service.RemoteAndroidManagerStub;
 
 public interface DiscoverAndroids
 {
-	public boolean startDiscovery(final long timeToIdentify,int flags,RemoteAndroidManagerStub discover);
-	public void cancelDiscovery(RemoteAndroidManagerStub discover);
+	public boolean startDiscovery(final long timeToIdentify,int flags);
+	public void cancelDiscovery();
 }

@@ -45,6 +45,7 @@ import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.ip.NetSocketRemoteAndroid;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.discovery.DiscoverAndroids;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Compatibility;
@@ -77,6 +78,8 @@ import android.widget.Toast;
 // http://code.google.com/p/android/issues/detail?id=15
 public class IPDiscoverAndroids implements DiscoverAndroids
 {
+	private static Discover mDiscover;
+	
 	// FIXME: Utiliser Jmmdns pour s'enregistrer sur toutes les interfaces http://sourceforge.net/projects/jmdns/forums/forum/324612/topic/4729651
 	static class MultipleJmDNS
 	{
@@ -287,9 +290,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 							{
 								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Connection anonymously to "+dnsInfo.getName()+" done");
 								info.isDiscoverEthernet=true;
-								Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-								intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-								Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+								mDiscover.discover(info);
 							}
 					    	else
 					    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+dnsInfo.getName()+" not found now");
@@ -300,9 +301,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 							{
 								boundedInfo.isDiscoverEthernet=true;
 								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+boundedInfo.getName()+" has Ips address.");
-								Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-								intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, boundedInfo);
-								Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+								mDiscover.discover(info);
 								
 							}
 							else
@@ -335,9 +334,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 						{
 							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+info.getName()+" is stopped.");
 							info.isDiscoverEthernet=false;
-							Intent intentDiscover=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-							intentDiscover.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-							Application.sAppContext.sendBroadcast(intentDiscover,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+							mDiscover.discover(info);
 							
 						}
 					}
@@ -348,10 +345,9 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	};
 
     
-	public IPDiscoverAndroids(Context context,
-			RemoteAndroidManagerStub boss // FIXME: Est-ce utile ? Application.sDiscover à la place
-			)
+	public IPDiscoverAndroids(Discover discover)
 	{
+		mDiscover=discover;
 	}
 	
 	public static void initIPDiscover(Context context)
@@ -362,7 +358,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	 * @param max 0: infinite, else number of ip to find
 	 */
 	@Override
-	public boolean startDiscovery(final long timeToDiscover,final int flags,final RemoteAndroidManagerStub discover)
+	public boolean startDiscovery(final long timeToDiscover,final int flags)
 	{
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP start discover...");
 		final MultipleJmDNS dns=sDNS;
@@ -395,7 +391,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 					public void run()
 					{
 						if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS delay expired.");
-						cancelDiscovery(discover);
+						cancelDiscovery();
 					}
 				}, timeTo, TimeUnit.MILLISECONDS);
 			}
@@ -409,13 +405,13 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 	}
 
 	@Override
-	public void cancelDiscovery(final RemoteAndroidManagerStub discover)
+	public void cancelDiscovery()
 	{
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP cancel discover...");
 		sIsDiscovering=false;
 		clearPending();
 		asyncUnregisterListener();
-		discover.finishDiscover();
+		mDiscover.finishDiscover();
 		if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP cancel discovery");
 	}
 
@@ -554,10 +550,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 					for (RemoteAndroidInfo info:Trusted.getBonded())
 					{
 						Trusted.update(info.getUuid(),null);
-						Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-						intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-						intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE, info);
-						Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+						mDiscover.discover(info);
 					}
 					if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Signal all ip of bounded device are failed done");
 					sServiceInfo=null;
