@@ -3,25 +3,22 @@ package org.remoteandroid.ui;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.ui.connect.ConnectActivity;
 import org.remoteandroid.ui.expose.ExposeActivity;
 
-import android.app.Activity;
-
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.Menu;
-import android.support.v4.view.MenuItem;
-import android.support.v4.view.Window;
 import android.view.MenuInflater;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 
 // TODO: expose invalide si non actif
-public class MainActivity extends FragmentActivity
+public class MainActivity extends SherlockFragmentActivity
 implements MainFragment.CallBack
 {
 	FragmentManager	mFragmentManager;
@@ -52,13 +49,14 @@ implements MainFragment.CallBack
 		super.onPause();
 		mFragment.setCallBack(null);
 	}
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main_fragment_menu, menu);
-		return true;
-	}
+// FIXME: Sherlock
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu)
+//	{
+//		MenuInflater inflater = getMenuInflater();
+//		inflater.inflate(R.menu.main_fragment_menu, menu);
+//		return true;
+//	}
 	@Override
 	public void onExpose()
 	{

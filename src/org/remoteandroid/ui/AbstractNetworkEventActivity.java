@@ -1,22 +1,16 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.Constants.TAG_EXPOSE;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
-import static org.remoteandroid.internal.Constants.V;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.net.URL;
 
-import org.remoteandroid.Application;
-import org.remoteandroid.R;
-import org.remoteandroid.RemoteAndroidManager;
-import org.remoteandroid.internal.ListRemoteAndroidInfoImpl;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.ui.MainFragment;
-import org.remoteandroid.ui.MainActivity;
-import org.remoteandroid.ui.TabsAdapter;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -29,20 +23,12 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.ActionBar;
-import android.support.v4.app.ActionBar.Tab;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.Menu;
-import android.support.v4.view.MenuItem;
-import android.support.v4.view.ViewPager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.MenuInflater;
 
-public abstract class AbstractNetworkEventActivity extends FragmentActivity
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
+public abstract class AbstractNetworkEventActivity extends SherlockFragmentActivity
 {
 	private int mActiveNetwork;
 
@@ -123,11 +109,15 @@ public abstract class AbstractNetworkEventActivity extends FragmentActivity
 		if (conn != null)
 			info=conn.getActiveNetworkInfo();
 
-		NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
-		if (nfcManager.getDefaultAdapter().isEnabled())
-			mActiveNetwork|=NetworkTools.ACTIVE_NFC;
-		else
-			mActiveNetwork&=NetworkTools.ACTIVE_NFC;
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+			NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
+			NfcAdapter manager=nfcManager.getDefaultAdapter();
+			if (manager!=null && manager.isEnabled())
+				mActiveNetwork|=NetworkTools.ACTIVE_NFC;
+			else
+				mActiveNetwork&=NetworkTools.ACTIVE_NFC;
+		}
 		if (conn == null || info == null)
 		{
 			mActiveNetwork &= ~NetworkTools.ACTIVE_LOCAL_NETWORK|NetworkTools.ACTIVE_GLOBAL_NETWORK|NetworkTools.ACTIVE_INTERNET_NETWORK;

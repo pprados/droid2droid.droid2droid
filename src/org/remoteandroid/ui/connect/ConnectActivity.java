@@ -1,36 +1,17 @@
 package org.remoteandroid.ui.connect;
 
-import java.util.Arrays;
-
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
-import org.remoteandroid.internal.Messages;
-import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
 import org.remoteandroid.ui.FeatureTab;
 
-import static org.remoteandroid.internal.Constants.*;
-import static org.remoteandroid.Constants.*;
-
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcManager;
 import android.nfc.Tag;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.v4.view.Window;
-import android.util.Log;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.actionbarsherlock.view.Window;
 
 
 public class ConnectActivity extends AbstractFeatureTabActivity
@@ -39,7 +20,7 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 	private static final FeatureTab[] sTabsBroadcast=
 		{
 			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
-//			new ConnectQRCodeFragment.Provider(), 
+			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
@@ -50,7 +31,7 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 	private static final FeatureTab[] sTabsConnect=
 		{
 			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
-//			new ConnectQRCodeFragment.Provider(), 
+			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),

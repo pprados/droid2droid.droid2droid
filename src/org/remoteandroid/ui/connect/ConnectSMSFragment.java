@@ -1,46 +1,36 @@
 package org.remoteandroid.ui.connect;
 
+import static org.remoteandroid.Constants.SMS_MESSAGE_SIZE;
 import static org.remoteandroid.Constants.SMS_PORT;
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.RemoteAndroidInfo.*;
+import static org.remoteandroid.Constants.TAG_SMS;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_TELEPHONY;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Arrays;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.binder.PendingBroadcastRequest;
-import org.remoteandroid.internal.Base64;
-import org.remoteandroid.internal.Constants;
 import org.remoteandroid.internal.Messages;
-import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 import org.remoteandroid.ui.contacts.AbstractSMSFragment;
-import org.remoteandroid.ui.expose.ExposeTicketFragment;
 
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActionBar;
 import android.telephony.SmsManager;
-import android.telephony.SmsMessage;
-import android.text.Editable;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
 
 public class ConnectSMSFragment extends AbstractSMSFragment
 implements PendingBroadcastRequest.OnBroadcastReceive

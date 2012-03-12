@@ -3,21 +3,13 @@ package org.remoteandroid.ui;
 import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.Constants.NFC;
 
-import java.util.Arrays;
-
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
-import org.remoteandroid.ui.connect.ConnectNFCFragment;
-
-
-import static org.remoteandroid.internal.Constants.*;
-import static org.remoteandroid.Constants.*;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -27,22 +19,15 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
-import android.nfc.NfcManager;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.v4.app.ActionBar;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.Menu;
-import android.support.v4.view.MenuItem;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.Window;
-import android.util.Log;
-import android.view.MenuInflater;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 
 
@@ -142,13 +127,14 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	{
 		
 	}
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main_fragment_menu, menu);
-		return true;
-	}
+	// FIXME: Sherlock
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu)
+//	{
+//		MenuInflater inflater = getMenuInflater();
+//		inflater.inflate(R.menu.main_fragment_menu, menu);
+//		return true;
+//	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
@@ -178,7 +164,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	// Register a listener when another device ask my tag
 	protected void nfcExpose()
 	{
-		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
 		{
 			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 	        if (mNfcAdapter != null) 
@@ -201,19 +187,27 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	
 	protected void registerOnNfcTag()
 	{
-		NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-		PendingIntent pendingIntent = 
-				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-		
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+			NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+			if (NFC && mNfcAdapter!=null)
+			{
+				PendingIntent pendingIntent = 
+						PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+				mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+			}
+		}
 	}
 	// Unregister the exposition of my tag
     protected void unregisterOnNFCTag()
     {
-    	if (NFC && mNfcAdapter!=null)
-    	{
-    		mNfcAdapter.disableForegroundDispatch(this);
-    	}
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+	    	if (NFC && mNfcAdapter!=null)
+	    	{
+	    		mNfcAdapter.disableForegroundDispatch(this);
+	    	}
+		}
     }
     
 	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info,boolean expose)

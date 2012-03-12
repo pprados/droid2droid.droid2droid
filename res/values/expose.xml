@@ -32,7 +32,8 @@ In other device, select connect/Ticket and enter this value.\n</string>
 	<string name="expose_ticket_help_airplane">To use this approach, you must turn off Airplane mode.\n</string>
 	<string name="expose_ticket_help_internet">To use this approach, you must use a network with an access to internet.\n</string>
 	<string name="expose_ticket_message">%1$s</string>		
-
+	<string name="expose_ticket_wait">...</string>
+	
 	<string name="expose_nfc">NFC</string>
 	<string name="expose_nfc_help">Touch the other device or write the network information in a NFC tag.</string>
 	<string name="expose_nfc_help_no_nfc">Activate the Near Field Communication and touch the other device.</string>

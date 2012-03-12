@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 import org.remoteandroid.ui.connect.qrcode.BeepManager;
@@ -37,7 +39,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.app.ActionBar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -407,9 +409,10 @@ public class ConnectQRCodeFragment extends AbstractConnectFragment implements Su
 			getBytes(s, 0, s.length(), data, 0);// rawResult.getText().getBytes();
 			// data = s.getBytes();
 			candidates = Messages.Candidates.parseFrom(data);
-			// TODO activity.tryConnect(null,
-			// ProtobufConvs.toUris(Application.sAppContext,candidates),
-			// activity.isAcceptAnonymous());
+			showConnect(
+				ProtobufConvs.toUris(Application.sAppContext,candidates)
+				.toArray(new String[0]), 
+				true,null); // FIXME: anonymous
 		}
 		catch (InvalidProtocolBufferException e)
 		{

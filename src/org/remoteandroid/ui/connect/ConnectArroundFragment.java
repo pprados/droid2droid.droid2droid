@@ -11,11 +11,12 @@ import org.remoteandroid.ui.TabsAdapter;
 
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.actionbarsherlock.app.ActionBar;
 
 public class ConnectArroundFragment extends AbstractConnectFragment
 {

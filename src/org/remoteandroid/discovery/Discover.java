@@ -12,6 +12,7 @@ import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
 import android.content.Intent;
 import android.os.RemoteException;
@@ -23,7 +24,7 @@ public class Discover
 	{
 		void onDiscoverStart();
 		void onDiscoverStop();
-		void onDiscover(RemoteAndroidInfo info);
+		void onDiscover(RemoteAndroidInfoImpl info);
 	}
 	
 	private static final Discover sDiscover=new Discover();
@@ -125,7 +126,7 @@ public class Discover
 		boolean rc=System.currentTimeMillis()<mDiscoverMaxTimeout;
 		return rc;
 	}
-	public void discover(RemoteAndroidInfo info)
+	public void discover(RemoteAndroidInfoImpl info)
 	{
 		for (int i=mCallBacks.size()-1;i>=0;--i)
 		{

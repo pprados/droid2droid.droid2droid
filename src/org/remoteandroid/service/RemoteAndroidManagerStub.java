@@ -1,8 +1,5 @@
 package org.remoteandroid.service;
 
-import static org.remoteandroid.Constants.TAG_DISCOVERY;
-import static org.remoteandroid.internal.Constants.ETHERNET;
-import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
 import static org.remoteandroid.internal.Constants.W;
@@ -10,14 +7,11 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.Cookies;
-import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
-import org.remoteandroid.discovery.DiscoverAndroids;
-import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.IRemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
@@ -28,7 +22,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
-import org.remoteandroid.discovery.Discover;
 
 public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 implements Discover.Listener
@@ -172,7 +165,7 @@ implements Discover.Listener
 	}
 	
 	@Override
-	public void onDiscover(RemoteAndroidInfo info)
+	public void onDiscover(RemoteAndroidInfoImpl info)
 	{
 		if (mDiscoverMaxTimeout!=0)
 		{

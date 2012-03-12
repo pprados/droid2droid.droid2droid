@@ -1,8 +1,6 @@
 package org.remoteandroid.ui;
 
-import org.remoteandroid.ui.connect.AbstractConnectFragment;
-
-import android.support.v4.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar;
 
 // TODO: meme classe que Expose ?
 public abstract class FeatureTab

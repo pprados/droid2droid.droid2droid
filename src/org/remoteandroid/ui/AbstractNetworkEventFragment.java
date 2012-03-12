@@ -1,10 +1,12 @@
 package org.remoteandroid.ui;
 
+import com.actionbarsherlock.app.SherlockFragment;
+
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 
-public abstract class AbstractNetworkEventFragment extends Fragment
+public abstract class AbstractNetworkEventFragment extends SherlockFragment
 {
 	protected AbstractNetworkEventFragment()
 	{

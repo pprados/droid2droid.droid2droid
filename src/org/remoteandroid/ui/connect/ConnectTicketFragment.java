@@ -25,7 +25,6 @@ import org.remoteandroid.ui.expose.ExposeTicketFragment;
 
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActionBar;
 import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,6 +38,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
 
 public class ConnectTicketFragment extends AbstractConnectFragment
 {

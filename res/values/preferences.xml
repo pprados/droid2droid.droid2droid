@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources
 >
-    <declare-styleable name="IconPreferenceScreen">
-        <attr name="icon" format="reference" />
-    </declare-styleable>
+    
 	<string name="editpreference_label">Edit preference</string>
 	<string name="editpreference_description">Accept or refuse some connection from others
 		devices.</string>

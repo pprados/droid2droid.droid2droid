@@ -1,6 +1,5 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
@@ -14,28 +13,20 @@ import java.io.IOException;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
-import org.remoteandroid.ui.EditPreferenceActivity;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
-import android.content.Context;
 import android.content.Intent;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.v4.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +34,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
 
 public class ExposeNFCFragment extends AbstractBodyFragment
 implements AbstractBodyFragment.OnNfcEvent

@@ -10,10 +10,11 @@ import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
 import android.os.Bundle;
-import android.support.v4.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.actionbarsherlock.app.ActionBar;
 
 public class ExposeArroundFragment extends AbstractBodyFragment
 {

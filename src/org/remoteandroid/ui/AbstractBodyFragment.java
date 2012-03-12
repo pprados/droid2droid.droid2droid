@@ -1,6 +1,8 @@
 package org.remoteandroid.ui;
 
 
+import com.actionbarsherlock.app.SherlockFragment;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +10,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-public abstract class AbstractBodyFragment extends Fragment
+public abstract class AbstractBodyFragment extends SherlockFragment
 {
 	public interface OnNfcEvent
 	{
@@ -34,7 +36,7 @@ public abstract class AbstractBodyFragment extends Fragment
 	public void onResume()
 	{
 		super.onResume();
-		updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
+		updateStatus(((AbstractNetworkEventActivity)getSherlockActivity()).getActiveNetwork());
 	}
 //	public void onReceiveNetworkEvent(Context context,Intent intent,int activeNetwork)
 //	{

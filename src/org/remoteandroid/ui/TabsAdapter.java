@@ -1,21 +1,21 @@
 package org.remoteandroid.ui;
 
+import static org.remoteandroid.internal.Constants.V;
+
 import java.util.ArrayList;
 
 import org.remoteandroid.Application;
-import static org.remoteandroid.internal.Constants.*;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ActionBar.Tab;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 /**
  * This is a helper class that implements the management of tabs and all details

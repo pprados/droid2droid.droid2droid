@@ -359,25 +359,25 @@
 
 <!-- Tests activities -->
 
-        <activity 
-            android:enabled="true"
-        	android:name=".test.TestProviderActivity"
-        	android:exported="true"
-		>
-             <intent-filter>
-                 <action android:name="android.intent.action.MAIN" />
-                 <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
-        </activity>
+<!--         <activity  -->
+<!--             android:enabled="true" -->
+<!--         	android:name=".test.TestProviderActivity" -->
+<!--         	android:exported="true" -->
+<!-- 		> -->
+<!--              <intent-filter> -->
+<!--                  <action android:name="android.intent.action.MAIN" /> -->
+<!--                  <category android:name="android.intent.category.LAUNCHER" /> -->
+<!--              </intent-filter> -->
+<!--         </activity> -->
 
-         <activity 
-             android:name=".test.CaptureQRCodeActivity"
-             android:label="QRCode"
-             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
-            <intent-filter>
-                <action android:name="org.remoteandroid.action.test.QRCODE" />
-            </intent-filter>
-         </activity>
+<!--          <activity  -->
+<!--              android:name=".test.CaptureQRCodeActivity" -->
+<!--              android:label="QRCode" -->
+<!--              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"> -->
+<!--             <intent-filter> -->
+<!--                 <action android:name="org.remoteandroid.action.test.QRCODE" /> -->
+<!--             </intent-filter> -->
+<!--          </activity> -->
          
     </application>
 

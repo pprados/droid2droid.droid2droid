@@ -11,10 +11,10 @@ import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.Driver;
+import org.remoteandroid.internal.IRemoteAndroid.ConnectionMode;
 import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
-import org.remoteandroid.internal.IRemoteAndroid.ConnectionMode;
 import org.remoteandroid.ui.AbstractBodyFragment;
 
 import android.net.Uri;
@@ -40,7 +40,7 @@ implements ConnectDialogFragment.OnConnected
 	{
 		mDlg=ConnectDialogFragment.newTryConnectFragment(acceptAnonymous, uris,param);
 		mDlg.setOnConnected(this);
-		mDlg.show(getSupportFragmentManager(), "dialog");
+		mDlg.show(getFragmentManager(), "dialog");
 	}
 
 	protected void dismissDialog()

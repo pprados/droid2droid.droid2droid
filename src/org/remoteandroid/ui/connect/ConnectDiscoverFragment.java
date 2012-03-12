@@ -22,7 +22,6 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +31,15 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
+
 public class ConnectDiscoverFragment extends AbstractConnectFragment 
 implements OnItemClickListener
 {
 	private View mViewer;
 	private TextView mUsage;
 	private ListView mList;
-	private List<RemoteAndroidInfo> mListInfo;
+	private List<RemoteAndroidInfoImpl> mListInfo;
 	private ListRemoteAndroidInfoAdapter mAdapter;
 	
 	public static class Provider extends FeatureTab
@@ -61,12 +62,12 @@ implements OnItemClickListener
 	public class ListRemoteAndroidInfoAdapter extends BaseAdapter 
 	implements Discover.Listener
 	{
-		private List<RemoteAndroidInfo> mListInfo;
+		private List<RemoteAndroidInfoImpl> mListInfo;
 		private Context mContext;
 		private int mColorTextDark_nodisable;
 		private int mColorTextDark;
 
-		public ListRemoteAndroidInfoAdapter(Context context,List<RemoteAndroidInfo> listInfo)
+		public ListRemoteAndroidInfoAdapter(Context context,List<RemoteAndroidInfoImpl> listInfo)
 		{
 			Resources resource=context.getResources();
 			mContext=context;
@@ -158,13 +159,22 @@ implements OnItemClickListener
 			});
 		}
 		@Override
-		public void onDiscover(final RemoteAndroidInfo remoteAndroidInfo)
+		public void onDiscover(final RemoteAndroidInfoImpl remoteAndroidInfo)
 		{
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
+					for (int i=mListInfo.size()-1;i>=0;--i)
+					{
+						RemoteAndroidInfoImpl and=mListInfo.get(i);
+						if (and.uuid.equals(remoteAndroidInfo.uuid))
+						{
+							and.merge(remoteAndroidInfo);
+							return;
+						}
+					}
 					mListInfo.add(remoteAndroidInfo);
 					notifyDataSetChanged();
 				}
@@ -180,7 +190,7 @@ implements OnItemClickListener
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		mList = (ListView)mViewer.findViewById(R.id.connect_discover_list);
 		mList.setOnItemClickListener(this);
-		mListInfo=new ArrayList<RemoteAndroidInfo>();
+		mListInfo=new ArrayList<RemoteAndroidInfoImpl>();
 		mAdapter=new ListRemoteAndroidInfoAdapter(getActivity().getApplicationContext(),
 				mListInfo);
 		for (RemoteAndroidInfo inf:Trusted.getBonded())

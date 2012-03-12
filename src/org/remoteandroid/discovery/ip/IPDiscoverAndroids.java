@@ -1,16 +1,21 @@
 package org.remoteandroid.discovery.ip;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.DEBUG;
 import static org.remoteandroid.Constants.ETHERNET_DELAY_ANTI_REPEAT_DISCOVER;
 import static org.remoteandroid.Constants.ETHERNET_GET_INFO_MDNS_TIMEOUT;
 import static org.remoteandroid.Constants.ETHERNET_LISTEN_PORT;
 import static org.remoteandroid.Constants.ETHERNET_TIME_TO_DISCOVER;
 import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
+import static org.remoteandroid.Constants.HACK_WAIT_BEFORE_RESTART_MDNS;
+import static org.remoteandroid.Constants.HACK_WIFI_CHANGED_RESTART_MDNS;
 import static org.remoteandroid.Constants.REMOTEANDROID_SERVICE;
+import static org.remoteandroid.Constants.REMOTE_ANDROID_VERSION;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.Constants.TAG_MDNS;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
@@ -27,16 +32,12 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.jmdns.JmDNS;
-import javax.jmdns.JmmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
@@ -48,7 +49,6 @@ import org.remoteandroid.binder.ip.NetSocketRemoteAndroid;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.discovery.DiscoverAndroids;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
-import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.NetworkTools;
@@ -57,7 +57,6 @@ import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Tools;
 import org.remoteandroid.internal.socket.Channel;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.service.RemoteAndroidManagerStub;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -547,7 +546,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			        sLock.release();
 					// Signal all IP of bounded device are failed
 					if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Signal all ip of bounded device are failed...");
-					for (RemoteAndroidInfo info:Trusted.getBonded())
+					for (RemoteAndroidInfoImpl info:Trusted.getBonded())
 					{
 						Trusted.update(info.getUuid(),null);
 						mDiscover.discover(info);
