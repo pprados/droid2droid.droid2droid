@@ -4,3 +4,4 @@ Ergonomie:
 - Modifier le look de la boite de dialogue de connexion pour respecter ICS (le bouton n'est pas conforme)
 - Gerer l'affichage du QRCode en plusieurs taille lors du clic
 - Pb d'onglet avec une résolution petite type motorola milestone ou plus petit
+- Voir les TODO actionbarsherlock
