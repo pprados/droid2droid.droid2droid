@@ -9,10 +9,10 @@ import org.remoteandroid.ui.expose.ExposeActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.view.MenuInflater;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
@@ -49,14 +49,14 @@ implements MainFragment.CallBack
 		super.onPause();
 		mFragment.setCallBack(null);
 	}
-// FIXME: Sherlock
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu)
-//	{
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.menu.main_fragment_menu, menu);
-//		return true;
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.main_fragment_menu, menu);
+		return true;
+	}
+	
 	@Override
 	public void onExpose()
 	{

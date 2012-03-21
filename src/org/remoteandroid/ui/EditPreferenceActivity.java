@@ -32,6 +32,7 @@ import org.remoteandroid.ListRemoteAndroidInfo;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.ListRemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Messages;
@@ -86,13 +87,17 @@ import com.google.zxing.common.StringUtils;
 
 // TODO: Sur xoom, enlever le menu contextuel
 public class EditPreferenceActivity extends PreferenceActivity 
-implements ListRemoteAndroidInfo.DiscoverListener
+implements Discover.Listener
 {
 	private CharSequence[] 	mExposeValues;
 	private Boolean[]		mExposeActive;
 	
 	// No persistante preference
 	private static final String PREFERENCES_ANO					="ano";
+	private static final String PREFERENCES_SHARE_PROXIMITY		="ano.active";
+	private static final String PREFERENCES_SHARE_WIFI			="ano.select_wifi";
+//	private static final String PREFERENCES_SHARE_QRCODE		="ano.qrcode";
+//	private static final String PREFERENCES_SHARE_NFC			="ano.nfc";
 	private static final String PREFERENCES_KNOWN				="known";
 
 	private static final String PREFERENCE_DEVICE_LIST			="lan.list";
@@ -216,6 +221,16 @@ implements ListRemoteAndroidInfo.DiscoverListener
 			
 		}
     };
+	private BroadcastReceiver mNfcReceiver = new BroadcastReceiver()
+	{
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+            if (W) Log.w(TAG_PREFERENCE, PREFIX_LOG+"NFC Changed "+intent);
+	        updateDiscoverExposeButton();
+		}
+	};
+    
 	private BroadcastReceiver mAirPlane = new BroadcastReceiver() 
 	{
 	      @Override
@@ -264,7 +279,8 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	private Preference mPreferenceScan;
 	
     private ProgressGroup mDeviceList;
-	private ListRemoteAndroidInfoImpl mDiscovered;
+	private List<RemoteAndroidInfoImpl> mDiscovered;
+	
 	private HashMap<UUID, DevicePreference> mDevicePreferenceMap = new HashMap<UUID, DevicePreference>();
 	
 	static class Cache
@@ -328,31 +344,6 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		}
 		return cache;
 	}
-	private void onRestoreRetainNonConfigurationInstance(Cache cache)
-	{
-		if (cache==null) 
-		{
-	        initBonded();
-			return;
-		}
-		mLastValue=cache.mValue;
-		if (ETHERNET)
-		{
-			mListEthernet.setValue(cache.mValue);
-			mListEthernet.setEntries(cache.mEntries);
-			mListEthernet.setEntryValues(cache.mEntryValues);
-		}
-		for (UUID uuid:cache.mSaved.keySet())
-		{
-			
-			DevicePreference preference=new DevicePreference(this);
-			preference.restoreHierarchyState(cache.mSaved.get(uuid));
-			mDevicePreferenceMap.put(preference.mInfo.getUuid(),preference);
-			mDeviceList.addPreference(preference);
-			mDiscovered.add(preference.mInfo);
-			preference.onDeviceAttributesChanges();
-		}
-	}
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -366,6 +357,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 		nfcExpose();
         // Register callback
 		
+        onDiscoverStart();
 		new Thread()
 		{
 			public void run() 
@@ -417,6 +409,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	{
         // Main
 		addPreferencesFromResource(R.xml.all_preferences);
+		Discover.getDiscover().registerListener(this);
 
 		final Intent intentRemoteContext=new Intent(this,RemoteAndroidService.class);
 		mExpose=findPreference(PREFERENCES_EXPOSE);
@@ -428,6 +421,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 			@Override
 			public boolean onPreferenceChange(Preference preference, final Object newValue)
 			{
+				Application.clearCookies();
 				if (((Boolean)newValue).booleanValue())
 				{
 					startService(intentRemoteContext);
@@ -459,6 +453,21 @@ implements ListRemoteAndroidInfo.DiscoverListener
 			}
 		});
 
+		OnPreferenceChangeListener clearCookies=new OnPreferenceChangeListener()
+		{
+			@Override
+			public boolean onPreferenceChange(Preference preference, final Object newValue)
+			{
+				Application.clearCookies();
+				return true;
+			}
+			
+		};
+		findPreference(PREFERENCES_SHARE_PROXIMITY).setOnPreferenceChangeListener(clearCookies);
+		findPreference(PREFERENCES_SHARE_WIFI).setOnPreferenceChangeListener(clearCookies);
+//		findPreference(PREFERENCES_SHARE_QRCODE).setOnPreferenceChangeListener(clearCookies);
+//		findPreference(PREFERENCES_SHARE_NFC).setOnPreferenceChangeListener(clearCookies);
+		
 		// Device name
 		mName=findPreference(PREFERENCES_NAME);
 		mName.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
@@ -544,9 +553,37 @@ implements ListRemoteAndroidInfo.DiscoverListener
         	@Override
         	public void run()
         	{
-           		onRestoreRetainNonConfigurationInstance((Cache)getLastNonConfigurationInstance());
+           		finishAsyncInit((Cache)getLastNonConfigurationInstance());
         	}
         });
+	}
+	private void finishAsyncInit(Cache cache)
+	{
+		if (cache==null) 
+		{
+			mDiscovered=new ArrayList<RemoteAndroidInfoImpl>();
+	        initBonded();
+	        mDeviceList.setProgress(Discover.getDiscover().isDiscovering());
+			Discover.getDiscover().registerListener(EditPreferenceActivity.this);
+			return;
+		}
+		mLastValue=cache.mValue;
+		if (ETHERNET)
+		{
+			mListEthernet.setValue(cache.mValue);
+			mListEthernet.setEntries(cache.mEntries);
+			mListEthernet.setEntryValues(cache.mEntryValues);
+		}
+		for (UUID uuid:cache.mSaved.keySet())
+		{
+			
+			DevicePreference preference=new DevicePreference(this);
+			preference.restoreHierarchyState(cache.mSaved.get(uuid));
+			mDevicePreferenceMap.put(preference.mInfo.getUuid(),preference);
+			mDeviceList.addPreference(preference);
+			mDiscovered.add(preference.mInfo);
+			preference.onDeviceAttributesChanges();
+		}
 	}
 
 
@@ -570,28 +607,14 @@ implements ListRemoteAndroidInfo.DiscoverListener
     protected void onResume() 
     {
        super.onResume();
-       mDiscovered=new ListRemoteAndroidInfoImpl(Application.getManager(), null);
 	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onResume()");
-    	new AsyncTask<Void, Void, Boolean>()
-    	{
-    		protected Boolean doInBackground(Void... paramArrayOfParams) 
-    		{
-    			initBonded();
-    			return Application.getManager().isDiscovering();
-    		}
-    		protected void onPostExecute(Boolean result) 
-    		{
-    	        mDeviceList.setProgress(result);
-    	    	mDiscovered.setListener(EditPreferenceActivity.this);
-    	        onDiscoverStart();
-    		}
-    	}.execute();
         
 		// Register receiver
     	if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
     	{
 	        registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 			registerReceiver(mAirPlane,new IntentFilter("android.intent.action.SERVICE_STATE"));
+			registerReceiver(mNfcReceiver, new IntentFilter("android.nfc.action.ADAPTER_STATE_CHANGED"));
 			IntentFilter filter=new IntentFilter();
 			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
@@ -642,10 +665,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 											RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
 											info.isDiscoverNFC=true;
 											info.isBonded=Trusted.isBonded(info);
-	//										intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-	//										intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-	//										Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-											onDiscover(info, true);
+											onDiscover(info);
 				        				}
 //				        				else
 //											if (W) Log.d(TAG_NFC,PREFIX_LOG+"Connect tag. Ignore.");
@@ -673,25 +693,30 @@ implements ListRemoteAndroidInfo.DiscoverListener
     	super.onPause();
  	   if (V) Log.v(TAG_PREFERENCE,PREFIX_LOG+"onPause()");
 
-    	if (mDiscovered!=null)
-    	{
-	    	mDiscovered.setListener(null);
-	    	mDiscovered.clear();
-    	}
 		// Unregister the discovery receiver
    		unregisterReceiver(mNetworkStateReceiver);
 		unregisterReceiver(mRemoteAndroidReceiver); 
 		unregisterReceiver(mBluetoothReceiver); 
+		unregisterReceiver(mNfcReceiver);
 		unregisterReceiver(mAirPlane); 
 		nfcUnregister();
     }
-    
+    @Override
+    protected void onDestroy()
+    {
+    	super.onDestroy();
+    	if (mDiscovered!=null)
+    	{
+			Discover.getDiscover().unregisterListener(this);
+	    	mDiscovered.clear();
+    	}
+    }
     @Override
     protected void onUserLeaveHint() 
     {
         super.onUserLeaveHint();
-        if (Application.getManager().isDiscovering())
-        	Application.getManager().cancelDiscover();
+        if (Discover.getDiscover().isDiscovering())
+        	Discover.getDiscover().cancelDiscover();
     }
     
     @Override
@@ -700,7 +725,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 
         if (PREFERENCE_SCAN.equals(preference.getKey())) 
         {
-        	if (!Application.getManager().isDiscovering())
+        	if (!Discover.getDiscover().isDiscovering())
         	{
         		scan(RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS);
         	}
@@ -730,7 +755,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	@Override
 	public void onDiscoverStart() 
 	{
-		boolean isDiscovering=Application.getManager().isDiscovering();
+		boolean isDiscovering=Discover.getDiscover().isDiscovering();
 		mPreferenceScan.setEnabled(!isDiscovering);
 		mDeviceList.setProgress(isDiscovering);
 	}
@@ -738,24 +763,17 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	@Override
 	public void onDiscoverStop() 
 	{
-		try
-		{
-			boolean airPlane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-			boolean isDiscovering=!airPlane && Application.getManager().isDiscovering();
-			mPreferenceScan.setEnabled(!isDiscovering);
-			mDeviceList.setProgress(isDiscovering);
-		} catch (Throwable e)
-		{
-			e.printStackTrace(); // FIXME
-		}
+		boolean airPlane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+		boolean isDiscovering=!airPlane && Discover.getDiscover().isDiscovering();
+		mPreferenceScan.setEnabled(!isDiscovering);
+		mDeviceList.setProgress(isDiscovering);
 	}
 	
 	@Override
-	public void onDiscover(RemoteAndroidInfo info, boolean update)
+	public void onDiscover(RemoteAndroidInfoImpl remoteAndroidInfo)
 	{
-		RemoteAndroidInfoImpl remoteAndroidInfo=(RemoteAndroidInfoImpl)info;
 		if (I) Log.i(TAG_PREFERENCE,PREFIX_LOG+"onDiscover "+remoteAndroidInfo.getName());
-		DevicePreference preference=mDevicePreferenceMap.get(info.getUuid());
+		DevicePreference preference=mDevicePreferenceMap.get(remoteAndroidInfo.getUuid());
 		if (preference==null)
 			addInfo(remoteAndroidInfo);
 		else
@@ -870,7 +888,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 //			{
 //				mPreferenceScan.setEnabled(
 //					result
-//					&& !Application.getManager().isDiscovering());
+//					&& !Discover.getDiscover().isDiscovering());
 //				mExpose.setEnabled(result);
 //			}
 //		}.execute();
@@ -878,7 +896,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 	
 	private void scan(final int flags)
 	{
-		if (!Application.getManager().isDiscovering())
+		if (!Discover.getDiscover().isDiscovering())
 		{
 			initBonded();
 			Application.sThreadPool.execute(new Runnable()
@@ -887,7 +905,7 @@ implements ListRemoteAndroidInfo.DiscoverListener
 				@Override
 				public void run()
 				{
-					Application.getManager().startDiscover(flags,TIME_TO_DISCOVER);
+					Discover.getDiscover().startDiscover(flags,TIME_TO_DISCOVER);
 				}
 			});
 		}

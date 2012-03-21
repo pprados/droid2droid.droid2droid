@@ -2,6 +2,9 @@ package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.E;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -10,7 +13,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-public abstract class StyleFragmentActivity extends FragmentActivity
+public abstract class StyleFragmentActivity extends SherlockFragmentActivity
 {
 	private static final String	EXTRA_THEME_APPNAME	= "theme.app";
 
@@ -72,26 +75,26 @@ public abstract class StyleFragmentActivity extends FragmentActivity
 
 		// Customize the theme and title
 		Intent intent = getIntent();
-		String themeApp = intent.getStringExtra(EXTRA_THEME_APPNAME);
-		int themeId = intent.getIntExtra(EXTRA_THEME_ID, 0);
-		if (themeApp != null && themeId != 0)
-		{
-			try
-			{
-				mResources = getPackageManager().getResourcesForApplication(themeApp);
-				// TODO: getPackageManager().getApplicationIcon(themeApp);
-				setTheme(themeId);
-			}
-			catch (NameNotFoundException e)
-			{
-				if (E)
-					Log.e(TAG_CONNECT, "Application " + themeApp + " not found for use the theme "
-							+ themeId + ".");
-			}
-		}
-		String title = intent.getStringExtra(EXTRA_TITLE);
-		if (title != null)
-			setTitle(title);
+//		String themeApp = intent.getStringExtra(EXTRA_THEME_APPNAME);
+//		int themeId = intent.getIntExtra(EXTRA_THEME_ID, 0);
+//		if (themeApp != null && themeId != 0)
+//		{
+//			try
+//			{
+//				mResources = getPackageManager().getResourcesForApplication(themeApp);
+//				// TODO: getPackageManager().getApplicationIcon(themeApp);
+//				setTheme(themeId);
+//			}
+//			catch (NameNotFoundException e)
+//			{
+//				if (E)
+//					Log.e(TAG_CONNECT, "Application " + themeApp + " not found for use the theme "
+//							+ themeId + ".");
+//			}
+//		}
+//		String title = intent.getStringExtra(EXTRA_TITLE);
+//		if (title != null)
+//			setTitle(title);
 
 		super.onCreate(savedInstanceState);
 	}

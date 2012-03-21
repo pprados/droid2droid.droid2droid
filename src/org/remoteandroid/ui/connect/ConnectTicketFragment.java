@@ -80,9 +80,8 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		mViewer = (View) inflater.inflate(R.layout.connect_discover, container, false);
-		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		mViewer =inflater.inflate(R.layout.connect_ticket, container, false);
+		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		mEdit=(EditText)mViewer.findViewById(R.id.edit);
 		mEdit.setOnEditorActionListener(new OnEditorActionListener()
 		{

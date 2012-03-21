@@ -8,12 +8,14 @@ import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
+import java.io.NotActiveException;
 
 import org.remoteandroid.binder.AbstractProtobufSrvRemoteAndroid;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
 import org.remoteandroid.binder.UpstreamHandler;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Messages.Msg;
+import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.socket.Channel;
 import org.remoteandroid.ui.Notifications;
 
@@ -135,9 +137,8 @@ public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 		close(); // TODO disconnect the connexion
 	}
 	@Override
-	public boolean connect(ConnectionMode mode,long cookie,long timeout)
+	public boolean connect(Type type,long cookie,long timeout)
 	{
-		// FIXE: Why ?
-		return false;
+		throw new IllegalArgumentException(); // Not implemented in serveur.
 	}
 }

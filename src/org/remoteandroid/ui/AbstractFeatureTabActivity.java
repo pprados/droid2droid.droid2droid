@@ -26,6 +26,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
@@ -47,6 +49,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     {
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_CONTEXT_MENU);
+        
         super.onCreate(savedInstanceState);
 
     	mFragmentManager = getSupportFragmentManager();
@@ -56,12 +59,14 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
         setContentView(mViewPager);
     	
         mActionBar = getSupportActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        mActionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-        mActionBar.setDisplayShowTitleEnabled(true);
-        
-        mTabsAdapter = new TabsAdapter(this, getSupportActionBar(), mViewPager);
+        if (mActionBar!=null)
+        {
+	        mActionBar.setDisplayHomeAsUpEnabled(true);
+	        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+//	        mActionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+	        mActionBar.setDisplayShowTitleEnabled(true);
+        }        
+        mTabsAdapter = new TabsAdapter(this, mActionBar, mViewPager);
         FeatureTab[] featureTabs=getFeatureTabs();
     	for (int i=0;i<featureTabs.length;++i)
     	{
@@ -127,14 +132,13 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	{
 		
 	}
-	// FIXME: Sherlock
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu)
-//	{
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.menu.main_fragment_menu, menu);
-//		return true;
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.main_fragment_menu, menu);
+		return true;
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)

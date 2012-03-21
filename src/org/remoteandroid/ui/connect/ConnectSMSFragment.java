@@ -130,21 +130,11 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 			progressJobs.incCurrentStep();
 			return ConnectDialogFragment.tryAllUris(progressJobs, uris, this);
 		}
-		catch (final Exception e)
+		catch (InterruptedException e)
 		{
-			if (E) Log.e(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket ("+e.getMessage()+")");
-			if (D)
-			{
-				Application.sHandler.post(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
-					}
-				});
-			}
-			return R.string.connect_ticket_message_error_get_internet;
+			// Ignore
+			if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Interrupt wait",e);
+			return null;
 		}
 		finally
 		{

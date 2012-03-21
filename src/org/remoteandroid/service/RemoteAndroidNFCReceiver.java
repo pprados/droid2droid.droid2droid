@@ -12,6 +12,7 @@ import java.util.Arrays;
 import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -75,9 +76,7 @@ public class RemoteAndroidNFCReceiver extends Activity
 										RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
 										info.isDiscoverNFC=true;
 										info.isBonded=Trusted.isBonded(info);
-										intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-										intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-										Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+										Discover.getDiscover().discover(info);
 			        				}
 			        				else
 										if (W) Log.d(TAG_NFC,PREFIX_LOG+"Connect tag. Ignore.");

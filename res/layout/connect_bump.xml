@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="tab_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/usage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:lineSpacingMultiplier="0.92"
+        android:padding="10dip"
+        android:text="@string/connect_bump_help"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+>
+
+</RelativeLayout>

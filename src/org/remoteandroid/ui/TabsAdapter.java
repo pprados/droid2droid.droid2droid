@@ -66,7 +66,8 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
 		tab.setTag(info);
 		tab.setTabListener(this);
 		mTabs.add(info);
-		mActionBar.addTab(tab.setTabListener(this));
+		if (mActionBar!=null)
+			mActionBar.addTab(tab.setTabListener(this));
 		notifyDataSetChanged();
 	}
 
@@ -96,7 +97,8 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
 	public void onPageSelected(int position)
 	{
 		if (V) Log.v("Frag","onPageSelected("+position+")...");
-		mActionBar.setSelectedNavigationItem(position);
+		if (mActionBar!=null)
+			mActionBar.setSelectedNavigationItem(position);
 		mTabs.get(position).mFragment.onPageSelected();
 		if (V) Log.v("Frag","onPageSelected("+position+") done");
 	}

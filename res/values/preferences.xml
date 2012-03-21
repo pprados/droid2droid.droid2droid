@@ -51,6 +51,8 @@
     <string name="preference_scan_title">Scan for devices</string>
     
     <!-- Network type show when discover device -->
+    <string name="network_unknown">No connection</string>
+    <!-- Network type show when discover device -->
     <string name="network_ip">Network</string>
     <!-- Network type show when discover device -->
     <string name="network_bt">Bluetooth</string>

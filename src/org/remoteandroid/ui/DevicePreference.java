@@ -1,17 +1,28 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
+import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.SocketException;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Compatibility;
+import org.remoteandroid.internal.Driver;
+import org.remoteandroid.internal.Pair;
+import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
 
 import android.content.Context;
+import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -158,7 +169,7 @@ public class DevicePreference extends Preference
 		{
 			try
 			{
-				nfc=(NfcAdapter.getDefaultAdapter()!=null);
+				nfc=(NfcAdapter.getDefaultAdapter(getContext())!=null);
 			}
 			catch (UnsupportedOperationException e)
 			{
@@ -204,8 +215,13 @@ public class DevicePreference extends Preference
 			{
 				try
 				{
-					new Trusted(getContext().getApplicationContext(), Application.sHandler)
-							.pairWith(mInfo.uris.toArray(new String[0]));
+					for (int i=0;i<mInfo.uris.size();++i)
+					{
+						String uri=mInfo.uris.get(i);
+	    				long cookie=Application.sDiscover.getCookie(uri,Type.CONNECT_FOR_PAIRING);
+	    				if (cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_NO)
+	    					break;
+					}
 				}
 				finally
 				{
@@ -227,30 +243,77 @@ public class DevicePreference extends Preference
 	{
 		if (mIsBusy)
 		{
-			if (D)
-				Log.d(TAG_PREFERENCE, PREFIX_LOG + "Alreading in pairing process");
+			if (D) Log.d(TAG_PREFERENCE, PREFIX_LOG + "Alreading in pairing process");
 			return;
 		}
 		setEnabled(false);
+		mInfo.isBonded=false;
 		new AsyncTask<Void, Void, Void>()
 		{
 			@Override
 			protected Void doInBackground(Void... params)
 			{
-				try
+				for (int i=0;i<mInfo.uris.size();++i)
 				{
-					new Trusted(getContext().getApplicationContext(), Application.sHandler)
-							.unpairWith(mInfo);
-				}
-				finally
-				{
-					mIsBusy = false;
+					final Uri uri=Uri.parse(mInfo.uris.get(i));
+					try
+					{
+						
+						AbstractRemoteAndroidImpl binder=null;
+						try
+						{
+							String scheme=uri.getScheme();
+							if (!ETHERNET && scheme.equals(SCHEME_TCP))
+								return null;
+							Driver driver=RemoteAndroidManagerImpl.sDrivers.get(uri.getScheme());
+							if (driver==null)
+								throw new MalformedURLException("Unknown "+uri);
+							binder=driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
+							binder.connect(Type.CONNECT_FOR_PAIRING, -1l,ETHERNET_TRY_TIMEOUT);
+							Trusted.unregisterDevice(Application.sAppContext,mInfo);
+							return null;
+						}
+						catch (SecurityException e)
+						{
+							if (W && !D) Log.w(TAG_CLIENT_BIND,"Remote device refuse anonymous connection.");
+							if (D) Log.d(TAG_CLIENT_BIND,"Remote device refuse anonymous connection.",e);
+							return null;
+						}
+						catch (SocketException e)
+						{
+							if (E && !D) Log.e(TAG_CLIENT_BIND,"Connection impossible for ask cookie. Imcompatible with ipv6? ("+e.getMessage()+")");
+							if (D) Log.d(TAG_CLIENT_BIND,"Connection impossible for ask cookie. Imcompatible with ipv6?",e);
+							return null;
+						}
+						catch (IOException e)
+						{
+							if (E && !D) Log.e(TAG_CLIENT_BIND,"Connection impossible for ask cookie ("+e.getMessage()+")");
+							if (D) Log.d(TAG_CLIENT_BIND,"Connection impossible for ask cookie.",e);
+							return null;
+						}
+						catch (Exception e)
+						{
+							if (E && !D) Log.e(TAG_CLIENT_BIND,"Connection impossible for ask cookie ("+e.getMessage()+")");
+							if (D) Log.d(TAG_CLIENT_BIND,"Connection impossible for ask cookie.",e);
+							return null;
+						}
+						finally
+						{
+							if (binder!=null)
+								binder.close();
+						}
+					}
+					finally
+					{
+						mIsBusy = false;
+					}
 				}
 				return null;
 			}
 			@Override
 			protected void onPostExecute(Void result) 
 			{
+				mIsBusy = false;
 				setEnabled(true);
 				onDeviceAttributesChanges();
 			}

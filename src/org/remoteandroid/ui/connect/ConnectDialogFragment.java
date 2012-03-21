@@ -1,40 +1,22 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
-import org.remoteandroid.internal.Constants;
-import org.remoteandroid.internal.Driver;
-import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.internal.RemoteAndroidManagerImpl;
-import org.remoteandroid.internal.IRemoteAndroid.ConnectionMode;
 import org.remoteandroid.pairing.Trusted;
 
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
-import android.text.SpannedString;
 import android.util.Log;
-import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

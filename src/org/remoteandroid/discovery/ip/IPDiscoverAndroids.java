@@ -28,6 +28,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -239,14 +240,14 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 		{
 			if (event.getName().equals(Application.getName()))
 					return;
-			if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS service added "+event.getName()+", wait service info...");
+			if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS service added '"+event.getName()+"', wait service info...");
 			// Required to force serviceResolved to be called again (after the first search)
            	event.getDNS().requestServiceInfo(event.getType(), event.getName(), false,ETHERNET_GET_INFO_MDNS_TIMEOUT);
 		}
 		@Override
 		public void serviceResolved(final ServiceEvent event)
 		{
-			if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS ... service resolved "+event.getName()+" ("+event.getInfo().getURL()+")");
+			if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS ... service resolved '"+event.getName()+"' ("+event.getInfo().getURL()+")");
 			final ServiceInfo dnsInfo=event.getInfo();
 			final String struuid=dnsInfo.getPropertyString("uuid");
 			if (struuid==null)
@@ -259,7 +260,7 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			RemoteAndroidInfoImpl info=Trusted.getBonded(struuid);
 			if (!sIsDiscovering && info==null)
 			{
-				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS ignore "+dnsInfo.getName()+" because is not bounded.");
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS ignore '"+dnsInfo.getName()+"' because is not bounded.");
 				return;
 			}
 			// Discover a remote android. Try to connect.
@@ -283,34 +284,34 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 						RemoteAndroidInfoImpl boundedInfo=Trusted.update(UUID.fromString(struuid),dnsInfo.getInetAddresses());
 						if (sIsDiscovering)
 						{
-							if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Ask info for "+dnsInfo.getName()+"...");
+							if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Ask info for '"+dnsInfo.getName()+"'...");
 							info=checkRemoteAndroid(dnsInfo);
 							if (info!=null)
 							{
-								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Connection anonymously to "+dnsInfo.getName()+" done");
+								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Connection anonymously to '"+dnsInfo.getName()+"' done");
 								info.isDiscoverEthernet=true;
 								mDiscover.discover(info);
 							}
 					    	else
-					    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+dnsInfo.getName()+" not found now");
+					    		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device '"+dnsInfo.getName()+"' not found now");
 						}
 						else
 						{
 							if (boundedInfo!=null)
 							{
 								boundedInfo.isDiscoverEthernet=true;
-								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+boundedInfo.getName()+" has Ips address.");
-								mDiscover.discover(info);
+								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP '"+boundedInfo.getName()+"' has Ips address.");
+								mDiscover.discover(boundedInfo);
 								
 							}
 							else
-								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Discover "+dnsInfo.getName()+" but ignore because it's not a bounded device.");
+								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Discover '"+dnsInfo.getName()+"' but ignore because it's not a bounded device.");
 						}
 					}
 				});
 			}
 			else
-				if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Ignore pending "+dnsInfo.getName());
+				if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Ignore pending '"+dnsInfo.getName()+'\'');
 		}
 		
 		@Override
@@ -740,8 +741,8 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 			Msg resp=(Msg)Channel.sPrototype.newBuilderForType().mergeFrom(buf, 4, length).build();
 			if (resp.getRc())
 			{
-				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info.");
 				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
+				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info ("+info.name+")");
 				info.isDiscoverEthernet=true;
 				info.isBonded=Trusted.isBonded(info);
 				// I find it !
@@ -756,6 +757,23 @@ public class IPDiscoverAndroids implements DiscoverAndroids
 				}
 				return null;
 			}
+		}
+		catch (final SocketException e)
+		{
+			if (E && !D) Log.e(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error ("+e.getMessage()+")");
+			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error",e);
+			if (D) 
+			{
+				Application.sHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+					}
+				});
+			}
+			return null;
 		}
 		catch (final Exception e)
 		{

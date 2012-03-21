@@ -134,6 +134,7 @@ public class Application extends android.app.Application
 	
 	// FIXME: Bug if change language
 	private static final String				sGroupingSeparator	= ", ";
+	private static CharSequence				sUnknown;
 	private static CharSequence				sIPName;
 	private static CharSequence				sBTName;
 	private static CharSequence				sPaired;
@@ -164,19 +165,19 @@ public class Application extends android.app.Application
 		}
     }
 
-    public static long getCookie(String uri)
+    public static synchronized long getCookie(String uri)
     {
     	return sCookies.getCookie(uri);
     }
-    public static void removeCookie(String uri)
+    public static synchronized void removeCookie(String uri)
     {
     	sCookies.removeCookie(uri);
     }
-    public static void addCookie(String uri,long cookie)
+    public static synchronized void addCookie(String uri,long cookie)
     {
     	sCookies.addCookie(uri, cookie);
     }
-    public static void clearCookies()
+    public static synchronized void clearCookies()
     {
     	sCookies.clear();
     }
@@ -269,6 +270,10 @@ public class Application extends android.app.Application
 
 		if (paired)
 			buf.insert(0, (info.isBonded ? sPaired : sNotPaired)+" ");
+		if (buf.length()==0)
+		{
+			buf.append(sUnknown);
+		}
 		return buf;
 	}
 
@@ -291,6 +296,7 @@ public class Application extends android.app.Application
 		enableHttpResponseCache();
 		disableConnectionReuseIfNecessary();
 		
+		sUnknown = getResources().getText(R.string.network_unknown);
 		sIPName = getResources().getText(R.string.network_ip);
 		sBTName = getResources().getText(R.string.network_bt);
 		sPaired = getResources().getText(R.string.device_paired);

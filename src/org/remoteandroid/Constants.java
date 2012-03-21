@@ -74,6 +74,9 @@ public class Constants
 	/** Timeout to wait a user response when ask to validate the pairing process. */
 	public static final long TIMEOUT_PAIR						=20000L; // FIXME: 2000L;
 
+	/** Auto ask pairing if refuse cookie.*/
+	public static final boolean PAIR_AUTO_IF_NO_COOKIE			=true;
+
 	public static final boolean PAIR_ANTI_SPOOF					=false; // TODO: PAIR_ANTI_SPOOF must be true
 	/** Save pairing devices. */
 	public static final boolean PAIR_PERSISTENT					=true;

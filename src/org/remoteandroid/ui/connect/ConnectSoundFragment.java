@@ -39,7 +39,7 @@ public class ConnectSoundFragment extends AbstractConnectFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		mViewer = (View) inflater.inflate(R.layout.connect_discover, container, false);
+		mViewer = (View) inflater.inflate(R.layout.connect_sound, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
@@ -52,16 +52,16 @@ public class ConnectSoundFragment extends AbstractConnectFragment
 		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
 		if (airplane)
 		{
-			mUsage.setText(R.string.connect_ticket_help_airplane);
+			mUsage.setText(R.string.connect_sound_help_airplane);
 		}
 		else
-		if ((activeNetwork & (NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK))!=0)
+		if ((activeNetwork & (NetworkTools.ACTIVE_NETWORK))!=0)
 		{
-			mUsage.setText(R.string.connect_ticket_help);
+			mUsage.setText(R.string.connect_sound_help);
 		}
 		else
 		{
-			mUsage.setText(R.string.connect_ticket_help_internet);
+			mUsage.setText(R.string.connect_sound_help_network);
 		}
 	}
 	

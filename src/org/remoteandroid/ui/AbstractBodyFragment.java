@@ -46,9 +46,14 @@ public abstract class AbstractBodyFragment extends SherlockFragment
 //	{
 //		updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
 //	}
+//	public void onReceiveNfcEvent(Context context,Intent intent)
+//	{
+//		updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
+//	}
 	public void onReceiveAirplaneEvent(Context context,Intent intent)
 	{
-		//updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
+		if (getActivity()!=null)
+			updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
 	}
 	public void onUpdateActiveNetwork(int activeNetwork)
 	{

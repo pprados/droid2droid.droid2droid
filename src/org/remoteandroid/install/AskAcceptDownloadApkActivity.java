@@ -1,6 +1,7 @@
 package org.remoteandroid.install;
 
 import static org.remoteandroid.Constants.LOCK_ASK_DOWNLOAD;
+import static org.remoteandroid.Constants.LOCK_ASK_PAIRING;
 import static org.remoteandroid.internal.Constants.*;
 
 import java.lang.ref.WeakReference;
@@ -118,8 +119,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 		if (which == Dialog.BUTTON1)
 		{
 			// Ok
-			if (V)
-				Log.v(TAG_INSTALL, PREFIX_LOG + "srv inform download is accepted");
+			if (V) Log.v(TAG_INSTALL, PREFIX_LOG + "srv inform download is accepted");
 			CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
 					new Boolean(true));
 			finish();
@@ -127,12 +127,19 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 		else
 		{
 			// Cancel
-			if (V)
-				Log.v(TAG_INSTALL, PREFIX_LOG + "srv inform download is refused");
+			if (V) Log.v(TAG_INSTALL, PREFIX_LOG + "srv inform download is refused");
 			CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
 					new Boolean(false));
 			finish();
 		}
 	}
 
+	@Override
+	protected void onUserLeaveHint()
+	{
+		CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
+			new Boolean(false));
+		moveTaskToBack(true);
+		finish();
+	}
 }

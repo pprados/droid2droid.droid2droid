@@ -1,7 +1,7 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.Constants.TIMEOUT_COOKIE;
-
+import static org.remoteandroid.internal.Constants.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class Cookies // TODO: cookie persistant ?
 			}
 			cookie.timestamp=System.currentTimeMillis()+TIMEOUT_COOKIE; // TODO: add a maximum timestamp ?			
 		}
-		return (cookie==null) ? 0 : cookie.cookie;
+		return (cookie==null) ? COOKIE_NO : cookie.cookie;
 	}
 	public void clear()
 	{

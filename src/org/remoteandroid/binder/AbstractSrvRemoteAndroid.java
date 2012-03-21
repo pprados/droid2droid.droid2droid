@@ -39,7 +39,6 @@ import org.remoteandroid.internal.IRemoteAndroid;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.NormalizeIntent;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.pairing.Pairing;
 import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.Notifications;
 
@@ -95,8 +94,6 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 		public State mState;
 
 		public RemoteAndroidInfoImpl mClientInfo;
-		
-		public Pairing mPairing;
 		
 		public Login mLogin;
 		
@@ -608,7 +605,14 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			intent.putExtra(AskAcceptDownloadApkActivity.EXTRA_SIZE, len);
 			intent.putExtra(AskAcceptDownloadApkActivity.EXTRA_TIMEOUT, timeout-(int)(delta)); // 3s below the end
 			intent.putExtra(AskAcceptDownloadApkActivity.EXTRA_CHANEL, getType().name()); // Network type
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_FROM_BACKGROUND);
+			intent.setFlags(
+				Intent.FLAG_ACTIVITY_NEW_TASK
+				|Intent.FLAG_FROM_BACKGROUND
+				|Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+				|Intent.FLAG_ACTIVITY_NO_ANIMATION
+				|Intent.FLAG_ACTIVITY_NO_HISTORY
+				|Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
+				);
 			if (!accept)
 			{
 				// Notify the user

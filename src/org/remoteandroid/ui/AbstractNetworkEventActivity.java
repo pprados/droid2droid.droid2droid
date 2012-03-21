@@ -32,6 +32,8 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 {
 	private int mActiveNetwork;
 
+	private static final String NFC_ACTION_ADAPTER_STATE_CHANGED = "android.nfc.action.ADAPTER_STATE_CHANGED";
+	
 	private BroadcastReceiver mNetworkStateReceiver = new BroadcastReceiver()
 	{
 
@@ -53,7 +55,15 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	};
 
-	private BroadcastReceiver mAirPlane = new BroadcastReceiver()
+	private BroadcastReceiver mNfcReceiver = new BroadcastReceiver()
+	{
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			onReceiveNfcEvent(context, intent);
+		}
+	};
+	private BroadcastReceiver mAirPlaneReceiver = new BroadcastReceiver()
 	{
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -81,7 +91,8 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR)
 		{
 			registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-			registerReceiver(mAirPlane, new IntentFilter("android.intent.action.SERVICE_STATE"));
+			registerReceiver(mAirPlaneReceiver, new IntentFilter("android.intent.action.SERVICE_STATE"));
+			registerReceiver(mNfcReceiver, new IntentFilter("android.nfc.action.ADAPTER_STATE_CHANGED"));
 			IntentFilter filter = new IntentFilter();
 			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
@@ -96,7 +107,8 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		// Unregister the discovery receiver
 		unregisterReceiver(mNetworkStateReceiver);
 		unregisterReceiver(mBluetoothReceiver);
-		unregisterReceiver(mAirPlane);
+		unregisterReceiver(mNfcReceiver);
+		unregisterReceiver(mAirPlaneReceiver);
 	}
 
 	protected abstract AbstractBodyFragment getActiveFragment();
@@ -184,11 +196,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 
 	protected void onReceiveBluetoothEvent(Context context, Intent intent)
 	{
-//		if (getActiveFragment()==null) return;
-//		getActiveFragment().onReceiveBluetoothEvent(context, intent);
-
-		if (intent.getAction().equals(
-			BluetoothAdapter.ACTION_STATE_CHANGED))
+		if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED))
 		{
 			int state = intent.getIntExtra(
 				BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_DISCONNECTED);
@@ -200,6 +208,23 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	}
 
+	protected void onReceiveNfcEvent(Context context,Intent intent)
+	{
+		// 1:Off, 3:On
+		final int state=intent.getIntExtra("android.nfc.extra.ADAPTER_STATE",1);
+		switch (state)
+		{
+			case 1: //NfcAdapter.STATE_OFF)
+//			case 2: //NfcAdapter.STATE_TURNING_ON
+			case 4: //NfcAdapter.STATE_TURNING_OFF
+				mActiveNetwork &= ~NetworkTools.ACTIVE_BLUETOOTH;
+				break;
+			case 3: //NfcAdapter.STATE_ON
+				mActiveNetwork |= NetworkTools.ACTIVE_NFC;
+				break;
+		}
+		onUpdateActiveNetwork();
+	}
 	protected void onReceiveAirplaneEvent(Context context, Intent intent)
 	{
 		if (getActiveFragment()==null) return;

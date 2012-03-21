@@ -30,6 +30,7 @@ import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Base64;
@@ -171,15 +172,13 @@ public class Trusted
 			info.isDiscoverEthernet=true;
 		if (type==ConnectionType.BT)
 			info.isDiscoverBT=true;
-		Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-		intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-		intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE,true);
-		context.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+		Discover.getDiscover().discover(info);
 	}
 	
 	public static synchronized void unregisterDevice(Context context,RemoteAndroidInfo info)
 	{
 		if (I) Log.i(TAG_PAIRING,PREFIX_LOG + "Unregister device "+info.getName());
+		Application.clearCookies();
 		RemoteAndroidInfoImpl infoImpl=(RemoteAndroidInfoImpl)info;
 		infoImpl.isBonded=false;
 		String baseKey=PAIRING_PREFIX+infoImpl.uuid.toString();
@@ -194,11 +193,7 @@ public class Trusted
 		{
 			if (E) Log.e(TAG_PAIRING,PREFIX_LOG+"Impossible to remove "+info);
 		}
-		
-		Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-		intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-		intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE,true);
-		context.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+		Discover.getDiscover().discover(infoImpl);
 	}
 	
 	
@@ -438,7 +433,6 @@ public class Trusted
 			{
 				uri=uris[i];
 				Intent intent=new Intent(Intent.ACTION_MAIN,Uri.parse(uri));
-				intent.putExtra(AbstractRemoteAndroidImpl.EXTRA_FOR_PAIRING, true);
 				Application.getManager().bindRemoteAndroid(
 						intent, 
 						new  ServiceConnection()
@@ -534,7 +528,6 @@ public class Trusted
 			{
 				uri=uris[i];
 				Intent intent=new Intent(Intent.ACTION_MAIN,Uri.parse(uri));
-				intent.putExtra(AbstractRemoteAndroidImpl.EXTRA_FOR_PAIRING, true);
 				Application.getManager().bindRemoteAndroid(
 						intent, 
 						new  ServiceConnection()
@@ -592,18 +585,21 @@ public class Trusted
 
     public boolean pairing(AbstractRemoteAndroidImpl remoteandroid,ConnectionType type,String uri,long timeout) throws RemoteException
 	{
-		SimplePairing pairing=new SimplePairing(
-				mAppContext,mHandler,remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
-		//mInitiatingPairingContext=...
-		return pairing.client((AbstractProtoBufRemoteAndroid)remoteandroid,uri,timeout);
+// FIXME    	
+//		SimplePairing pairing=new SimplePairing(
+//				mAppContext,mHandler,remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
+//		//mInitiatingPairingContext=...
+//		return pairing.client((AbstractProtoBufRemoteAndroid)remoteandroid,uri,timeout);
+return true;    	
 	}
     public void unpairing(AbstractRemoteAndroidImpl remoteandroid,ConnectionType type,long timeout)
     {
 		Application.clearCookies();
-		SimplePairing pairing=new SimplePairing(mAppContext,mHandler,
-				remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
-		//mInitiatingPairingContext=...
-		pairing.unpairing((AbstractProtoBufRemoteAndroid)remoteandroid,timeout);
+		// TODO: informe the remote device, if possible, to unpaire
+//		SimplePairing pairing=new SimplePairing(mAppContext,mHandler,
+//				remoteandroid.mManager.getInfos(),remoteandroid.getInfos(),type);
+//		//mInitiatingPairingContext=...
+//		pairing.unpairing((AbstractProtoBufRemoteAndroid)remoteandroid,timeout);
     }
 	
     private static ConnectionType urlToType(String uri)

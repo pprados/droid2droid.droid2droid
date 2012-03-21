@@ -60,7 +60,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		setProgressBarIndeterminateVisibility(true);
-		mViewer = (View) inflater.inflate(R.layout.connect_discover, container, false);
+		mViewer = (View) inflater.inflate(R.layout.connect_nfc, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
@@ -73,16 +73,16 @@ implements AbstractBodyFragment.OnNfcEvent
 		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
 		if (airplane)
 		{
-			mUsage.setText(R.string.connect_ticket_help_airplane);
+			mUsage.setText(R.string.connect_nfc_help_airplane);
 		}
 		else
-		if ((activeNetwork & (NetworkTools.ACTIVE_BLUETOOTH|NetworkTools.ACTIVE_LOCAL_NETWORK))!=0)
+		if ((activeNetwork & (NetworkTools.ACTIVE_NFC))!=0)
 		{
-			mUsage.setText(R.string.connect_ticket_help);
+			mUsage.setText(R.string.connect_nfc_help);
 		}
 		else
 		{
-			mUsage.setText(R.string.connect_ticket_help_internet);
+			mUsage.setText(R.string.connect_nfc_help_nfc);
 		}
 	}
 	
@@ -104,6 +104,7 @@ implements AbstractBodyFragment.OnNfcEvent
 //			{
 //				RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
 //				info.isDiscoverNFC=true;
+		// FIXME		Discover.getDiscover().discover(info);
 //				info.isBonded=Trusted.isBonded(info);
 //				Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 //				intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);

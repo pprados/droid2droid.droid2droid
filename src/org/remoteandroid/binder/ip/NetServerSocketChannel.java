@@ -17,11 +17,10 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.remoteandroid.Application;
 import org.remoteandroid.binder.UpstreamHandler;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.socket.ip.NetworkSocketChannel;
-import org.remoteandroid.pairing.Pairing;
+import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidService;
 
 import android.os.Process;
@@ -132,7 +131,7 @@ class NetServerSocketChannel implements Runnable
 							}
 							finally
 							{
-								Pairing.globalUnlock();
+								LoginImpl.globalUnlock();
 							}
 						}
 					}

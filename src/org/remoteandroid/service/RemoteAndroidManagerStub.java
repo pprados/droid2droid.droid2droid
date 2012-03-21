@@ -2,7 +2,8 @@ package org.remoteandroid.service;
 
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
-import static org.remoteandroid.internal.Constants.W;
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import org.remoteandroid.Cookies;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.IRemoteAndroidManager;
+import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
@@ -26,7 +28,6 @@ import android.util.Log;
 public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 implements Discover.Listener
 {
-	private Cookies mCookies=new Cookies();
 	private Context mContext;
 	private long mDiscoverMaxTimeout=0L;
 	
@@ -46,51 +47,63 @@ implements Discover.Listener
 	 */
 	public long getCookie(String uri)
 	{
-		long cookie=mCookies.getCookie(uri);
-		if (cookie==0)
+		return getCookie(uri,Type.CONNECT_FOR_COOKIE);
+	}
+	public long getCookie(String uri,Type type)
+	{
+		long cookie=Application.getCookie(uri);
+		if (cookie==COOKIE_NO)
 		{
 			try
 			{
-				cookie=Application.getManager().askCookie(Uri.parse(uri));
-				if (cookie!=0)
-					mCookies.addCookie(uri, cookie);
+				cookie=Application.getManager().askCookie(Uri.parse(uri),type);
+				if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION)
+					Application.addCookie(uri, cookie);
 			}
 			catch (SecurityException e)
 			{
-				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
-				ArrayList<String> uris=new ArrayList<String>();
-				uris.add(uri);
-				if (new Trusted(mContext, Application.sHandler)
-					.pairWith(uris.toArray(new String[0]))==null)
-					return -1;
-				try
+				if (I) Log.i(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+				if (PAIR_AUTO_IF_NO_COOKIE)
 				{
-					cookie=Application.getManager().askCookie(Uri.parse(uri));
-					if (cookie!=0)
-						mCookies.addCookie(uri, cookie);
-					return cookie;
+					ArrayList<String> uris=new ArrayList<String>();
+					uris.add(uri);
+					if (new Trusted(mContext, Application.sHandler)
+						.pairWith(uris.toArray(new String[0]))==null)
+						return -1;
+					try
+					{
+						cookie=Application.getManager().askCookie(Uri.parse(uri));
+						if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION)
+							Application.addCookie(uri, cookie);
+						return cookie;
+					}
+					catch (IOException ee)
+					{
+						if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie after pairing impossible ("+ee.getMessage()+")");
+						return COOKIE_EXCEPTION;
+					}
 				}
-				catch (IOException ee)
-				{
-					if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie after pairing impossible ("+ee.getMessage()+")");
-					return -1;
-				}
+				else
+					return COOKIE_EXCEPTION;
 			}
 			catch (IOException e)
 			{
-				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
+				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+((e!=null) ? e.getMessage() : "null") +")");
 				return -1;
 			}			
 		}
 		return cookie;
 	}
-	public void addCookie(String uri,long cookie)
+	public void addCookie(RemoteAndroidInfoImpl info,long cookie)
 	{
-		mCookies.addCookie(uri, cookie);
+		for (int i=info.uris.size()-1;i>=0;--i)
+		{
+			Application.addCookie(info.uris.get(i), cookie);
+		}
 	}
 	public void removeCookie(String uri)
 	{
-		mCookies.removeCookie(uri);
+		Application.removeCookie(uri);
 	}
 	@Override
 	public synchronized void startDiscover(int flags,long timeToDiscover) throws RemoteException

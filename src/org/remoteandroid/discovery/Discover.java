@@ -1,8 +1,8 @@
 package org.remoteandroid.discovery;
 
-import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.ETHERNET;
-import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 
 import java.util.ArrayList;
@@ -73,7 +73,15 @@ public class Discover
 		if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Discover process started");
 		for (int i=mCallBacks.size()-1;i>=0;--i)
 		{
-			mCallBacks.get(i).onDiscoverStart();
+			final Listener cb=mCallBacks.get(i);
+			Application.sHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					cb.onDiscoverStart();
+				}
+			});
 		}
 
 		for (DiscoverAndroids driver:mDrivers)
@@ -102,7 +110,15 @@ public class Discover
 			if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Discover process finished");
 			for (int i=mCallBacks.size()-1;i>=0;--i)
 			{
-				mCallBacks.get(i).onDiscoverStop();
+				final Listener cb=mCallBacks.get(i);
+				Application.sHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						cb.onDiscoverStop();
+					}
+				});
 			}
 		}
 	}
@@ -117,7 +133,15 @@ public class Discover
 	    	}
 			for (int i=mCallBacks.size()-1;i>=0;--i)
 			{
-				mCallBacks.get(i).onDiscoverStop();
+				final Listener cb=mCallBacks.get(i);
+				Application.sHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						cb.onDiscoverStop();
+					}
+				});
 			}
 		}
 	}
@@ -126,11 +150,21 @@ public class Discover
 		boolean rc=System.currentTimeMillis()<mDiscoverMaxTimeout;
 		return rc;
 	}
-	public void discover(RemoteAndroidInfoImpl info)
+	public void discover(final RemoteAndroidInfoImpl info)
 	{
+		if (info==null)
+			if (D) Log.d(TAG_DISCOVERY,"info=null !");
 		for (int i=mCallBacks.size()-1;i>=0;--i)
 		{
-			mCallBacks.get(i).onDiscover(info);
+			final Listener cb=mCallBacks.get(i);
+			Application.sHandler.post(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					cb.onDiscover(info);
+				}
+			});
 		}
 	}
 }

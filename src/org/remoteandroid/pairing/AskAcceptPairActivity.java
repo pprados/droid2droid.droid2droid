@@ -5,9 +5,11 @@ import static org.remoteandroid.Constants.TIMEOUT_ASK_PAIR;
 import static org.remoteandroid.internal.Constants.*;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.R;
+
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -18,6 +20,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Window;
 
 // TODO: protect with android:filterTouchesWhenObscured="true" ?
 public final class AskAcceptPairActivity extends FragmentActivity implements
@@ -59,6 +62,8 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		super.onCreate(savedInstanceState);
 		showDialog(DIALOG_ASK_ACCEPT_PAIRING);
 		if (V)
@@ -67,6 +72,13 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 		mHandler.postAtTime(mFinisher, SystemClock.uptimeMillis() + TIMEOUT_ASK_PAIR);
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		if (V)
+			Log.v(TAG_INSTALL, PREFIX_LOG + "srv onNewIntent");
+	}
 	@Override
 	protected void onPause()
 	{
@@ -106,6 +118,7 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 			mFinisher.mIsFinish=true;			
 			CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
 					new Boolean(true));
+			moveTaskToBack(true);
 			finish();
 		}
 		else
@@ -115,8 +128,17 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 			mFinisher.mIsFinish=true;			
 			CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
 					new Boolean(false));
+			moveTaskToBack(true);
 			finish();
 		}
 	}
-
+	
+	@Override
+	protected void onUserLeaveHint()
+	{
+		CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
+			new Boolean(false));
+		moveTaskToBack(true);
+		finish();
+	}
 }

@@ -14,10 +14,10 @@ import java.util.Hashtable;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Driver;
-import org.remoteandroid.internal.IRemoteAndroid.ConnectionMode;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
@@ -134,6 +134,8 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 		{
 			// Propagate the discover
 			RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(context,msg.getIdentity());
+			// FIXME: Necessaire de faire les deux ? Si pas de discover en court, il faut envoyer quand même
+			Discover.getDiscover().discover(info);
 			Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 			intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
 			Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
@@ -180,7 +182,7 @@ public class RemoteAndroidSMSReceiver extends BroadcastReceiver
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
 				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
-				if (binder.connect(ConnectionMode.FOR_BROADCAST, cookie,ETHERNET_TRY_TIMEOUT))
+				if (binder.connect(Type.CONNECT_FOR_BROADCAST, cookie,ETHERNET_TRY_TIMEOUT))
 					break;
 				binder.close();
 			}

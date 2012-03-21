@@ -1,17 +1,18 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
-import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
+import static org.remoteandroid.internal.Constants.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.Cookies;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.Driver;
-import org.remoteandroid.internal.IRemoteAndroid.ConnectionMode;
+import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
@@ -33,7 +34,7 @@ implements ConnectDialogFragment.OnConnected
 	{
 		ConnectActivity activity=(ConnectActivity)getActivity();
 		if (activity!=null)
-			activity.setProgressBarIndeterminateVisibility(value ? Boolean.TRUE : Boolean.FALSE);
+			activity.setSupportProgressBarIndeterminateVisibility(value ? Boolean.TRUE : Boolean.FALSE);
 	}
 	
 	protected void showConnect(String[] uris,boolean acceptAnonymous,Bundle param)
@@ -110,7 +111,7 @@ implements ConnectDialogFragment.OnConnected
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
 				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uuri);
-				if (binder.connect(ConnectionMode.FOR_BROADCAST, 0,ETHERNET_TRY_TIMEOUT))
+				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,ETHERNET_TRY_TIMEOUT))
 					return ProgressJobs.OK; // Hack, simulate normal connection
 				else
 					throw new IOException();
@@ -126,6 +127,10 @@ implements ConnectDialogFragment.OnConnected
 			Pair<RemoteAndroidInfoImpl,Long> msg=Application.getManager().askMsgCookie(Uri.parse(uri));
 			if (msg==null || msg.second==0)
 				throw new SecurityException();
+			RemoteAndroidInfoImpl remoteInfo=msg.first;
+			final long cookie=msg.second;
+			if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION)
+				Application.sDiscover.addCookie(remoteInfo,cookie);
 			return msg.first;
 		}
 	}

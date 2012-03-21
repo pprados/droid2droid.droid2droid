@@ -71,7 +71,7 @@
         
     <!-- FIXME: a virer -->
 	<uses-permission android:name="android.permission.SET_DEBUG_APP"/>
-    
+	
 	<!-- Private privileges -->
 	<uses-permission android:name="org.remoteandroid.permission.discover.SEND"/>
 	<uses-permission android:name="org.remoteandroid.permission.discover.RECEIVE"/>
@@ -280,24 +280,27 @@
 		<!--  Activity to accept to pair device -->
         <activity 
 	        android:name=".pairing.AskAcceptPairActivity"
+	        android:launchMode="singleTask"
+	        android:taskAffinity=":remoteandroid"
         	android:exported="false" 
+			android:excludeFromRecents="true"
+			android:multiprocess="false"
         	android:theme="@android:style/Theme.Translucent"
 			android:noHistory="true"
-			android:launchMode="singleTop"
 			android:icon="@drawable/ic_launcher_remoteandroid"
 			android:configChanges="orientation|screenSize"
 	        />
 
         <activity 
 	        android:name=".install.InstallApkActivity"
+        	android:launchMode="singleTask"
+	        android:taskAffinity=":remoteandroid"
+			android:exported="false" 
         	android:theme="@android:style/Theme.Translucent"
 			android:icon="@drawable/ic_launcher_remoteandroid"
-			android:exported="false" 
-        	android:launchMode="singleInstance"
 			android:noHistory="true"
 			android:excludeFromRecents="true"
 			android:multiprocess="false"
-			android:taskAffinity=""
 			android:configChanges="orientation|screenSize"
 	        />
         
