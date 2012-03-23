@@ -12,12 +12,13 @@
         android:background="@drawable/home_expose"
         android:text="@string/main_expose"
          />
-
     <Button
         android:id="@+id/main_connect"
         style="@style/home_button"
         android:layout_below="@+id/main_expose"
         android:background="@drawable/home_connect"
-        android:text="@string/main_connect" />
+        android:text="@string/main_connect" 
+        />
+
 
 </RelativeLayout>

@@ -136,6 +136,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		MenuInflater inflater = getSupportMenuInflater();
+		// FIXME: Menu different en cas de connect ?
 		inflater.inflate(R.menu.main_fragment_menu, menu);
 		return true;
 	}

@@ -152,7 +152,7 @@ public class Application extends android.app.Application
 	{
 		sBackName = Build.MODEL;
 	}
-    public static SecureRandom sRandom; //FIXME: Multi-thread ?
+    private static SecureRandom sRandom;
     static
     {
     	try
@@ -825,5 +825,12 @@ public class Application extends android.app.Application
 			}
 		}.execute();
 	}
-	
+	public static synchronized long randomNextLong()
+	{
+		return sRandom.nextLong();
+	}
+	public static synchronized void randomNextBytes(byte[] bytes)
+	{
+		sRandom.nextBytes(bytes);
+	}
 }

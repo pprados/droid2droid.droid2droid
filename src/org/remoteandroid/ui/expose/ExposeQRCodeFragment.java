@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Writer;
 import com.google.zxing.WriterException;
@@ -50,8 +51,10 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_qrcode), ExposeQRCodeFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_qrcode)
+			        .setText(R.string.expose_qrcode);
+			tabsAdapter.addTab(tab, ExposeQRCodeFragment.class, null);
 		}
 	}
 	

@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.connect.AbstractConnectFragment;
 
@@ -32,6 +33,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.provider.ContactsContract.Contacts;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
@@ -79,8 +81,9 @@ LoaderManager.LoaderCallbacks<Cursor>
 
 	private ContentResolver mContentResolver;
 	private View mMain;
-	private EditText mEditText;
-	private ListView mList;
+	protected TextView mUsage;
+	protected EditText mEditText;
+	protected ListView mList;
 	private byte[] mSendedData;
 	private String mCurFilter;
 	
@@ -270,6 +273,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 	{
 		mMain=inflater.inflate(R.layout.expose_sms, container, false);
 		
+		mUsage=(TextView)mMain.findViewById(R.id.usage);
 		
 		mEditText = (EditText) mMain.findViewById(R.id.numberEditText);
 		mEditText.addTextChangedListener(this);

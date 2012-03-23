@@ -94,7 +94,12 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		
     			if (!PendingBroadcastRequest.notify(msg.getCookie(),info))
     			{
-    				Discover.getDiscover().discover(info);
+    				//Discover.getDiscover().discover(info);
+    				Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
+    				intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
+    				intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE, info);
+    				Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+    				
     			}
     			return Msg.newBuilder()
 						.setType(msg.getType())
@@ -331,7 +336,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		long cookie=Application.getCookie(strUUID);
 		if (cookie==COOKIE_NO)
 		{
-			cookie=Application.sRandom.nextLong();
+			cookie=Application.randomNextLong();
 			if (cookie==COOKIE_NO) cookie=1; // Zero: no cookie, -1: exception when load cookie
 			Application.addCookie(strUUID, cookie);
 			if (V) Log.v(TAG_SECURITY,PREFIX_LOG+"Set cookie for '"+conContext.mClientInfo.uuid+"' : "+cookie);

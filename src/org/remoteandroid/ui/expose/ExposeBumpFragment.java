@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ExposeBumpFragment extends AbstractBodyFragment
 {
@@ -27,8 +28,10 @@ public class ExposeBumpFragment extends AbstractBodyFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_bump), ExposeBumpFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_bump)
+			        .setText(R.string.expose_bump);
+			tabsAdapter.addTab(tab, ExposeBumpFragment.class, null);
 		}
 	}	
 	@Override

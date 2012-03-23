@@ -226,7 +226,6 @@
         	android:launchMode="singleTask"
         	android:label="@string/app_name" 
         	android:description="@string/main_description" 
-        	android:icon="@drawable/ic_launcher_remoteandroid"
 			android:configChanges="orientation|screenSize"
 		>
 		    <intent-filter>
@@ -239,7 +238,6 @@
             android:enabled="true"
         	android:name=".ui.connect.ConnectActivity"
         	android:exported="true"
-			android:icon="@drawable/ic_connect_remoteandroid"
 			android:label="@string/connect_label"
 			android:launchMode="standard" 
         	android:description="@string/main_description" 

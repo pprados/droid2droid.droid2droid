@@ -40,6 +40,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ConnectTicketFragment extends AbstractConnectFragment
 {
@@ -58,8 +59,10 @@ public class ConnectTicketFragment extends AbstractConnectFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.connect_ticket), ConnectTicketFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_keyboard)
+			        .setText(R.string.connect_ticket);
+			tabsAdapter.addTab(tab, ConnectTicketFragment.class, null);
 		}
 	}	
 	

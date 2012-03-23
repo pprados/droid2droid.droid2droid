@@ -44,7 +44,7 @@ In other device, select connect/Ticket and enter this value.\n</string>
 	<string name="expose_nfc_error_no_writable">NFC no writable.</string>
 	<string name="expose_nfc_error_unknown_format">Format unknown.</string>
 					
-	<string name="expose_bump">BumpC</string>
+	<string name="expose_bump">Bump</string>
 	<string name="expose_bump_help">Bump the devices.</string>
 
 	<string name="expose_wifi_direct">Wifi direct</string>

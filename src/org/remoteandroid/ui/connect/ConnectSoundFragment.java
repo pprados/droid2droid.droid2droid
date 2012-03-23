@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ConnectSoundFragment extends AbstractConnectFragment
 {
@@ -31,8 +32,10 @@ public class ConnectSoundFragment extends AbstractConnectFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.connect_sound), ConnectSoundFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_micro)
+			        .setText(R.string.connect_sound);
+			tabsAdapter.addTab(tab, ConnectSoundFragment.class, null);
 		}
 	}	
 	

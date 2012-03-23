@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ExposeArroundFragment extends AbstractBodyFragment
 {
@@ -28,8 +29,9 @@ public class ExposeArroundFragment extends AbstractBodyFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_arround), ExposeArroundFragment.class, null);
+			Tab tab=actionBar.newTab()
+			        .setText(R.string.expose_arround);
+			tabsAdapter.addTab(tab, ExposeArroundFragment.class, null);
 		}
 	}	
 	public ExposeArroundFragment()

@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 
 public class ExposeTicketFragment extends AbstractBodyFragment
@@ -62,8 +63,10 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_ticket), ExposeTicketFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_keyboard)
+			        .setText(R.string.expose_ticket);
+			tabsAdapter.addTab(tab, ExposeTicketFragment.class, null);
 		}
 	}
 	
@@ -71,7 +74,11 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 	//http://code.google.com/intl/fr-FR/apis/urlshortener/v1/getting_started.html#APIKey
 	class ShortenURL extends AsyncTaskWithException<Void, Void, String>
 	{
-		
+		private String mMessage;
+		public ShortenURL(String message)
+		{
+			mMessage=message;
+		}
 		@Override
 		protected String doInBackground(Void... params) throws MalformedURLException, IOException
 		{
@@ -145,7 +152,7 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 		protected void onPostExecute(String result)
 		{
 			if (D) Log.d(TAG_EXPOSE, PREFIX_LOG+"Ticket="+result);
-			final String message = String.format(getResources().getString(R.string.expose_ticket_message), result);
+			final String message = String.format(mMessage, result);
 			mTicket.setText(Html.fromHtml(message));
 		}
 	}
@@ -162,7 +169,6 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 	@Override
 	protected void updateStatus(int activeNetwork)
 	{
-		if (V) Log.v("Frag","ExposeQRCodeFragment.updateHelp...");
 		if (mUsage==null) // Not yet initialized
 			return;
 		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
@@ -182,7 +188,7 @@ public class ExposeTicketFragment extends AbstractBodyFragment
 			{
 				mUsage.setText(R.string.expose_ticket_help);
 				mTicket.setVisibility(View.VISIBLE);
-				new ShortenURL().execute();
+				new ShortenURL(getResources().getString(R.string.expose_ticket_message)).execute();
 			}
 		}
 	}

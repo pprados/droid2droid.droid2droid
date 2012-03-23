@@ -32,6 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ConnectDiscoverFragment extends AbstractConnectFragment implements OnItemClickListener
 {
@@ -55,9 +56,11 @@ public class ConnectDiscoverFragment extends AbstractConnectFragment implements 
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_discover)
+					.setText(R.string.connect_discover);
 			tabsAdapter.addTab(
-				actionBar.newTab().setText(
-					R.string.connect_discover), ConnectDiscoverFragment.class, null);
+				tab, ConnectDiscoverFragment.class, null);
 		}
 	}
 

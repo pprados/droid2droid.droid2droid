@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ExposeNFCFragment extends AbstractBodyFragment
 implements AbstractBodyFragment.OnNfcEvent
@@ -51,8 +52,10 @@ implements AbstractBodyFragment.OnNfcEvent
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_nfc), ExposeNFCFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_nfc)
+			        .setText(R.string.expose_nfc);
+			tabsAdapter.addTab(tab, ExposeNFCFragment.class, null);
 		}
 	}	
 	@Override

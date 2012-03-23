@@ -66,7 +66,7 @@ public class LoginImpl extends Login
 
 	public LoginImpl()
 	{
-		mChallenge=Application.sRandom.nextLong();
+		mChallenge=Application.randomNextLong();
 	    try
 		{
 			mDigest = MessageDigest.getInstance(HASH_ALGORITHM);
@@ -91,7 +91,7 @@ public class LoginImpl extends Login
 			Msg msg;
 			Msg resp=null;
 			final long threadid = Thread.currentThread().getId();
-			long challenge=Application.sRandom.nextLong();
+			long challenge=Application.randomNextLong();
 			if (challenge==0) challenge=1;
 			
 			// Step 1: Ask a challenge with my public key
@@ -117,7 +117,7 @@ public class LoginImpl extends Login
 				RemoteAndroidInfo serverInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
 				android.mInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
 			    byte[] nonceA = new byte[NONCE_BYTES_NEEDED];
-		        Application.sRandom.nextBytes(nonceA);
+		        Application.randomNextBytes(nonceA);
 
 		        RemoteAndroidInfo clientInfo=Application.getManager().getInfos();
 		        // 1. Send hash(Pka,Pkb,nonce);
@@ -300,7 +300,7 @@ public class LoginImpl extends Login
 					// Receive H(Pka,Pkb,na,0)
 					mHa=msg.getData().toByteArray();
 					mNonceB = new byte[NONCE_BYTES_NEEDED];
-			        Application.sRandom.nextBytes(mNonceB);
+			        Application.randomNextBytes(mNonceB);
 			        return Msg.newBuilder()
 		        		.setType(msg.getType())
 		        		.setThreadid(msg.getThreadid())

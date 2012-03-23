@@ -43,6 +43,7 @@ public class ConnectDialogFragment extends DialogFragment
 	private View mViewer;
 	private TextView mStep;
 	private ProgressBar mProgressBar;
+	private TextView mPercentProgress;
 	private Button mCancel;
 	
 	private OnConnected mOnEvent;
@@ -184,6 +185,7 @@ public class ConnectDialogFragment extends DialogFragment
 		mStep=(TextView)mViewer.findViewById(R.id.step);
 		mProgressBar=(ProgressBar)mViewer.findViewById(R.id.progress);
 		mProgressBar.setMax(1000);
+		mPercentProgress=(TextView)mViewer.findViewById(R.id.progress_percent);
 		mCancel=(Button)mViewer.findViewById(R.id.cancel);
 		mCancel.setOnClickListener(new Button.OnClickListener()
 		{
@@ -204,7 +206,7 @@ public class ConnectDialogFragment extends DialogFragment
 		super.onResume();
 		boolean acceptAnonymous=true;
 		mTryConnections=new TryConnection();
-		mTryConnections.execute();
+		mTryConnections.execute(); // FIXME: Lock sur l'execution. Utiliser un autre Executors ?
 	}
 	
 	@Override
@@ -219,5 +221,7 @@ public class ConnectDialogFragment extends DialogFragment
 		if (id!=0)
 			mStep.setText(id);
 		mProgressBar.setProgress(progress);
+		mPercentProgress.setText((progress/10)+"%");
+		
 	}
 }

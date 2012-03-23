@@ -15,6 +15,7 @@ import static org.remoteandroid.internal.Constants.V;
 import org.remoteandroid.Application;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.Constants;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.ip.NetSocketRemoteAndroid;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
@@ -32,7 +33,7 @@ public class RemoteAndroidService extends Service
 {
     private Notifications mNotification;
 
-    private static RemoteAndroidService sMe;
+    private static volatile RemoteAndroidService sMe;
     
     public static boolean isActive()
     {
@@ -101,6 +102,9 @@ public class RemoteAndroidService extends Service
 	//    	{
 	//    		setForeground(false); // Android <2.0
 	//    	}
+			Application.sAppContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_START_REMOTE_ANDROID),
+				RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+	    	
 		}
 		catch (Exception e)
 		{
@@ -112,6 +116,8 @@ public class RemoteAndroidService extends Service
 	{
 		NetSocketRemoteAndroid.stopDaemon(getApplicationContext());
 		IPDiscoverAndroids.asyncUnregisterService();
+		Application.sAppContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_REMOTE_ANDROID),
+			RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 	}
 
 	// Invoqué par les notifications

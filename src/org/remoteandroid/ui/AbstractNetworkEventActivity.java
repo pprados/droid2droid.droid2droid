@@ -10,7 +10,9 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.net.URL;
 
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.service.RemoteAndroidService;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -34,6 +36,16 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 
 	private static final String NFC_ACTION_ADAPTER_STATE_CHANGED = "android.nfc.action.ADAPTER_STATE_CHANGED";
 	
+	private BroadcastReceiver mRemoteAndroidReceiver = new BroadcastReceiver()
+	{
+
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			onReceiveRemoteAndroidEvent(context, intent);
+		}
+	};
+
 	private BroadcastReceiver mNetworkStateReceiver = new BroadcastReceiver()
 	{
 
@@ -86,17 +98,25 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 	protected void onResume()
 	{
 		super.onResume();
-
 		// Register receiver
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR)
 		{
+			IntentFilter filter=new IntentFilter(RemoteAndroidManager.ACTION_START_REMOTE_ANDROID);
+			filter.addAction(RemoteAndroidManager.ACTION_STOP_REMOTE_ANDROID);
+			registerReceiver(mRemoteAndroidReceiver,filter);
 			registerReceiver(mNetworkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 			registerReceiver(mAirPlaneReceiver, new IntentFilter("android.intent.action.SERVICE_STATE"));
 			registerReceiver(mNfcReceiver, new IntentFilter("android.nfc.action.ADAPTER_STATE_CHANGED"));
-			IntentFilter filter = new IntentFilter();
+			filter = new IntentFilter();
 			filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
 			registerReceiver(mBluetoothReceiver, filter);
+		}
+		int activeNetwork=RemoteAndroidService.isActive()? NetworkTools.ACTIVE_REMOTE_ANDROID : 0;
+		if (activeNetwork!=mActiveNetwork)
+		{
+			mActiveNetwork=activeNetwork;
+			onUpdateActiveNetwork();
 		}
 	}
 
@@ -113,6 +133,14 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 
 	protected abstract AbstractBodyFragment getActiveFragment();
 
+	protected void onReceiveRemoteAndroidEvent(Context context, Intent intent)
+	{
+		if (RemoteAndroidManager.ACTION_START_REMOTE_ANDROID.equals(intent.getAction()))
+			mActiveNetwork|=NetworkTools.ACTIVE_REMOTE_ANDROID;
+		else
+			mActiveNetwork&=~NetworkTools.ACTIVE_REMOTE_ANDROID;
+		onUpdateActiveNetwork();		
+	}
 	protected void onReceiveNetworkEvent(Context context, Intent intent)
 	{
 		if (getActiveFragment()==null) return;
@@ -128,7 +156,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 			if (manager!=null && manager.isEnabled())
 				mActiveNetwork|=NetworkTools.ACTIVE_NFC;
 			else
-				mActiveNetwork&=NetworkTools.ACTIVE_NFC;
+				mActiveNetwork&=~NetworkTools.ACTIVE_NFC;
 		}
 		if (conn == null || info == null)
 		{

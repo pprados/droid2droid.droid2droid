@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ExposeSoundFragment extends AbstractBodyFragment
 {
@@ -28,8 +29,10 @@ public class ExposeSoundFragment extends AbstractBodyFragment
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.expose_sound), ExposeSoundFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_speaker)
+			        .setText(R.string.expose_sound);
+			tabsAdapter.addTab(tab, ExposeSoundFragment.class, null);
 		}
 	}	
 	public ExposeSoundFragment()

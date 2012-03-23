@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.UninitializedMessageException;
 
@@ -51,8 +52,10 @@ implements AbstractBodyFragment.OnNfcEvent
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.connect_nfc), ConnectNFCFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_nfc)
+			        .setText(R.string.connect_nfc);
+			tabsAdapter.addTab(tab, ConnectNFCFragment.class, null);
 		}
 	}	
 	

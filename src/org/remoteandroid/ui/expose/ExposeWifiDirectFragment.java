@@ -29,6 +29,7 @@ public class ExposeWifiDirectFragment extends AbstractBodyFragment
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
 			tabsAdapter.addTab(actionBar.newTab()
+				.setIcon(R.drawable.ic_tab_wifi_direct)
 		        .setText(R.string.expose_wifi_direct), ExposeWifiDirectFragment.class, null);
 		}
 	}	

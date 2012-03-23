@@ -18,6 +18,7 @@ import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.binder.PendingBroadcastRequest;
 import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
@@ -26,11 +27,14 @@ import org.remoteandroid.ui.TabsAdapter;
 import org.remoteandroid.ui.contacts.AbstractSMSFragment;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class ConnectSMSFragment extends AbstractSMSFragment
 implements PendingBroadcastRequest.OnBroadcastReceive
@@ -48,8 +52,10 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(actionBar.newTab()
-		        .setText(R.string.connect_sms), ConnectSMSFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_sms)
+			        .setText(R.string.connect_sms);
+			tabsAdapter.addTab(tab, ConnectSMSFragment.class, null);
 		}
 	}	
 
@@ -83,7 +89,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 				progressJobs.setEstimations(sBootStrapEstimationsBroadcast);
 				PendingBroadcastRequest.registerListener(this);
 				// 1. Send SMS
-				long cookie=Application.sRandom.nextLong();
+				long cookie=Application.randomNextLong();
 				progressJobs.incCurrentStep();
 				RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
 				Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()
@@ -99,7 +105,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 				progressJobs.setEstimations(sBootStrapEstimations);
 				PendingBroadcastRequest.registerListener(this);
 				// 1. Send SMS
-				long cookie=Application.sRandom.nextLong();
+				long cookie=Application.randomNextLong();
 				progressJobs.incCurrentStep();
 				RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
 				Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()
@@ -173,9 +179,35 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 			pushFragment[0] = (byte) ((last ? 0x80 : 0) | fragNumber);
 			SmsManager.getDefault().sendDataMessage(
 				receiver, null, SMS_PORT, pushFragment, null, null);
-
 			++fragNumber;
 		}
 		if (V) Log.v(TAG_SMS,"Sending "+nbStep+" sms done.");
 	}
+	@Override
+	protected void updateStatus(int activeNetwork)
+	{
+		if (mUsage==null) // Not yet initialized
+			return;
+		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+		if (airplane)
+		{
+			mUsage.setText(R.string.connect_sms_help_airplane);
+		}
+		else
+		{
+			if ((activeNetwork & NetworkTools.ACTIVE_REMOTE_ANDROID)==0)
+			{
+				mUsage.setText(R.string.connect_sms_help_activate);
+				mEditText.setVisibility(View.GONE);
+				mList.setVisibility(View.GONE);
+			}
+			else
+			{
+				mUsage.setText(R.string.connect_sms_help);
+				mEditText.setVisibility(View.VISIBLE);
+				mList.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+	
 }

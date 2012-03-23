@@ -4,5 +4,5 @@
            android:drawable="@drawable/home_expose_pressed" /> <!-- pressed -->
      <item android:state_focused="true"
            android:drawable="@drawable/home_expose_focused" /> <!-- focused -->
-     <item android:drawable="@drawable/home_expose" /> <!-- default -->
+     <item android:drawable="@drawable/home_expose_unselected" /> <!-- default -->
  </selector>

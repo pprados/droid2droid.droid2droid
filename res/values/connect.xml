@@ -6,7 +6,7 @@
 	<!-- Hack for Honneycomb combatility -->
 	<style name="activated"/>
 
-	<string name="connect_label">Connect Androids</string>
+	<string name="connect_label">Connect</string>
 
 	<bool name="connect_merge">false</bool>
 	<string name="connect_try">Connect&#8230;</string>
@@ -21,13 +21,11 @@
 		<string name="connect_alert_pairing_impossible">Pairing to remote device impossible!</string>
 	    	
 	<string name="connect_empty_help"><big>Select an approach to detect a remote device\n\n</big></string>
-    <string name="connect_device_paired">Paired.</string>
+    <string name="connect_device_paired">Paired</string>
 
 	<!-- Next button in wizard -->
 	<dimen name="button_minWidth">90sp</dimen>
 	<string name="next">Next</string>
-<!-- 	<string name="btn_discover">Discover</string> -->
-<!-- 	<string name="connect_discover_body_description">Search and select one device.</string> -->
 
 						
 		    	    	    	
@@ -63,7 +61,7 @@
 	</string>
 	
 	<!-- ******* -->	    
-	<string name="connect_discover">Discovers</string>
+	<string name="connect_discover">Discover</string>
 	<string name="connect_discover_description">Discovers devices in proximity.</string>
 	<string name="connect_discover_help">Discover the devices if they are connected in the same WIFI network or have the bluetooth activated.\n
 Then, select one discovered device to try to connect.
@@ -111,6 +109,8 @@ Then, select one discovered device to try to connect.
 	<!-- ******* -->	    
 	<string name="connect_sms">Short messages</string>
 	<string name="connect_sms_help">Send an message to another device.</string>
+	<string name="connect_sms_help_airplane">Remove airplane mode.</string>
+	<string name="connect_sms_help_activate">Activate Remote android in configuration.</string>
 	<string name="connect_sms_description">Receive an SMS to remote device.</string>
 	<string name="connect_sms_error_invalides_sms">Impossible to received short messages.</string>
 	<!-- Title for the sms disambiguation dialog -->

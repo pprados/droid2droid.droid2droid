@@ -52,6 +52,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -107,9 +108,10 @@ public class ConnectQRCodeFragment extends AbstractConnectFragment implements Su
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
 		{
-			tabsAdapter.addTab(
-				actionBar.newTab().setText(
-					R.string.connect_qrcode), ConnectQRCodeFragment.class, null);
+			Tab tab=actionBar.newTab()
+					.setIcon(R.drawable.ic_tab_qrcode)
+					.setText(R.string.connect_qrcode);
+			tabsAdapter.addTab(tab, ConnectQRCodeFragment.class, null);
 		}
 	}
 
