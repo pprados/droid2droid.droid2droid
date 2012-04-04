@@ -66,7 +66,6 @@ import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.service.RemoteAndroidService;
-import org.remoteandroid.ui.connect.qrcode.old.CameraManager;
 import org.remoteandroid.ui.contacts.AbstractSMSFragment;
 
 
@@ -82,6 +81,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -372,10 +372,10 @@ public final class Application extends android.app.Application
 		}
 		else
 		{
-			if (CameraManager.get()!=null)								f|=FEATURE_CAMERA;
-			if (getSystemService(Context.AUDIO_SERVICE)!=null)			f|=FEATURE_MICROPHONE|FEATURE_HP;
-			if (getSystemService(Context.TELEPHONY_SERVICE)!=null)		f|=FEATURE_TELEPHONY;
-			if (getSystemService(Context.WIFI_SERVICE)!=null)			f|=FEATURE_WIFI|FEATURE_NET;
+			if (sAppContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))	f|=FEATURE_CAMERA;
+			if (getSystemService(Context.AUDIO_SERVICE)!=null)									f|=FEATURE_MICROPHONE|FEATURE_HP;
+			if (getSystemService(Context.TELEPHONY_SERVICE)!=null)								f|=FEATURE_TELEPHONY;
+			if (getSystemService(Context.WIFI_SERVICE)!=null)									f|=FEATURE_WIFI|FEATURE_NET;
 		}
 		sFeature=f;
 		

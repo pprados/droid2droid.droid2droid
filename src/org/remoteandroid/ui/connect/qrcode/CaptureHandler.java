@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.remoteandroid.R;
-import org.remoteandroid.ui.connect.qrcode.old.CameraManager;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -158,7 +157,8 @@ public final class CaptureHandler extends Handler
 
 			case R.id.decode_succeeded:
 				if (V) Log.v(TAG_QRCODE, "5. State: decode_succeeded. Got decode succeeded message");
-				CameraManager.get().stopPreview();
+				//FIXME: CameraManager.get().stopPreview();
+				mQRCodeScannerView.mCamera.stopPreview();
 				Bundle bundle = message.getData();
 				Bitmap barcode = bundle == null ? null : (Bitmap) bundle
 						.getParcelable(DecodeCallback.BARCODE_BITMAP);

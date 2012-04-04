@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.remoteandroid.R;
-import org.remoteandroid.ui.connect.qrcode.old.CameraManager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -85,7 +84,7 @@ implements SurfaceHolder.Callback
 	private List<Size> mSupportedCameraSizes;
 
 	/*private*/ Camera mCamera;
-	/*private*/ int mOrientation;
+	/*private*/ int mRotation;
 	private boolean mOptimizeSize;
 
 	private Rect mCameraRect;
@@ -281,7 +280,7 @@ implements SurfaceHolder.Callback
 							Point p = new Point();
 							p.x = (int) point.getX();
 							p.y = (int) point.getY();
-							p = scaledRotatePoint(p, CameraManager.get().getRotation() , previewFrame.width(), previewFrame.height());
+							p = scaledRotatePoint(p, mRotation , previewFrame.width(), previewFrame.height());
 							canvas.drawCircle(
 								frame.left + (int) (p.x * scaleX),
 								frame.top + (int) (p.y * scaleY), 6.0f,
@@ -591,7 +590,7 @@ implements SurfaceHolder.Callback
 					Point p = new Point();
 					p.x = (int) point.getX();
 					p.y = (int) point.getY();
-					p = scaledRotatePoint(p, CameraManager.get().getRotation() , canvas.getWidth(), canvas.getHeight());
+					p = scaledRotatePoint(p, mRotation , canvas.getWidth(), canvas.getHeight());
 					canvas.drawPoint(
 						p.x, p.y, paint);
 				}
@@ -607,12 +606,7 @@ implements SurfaceHolder.Callback
 	
 	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
 	{
-		// Now that the size is known, set up the camera parameters and begin
-		// the preview.
 		Camera.Parameters parameters = mCamera.getParameters();
-//		if (mCameraSize!=null)
-//			parameters.setPreviewSize(mCameraSize.width, mCameraSize.height);
-//		parameters.setPreviewSize(getHeight(),getWidth());
 		final String focusMode = findSettableValue(parameters.getSupportedFocusModes(),
 			Camera.Parameters.FOCUS_MODE_AUTO, 
 			Camera.Parameters.FOCUS_MODE_MACRO);
@@ -652,11 +646,11 @@ setRotation(Surface.ROTATION_0);
 	{
 		if (mCamera!=null)
 		{
-			mOrientation=sSurfaceRotationToCameraDegree[displayRotation];
+			mRotation=sSurfaceRotationToCameraDegree[displayRotation];
 			Camera.Parameters parameters=mCamera.getParameters();
-			parameters.setRotation(mOrientation);
+			parameters.setRotation(mRotation);
 			mCamera.setParameters(parameters);
-			mCamera.setDisplayOrientation(mOrientation);
+			mCamera.setDisplayOrientation(mRotation);
 			requestLayout();
 		}
 	}
@@ -693,55 +687,25 @@ setRotation(Surface.ROTATION_0);
 	}
 	private Size getOptimalCameraPreviewSize(List<Size> sizes, int w, int h)
 	{
-if (QRCODE_BUG)
-	return sizes.get(sizes.size()-2); // FIXME: Optimiser min/max
-		final double ASPECT_TOLERANCE = 0.1;
-		double targetRatio = (double) w / h;
-		if (sizes == null)
-			return null;
-
-		Size optimalSize = null;
-		double minDiff = Double.MAX_VALUE;
-
-		int targetHeight = h;
-
-		// Try to find an size match aspect ratio and size
-		for (Size size : sizes)
+if (false) // OPT: Invoqué plusieurs fois
+	return sizes.get(0);
+		// Select resolution with the minimum number of pixels
+		int posMin=-1;
+		long pixels=Long.MAX_VALUE;
+		for (int i=0;i<sizes.size();++i)
 		{
-			double ratio = (double) size.width / size.height;
-			if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
-				continue;
-			if (Math.abs(size.height - targetHeight) < minDiff)
+			Size size=sizes.get(i);
+			long p=size.height*size.height;
+			if (p<pixels)
 			{
-				optimalSize = size;
-				minDiff = Math.abs(size.height - targetHeight);
+				pixels=p;
+				posMin=i;
 			}
 		}
-
-		// Cannot find the one match the aspect ratio, ignore the requirement
-		if (optimalSize == null)
-		{
-			minDiff = Double.MAX_VALUE;
-			for (Size size : sizes)
-			{
-				if (Math.abs(size.height - targetHeight) < minDiff)
-				{
-					optimalSize = size;
-					minDiff = Math.abs(size.height - targetHeight);
-				}
-			}
-		}
-		return optimalSize;
+		return sizes.get(posMin);
 	}
 
-//	private Point mScreenResolution;
-//	/*package*/Point mCameraResolution;
 	/*package*/Rect mFramingRectInPreview;
-//	void initResolutions(Display display)
-//	{
-//		mScreenResolution = new Point(display.getWidth(), display.getHeight());
-//		mCameraResolution = new Point(mPreviewSize.width,mPreviewSize.height);
-//	}
 	
 	public Rect getFramingRectInPreview()
 	{
@@ -750,7 +714,13 @@ if (QRCODE_BUG)
 		{
 //			mFramingRectInPreview=new Rect(0,0,10,5);
 //			mFramingRectInPreview=new Rect(0,0,getWidth(),getHeight());
-//			mFramingRectInPreview=new Rect(0,0,Math.min(getWidth(),getHeight())/2,Math.min(getWidth(),getHeight())/2);
+//			int width=Math.min(getWidth(),getHeight())/2;
+//			int height=Math.min(getWidth(),getHeight())/2;
+			int width=getWidth()/2;
+			int height=getHeight()/2;
+//			mFramingRectInPreview=new Rect(0,0,width,height); // 0,240,320,480
+//			mFramingRectInPreview=new Rect(0,height,width,height*2); // 320,240,640,480
+//			mFramingRectInPreview=new Rect(width,height,width*2,height*2); // 0,240,320,480
 			// Version 80%
 			final int sizemax=Math.min(getWidth(),getHeight())*80/100;
 			mFramingRectInPreview=new Rect();

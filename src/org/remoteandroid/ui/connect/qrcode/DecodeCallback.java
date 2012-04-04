@@ -104,7 +104,7 @@ final class DecodeCallback
 			Bundle bundle = new Bundle();
 			bundle.putParcelable(
 				DecodeCallback.BARCODE_BITMAP,
-				source.renderCroppedGreyscaleBitmap(mScannerView.mOrientation));
+				source.renderCroppedGreyscaleBitmap(mScannerView.mRotation));
 			message.setData(bundle);
 			message.sendToTarget();
 		}
@@ -133,7 +133,7 @@ final class DecodeCallback
 			Bundle bundle = new Bundle();
 			bundle.putParcelable(
 				DecodeCallback.BARCODE_BITMAP,
-				source.renderCroppedGreyscaleBitmap(mScannerView.mOrientation));
+				source.renderCroppedGreyscaleBitmap(mScannerView.mRotation));
 			message.setData(bundle);
 			message.sendToTarget();
 		}
@@ -156,12 +156,40 @@ final class DecodeCallback
 	{
 		final Rect scanningRect = mScannerView.getFramingRectInPreview();
 		final Rect cameraRect=mScannerView.getCameraRect();
-		Rect rect=new Rect(
-			(scanningRect.left*width)/cameraRect.width(),
-			(scanningRect.top*height)/cameraRect.height(),
-			(scanningRect.right*width)/cameraRect.width(),
-			(scanningRect.bottom*height)/cameraRect.height());
-//Rect rect=scanningRect;		
+		Rect scanningRectInCameraPrevious;
+//		if (mScannerView.mRotation==90)
+		{
+			
+			
+			// 320,240,640,480
+			scanningRectInCameraPrevious=new Rect(
+				scanningRect.top*width/cameraRect.bottom,  
+				(cameraRect.right-scanningRect.right)*height/cameraRect.right,//scanningRect.right*width/cameraRect.bottom,
+				/*(cameraRect.bottom-scanningRect.bottom)*width/cameraRect.bottom,*/   scanningRect.bottom*width/cameraRect.bottom,
+				(cameraRect.right-scanningRect.left)*height/cameraRect.right
+				);
+//			scanningRectInCameraPrevious=new Rect(
+//				scanningRect.top*width/cameraRect.height(),
+//				0,
+//				scanningRect.bottom*width/cameraRect.height(),
+//				scanningRect.left*height/cameraRect.width());
+//			scanningRectInCameraPrevious=new Rect(
+//				0,
+//				0,
+//				scanningRect.bottom*width/cameraRect.height(),
+//				scanningRect.left*height/cameraRect.width());
+		}
+//		Rect scanningRectInCameraPrevious=new Rect(
+//			(scanningRect.left*width)/cameraRect.width(),
+//			(scanningRect.top*height)/cameraRect.height(),
+//			(scanningRect.right*width)/cameraRect.width(),
+//			(scanningRect.bottom*height)/cameraRect.height());
+//		Rect scanningRectInCameraPrevious=new Rect(
+//			(scanningRect.left*height)/cameraRect.height(),
+//			(scanningRect.top*width)/cameraRect.width(),
+//			(scanningRect.right*height)/cameraRect.height(),
+//			(scanningRect.bottom*width)/cameraRect.width());
+//scanningRectInCameraPrevious=scanningRect;		
 		final Camera.Parameters parameters = mScannerView.mCamera.getParameters();
 		int previewFormat = parameters.getPreviewFormat();
 		String previewFormatString = parameters.get("preview-format");
@@ -173,15 +201,13 @@ final class DecodeCallback
 			case PixelFormat.YCbCr_420_SP:
 			// This format has never been seen in the wild, but is compatible as we only care about the Y channel, so allow it.
 			case PixelFormat.YCbCr_422_SP:
-				return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top, rect.width(),
-						rect.height(), false/*reverse*/);
+				return new PlanarYUVLuminanceSource(data, width, height, scanningRectInCameraPrevious, false/*reverse*/);
 			default:
 				// The Samsung Moment incorrectly uses this variant instead of the 'sp' version.
 				// Fortunately, it too has all the Y data up front, so we can read it.
 				if ("yuv420p".equals(previewFormatString))
 				{
-					return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top, rect.width(),
-							rect.height(), false/*reverse*/);
+					return new PlanarYUVLuminanceSource(data, width, height, scanningRectInCameraPrevious, false/*reverse*/);
 				}
 		}
 		throw new IllegalArgumentException("Unsupported picture format: " + previewFormat + '/' + previewFormatString);

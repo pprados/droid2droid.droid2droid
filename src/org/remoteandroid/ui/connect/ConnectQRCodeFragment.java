@@ -1,6 +1,6 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.TAG_QRCODE;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.RemoteAndroidInfo.*;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
@@ -24,8 +24,6 @@ import org.remoteandroid.ui.connect.qrcode.InactivityTimer;
 import org.remoteandroid.ui.connect.qrcode.QRCodeScannerView;
 
 import org.remoteandroid.ui.connect.qrcode.*;
-import org.remoteandroid.ui.connect.qrcode.old.BeepManager;
-import org.remoteandroid.ui.connect.qrcode.old.CameraManager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -131,14 +129,12 @@ implements QRCodeScannerView.QRCodeResult
 		mViewer = (LinearLayout) inflater.inflate(R.layout.connect_qrcode, container, false);
 		mUsage = (TextView) mViewer.findViewById(R.id.usage);
 		mQRCodeScanner = (QRCodeScannerView) mViewer.findViewById(R.id.qrcode);
-//FIXME		mQRCodeScanner.setOnResult(this);
+		mQRCodeScanner.setOnResult(this);
 		mQRCodeScanner.setRotation(getActivity().getWindowManager().getDefaultDisplay().getRotation());
 		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
 			metrics);
-
-		CameraManager.density = metrics.density;
 
 		Window window = getActivity().getWindow();
 
@@ -150,10 +146,6 @@ implements QRCodeScannerView.QRCodeResult
 			mCache = new Cache();
 			mCache.mHandler = null;
 			mCache.mInactivityTimer = new InactivityTimer(getActivity()); // FIXME
-			if (!NO_CAMERA)
-			{
-				CameraManager.init(getActivity().getApplication());
-			}
 		}
 		else
 		{
@@ -239,9 +231,7 @@ implements QRCodeScannerView.QRCodeResult
 	@Override
 	public void onQRCode(Result rawResult)
 	{
-		// if (I)
-		// Log.i(
-		// TAG_CONNECT, "handle valide decode " + rawResult);
+		if (I) Log.i( TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
 		QRCodeScannerView.CURRENT_POINT_OPACITY = 0xFF;
 
