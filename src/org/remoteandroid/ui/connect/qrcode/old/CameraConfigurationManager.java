@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.remoteandroid.ui.connect.qrcode;
+package org.remoteandroid.ui.connect.qrcode.old;
 
 import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.W;
 
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import android.content.Context;
@@ -61,11 +62,9 @@ final class CameraConfigurationManager
 
 	private static final int TARGET_CAMERA_RESOLUTION = 320*240;
 
-	private static final String TAG_CONNECT = "";
-
 	CameraConfigurationManager(Context context)
 	{
-		this.mContext = context.getApplicationContext();
+		mContext = context.getApplicationContext();
 	}
 
 	/**
@@ -102,16 +101,23 @@ final class CameraConfigurationManager
 	void setDesiredCameraParameters(Camera camera)
 	{
 		Camera.Parameters parameters = camera.getParameters();
-		//parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
-		//parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_SHADE);
-		if (D)
-			Log.d(
-				TAG_QRCODE, "Setting preview size: " + mCameraResolution);
-		parameters.setPreviewSize(
-			mCameraResolution.x, mCameraResolution.y);
+		if (D) Log.d(TAG_QRCODE, "Setting preview size: " + mCameraResolution);
+		parameters.setPreviewSize(mCameraResolution.x, mCameraResolution.y);
 
 		//setFlash(parameters);
-		setZoom(parameters);
+		//setZoom(parameters);
+		String focusMode = findSettableValue(parameters.getSupportedFocusModes(),
+			Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE,
+			Camera.Parameters.FOCUS_MODE_AUTO, 
+			Camera.Parameters.FOCUS_MODE_MACRO);
+		if (focusMode != null)
+		{
+			parameters.setFocusMode(focusMode);
+		}
+		String whiteBalance = findSettableValue(parameters.getSupportedWhiteBalance(),Camera.Parameters.WHITE_BALANCE_AUTO);
+		if (whiteBalance!=null)
+			parameters.setWhiteBalance(whiteBalance);
+		
 		camera.setParameters(parameters);
 	}
 
@@ -269,147 +275,147 @@ final class CameraConfigurationManager
 		// */
 	}
 
-	private static int findBestMotZoomValue(CharSequence stringValues,
-			int tenDesiredZoom)
-	{
-		int tenBestValue = 0;
-		for (String stringValue : COMMA_PATTERN.split(stringValues))
-		{
-			stringValue = stringValue.trim();
-			double value;
-			try
-			{
-				value = Double.parseDouble(stringValue);
-			}
-			catch (NumberFormatException nfe)
-			{
-				return tenDesiredZoom;
-			}
-			int tenValue = (int) (10.0 * value);
-			if (Math.abs(tenDesiredZoom - value) < Math.abs(tenDesiredZoom
-					- tenBestValue))
-			{
-				tenBestValue = tenValue;
-			}
-		}
-		return tenBestValue;
-	}
+//	private static int findBestMotZoomValue(CharSequence stringValues,
+//			int tenDesiredZoom)
+//	{
+//		int tenBestValue = 0;
+//		for (String stringValue : COMMA_PATTERN.split(stringValues))
+//		{
+//			stringValue = stringValue.trim();
+//			double value;
+//			try
+//			{
+//				value = Double.parseDouble(stringValue);
+//			}
+//			catch (NumberFormatException nfe)
+//			{
+//				return tenDesiredZoom;
+//			}
+//			int tenValue = (int) (10.0 * value);
+//			if (Math.abs(tenDesiredZoom - value) < Math.abs(tenDesiredZoom
+//					- tenBestValue))
+//			{
+//				tenBestValue = tenValue;
+//			}
+//		}
+//		return tenBestValue;
+//	}
 
-	private void setFlash(Camera.Parameters parameters)
-	{
-		// This is a hack to turn the flash off on the Samsung Galaxy and the
-		// Behold II
-		// as advised by Samsung, neither of which respected the official
-		// parameter.
-		// if (Build.MODEL.contains("Behold II") && CameraManager.SDK_INT == 3)
-		// { // 3 = Cupcake
-		// parameters.set("flash-value", 1);
-		// }
-		// else
-		// {
-		parameters.set(
-			"flash-value", 2);
-		// }
-		// This is the standard setting to turn the flash off that all devices
-		// should honor.
-		parameters.set(
-			"flash-mode", "off");
-	}
+//	private void setFlash(Camera.Parameters parameters)
+//	{
+//		// This is a hack to turn the flash off on the Samsung Galaxy and the
+//		// Behold II
+//		// as advised by Samsung, neither of which respected the official
+//		// parameter.
+//		// if (Build.MODEL.contains("Behold II") && CameraManager.SDK_INT == 3)
+//		// { // 3 = Cupcake
+//		// parameters.set("flash-value", 1);
+//		// }
+//		// else
+//		// {
+//		parameters.set(
+//			"flash-value", 2);
+//		// }
+//		// This is the standard setting to turn the flash off that all devices
+//		// should honor.
+//		parameters.set(
+//			"flash-mode", "off");
+//	}
 
-	private void setZoom(Camera.Parameters parameters)
-	{
-		String zoomSupportedString = parameters.get("zoom-supported");
-		if (zoomSupportedString != null
-				&& !Boolean.parseBoolean(zoomSupportedString))
-		{
-			return;
-		}
-
-		int tenDesiredZoom = TEN_DESIRED_ZOOM;
-
-		String maxZoomString = parameters.get("max-zoom");
-		if (maxZoomString != null)
-		{
-			try
-			{
-				int tenMaxZoom = (int) (10.0 * Double
-						.parseDouble(maxZoomString));
-				if (tenDesiredZoom > tenMaxZoom)
-				{
-					tenDesiredZoom = tenMaxZoom;
-				}
-			}
-			catch (NumberFormatException nfe)
-			{
-				if (W)
-					Log.w(
-						TAG_QRCODE, "Bad max-zoom: " + maxZoomString);
-			}
-		}
-
-		String takingPictureZoomMaxString = parameters
-				.get("taking-picture-zoom-max");
-		if (takingPictureZoomMaxString != null)
-		{
-			try
-			{
-				int tenMaxZoom = Integer.parseInt(takingPictureZoomMaxString);
-				if (tenDesiredZoom > tenMaxZoom)
-				{
-					tenDesiredZoom = tenMaxZoom;
-				}
-			}
-			catch (NumberFormatException nfe)
-			{
-				if (W)
-					Log.w(
-						TAG_QRCODE, "Bad taking-picture-zoom-max: "
-								+ takingPictureZoomMaxString);
-			}
-		}
-
-		String motZoomValuesString = parameters.get("mot-zoom-values");
-		if (motZoomValuesString != null)
-		{
-			tenDesiredZoom = findBestMotZoomValue(
-				motZoomValuesString, tenDesiredZoom);
-		}
-
-		String motZoomStepString = parameters.get("mot-zoom-step");
-		if (motZoomStepString != null)
-		{
-			try
-			{
-				double motZoomStep = Double.parseDouble(motZoomStepString
-						.trim());
-				int tenZoomStep = (int) (10.0 * motZoomStep);
-				if (tenZoomStep > 1)
-				{
-					tenDesiredZoom -= tenDesiredZoom % tenZoomStep;
-				}
-			}
-			catch (NumberFormatException nfe)
-			{
-				// continue
-			}
-		}
-
-		// Set zoom. This helps encourage the user to pull back.
-		// Some devices like the Behold have a zoom parameter
-		if (maxZoomString != null || motZoomValuesString != null)
-		{
-			parameters.set(
-				"zoom", String.valueOf(tenDesiredZoom / 10.0));
-		}
-
-		// Most devices, like the Hero, appear to expose this zoom parameter.
-		// It takes on values like "27" which appears to mean 2.7x zoom
-		if (takingPictureZoomMaxString != null)
-		{
-			parameters.set(
-				"taking-picture-zoom", tenDesiredZoom);
-		}
-	}
+//	private void setZoom(Camera.Parameters parameters)
+//	{
+//		String zoomSupportedString = parameters.get("zoom-supported");
+//		if (zoomSupportedString != null
+//				&& !Boolean.parseBoolean(zoomSupportedString))
+//		{
+//			return;
+//		}
+//
+//		int tenDesiredZoom = TEN_DESIRED_ZOOM;
+//
+//		String maxZoomString = parameters.get("max-zoom");
+//		if (maxZoomString != null)
+//		{
+//			try
+//			{
+//				int tenMaxZoom = (int) (10.0 * Double
+//						.parseDouble(maxZoomString));
+//				if (tenDesiredZoom > tenMaxZoom)
+//				{
+//					tenDesiredZoom = tenMaxZoom;
+//				}
+//			}
+//			catch (NumberFormatException nfe)
+//			{
+//				if (W)
+//					Log.w(
+//						TAG_QRCODE, "Bad max-zoom: " + maxZoomString);
+//			}
+//		}
+//
+//		String takingPictureZoomMaxString = parameters
+//				.get("taking-picture-zoom-max");
+//		if (takingPictureZoomMaxString != null)
+//		{
+//			try
+//			{
+//				int tenMaxZoom = Integer.parseInt(takingPictureZoomMaxString);
+//				if (tenDesiredZoom > tenMaxZoom)
+//				{
+//					tenDesiredZoom = tenMaxZoom;
+//				}
+//			}
+//			catch (NumberFormatException nfe)
+//			{
+//				if (W)
+//					Log.w(
+//						TAG_QRCODE, "Bad taking-picture-zoom-max: "
+//								+ takingPictureZoomMaxString);
+//			}
+//		}
+//
+//		String motZoomValuesString = parameters.get("mot-zoom-values");
+//		if (motZoomValuesString != null)
+//		{
+//			tenDesiredZoom = findBestMotZoomValue(
+//				motZoomValuesString, tenDesiredZoom);
+//		}
+//
+//		String motZoomStepString = parameters.get("mot-zoom-step");
+//		if (motZoomStepString != null)
+//		{
+//			try
+//			{
+//				double motZoomStep = Double.parseDouble(motZoomStepString
+//						.trim());
+//				int tenZoomStep = (int) (10.0 * motZoomStep);
+//				if (tenZoomStep > 1)
+//				{
+//					tenDesiredZoom -= tenDesiredZoom % tenZoomStep;
+//				}
+//			}
+//			catch (NumberFormatException nfe)
+//			{
+//				// continue
+//			}
+//		}
+//
+//		// Set zoom. This helps encourage the user to pull back.
+//		// Some devices like the Behold have a zoom parameter
+//		if (maxZoomString != null || motZoomValuesString != null)
+//		{
+//			parameters.set(
+//				"zoom", String.valueOf(tenDesiredZoom / 10.0));
+//		}
+//
+//		// Most devices, like the Hero, appear to expose this zoom parameter.
+//		// It takes on values like "27" which appears to mean 2.7x zoom
+//		if (takingPictureZoomMaxString != null)
+//		{
+//			parameters.set(
+//				"taking-picture-zoom", tenDesiredZoom);
+//		}
+//	}
 /*
  * setSurfaceResolutionValues set the value of the surface resolution where the camera is being displayed
  * input : Point p (p.x the width of the surface, p.y the height of the surface) 
@@ -429,11 +435,27 @@ final class CameraConfigurationManager
 //			
 //		}
 
-		this.mSurfaceResolution = p;
+		mSurfaceResolution = p;
 	}
 
 	public Point getSurfaceResolution()
 	{
 		return mSurfaceResolution;
+	}
+	private static String findSettableValue(Collection<String> supportedValues, String... desiredValues)
+	{
+		String result = null;
+		if (supportedValues != null)
+		{
+			for (String desiredValue : desiredValues)
+			{
+				if (supportedValues.contains(desiredValue))
+				{
+					result = desiredValue;
+					break;
+				}
+			}
+		}
+		return result;
 	}
 }

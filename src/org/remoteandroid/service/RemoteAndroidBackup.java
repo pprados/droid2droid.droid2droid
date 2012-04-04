@@ -11,7 +11,7 @@ import android.app.backup.SharedPreferencesBackupHelper;
  * 
  * @author pprados
  */
-public class RemoteAndroidBackup extends BackupAgentHelper
+public final class RemoteAndroidBackup extends BackupAgentHelper
 {
 	public RemoteAndroidBackup()
 	{

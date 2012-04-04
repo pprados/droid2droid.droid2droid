@@ -29,7 +29,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-public class RemoteAndroidService extends Service 
+public final class RemoteAndroidService extends Service 
 {
     private Notifications mNotification;
 

@@ -1,7 +1,7 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
+import static org.remoteandroid.RemoteAndroidInfo.*;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
@@ -42,7 +42,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class ConnectTicketFragment extends AbstractConnectFragment
+public final class ConnectTicketFragment extends AbstractConnectFragment
 {
 	private static final long ESTIMATION_TICKET_3G=Constants.TIMEOUT_CONNECT_WIFI*2;
 

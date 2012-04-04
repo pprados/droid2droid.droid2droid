@@ -28,7 +28,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-public class RemoteAndroidBinderService extends Service 
+public final class RemoteAndroidBinderService extends Service 
 {
 
 	@Override

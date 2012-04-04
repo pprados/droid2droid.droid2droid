@@ -6,13 +6,8 @@
 
     <TextView
         android:id="@+id/usage"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:lineSpacingMultiplier="0.92"
-        android:padding="10dip"
         android:text="@string/connect_bump_help"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
->
+	    style="@style/connect_help"
+        />
 
 </RelativeLayout>

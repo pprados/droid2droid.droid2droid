@@ -9,6 +9,7 @@ import static org.remoteandroid.internal.Constants.V;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.pairing.Trusted;
@@ -38,7 +39,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-public class ExposeQRCodeFragment extends AbstractBodyFragment
+public final class ExposeQRCodeFragment extends AbstractBodyFragment
 {
 	public static class Provider extends FeatureTab
 	{	
@@ -141,7 +142,7 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 				@Override
 				protected Bitmap doInBackground(Void... params)
 				{
-					return buildQRCode(getActivity(),mMax);
+					return buildQRCode(Application.sAppContext,mMax);
 				}
 
 				@Override
@@ -149,9 +150,9 @@ public class ExposeQRCodeFragment extends AbstractBodyFragment
 				{
 					if (bitmap != null)
 					{
-						mImg.setImageBitmap(bitmap);
 						if (getActivity()!=null)
 						{
+							mImg.setImageBitmap(bitmap);
 //							WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
 //							mScreenBrightness=layoutParams.screenBrightness;
 //							layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;

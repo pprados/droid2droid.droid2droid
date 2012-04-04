@@ -13,4 +13,17 @@
     <style name="tab_fragment">
         <item name="android:layout_gravity">center_horizontal</item>
     </style>
+
+    <style name="connect_help">
+        <item name="android:gravity">top</item>
+        <item name="android:lineSpacingMultiplier">0.92</item>
+        <item name="android:paddingLeft">10dip</item>
+        <item name="android:paddingRight">10dip</item>
+        <item name="android:paddingTop">10dip</item>
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="expose_help" parent="connect_help">
+    </style>
 </resources>

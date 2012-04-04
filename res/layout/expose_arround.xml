@@ -8,15 +8,8 @@
 
 	<TextView
 		android:id="@+id/usage"
-		android:layout_width="fill_parent"
-		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:layout_height="wrap_content"
-		android:paddingLeft="0dip"
-		android:paddingRight="0dip"
-		android:paddingTop="10dip"
-		android:paddingBottom="10dip"
-		android:lineSpacingMultiplier="0.92"
-		android:gravity="center_vertical" 
-		android:text="@string/expose_arround_help"/>
+		android:text="@string/expose_arround_help"
+	    style="@style/expose_help"
+        />
 
 </LinearLayout>

@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 // Auto start remote android with the last state
-public class RemoteAndroidBootReceiver extends BroadcastReceiver 
+public final class RemoteAndroidBootReceiver extends BroadcastReceiver 
 {
 	
     @Override

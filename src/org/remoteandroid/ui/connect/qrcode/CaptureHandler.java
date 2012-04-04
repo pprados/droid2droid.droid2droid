@@ -17,18 +17,26 @@
 package org.remoteandroid.ui.connect.qrcode;
 
 import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.internal.Constants.W;
+
+import java.io.IOException;
+import java.util.List;
 
 import org.remoteandroid.R;
+import org.remoteandroid.ui.connect.qrcode.old.CameraManager;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
@@ -43,103 +51,122 @@ import com.google.zxing.ResultPointCallback;
  */
 public final class CaptureHandler extends Handler
 {
-
-	private volatile Wrapper mWrapper;
-
-	private final DecodeThread mDecodeThread;
-
-	private State mState;
-
-	private enum State {
-		AUTOFOCUS, DECODE, SUCCESS, DONE
-	}
-
-	ResultPointCallback mResultPointCallback = new ResultPointCallback()
+	/*private*/ boolean mStarted;
+	private QRCodeScannerView mQRCodeScannerView;
+	
+	private final Camera.PreviewCallback mPreviewCallback=new Camera.PreviewCallback()
 	{
-		public void foundPossibleResultPoint(ResultPoint point)
+
+		@Override
+		public void onPreviewFrame(byte[] data, Camera camera)
 		{
-			if (V)
-				Log.v(
-					TAG_QRCODE, "Found possible result point");
-			mWrapper.getViewfinderView().addPossibleResultPoint(
-				point);
+			Point previousSize = mQRCodeScannerView.mPreviousSize;
+			if (V) Log.v(TAG_QRCODE,"3. get preview frame ("+previousSize.x+","+previousSize.y+")");
+			if (!mStarted && QRCODE_AUTOFOCUS)
+			{
+				// Warning: Start autofocus AFTER the first preview frame.
+				if (V) Log.v(TAG_QRCODE,"0. First frame previous. Start autofocus");
+				mStarted=true;
+				mQRCodeScannerView.mCamera.autoFocus(mAutoFocusCallback);						
+			}	
+			else
+			{
+				Message message = obtainMessage(R.id.decode, previousSize.x, previousSize.y, data);
+				message.sendToTarget();
+			}
+		}
+
+	};
+	
+	/*private*/ final Camera.AutoFocusCallback mAutoFocusCallback=new Camera.AutoFocusCallback()
+	{
+
+		public void onAutoFocus(boolean success, Camera camera)
+		{
+			if (D) Log.d(TAG_QRCODE,"onAutoFocus");
+			sendEmptyMessage(R.id.request_frame);
 		}
 	};
 
-	public CaptureHandler(final Wrapper wrapper)
+	private final DecodeCallback mDecodeCallback;
+	
+	
+	private final ResultPointCallback mResultPointCallback = new ResultPointCallback()
 	{
-		this.mWrapper = wrapper;
-		mDecodeThread = new DecodeThread(wrapper, mResultPointCallback);
-		mDecodeThread.start();
-		mState = State.SUCCESS;
-
-		// Start ourselves capturing previews and decoding.
-		CameraManager.get().startPreview();
-		restartPreviewAndDecode();
+		public void foundPossibleResultPoint(ResultPoint point)
+		{
+			if (V) Log.v(TAG_QRCODE, "Found possible result point");
+			if (mQRCodeScannerView!=null)
+				mQRCodeScannerView.addPossibleResultPoint(point);
+		}
+	};
+	
+	public CaptureHandler(Context context,final QRCodeScannerView qrcodeView)
+	{
+		mQRCodeScannerView=qrcodeView;	
+		mDecodeCallback=new DecodeCallback(mQRCodeScannerView);
+//		startScan();
 	}
 
-	public void setWrapper(Wrapper wrapper)
+	public final void startScan()
 	{
-		mWrapper = wrapper;
-	}
+		final Camera camera=getCamera();
+		camera.setOneShotPreviewCallback(mPreviewCallback);
+		camera.startPreview();
 
+	}
+	private final Camera getCamera()
+	{
+		return mQRCodeScannerView.mCamera;
+	}
 	@Override
 	public void handleMessage(Message message)
 	{
+		Camera camera=getCamera();
 		switch (message.what)
 		{
 			case R.id.auto_focus:
-				if (V)	Log.v(TAG_QRCODE, "Got auto-focus message");
-				// When one auto focus pass finishes, start another. This is the
-				// closest thing to
-				// continuous AF. It does seem to hunt a bit, but I'm not sure
-				// what else to do.
-				if (mState == State.DECODE)
-				{		
-					CameraManager.get().requestAutoFocus(this, R.id.auto_focus);					
-				}
-				else
-					CameraManager.get().stopPreview();
-				break;
-
-			case R.id.start_decode:
-				if (V)
-					Log.v(
-						TAG_QRCODE, "3. Got start decode message");
-				if (mState != State.DECODE)
+				if (V) Log.v(TAG_QRCODE, "1 ask auto focus...");
+				if (camera!=null)
 				{
-					mState = State.DECODE;
-					CameraManager.get().requestPreviewFrame(
-						mDecodeThread.getHandler(), R.id.decode);
+					camera.autoFocus(mAutoFocusCallback);
 				}
 				break;
 
-			case R.id.current_decode:
+			case R.id.request_frame:
+				if (V) Log.v(TAG_QRCODE, "2. Ask frame...");
+				if (camera!=null)
+					camera.setOneShotPreviewCallback(mPreviewCallback);
+				break;
+
+			case R.id.show_frame:
 				if (QRCODE_SHOW_CURRENT_DECODE)
 				{
-					if (D)
-						Log.d(
-							TAG_QRCODE, "Got current decode message");
 					Bundle bundle = message.getData();
-					Bitmap barcode = bundle == null ? null : (Bitmap) bundle
-							.getParcelable(DecodeThread.BARCODE_BITMAP);
-					mWrapper.handlePrevious(
-						(Result) message.obj, barcode);
+					Bitmap barcode = bundle == null ? null : (Bitmap) bundle.getParcelable(DecodeCallback.BARCODE_BITMAP);
+					mQRCodeScannerView.handlePrevious((Result) message.obj, barcode);
 				}
+				break;
+				
+			case R.id.decode:
+				if (V) Log.v(TAG_QRCODE, "3. Ask decode...");
+				byte[] data=(byte[])message.obj;
+				int width=message.arg1;
+				int height=message.arg2;
+				mDecodeCallback.requestDecode(data, width, height);
 				break;
 
 			case R.id.decode_succeeded:
-				if (V) Log.v(TAG_QRCODE, "5. Got decode succeeded message");
+				if (V) Log.v(TAG_QRCODE, "5. State: decode_succeeded. Got decode succeeded message");
 				CameraManager.get().stopPreview();
-				mState = State.SUCCESS;
 				Bundle bundle = message.getData();
 				Bitmap barcode = bundle == null ? null : (Bitmap) bundle
-						.getParcelable(DecodeThread.BARCODE_BITMAP);
-				mWrapper.handleDecode((Result) message.obj, barcode);
+						.getParcelable(DecodeCallback.BARCODE_BITMAP);
+				mQRCodeScannerView.handleDecode((Result) message.obj, barcode);
 				break;
 
 			case R.id.decode_failed:
-				if (V) Log.v(TAG_QRCODE, "5. Got decode failed message");
+				if (V) Log.v(TAG_QRCODE, "5. State: decode_failed. Got decode failed message");
 				// We're decoding as fast as possible, so when one decode fails,
 				// start another.
 				restartPreviewAndDecode();
@@ -148,37 +175,15 @@ public final class CaptureHandler extends Handler
 		}
 	}
 
-	public void quitSynchronously()
+	private void restartPreviewAndDecode()
 	{
-		mState = State.DONE;
-		CameraManager.get().stopPreview();
-		Message quit = Message.obtain(
-			mDecodeThread.getHandler(), R.id.quit);
-		quit.sendToTarget();
-		try
-		{
-			mDecodeThread.join();
-		}
-		catch (InterruptedException e)
-		{
-			// continue
-		}
-
+		startScan();
+		mQRCodeScannerView.drawViewfinder();
+	}
+	public final void quitSynchronously()
+	{
 		// Be absolutely sure we don't send any queued up messages
 		removeMessages(R.id.decode_succeeded);
 		removeMessages(R.id.decode_failed);
 	}
-
-	private void restartPreviewAndDecode()
-	{
-
-		
-		if (V) Log.v(TAG_QRCODE, "1. restartPreviewAndDecode...");
-		mState = State.AUTOFOCUS;
-		this.sendEmptyMessage(R.id.start_decode);
-		if (!QRCODE_REPEAT_AUTOFOCUS)
-			CameraManager.get().requestAutoFocus(this, R.id.auto_focus);
-		mWrapper.drawViewfinder();
-	}
-
 }

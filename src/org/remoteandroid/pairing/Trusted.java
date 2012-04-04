@@ -60,7 +60,7 @@ import android.widget.Toast;
 import com.google.protobuf.ByteString;
 
 // TODO: réorganiser le code et les classes de pairing
-public class Trusted
+public final class Trusted
 {
 	private static final String TAG_PAIRING="Pairing";
 

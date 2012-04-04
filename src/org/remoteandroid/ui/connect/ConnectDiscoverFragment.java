@@ -34,7 +34,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class ConnectDiscoverFragment extends AbstractConnectFragment implements OnItemClickListener
+public final class ConnectDiscoverFragment extends AbstractConnectFragment implements OnItemClickListener
 {
 	private View mViewer;
 

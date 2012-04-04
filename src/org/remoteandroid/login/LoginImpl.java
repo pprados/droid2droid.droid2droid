@@ -51,7 +51,7 @@ import android.util.Log;
 import com.google.protobuf.ByteString;
 
 // TODO: eviter en BT/secure, eviter l'authent serveur en HTTPS
-public class LoginImpl extends Login
+public final class LoginImpl extends Login
 {
     private static final String HASH_ALGORITHM="SHA-256";
     private static final int NONCE_BYTES_NEEDED=5;

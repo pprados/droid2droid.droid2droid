@@ -8,13 +8,9 @@
 
     <TextView
 		android:id="@+id/usage"
-		android:layout_width="fill_parent"
-		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:layout_height="wrap_content"
-        android:padding="10dip"
-		android:lineSpacingMultiplier="0.92"
-		android:gravity="center_vertical" 
-		android:text="@string/expose_qrcode_help"/>
+		android:text="@string/expose_qrcode_help"
+	    style="@style/expose_help"
+        />
 
     <ImageView
         android:id="@+id/qrcode"

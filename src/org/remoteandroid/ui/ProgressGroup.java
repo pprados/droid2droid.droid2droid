@@ -7,7 +7,7 @@ import android.preference.PreferenceGroup;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class ProgressGroup
+public final class ProgressGroup
 extends PreferenceGroup
 {
 

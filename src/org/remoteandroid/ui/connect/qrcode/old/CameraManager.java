@@ -1,6 +1,7 @@
-package org.remoteandroid.ui.connect.qrcode;
+package org.remoteandroid.ui.connect.qrcode.old;
 
 import static org.remoteandroid.Constants.QRCODE_AUTOFOCUS;
+import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.internal.Constants.D;
@@ -12,16 +13,26 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.List;
 
+import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
+import org.remoteandroid.ui.connect.qrcode.PlanarYUVLuminanceSource;
+
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ReaderException;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -38,12 +49,8 @@ import android.view.SurfaceHolder;
 public final class CameraManager
 {
 
-	public static int camera = Camera.CameraInfo.CAMERA_FACING_BACK; // Default																// camera
+	public static int sDefaultCamera = 0; // API >=9 Camera.CameraInfo.CAMERA_FACING_BACK;
 
-	public static int camera_rotation; // rotation of the device measured in
-										// degrees
-	public static int camera_orientation; //{0,1,2,3}
-	
 	public static float density;
 
 	public static final int[] sOrientation =
@@ -57,17 +64,20 @@ public final class CameraManager
 	 * MAX height and width are calculated at runtime and are equal to the min
 	 * of cam resolution.x and cam resolution.y
 	 */
-	private static int MAX_FRAME_HEIGHT;// = 320;
+	private static int mMaxFrameHeight;// = 320;
 
-	private static int MAX_FRAME_WIDTH;// = MAX_FRAME_HEIGHT;
+	private static int mMaxFrameWidth;// = MAX_FRAME_HEIGHT;
 
-	private static float DESIRED_FRAME_SIZE_BASELINE = 250f; // theorical
-																	// size
+	private static float mDesiredFrameSizeBaseLine = 250f; // theorical size
 
 	private static CameraManager sCameraManager;
 
 	private final CameraConfigurationManager mConfigManager;
 
+	private boolean mExceptionWithAutoFocus;
+	public static int sCameraRotation; // rotation of the device measured in degrees
+	public int mCameraOrientation; //{0,1,2,3}
+	
 	private Camera mCamera;
 
 	private Rect mFramingRect;
@@ -81,19 +91,6 @@ public final class CameraManager
 	private boolean mReverseImage;
 
 	private boolean mRotate;
-
-	/**
-	 * Preview frames are delivered here, which we pass on to the registered
-	 * handler. Make sure to clear the handler so it will only receive one
-	 * message.
-	 */
-	private final PreviewCallback mPreviewCallback;
-
-	/**
-	 * Autofocus callbacks arrive here, and are dispatched to the Handler which
-	 * requested them.
-	 */
-	private final AutoFocusCallback mAutoFocusCallback;
 
 	/**
 	 * Initializes this static object with the Context of the calling Activity.
@@ -121,10 +118,10 @@ public final class CameraManager
 	public int getOrientation()
 	{
 
-		return this.camera_orientation;
+		return this.mCameraOrientation;
 	}
 	public int getRotation(){
-		return this.camera_rotation;
+		return this.sCameraRotation;
 	}
 
 	/*
@@ -133,18 +130,17 @@ public final class CameraManager
 
 	public void setOrientation(final int rotation)
 	{
-		camera_orientation = rotation;
+		mCameraOrientation = rotation;
 		// FIXME : works only for android >= 9
 		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
 		{
+			// Hock for version remove ClassNotFound CameraInfo.
 			new Runnable()
 			{
-				@Override
-				public void run()
+				public void run() 
 				{
 					android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
-					android.hardware.Camera.getCameraInfo(
-						camera, info);
+					android.hardware.Camera.getCameraInfo(sDefaultCamera, info);
 					int degrees = 0;
 					switch (rotation)
 					{
@@ -163,7 +159,7 @@ public final class CameraManager
 					}
 
 					int result;
-					if (camera == Camera.CameraInfo.CAMERA_FACING_FRONT)
+					if (sDefaultCamera == Camera.CameraInfo.CAMERA_FACING_FRONT)
 					{
 						result = (info.orientation + degrees) % 360;
 						result = (360 - result) % 360; // compensate the mirror
@@ -173,12 +169,9 @@ public final class CameraManager
 						result = (info.orientation - degrees + 360) % 360;
 					}
 					mCamera.setDisplayOrientation(result);
-					camera_rotation = result;
-
+					sCameraRotation = result;
 				}
-
 			}.run();
-
 		}
 		else
 		{
@@ -186,24 +179,20 @@ public final class CameraManager
 
 			if (Compatibility.VERSION_SDK_INT == Compatibility.VERSION_FROYO)
 			{
-				if(rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180){
-					
-					Point surface = mConfigManager.getScreenResolution();
-					if(surface.x > surface.y){
-						sOrientation[0] = 0;
-						sOrientation[1] = 270;
-						sOrientation[2] = 180;
-						sOrientation[3] = 90;
-					}
-				}
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-					
-						mCamera.setDisplayOrientation(sOrientation[rotation]);
-						camera_rotation = sOrientation[rotation];
+//				if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+//				{
+//					
+//					Point surface = mConfigManager.getScreenResolution();
+//					if(surface.x > surface.y)
+//					{
+//						sOrientation[0] = 0;
+//						sOrientation[1] = 270;
+//						sOrientation[2] = 180;
+//						sOrientation[3] = 90;
+//					}
+//				}
+				mCamera.setDisplayOrientation(sOrientation[rotation]);
+				sCameraRotation = sOrientation[rotation];
 //						if (rotation == Surface.ROTATION_0)
 //						{
 //							// p.set("orientation", "portrait");
@@ -229,8 +218,6 @@ public final class CameraManager
 //							camera_rotation = sOrientation[3];
 //							mCamera.setDisplayOrientation(sOrientation[3]);
 //						}
-					}
-				}.run();
 			}
 			else
 			{
@@ -238,14 +225,14 @@ public final class CameraManager
 				{
 					p.set("orientation", "portrait");
 					p.set("rotation", 90);
-					camera_rotation = 90;
+					sCameraRotation = 90;
 				}
 				else
 				// if (rotation == Configuration.ORIENTATION_LANDSCAPE)
 				{
 					p.set("orientation", "landscape");
 					p.set("rotation", 90);
-					camera_rotation = 0;
+					sCameraRotation = 0;
 				}
 
 				mCamera.setParameters(p);
@@ -273,8 +260,7 @@ public final class CameraManager
 //			if(effects.get(i).contains("mono"))
 //				p.setColorEffect(effects.get(i));
 //		}
-		
-		
+				
 		mCamera.setParameters(p);
 		if(this.mPreviewing)
 			mCamera.startPreview();
@@ -283,12 +269,14 @@ public final class CameraManager
 	private CameraManager(Context context)
 	{
 
-		this.mConfigManager = new CameraConfigurationManager(context);
+		mConfigManager = new CameraConfigurationManager(context);
 		
-		mPreviewCallback = new PreviewCallback(mConfigManager);
-		mAutoFocusCallback = new AutoFocusCallback();
 	}
 
+	CameraConfigurationManager getConfigManager()
+	{
+		return mConfigManager;
+	}
 	/**
 	 * Opens the camera driver and initializes the hardware parameters.
 	 * 
@@ -298,11 +286,12 @@ public final class CameraManager
 	 */
 	public void openDriver(SurfaceHolder holder, int rotation) throws InvalidParameterException, IOException
 	{
+		mExceptionWithAutoFocus=false;
 		if (mCamera == null)
 		{
 			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
 			{
-				mCamera = Camera.open(camera);
+				mCamera = Camera.open(sDefaultCamera);
 			}
 			else
 				mCamera = Camera.open();
@@ -323,18 +312,14 @@ public final class CameraManager
 			mInitialized = true;
 			mConfigManager.initFromCameraParameters(mCamera);
 		}
-		CameraManager.get().setOrientation(
-			rotation);
+		CameraManager.get().setOrientation(rotation);
 		mConfigManager.setDesiredCameraParameters(mCamera);
-		MAX_FRAME_HEIGHT = Math.max(
-			mConfigManager.getCameraResolution().y, mConfigManager.getCameraResolution().x);
-		MAX_FRAME_WIDTH = MAX_FRAME_HEIGHT;
+//		mMaxFrameHeight = Math.max(mConfigManager.getCameraResolution().y, mConfigManager.getCameraResolution().x);
+//		mMaxFrameWidth = mMaxFrameHeight;
 		Point p = mConfigManager.getCameraResolution();
-		MAX_FRAME_HEIGHT = p.y;
-		MAX_FRAME_WIDTH = p.x;
-		if (D)
-			Log.d(
-				TAG_QRCODE, PREFIX_LOG + " MAX_FRAME_WIDTH/HEIGHT size: " + p.x + "," + p.y);
+		mMaxFrameHeight = p.y;
+		mMaxFrameWidth = p.x;
+		if (V) Log.v(TAG_QRCODE, PREFIX_LOG + " MAX_FRAME_WIDTH/HEIGHT size: " + p.x + "," + p.y);
 		// FIXME
 		// SharedPreferences prefs =
 		// PreferenceManager.getDefaultSharedPreferences(context);
@@ -355,9 +340,20 @@ public final class CameraManager
 	 */
 	public void closeDriver()
 	{
+		mExceptionWithAutoFocus=false;
 		if (mCamera != null)
 		{
 			FlashlightManager.disableFlashlight();
+			mCamera.cancelAutoFocus();
+			try
+			{
+				mCamera.setPreviewDisplay(null);
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			mCamera.release();
 			mCamera = null;
 
@@ -390,81 +386,7 @@ public final class CameraManager
 		if (mCamera != null && mPreviewing)
 		{
 			mCamera.stopPreview();
-			mPreviewCallback.setHandler(
-				null, 0);
-			mAutoFocusCallback.setHandler(
-				null, 0);
 			mPreviewing = false;
-		}
-	}
-
-	/**
-	 * A single preview frame will be returned to the handler supplied. The data
-	 * will arrive as byte[] in the message.obj field, with width and height
-	 * encoded as message.arg1 and message.arg2, respectively.
-	 * 
-	 * @param handler The handler to send the message to.
-	 * @param message The what field of the message to be sent.
-	 */
-	public void requestPreviewFrame(Handler handler, int message)
-	{
-		if (mCamera != null && mPreviewing)
-		{
-			mPreviewCallback.setHandler(
-				handler, message);
-			mCamera.setOneShotPreviewCallback(mPreviewCallback);
-		}
-	}
-
-	boolean debugAutoFocus = false;
-	/**
-	 * Asks the camera hardware to perform an autofocus.
-	 * 
-	 * @param handler The Handler to notify when the autofocus completes.
-	 * @param message The message to deliver.
-	 */
-	public void requestAutoFocus(Handler handler, int message)
-	{
-		
-		if (mCamera != null && mPreviewing)
-		{
-//			try
-//			{
-//				Thread.sleep(1000);
-//			}
-//			catch (InterruptedException e)
-//			{
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			mAutoFocusCallback.setHandler(
-				handler, message);
-			if (V)
-				Log.v(
-					TAG_CONNECT, "Requesting auto-focus callback");
-			//if (QRCODE_AUTOFOCUS)
-			String focusMode = mCamera.getParameters().getFocusMode(); 
-			if (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
-			{
-				// FIXME: ICS
-				if (Build.VERSION.SDK_INT<Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-					mCamera.autoFocus(mAutoFocusCallback);
-			}
-			else if (focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
-			{
-				// FIXME: ICS
-				mCamera.autoFocus(mAutoFocusCallback);
-			}
-			else if (!focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO))
-			{
-				mCamera.autoFocus(mAutoFocusCallback);
-				if (V) Log.v(TAG_CONNECT, PREFIX_LOG + " is in auto focus mode");
-			}
-			else 
-			{
-				mAutoFocusCallback.onAutoFocus(true, mCamera);
-				if (W) Log.w(TAG_CONNECT, PREFIX_LOG + " is not in auto focus mode");
-			}
 		}
 	}
 
@@ -545,7 +467,10 @@ public final class CameraManager
 		tmp.bottom = s.x - r.left;
 		return tmp;
 	}
-
+	public Camera getCamera()
+	{
+		return mCamera;
+	}
 	public Rect getFramingRectInPreview()
 	{
 		Point cameraResolution = mConfigManager.getCameraResolution();
@@ -572,39 +497,31 @@ public final class CameraManager
 			mFramingRectInPreview.right = size.x + (surfaceResolution.x - size.x)/2;
 			mFramingRectInPreview.bottom = size.y + (surfaceResolution.y - size.y)/2;
 			
-			if (camera == Camera.CameraInfo.CAMERA_FACING_BACK)
+			if (sDefaultCamera == 0/*Camera.CameraInfo.CAMERA_FACING_BACK*/)
 			{
-				if (camera_rotation == 90)
+				if (sCameraRotation == 90)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,1);
-				if (camera_rotation == 180)
+				if (sCameraRotation == 180)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,2);
-				if (camera_rotation == 270)
+				if (sCameraRotation == 270)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,3);
 
 			}
 			else
 			{
-				if (camera_rotation == 90)
+				if (sCameraRotation == 90)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,3);
-				if (camera_rotation == 270)
+				if (sCameraRotation == 270)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,1);
-				if (camera_rotation == 0)
+				if (sCameraRotation == 0)
 					mFramingRectInPreview = scaledRotateRect(mFramingRectInPreview,2);
 
 			}
 
-			if (V)
-				Log.d(
-					TAG_CONNECT, "cameraResolution=" + cameraResolution);
-			if (V)
-				Log.d(
-					TAG_CONNECT, "surfaceResolution=" + surfaceResolution);
-			if (V)
-				Log.d(
-					TAG_CONNECT, "framingRect=" + rect + " (w:" + rect.width() + ",h:" + rect.height() + ")");
-			if (V)
-				Log.d(
-					TAG_CONNECT, "framingRect in previous=" + mFramingRectInPreview.toShortString() + " (w:"
+			if (V) Log.v(TAG_QRCODE, "cameraResolution=" + cameraResolution);
+			if (V) Log.v(TAG_QRCODE, "surfaceResolution=" + surfaceResolution);
+			if (V) Log.v(TAG_QRCODE, "framingRect=" + rect + " (w:" + rect.width() + ",h:" + rect.height() + ")");
+			if (V) Log.v(TAG_QRCODE, "framingRect in previous=" + mFramingRectInPreview.toShortString() + " (w:"
 							+ mFramingRectInPreview.width() + ",h:" + mFramingRectInPreview.height() + ")");
 
 		}
@@ -711,15 +628,9 @@ public final class CameraManager
 			// cameraResolution.y); // bottom left
 			// mFramingRect = new Rect(leftOffset, topOffset, leftOffset +
 			// size.x, topOffset + size.y); // Center
-			if (V)
-				Log.d(
-					TAG_CONNECT, "cam Resolution: " + cameraResolution);
-			if (V)
-				Log.d(
-					TAG_CONNECT, "surface Resolution: " + surfaceResolution);
-			if (V)
-				Log.d(
-					TAG_CONNECT, "Calculated framing rect: " + mFramingRect + " (w:" + mFramingRect.width() + ",h:"
+			if (V) Log.v(TAG_CONNECT, "cam Resolution: " + cameraResolution);
+			if (V) Log.v(TAG_CONNECT, "surface Resolution: " + surfaceResolution);
+			if (V) Log.v(TAG_CONNECT, "Calculated framing rect: " + mFramingRect + " (w:" + mFramingRect.width() + ",h:"
 							+ mFramingRect.height() + ")");
 		}
 		return mFramingRect;
@@ -750,28 +661,26 @@ public final class CameraManager
 
 		int width, height;
 
-		width = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.x / (float) surfaceResolution.x)));
-		height = (int) (density * DESIRED_FRAME_SIZE_BASELINE * ((float) ((float) cameraResolution.y / (float) surfaceResolution.y)));
+		width = (int) (density * mDesiredFrameSizeBaseLine * ((float) ((float) cameraResolution.x / (float) surfaceResolution.x)));
+		height = (int) (density * mDesiredFrameSizeBaseLine * ((float) ((float) cameraResolution.y / (float) surfaceResolution.y)));
 		if (width < MIN_FRAME_WIDTH)
 		{
 			width = MIN_FRAME_WIDTH;
 		}
-		else if (width > MAX_FRAME_WIDTH)
+		else if (width > mMaxFrameWidth)
 		{
-			width = MAX_FRAME_WIDTH;
+			width = mMaxFrameWidth;
 		}
 
 		if (height < MIN_FRAME_HEIGHT)
 		{
 			height = MIN_FRAME_HEIGHT;
 		}
-		else if (height > MAX_FRAME_HEIGHT)
+		else if (height > mMaxFrameHeight)
 		{
-			height = MAX_FRAME_HEIGHT;
+			height = mMaxFrameHeight;
 		}
-		if (V)
-			Log.v(
-					TAG_CONNECT, "QRCode capturing square size on the device (after correction): " + width + "," + height);
+		if (V) Log.v(TAG_CONNECT, "QRCode capturing square size on the device (after correction): " + width + "," + height);
 		// return new Point(cameraResolution.x,cameraResolution.y);
 		return new Point(width, height);
 	}
@@ -792,7 +701,6 @@ public final class CameraManager
 		// "," + height);
 		int previewFormat = mConfigManager.getPreviewFormat();
 		String previewFormatString = mConfigManager.getPreviewFormatString();
-
 		switch (previewFormat)
 		{
 		// This is the standard Android format which all devices are
@@ -852,7 +760,5 @@ public final class CameraManager
 			return mCamera.getParameters().getSupportedFlashModes();
 		return null;
 	}
-	
-	
 	
 }

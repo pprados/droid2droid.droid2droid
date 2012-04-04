@@ -2,7 +2,7 @@ package org.remoteandroid;
 
 //import org.acra.ErrorReporter;
 
-public class DebugTools
+public final class DebugTools
 {
 	static public void handleException(Throwable e)
 	{

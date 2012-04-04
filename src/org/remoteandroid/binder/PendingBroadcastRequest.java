@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
-public class PendingBroadcastRequest
+public final class PendingBroadcastRequest
 {
 	public interface OnBroadcastReceive
 	{

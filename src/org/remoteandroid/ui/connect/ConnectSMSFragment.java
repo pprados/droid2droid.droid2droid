@@ -36,7 +36,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class ConnectSMSFragment extends AbstractSMSFragment
+public final class ConnectSMSFragment extends AbstractSMSFragment
 implements PendingBroadcastRequest.OnBroadcastReceive
 {
 	private static final long ESTIMATION_SEND_SMS=1000;

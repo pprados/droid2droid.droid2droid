@@ -26,7 +26,7 @@ import static org.remoteandroid.Constants.EXTRA_INSTALLER_PACKAGE_NAME;
 import static org.remoteandroid.Constants.LOCK_ASK_PAIRING;
 import static org.remoteandroid.Constants.LOCK_WAIT_INSTALL;
 import static org.remoteandroid.internal.Constants.*;
-public class InstallApkActivity extends Activity
+public final class InstallApkActivity extends Activity
 {
 	public static final String EXTRA_FILENAME="filename";
 

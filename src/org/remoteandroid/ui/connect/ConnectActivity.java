@@ -1,5 +1,6 @@
 package org.remoteandroid.ui.connect;
 
+import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.E;
 
@@ -9,11 +10,15 @@ import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
+import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
 import org.remoteandroid.ui.EditPreferenceActivity;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.MainActivity;
+import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RecentTaskInfo;
@@ -23,9 +28,15 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.nfc.Tag;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -36,7 +47,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 
-public class ConnectActivity extends AbstractFeatureTabActivity
+public final class ConnectActivity extends AbstractFeatureTabActivity
 {
 	private boolean mIsLight;
 	private int mDisplaySet;
@@ -44,8 +55,8 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 	// To broadcast my infos
 	private static final FeatureTab[] sTabsBroadcast=
 		{
-			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
-//			new ConnectQRCodeFragment.Provider(), 
+//			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
+			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
@@ -55,8 +66,8 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 		};	
 	private static final FeatureTab[] sTabsConnect=
 		{
-			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
-//			new ConnectQRCodeFragment.Provider(), 
+//			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
+			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
@@ -342,6 +353,30 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 		}
 	}
 	
+//	@Override
+//	protected void onNfcCreate()
+//	{
+//		// Not publish my RemoteAndroidInfo.
+//		// Accept only a published info
+//		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+//		{
+//			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+//	        if (mNfcAdapter != null) 
+//	        {
+//	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+//	        	{
+//
+//					@Override
+//					public NdefMessage createNdefMessage(NfcEvent event)
+//					{
+//						return null;
+//					}
+//	        		
+//	        	}, this);
+//	        }
+//		}
+//	}
+	
 	@Override
 	protected void onNfcTag(Tag tag)
 	{
@@ -373,5 +408,4 @@ public class ConnectActivity extends AbstractFeatureTabActivity
 		}
 		finish();
 	}
-	
 }

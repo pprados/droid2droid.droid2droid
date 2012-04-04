@@ -27,7 +27,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
  * listens to changes in tabs, and takes care of switch to the correct paged in
  * the ViewPager whenever the selected tab changes.
  */
-public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener, ActionBar.TabListener
+public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener, ActionBar.TabListener
 {
 	private final FragmentActivity mContext;
 

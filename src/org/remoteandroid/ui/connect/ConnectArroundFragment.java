@@ -1,6 +1,7 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_ACCELEROMETER;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_LOCATION;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 
@@ -18,7 +19,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 
-public class ConnectArroundFragment extends AbstractConnectFragment
+public final class ConnectArroundFragment extends AbstractConnectFragment
 {
 	private View mViewer;
 	private TextView mUsage;
@@ -27,7 +28,7 @@ public class ConnectArroundFragment extends AbstractConnectFragment
 	{
 		Provider()
 		{
-			super(FEATURE_SCREEN|FEATURE_ACCELEROMETER|FEATURE_NET);
+			super(FEATURE_SCREEN|FEATURE_NET|FEATURE_LOCATION);
 		}
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)

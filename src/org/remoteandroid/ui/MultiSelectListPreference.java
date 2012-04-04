@@ -20,7 +20,7 @@ import android.widget.ListView;
  * @see http://blog.350nice.com/wp/wp-content/uploads/2009/07/listpreferencemultiselect.java
  */
 // FIXME: Il manque une ligne blanche au dessus
-public class MultiSelectListPreference extends ListPreference
+public final class MultiSelectListPreference extends ListPreference
 {
 	// Need to make sure the SEPARATOR is unique and weird enough that it doesn't match one of the
 	// entries.

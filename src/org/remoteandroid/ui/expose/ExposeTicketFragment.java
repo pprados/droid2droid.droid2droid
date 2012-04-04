@@ -42,7 +42,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
 
-public class ExposeTicketFragment extends AbstractBodyFragment
+public final class ExposeTicketFragment extends AbstractBodyFragment
 {
 	private static final String APIKEY="AIzaSyDL67vMUDoqKRAM0g6pyrPaWSz-QpepvjM";
 	public static final String GOOGLE_SHORTEN_API="https://www.googleapis.com/urlshortener/v1/url";

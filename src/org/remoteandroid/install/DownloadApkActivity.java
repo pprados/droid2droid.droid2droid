@@ -27,7 +27,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class DownloadApkActivity extends FragmentActivity
+public final class DownloadApkActivity extends FragmentActivity
 implements DialogInterface.OnClickListener,
 DialogInterface.OnDismissListener
 {

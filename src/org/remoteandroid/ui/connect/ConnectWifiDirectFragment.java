@@ -1,7 +1,7 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.RemoteAndroidInfo.*;
 
 import org.remoteandroid.R;
 import org.remoteandroid.internal.NetworkTools;
@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class ConnectWifiDirectFragment extends AbstractConnectFragment
+public final class ConnectWifiDirectFragment extends AbstractConnectFragment
 {
 	private View mViewer;
 	private TextView mUsage;
@@ -27,7 +27,7 @@ public class ConnectWifiDirectFragment extends AbstractConnectFragment
 	{
 		Provider()
 		{
-			super(FEATURE_SCREEN|FEATURE_NET);
+			super(FEATURE_SCREEN|FEATURE_NET|FEATURE_WIFI_DIRECT);
 		}
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)

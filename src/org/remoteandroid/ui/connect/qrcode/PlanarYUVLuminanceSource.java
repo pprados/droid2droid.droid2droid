@@ -16,6 +16,8 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import org.remoteandroid.BuildConfig;
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.hardware.Camera;
@@ -46,55 +48,39 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 
 	private final int mTop;
 
-//	private final int mHeight;
-//
-//	private final int mWidth;
-
-	// private final int[] matrix;
 	public PlanarYUVLuminanceSource(byte[] yuvData, int dataWidth,
 			int dataHeight, int left, int top, int width, int height,
 			boolean reverseHorizontal)
 	{
 		super(width, height);
-		// FIXME: remove logs
-//		 Log.e("camera", "data len: "+yuvData.length +
-//		 " width: "+dataWidth+" height: " + dataHeight + " left: " + left +
-//		 " width: " + width + " top: " + top + " height: " + height);
-//		 Log.e("camera", "left + width > dataWidth: " + (left + width) + " > "
-//		 + dataWidth + " top + height > dataHeight: " + (top + height) + " > "
-//		 + dataHeight);
-		if (left + width > dataWidth || top + height > dataHeight)
+		if (BuildConfig.DEBUG && left + width > dataWidth || top + height > dataHeight)
 		{
 			throw new IllegalArgumentException(
 					"Crop rectangle does not fit within image data.");
 		}
 
-		this.mYuvData = yuvData;
-		this.mDataWidth = dataWidth;
-		this.mDataHeight = dataHeight;
-		this.mLeft = left;
-		this.mTop = top;
-//		this.mHeight = height;
-//		this.mWidth = width;
+		mYuvData = yuvData;
+		mDataWidth = dataWidth;
+		mDataHeight = dataHeight;
+		mLeft = left;
+		mTop = top;
 		if (reverseHorizontal)
 		{
 			reverseHorizontal(width, height);
 		}
 
-		// int[] m = {mLeft, (this.mDataHeight - this.mHeight - mTop),
+		// int[] m = {mLeft, (mDataHeight - this.mHeight - mTop),
 		// (this.mDataWidth - this.mWidth - mLeft), mTop, (this.mDataWidth -
 		// this.mWidth - mLeft), (this.mDataHeight - this.mHeight - mTop),
 		// mLeft, mTop } ;
 		// matrix = m;
 	}
-
 	@Override
 	public byte[] getRow(int y, byte[] row)
 	{
 		if (y < 0 || y >= getHeight())
 		{
-			throw new IllegalArgumentException(
-					"Requested row is outside the image: " + y);
+			throw new IllegalArgumentException("Requested row is outside the image: " + y);
 		}
 		int width = getWidth();
 		if (row == null || row.length < width)
@@ -102,8 +88,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 			row = new byte[width];
 		}
 		int offset = (y + mTop) * mDataWidth + mLeft;
-		System.arraycopy(
-			mYuvData, offset, row, 0, width);
+		System.arraycopy(mYuvData, offset, row, 0, width);
 		return row;
 	}
 
@@ -130,8 +115,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		// single copy.
 		if (width == mDataWidth)
 		{
-			System.arraycopy(
-				mYuvData, inputOffset, matrix, 0, area);
+			System.arraycopy(mYuvData, inputOffset, matrix, 0, area);
 			return matrix;
 		}
 
@@ -140,8 +124,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		for (int y = 0; y < height; y++)
 		{
 			int outputOffset = y * width;
-			System.arraycopy(
-				yuv, inputOffset, matrix, outputOffset, width);
+			System.arraycopy(yuv, inputOffset, matrix, outputOffset, width);
 			inputOffset += mDataWidth;
 		}
 		return matrix;
@@ -153,18 +136,49 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 		return true;
 	}
 
-	public Bitmap renderCroppedGreyscaleBitmap()
+	public Bitmap renderCroppedGreyscaleBitmap(int rotation)
 	{
 
 		int width = getWidth();
 		int height = getHeight();
-
 		int[] pixels = new int[width * height];
 		byte[] yuv = mYuvData;
 		int offsetX, offsetY;
 
 		int i = 0;
 
+		offsetX = mLeft;
+		offsetY = mTop;
+//		if (rotation == 90)
+//		{	
+//			i = 0;
+//			for (int x = offsetY; x < height + offsetY; ++x)
+//			{
+//				for (int y=mDataHeight-offsetX;y>mDataHeight-width-offsetX;--y)
+//				{
+//					final int outputOffset = y * mDataWidth;
+//					Log.d(TAG_QRCODE,x+","+y);
+//					int grey = yuv[outputOffset + x] & 0xff;
+//					pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+//
+//				}
+//			}
+//		}
+//		else
+		{
+			for (int y = offsetY; y < height + offsetY; ++y)
+			{
+				final int outputOffset = y * mDataWidth;
+				for (int x = offsetX; x < width + offsetX; ++x)
+				{
+					int grey = yuv[outputOffset + x] & 0xff;
+					pixels[i++] = 0xFF000000 | (grey * 0x00010101);
+
+				}
+			}
+
+		}
+		/*
 		if (CameraManager.camera == Camera.CameraInfo.CAMERA_FACING_BACK)
 		{
 
@@ -210,7 +224,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 
 			offsetX = mLeft;
 			offsetY = (mTop);
-			if (true  ||(CameraManager.camera_rotation == 90 || CameraManager.camera_rotation == 0))
+			if (true  ||(CameraManager.mCameraRotation == 90 || CameraManager.mCameraRotation == 0))
 			{
 				i = 0;
 				for (int y = offsetY; y < (height + offsetY); y++)
@@ -224,7 +238,7 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 					}
 				}
 			}
-			else if (CameraManager.camera_rotation == 180 || CameraManager.camera_rotation == 270)
+			else if (CameraManager.mCameraRotation == 180 || CameraManager.mCameraRotation == 270)
 			{
 				i = width * height;
 				for (int y = (height + offsetY); (y - offsetY) > 0; y--)
@@ -252,23 +266,19 @@ public final class PlanarYUVLuminanceSource extends LuminanceSource
 					}
 				}
 			}
-		}
+		} */
 
-		Bitmap bitmap = Bitmap.createBitmap(
-			width, height, Bitmap.Config.ARGB_8888);
-		bitmap.setPixels(
-			pixels, 0, width, 0, 0, width, height);
-		Matrix matrix = new Matrix();
-		matrix.setRotate(CameraManager.get().camera_rotation, width/2, height/2);
-		bitmap = Bitmap.createBitmap(
-			bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-
+		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+//		Matrix matrix = new Matrix();
+//		matrix.setRotate(rotation, width/2, height/2);
+//		bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 		return bitmap;
 	}
 
 	private void reverseHorizontal(int width, int height)
 	{
-		byte[] yuvData = this.mYuvData;
+		byte[] yuvData = mYuvData;
 		for (int y = 0, rowStart = mTop * mDataWidth + mLeft; y < height; y++, rowStart += mDataWidth)
 		{
 			int middle = rowStart + width / 2;

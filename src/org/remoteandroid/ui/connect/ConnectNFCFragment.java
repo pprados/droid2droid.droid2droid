@@ -1,10 +1,9 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.RemoteAndroidInfo.*;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.TAG_NFC;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.util.Arrays;
@@ -37,7 +36,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.UninitializedMessageException;
 
-public class ConnectNFCFragment extends AbstractConnectFragment
+public final class ConnectNFCFragment extends AbstractConnectFragment
 implements AbstractBodyFragment.OnNfcEvent
 {
 	private View mViewer;
@@ -47,7 +46,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	{
 		Provider()
 		{
-			super(FEATURE_SCREEN|FEATURE_NET);
+			super(FEATURE_SCREEN|FEATURE_NET|FEATURE_NFC);
 		}
 		@Override
 		public void createTab(TabsAdapter tabsAdapter, ActionBar actionBar)
@@ -92,32 +91,16 @@ implements AbstractBodyFragment.OnNfcEvent
 	@Override
 	public void onNfcTag(Intent intent)
 	{
-		Messages.BroadcastMsg msg=nfcCheckDiscovered(intent);
-		if (msg==null) 
+		Messages.Identity identity=nfcCheckDiscovered(intent);
+		if (identity==null) 
 		{
 			Toast.makeText(getActivity(), R.string.connect_nfc_invalide_tag, Toast.LENGTH_LONG).show();
 			return; // Bad format
 		}
-		RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(getActivity(),msg.getIdentity());
+		RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(getActivity(),identity);
 		showConnect(info.getUris(), true,null);
-//		Messages.BroadcastMsg bmsg=nfcCheckDiscovered();
-//		if (bmsg!=null)
-//		{
-//			//if (bmsg.getType()==Messages.BroadcastMsg.Type.CONNECT)
-//			{
-//				RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
-//				info.isDiscoverNFC=true;
-		// FIXME		Discover.getDiscover().discover(info);
-//				info.isBonded=Trusted.isBonded(info);
-//				Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-//				intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-//				Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-//	//FIXME											onDiscover(info, true);
-//			}
-//		}
-		
 	}
-	protected Messages.BroadcastMsg nfcCheckDiscovered(Intent intent)
+	protected Messages.Identity nfcCheckDiscovered(Intent intent)
 	{
 		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) 
 		{
@@ -134,7 +117,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	        			{
 	        				try
 							{
-		        				Messages.BroadcastMsg bmsg=Messages.BroadcastMsg.newBuilder().mergeFrom(record.getPayload()).build();
+		        				Messages.Identity bmsg=Messages.Identity.newBuilder().mergeFrom(record.getPayload()).build();
 		        				return bmsg;
 							}
 							catch (InvalidProtocolBufferException e)

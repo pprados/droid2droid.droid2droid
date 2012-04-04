@@ -6,7 +6,7 @@ import android.content.Intent;
 
 // TODO: exploiter cela pour l'installation automatique à partir d'un QRCode !
 // http://gyurigrell.com/2012/2/21/tracking-install-sources-android-apps
-public class RemoteAndroidMarketReceiver extends BroadcastReceiver
+public final class RemoteAndroidMarketReceiver extends BroadcastReceiver
 {
 
 	@Override

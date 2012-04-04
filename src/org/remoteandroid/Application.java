@@ -66,7 +66,7 @@ import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.service.RemoteAndroidService;
-import org.remoteandroid.ui.connect.qrcode.CameraManager;
+import org.remoteandroid.ui.connect.qrcode.old.CameraManager;
 import org.remoteandroid.ui.contacts.AbstractSMSFragment;
 
 
@@ -108,7 +108,7 @@ import android.view.inputmethod.InputMethodManager;
 // TODO: fermer le service en cas de perte d'énergie
 
 //@ReportsCrashes(formKey = "dDg0Wkx6MS1wLXV4QlFxMXJON2c0SHc6MQ")
-public class Application extends android.app.Application
+public final class Application extends android.app.Application
 {
 
 	static String			TAG			= "Application";

@@ -38,7 +38,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class ExposeNFCFragment extends AbstractBodyFragment
+public final class ExposeNFCFragment extends AbstractBodyFragment
 implements AbstractBodyFragment.OnNfcEvent
 {
 	TextView mUsage;
@@ -119,7 +119,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	@Override
 	public void onNfcTag(Intent intent)
 	{
-		//final Tag tag=(Tag)intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+		// Detect a NFC tag. It's possible to write it with my current infos.
 		mWrite.setEnabled(true);
 	}
 	
@@ -151,7 +151,7 @@ implements AbstractBodyFragment.OnNfcEvent
 				return R.string.expose_nfc_error_no_writable;
 			}
 			tech.connect();
-			NdefMessage msg=AbstractFeatureTabActivity.createNdefMessage(getActivity(),info,true);
+			NdefMessage msg=AbstractFeatureTabActivity.createNdefMessage(getActivity(),info);
 			tech.writeNdefMessage(msg);
 			return R.string.expose_nfc_writed;
 		}

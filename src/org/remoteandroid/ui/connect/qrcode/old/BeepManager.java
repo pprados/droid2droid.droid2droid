@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.remoteandroid.ui.connect.qrcode;
+package org.remoteandroid.ui.connect.qrcode.old;
 
 import android.app.Activity;
 import android.content.Context;
@@ -25,6 +25,7 @@ import android.media.MediaPlayer;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.WindowManager;
 
 import java.io.IOException;
 
@@ -45,7 +46,7 @@ public final class BeepManager
 
 	private static final long VIBRATE_DURATION = 200L;
 
-	private Activity mActivity;
+	private Context mContext;
 
 	private MediaPlayer mMediaPlayer;
 
@@ -53,32 +54,34 @@ public final class BeepManager
 
 	private boolean mVibrate;
 
-	public BeepManager(Activity activity)
+	public BeepManager(Context context)
 	{
-		mActivity = activity;
+		mContext = context;
+		
 		mMediaPlayer = null;
 		updatePrefs();
 	}
 
 	public void setActivity(Activity activity)
 	{
-		mActivity = activity;
+		mContext = activity;
 	}
 
 	public void updatePrefs()
 	{
 		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(mActivity);
+				.getDefaultSharedPreferences(mContext);
 		mPlayBeep = shouldBeep(
-			prefs, mActivity);
+			prefs, mContext);
 		// vibrate = prefs.getBoolean(PreferencesActivity.KEY_VIBRATE, false);
 		if (mPlayBeep && mMediaPlayer == null)
 		{
-			// The volume on STREAM_SYSTEM is not adjustable, and users found it
-			// too loud,
+			// The volume on STREAM_SYSTEM is not adjustable, and users found it too loud,
 			// so we now play on the music stream.
-			mActivity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
-			mMediaPlayer = buildMediaPlayer(mActivity);
+			// FIXME: Volume
+//			WindowManager wm=(WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+//			wm.getDefaultDisplay().setVolumeControlStream(AudioManager.STREAM_MUSIC);
+			mMediaPlayer = buildMediaPlayer(mContext);
 		}
 	}
 
@@ -90,7 +93,7 @@ public final class BeepManager
 		}
 		if (mVibrate)
 		{
-			Vibrator vibrator = (Vibrator) mActivity
+			Vibrator vibrator = (Vibrator) mContext
 					.getSystemService(Context.VIBRATOR_SERVICE);
 			vibrator.vibrate(VIBRATE_DURATION);
 		}
@@ -118,25 +121,22 @@ public final class BeepManager
 		MediaPlayer mediaPlayer = new MediaPlayer();
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		// When the beep has finished playing, rewind to queue up another one.
-		mediaPlayer
-				.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
-				{
-					public void onCompletion(MediaPlayer player)
-					{
-						player.seekTo(0);
-					}
-				});
+		mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
+		{
+			public void onCompletion(MediaPlayer player)
+			{
+				player.seekTo(0);
+			}
+		});
 
-		AssetFileDescriptor file = activity.getResources().openRawResourceFd(
-			R.raw.beep);
+		AssetFileDescriptor file = activity.getResources().openRawResourceFd(R.raw.beep);
 		try
 		{
 			mediaPlayer.setDataSource(
 				file.getFileDescriptor(), file.getStartOffset(),
 				file.getLength());
 			file.close();
-			mediaPlayer.setVolume(
-				BEEP_VOLUME, BEEP_VOLUME);
+			mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
 			mediaPlayer.prepare();
 		}
 		catch (IOException ioe)

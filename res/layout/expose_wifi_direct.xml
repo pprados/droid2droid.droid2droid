@@ -8,9 +8,8 @@
 
     <TextView
         android:id="@+id/usage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/expose_wifi_direct_help"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+	    style="@style/expose_help"
+        />
 
 </LinearLayout>

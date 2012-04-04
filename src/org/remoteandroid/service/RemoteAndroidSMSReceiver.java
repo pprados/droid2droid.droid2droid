@@ -41,7 +41,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 // TODO: utiliser le hack pour désactiver le receiver lorsque le service n'est pas actif
 // https://developer.android.com/training/monitoring-device-state/manifest-receivers.html
 // Warning: stateless instance
-public class RemoteAndroidSMSReceiver extends BroadcastReceiver
+public final class RemoteAndroidSMSReceiver extends BroadcastReceiver
 {
 	static class SmsPaquet
 	{

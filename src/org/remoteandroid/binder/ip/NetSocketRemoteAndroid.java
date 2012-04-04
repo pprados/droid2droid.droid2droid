@@ -23,7 +23,7 @@ import android.content.Context;
 import android.util.Log;
 
 // Implementation de Remote android, utilise un socket channel
-public class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
+public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 {
 	Context mContext;
     private int mListenPort;

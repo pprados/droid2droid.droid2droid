@@ -18,7 +18,7 @@ import com.actionbarsherlock.view.Window;
 
 
 // TODO: expose invalide si non actif
-public class MainActivity extends SherlockFragmentActivity
+public final class MainActivity extends SherlockFragmentActivity
 implements MainFragment.CallBack
 {
 	FragmentManager	mFragmentManager;

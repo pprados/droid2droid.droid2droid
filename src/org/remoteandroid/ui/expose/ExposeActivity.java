@@ -1,8 +1,8 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
+
 import static org.remoteandroid.Constants.NFC;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.TAG_NFC;
 import static org.remoteandroid.internal.Constants.W;
 
@@ -34,7 +34,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 
-public class ExposeActivity extends AbstractFeatureTabActivity
+public final class ExposeActivity extends AbstractFeatureTabActivity
 {
 	private static final FeatureTab[] sTabs=
 	{
@@ -56,7 +56,7 @@ public class ExposeActivity extends AbstractFeatureTabActivity
 	{
 		super.onCreate(savedInstanceState);
     	setTitle(R.string.expose);
-		nfcExpose();
+		onNfcCreate();
 	}
 	
 }

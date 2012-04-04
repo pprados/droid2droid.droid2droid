@@ -18,7 +18,7 @@ import android.content.Intent;
 import android.os.RemoteException;
 import android.util.Log;
 
-public class Discover
+public final class Discover
 {
 	public interface Listener
 	{

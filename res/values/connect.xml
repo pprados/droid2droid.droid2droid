@@ -90,17 +90,11 @@ Then, select one discovered device to try to connect.
 	<!-- ******* -->	    
 	<string name="connect_qrcode">QRCode</string>
 	<string name="connect_qrcode_description">Scan QRCode from remote device.</string>
-	<string name="connect_qrcode_help">In the remote device\n
-		<li>&#160;Start the application \'Remote Android\';\n</li>
-		<li>&#160;Select \'Expose the device\';\n</li>
-		<li>&#160;Select \'QRCode\';\n</li>
-		<li>&#160;Present the QRCode;\n</li>
-		Then, scan the QRCode to initiate the connection between devices.
-    </string>
+	<string name="connect_qrcode_help">Place a qrcode from Remote Android inside the viewfinder rectangle to scan it.</string>
 	<string name="connect_qrcode_help_airplane">Remove airplane mode.</string>
 	<string name="connect_qrcode_help_ip_bt">Activate network or bluetooth.</string>
 		<string name="connect_qrcode_empty_help">
-        <p><b>QRCode</b> propose to connect two devices with the camera and a QRCode. One device expose the QRCode and this one scan the code.\n\n</p>
+        <b>QRCode</b> propose to connect two devices with the camera and a QRCode. One device expose the QRCode and this one scan the code.\n\n
 	</string>
 <!-- 	<string name="connect_qrcode_empty_help"> -->
 <!--         <li><font fgcolor="#ffffffff"><b>Scan QRCode</b></font> propose to connect two devices with an image with black and white dot (QRCode). One device present the QRCode, the other scan the code.\n\n</li> -->

@@ -11,21 +11,28 @@ import java.util.List;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.Cookies;
+import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.IRemoteAndroidManager;
 import org.remoteandroid.internal.Messages.Type;
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.AbstractFeatureTabActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 
-public class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
+public final class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 implements Discover.Listener
 {
 	private Context mContext;
@@ -148,6 +155,12 @@ implements Discover.Listener
 	public List<RemoteAndroidInfoImpl> getBoundedDevices() throws RemoteException
 	{
 		return Trusted.getBonded();
+	}
+
+	@Override
+	public NdefMessage createNdefMessage()
+	{
+		return AbstractFeatureTabActivity.createNdefMessage(Application.sAppContext, getInfo());
 	}
 
 	@Override

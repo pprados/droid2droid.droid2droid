@@ -6,14 +6,9 @@
 >
 
     <TextView
-        android:id="@+id/connect_help"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:lineSpacingMultiplier="0.92"
-        android:paddingLeft="10dip"
-        android:paddingRight="10dip"
-        android:paddingTop="10dip" />
+        android:id="@+id/usage"
+	    style="@style/connect_help"
+        />
 
     <RelativeLayout
         android:id="@+id/toolbar"

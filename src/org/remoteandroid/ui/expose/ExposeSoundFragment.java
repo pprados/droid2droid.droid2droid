@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
-public class ExposeSoundFragment extends AbstractBodyFragment
+public final class ExposeSoundFragment extends AbstractBodyFragment
 {
 	public static class Provider extends FeatureTab
 	{

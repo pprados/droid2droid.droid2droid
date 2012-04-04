@@ -1,4 +1,4 @@
-package org.remoteandroid.ui.connect.qrcode;
+package org.remoteandroid.ui.connect.qrcode.old;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.I;

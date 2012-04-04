@@ -42,7 +42,7 @@ import android.widget.TextView;
  * 
  * @author Philippe PRADOS
  */
-public class DevicePreference extends Preference
+public final class DevicePreference extends Preference
 {
 	private static final String KEY_BUSY="ra.busy";
 	private static final String KEY_INFO="ra.info";

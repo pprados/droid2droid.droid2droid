@@ -11,13 +11,8 @@
 		android:layout_width="match_parent"
 	>
 		<TextView
-			android:layout_height="wrap_content"
-			android:layout_width="match_parent"
-			android:lineSpacingMultiplier="0.92"
-			android:id="@+id/connect_help"
-			android:textAppearance="?android:attr/textAppearance"
-			android:gravity="top"
-	        android:padding="10dip"
-		></TextView>
+			android:id="@+id/usage"
+		    style="@style/connect_help"
+        />
 	</ScrollView>
 </RelativeLayout>

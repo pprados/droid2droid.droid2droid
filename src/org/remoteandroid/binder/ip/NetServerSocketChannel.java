@@ -30,7 +30,7 @@ import com.google.protobuf.MessageLite;
 
 // Class en ecoute sur le socket.
 // A chaque connexion, utilise un executor pour traiter le socket jusqu'a fermeture
-class NetServerSocketChannel implements Runnable
+final class NetServerSocketChannel implements Runnable
 {
     static final MessageLite sPrototype=Msg.getDefaultInstance();
 

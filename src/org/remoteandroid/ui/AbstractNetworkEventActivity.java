@@ -8,8 +8,10 @@ import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.URL;
 
+import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.service.RemoteAndroidService;
@@ -125,6 +127,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 	{
 		super.onPause();
 		// Unregister the discovery receiver
+		unregisterReceiver(mRemoteAndroidReceiver);
 		unregisterReceiver(mNetworkStateReceiver);
 		unregisterReceiver(mBluetoothReceiver);
 		unregisterReceiver(mNfcReceiver);
@@ -190,36 +193,40 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 			if (info.isConnected())
 			{
 				// Check if the connection is linked to Internet or only intranet
-				new AsyncTask<Void,Void,Boolean>()
+				new Thread(new Runnable()
 				{
 					@Override
-					protected Boolean doInBackground(Void... params)
+					public void run()
 					{
+						boolean result=false;
 						try
 						{
 							if (D) Log.d(TAG_EXPOSE,"Ping google...");
+							Inet4Address.getByName("www.google.com");
 							new URL("http://www.google.com").openConnection().getInputStream().close(); // Ping google
 							if (D) Log.d(TAG_EXPOSE,"Ping google done");
-							return Boolean.TRUE;
+							result=true;
 						}
 						catch (IOException e)
 						{
 							if (D) Log.d(TAG_EXPOSE,"Ping google fail");
-							return Boolean.FALSE;
 						}
+						final boolean res=result;
+						Application.sHandler.post(new Runnable()
+						{
+							public void run() 
+							{
+								if (res)
+									mActiveNetwork |= NetworkTools.ACTIVE_INTERNET_NETWORK;
+								else
+									mActiveNetwork &= ~NetworkTools.ACTIVE_INTERNET_NETWORK;
+								onUpdateActiveNetwork();
+							}
+						});
 					}
-					protected void onPostExecute(Boolean result) 
-					{
-						if (result)
-							mActiveNetwork |= NetworkTools.ACTIVE_INTERNET_NETWORK;
-						else
-							mActiveNetwork &= ~NetworkTools.ACTIVE_INTERNET_NETWORK;
-						onUpdateActiveNetwork();
-					}
-				}.execute();
+				}).start();
 			}
 		}
-		onUpdateActiveNetwork();
 	}
 
 	protected void onReceiveBluetoothEvent(Context context, Intent intent)

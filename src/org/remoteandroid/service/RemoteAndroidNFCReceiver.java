@@ -1,9 +1,8 @@
 package org.remoteandroid.service;
 
-import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.TAG_NFC;
 import static org.remoteandroid.internal.Constants.W;
 
@@ -32,7 +31,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 // Activity to broadcast the RemoteAndroidInfo from a NFC tag.
-public class RemoteAndroidNFCReceiver extends Activity
+public final class RemoteAndroidNFCReceiver extends Activity
 {
 	NfcAdapter mNfcAdapter;
 	

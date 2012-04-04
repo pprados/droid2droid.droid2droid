@@ -7,15 +7,10 @@
 >
 
 	<TextView
-		android:id="@+id/connect_help"
-		android:layout_width="fill_parent"
-		android:textAppearance="?android:attr/textAppearance"
-		android:layout_height="wrap_content"
-        android:padding="10dip"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentTop="true"
-		android:lineSpacingMultiplier="0.92"
-		android:gravity="center_vertical" android:text="@string/connect_dtmf_help"/>
+		android:id="@+id/usage"
+		android:text="@string/connect_dtmf_help"
+	    style="@style/connect_help"
+		/>
 
 	<TextView
 		android:id="@+id/line"

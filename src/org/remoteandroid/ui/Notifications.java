@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.widget.RemoteViews;
-public class Notifications
+public final class Notifications
 {
 	public static final String LABEL_NOTIF_DOWNLOAD="download";
 	private Context mContext;

@@ -226,7 +226,7 @@
         	android:launchMode="singleTask"
         	android:label="@string/app_name" 
         	android:description="@string/main_description" 
-			android:configChanges="orientation|screenSize"
+		android:configChanges="orientation|screenSize"
 		>
 		    <intent-filter>
 			    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
@@ -259,7 +259,7 @@
         	android:label="@string/app_name" 
         	android:description="@string/editpreference_description" 
         	android:icon="@drawable/ic_launcher_remoteandroid"
-			android:configChanges="orientation|screenSize"
+		android:configChanges="orientation|screenSize"
         	>
             <intent-filter>
                 <category android:name="android.intent.category.PREFERENCE" />               
@@ -281,39 +281,39 @@
 	        android:launchMode="singleTask"
 	        android:taskAffinity=":remoteandroid"
         	android:exported="false" 
-			android:excludeFromRecents="true"
-			android:multiprocess="false"
+		android:excludeFromRecents="true"
+		android:multiprocess="false"
         	android:theme="@android:style/Theme.Translucent"
-			android:noHistory="true"
-			android:icon="@drawable/ic_launcher_remoteandroid"
-			android:configChanges="orientation|screenSize"
+		android:noHistory="true"
+		android:icon="@drawable/ic_launcher_remoteandroid"
+		android:configChanges="orientation|screenSize"
 	        />
 
         <activity 
 	        android:name=".install.InstallApkActivity"
         	android:launchMode="singleTask"
 	        android:taskAffinity=":remoteandroid"
-			android:exported="false" 
+		android:exported="false" 
         	android:theme="@android:style/Theme.Translucent"
-			android:icon="@drawable/ic_launcher_remoteandroid"
-			android:noHistory="true"
-			android:excludeFromRecents="true"
-			android:multiprocess="false"
-			android:configChanges="orientation|screenSize"
+		android:icon="@drawable/ic_launcher_remoteandroid"
+		android:noHistory="true"
+		android:excludeFromRecents="true"
+		android:multiprocess="false"
+		android:configChanges="orientation|screenSize"
 	        />
         
 		<!--  Activity to accept to download an APK -->
         <activity 
 	        android:name=".install.AskAcceptDownloadApkActivity"
         	android:theme="@android:style/Theme.Translucent"
-			android:icon="@drawable/ic_launcher_remoteandroid"
-			android:exported="false" 
+		android:icon="@drawable/ic_launcher_remoteandroid"
+		android:exported="false" 
         	android:launchMode="singleInstance"
-			android:noHistory="true"
-			android:excludeFromRecents="true"
-			android:multiprocess="false"
-			android:taskAffinity=""
-			android:configChanges="orientation|screenSize"
+		android:noHistory="true"
+		android:excludeFromRecents="true"
+		android:multiprocess="false"
+		android:taskAffinity=""
+		android:configChanges="orientation|screenSize"
 	        />
 
 		<!--  Activity to download an APK -->

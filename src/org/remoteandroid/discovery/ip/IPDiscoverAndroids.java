@@ -76,7 +76,7 @@ import android.widget.Toast;
 //TODO: UPnp IGD http://teleal.org/projects/cling/
 
 // http://code.google.com/p/android/issues/detail?id=15
-public class IPDiscoverAndroids implements DiscoverAndroids
+public final class IPDiscoverAndroids implements DiscoverAndroids
 {
 	private static Discover mDiscover;
 	

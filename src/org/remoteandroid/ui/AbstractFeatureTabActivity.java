@@ -1,7 +1,7 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.internal.Constants.*;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
@@ -14,6 +14,7 @@ import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -79,6 +80,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
         {
         	getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("index"));
         }
+        onNfcCreate();
     }
 
     @Override
@@ -93,13 +95,13 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     {
     	super.onResume();
     	Application.hideSoftKeyboard(this);
-		registerOnNfcTag();
+		onNfcResume();
     }
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
-		unregisterOnNFCTag();
+		onNfcPause();
 	}
     
 	// Invoked when NFC tag detected
@@ -108,6 +110,15 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	{
 		super.onNewIntent(intent);
 		setIntent(intent);
+		onNfcNewIntent(intent);
+	}
+	protected void onNfcTag(Tag tag)
+	{
+		
+	}
+// ----------------------------------------
+	protected void onNfcNewIntent(Intent intent)
+	{
 		final Tag tag=(Tag)intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 		if (tag!=null)
 		{
@@ -128,10 +139,71 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 		}
 	}
 
-	protected void onNfcTag(Tag tag)
+	// Register a listener when another device ask my tag
+	protected void onNfcCreate()
 	{
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+	        if (mNfcAdapter != null) 
+	        {
+	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+	        	{
+
+					@Override
+					public NdefMessage createNdefMessage(NfcEvent event)
+					{
+						return AbstractFeatureTabActivity.createNdefMessage(
+							AbstractFeatureTabActivity.this,Trusted.getInfo(AbstractFeatureTabActivity.this));
+					}
+	        		
+	        	}, this);
+	        }
+		}
+	}
+	
+	protected void onNfcResume()
+	{
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+			NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+			if (NFC && mNfcAdapter!=null)
+			{
+				PendingIntent pendingIntent = 
+						PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+				mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+			}
+		}
+	}
+	// Unregister the exposition of my tag
+    protected void onNfcPause()
+    {
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+	    	if (NFC && mNfcAdapter!=null)
+	    	{
+	    		mNfcAdapter.disableForegroundDispatch(this);
+	    	}
+		}
+    }
+    
+    // TODO: move to another place
+	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
+	{
+		Messages.Identity msg=ProtobufConvs.toIdentity(info);
+		byte[] payload=msg.toByteArray();
+		return new NdefMessage(
+			new NdefRecord[]
+			{
+				NdefRecord.createApplicationRecord("org.remoteandroid"),
+				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
+//				NdefRecord.createUri("www.remotandroid.org")
+			}
+		);
 		
 	}
+	
+//----------------------------------
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -163,78 +235,5 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	protected AbstractBodyFragment getActiveFragment()
 	{
 		return mTabsAdapter.getActiveFragment();
-//		return (AbstractBodyFragment)mTabsAdapter.getItem(mActionBar.getSelectedNavigationIndex());
 	}	
-	
-	// Register a listener when another device ask my tag
-	protected void nfcExpose()
-	{
-		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-	        if (mNfcAdapter != null) 
-	        {
-	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
-	        	{
-
-					@Override
-					public NdefMessage createNdefMessage(NfcEvent event)
-					{
-						return AbstractFeatureTabActivity.createNdefMessage(
-							AbstractFeatureTabActivity.this,Trusted.getInfo(AbstractFeatureTabActivity.this),
-							true); // Expose
-					}
-	        		
-	        	}, this);
-	        }
-		}
-	}
-	
-	protected void registerOnNfcTag()
-	{
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-			NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-			if (NFC && mNfcAdapter!=null)
-			{
-				PendingIntent pendingIntent = 
-						PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-				mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-			}
-		}
-	}
-	// Unregister the exposition of my tag
-    protected void unregisterOnNFCTag()
-    {
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-	    	if (NFC && mNfcAdapter!=null)
-	    	{
-	    		mNfcAdapter.disableForegroundDispatch(this);
-	    	}
-		}
-    }
-    
-	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info,boolean expose)
-	{
-		Messages.BroadcastMsg.Builder broadcastBuilder = Messages.BroadcastMsg.newBuilder();
-		Messages.BroadcastMsg msg=broadcastBuilder
-			.setType(expose ? Messages.BroadcastMsg.Type.EXPOSE : Messages.BroadcastMsg.Type.CONNECT)
-			.setIdentity(ProtobufConvs.toIdentity(info))
-			.build();
-		byte[] payload=msg.toByteArray();
-		return new NdefMessage(
-			new NdefRecord[]
-			{
-				NdefRecord.createApplicationRecord("org.remoteandroid"),
-				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-//				NdefRecord.createUri("www.remotandroid.org")
-			}
-		);
-		
-	}
-	
-	
-	
-	
 }

@@ -3,7 +3,7 @@ package org.remoteandroid;
 import android.util.SparseArray;
 
 // It's not very nice. :-(
-public class CommunicationWithLock
+public final class CommunicationWithLock
 {
 	
 	public static SparseArray<Object> sResults=new SparseArray<Object>();

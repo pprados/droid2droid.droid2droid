@@ -22,7 +22,7 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-public class RemoteAndroidProvider extends ContentProvider
+public final class RemoteAndroidProvider extends ContentProvider
 {
 	static final String AUTHORITY="content://org.remoteandroid";
 	public static final String QRCODE="/qrcode";

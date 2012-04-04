@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.remoteandroid.ui.connect.qrcode;
+package org.remoteandroid.ui.connect.qrcode.old;
 
 import android.os.IBinder;
 import android.util.Log;

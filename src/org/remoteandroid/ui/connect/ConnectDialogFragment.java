@@ -26,7 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 // FIXME: la boite de dialogue n'est pas conforme ICS
-public class ConnectDialogFragment extends DialogFragment
+public final class ConnectDialogFragment extends DialogFragment
 {
 	interface OnConnected
 	{

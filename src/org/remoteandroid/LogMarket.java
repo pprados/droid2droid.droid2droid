@@ -7,7 +7,7 @@ import android.util.Log;
 import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.Constants.*;
 
-public class LogMarket
+public final class LogMarket
 {
 	interface WTF
 	{

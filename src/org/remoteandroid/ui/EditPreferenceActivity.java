@@ -1,6 +1,5 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
@@ -11,7 +10,7 @@ import static org.remoteandroid.Constants.TAG_SERVER_BIND;
 import static org.remoteandroid.Constants.TIME_TO_DISCOVER;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.SCHEME_TCP;
@@ -86,7 +85,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.common.StringUtils;
 
 // TODO: Sur xoom, enlever le menu contextuel
-public class EditPreferenceActivity extends PreferenceActivity 
+public final class EditPreferenceActivity extends PreferenceActivity 
 implements Discover.Listener
 {
 	private CharSequence[] 	mExposeValues;
@@ -382,8 +381,7 @@ implements Discover.Listener
 					public NdefMessage createNdefMessage(NfcEvent event)
 					{
 						return AbstractFeatureTabActivity.createNdefMessage(
-							EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this),
-							true); // Expose
+							EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this));
 					}
 	        		
 	        	}, this);

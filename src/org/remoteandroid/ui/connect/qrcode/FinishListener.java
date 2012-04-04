@@ -33,7 +33,7 @@ public final class FinishListener implements DialogInterface.OnClickListener,
 
 	public FinishListener(Activity activityToFinish)
 	{
-		this.mActivityToFinish = activityToFinish;
+		mActivityToFinish = activityToFinish;
 	}
 
 	public void onCancel(DialogInterface dialogInterface)

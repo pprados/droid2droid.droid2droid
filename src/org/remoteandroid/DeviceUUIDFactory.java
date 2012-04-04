@@ -9,7 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 // @see http://stackoverflow.com/questions/2322234/how-to-find-serial-number-of-android-device
-public class DeviceUUIDFactory
+public final class DeviceUUIDFactory
 {
 	protected static final String	PREFS_FILE		= "device_id.xml";
 

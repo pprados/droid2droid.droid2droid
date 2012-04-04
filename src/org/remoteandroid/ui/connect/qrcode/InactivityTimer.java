@@ -51,7 +51,7 @@ public final class InactivityTimer
 
 	public InactivityTimer(Activity activity)
 	{
-		this.mActivity = activity;
+		mActivity = activity;
 		onActivity();
 	}
 
