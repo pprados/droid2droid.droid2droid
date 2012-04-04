@@ -121,7 +121,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 			// Ok
 			if (V) Log.v(TAG_INSTALL, PREFIX_LOG + "srv inform download is accepted");
 			CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
-					new Boolean(true));
+					Boolean.TRUE);
 			finish();
 		}
 		else
@@ -129,7 +129,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 			// Cancel
 			if (V) Log.v(TAG_INSTALL, PREFIX_LOG + "srv inform download is refused");
 			CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
-					new Boolean(false));
+					Boolean.FALSE);
 			finish();
 		}
 	}
@@ -138,7 +138,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 	protected void onUserLeaveHint()
 	{
 		CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
-			new Boolean(false));
+			Boolean.FALSE);
 		moveTaskToBack(true);
 		finish();
 	}

@@ -73,16 +73,17 @@ import com.google.zxing.ResultPoint;
 public final class QRCodeScannerView extends ViewGroup
 implements SurfaceHolder.Callback
 {
+	// View with surface for camera previous
 	private SurfaceView mSurfaceView;
+	// The surface holder
+	private SurfaceHolder mHolder;
+	// View overlow of camera previous
 	private AnimView mAnimView;
 
-	private SurfaceHolder mHolder;
-
+	// The selected camera size
 	private Size mCameraSize;
 	/*private*/ Point mPreviousSize;
 	
-	private List<Size> mSupportedCameraSizes;
-
 	/*private*/ Camera mCamera;
 	/*private*/ int mRotation;
 	private boolean mOptimizeSize;
@@ -96,12 +97,9 @@ implements SurfaceHolder.Callback
 		void onQRCode(Result rawResult);
 	}
 	private QRCodeResult mCallBack;
-	public boolean found = false;
 	
 	private static final long ANIMATION_DELAY = 100L;
-	//FIXME : public and non final only for debug purpose
-	public static int CURRENT_POINT_OPACITY = 200;
-
+	private static final int CURRENT_POINT_OPACITY = 0xFF;
 	private static final int MAX_RESULT_POINTS = 20;
 
 	private final Paint mPaint=new Paint();
@@ -358,6 +356,10 @@ implements SurfaceHolder.Callback
 	{
 		mCallBack=callback;
 	}
+	/**
+	 * Optimize the previous size for camera.
+	 * @param optimizeSize true or false
+	 */
 	public void setOptimizeSize(boolean optimizeSize)
 	{
 		mOptimizeSize=optimizeSize;
@@ -370,8 +372,9 @@ implements SurfaceHolder.Callback
 	public void invalidate()
 	{
 		super.invalidate();
-		mAnimView.invalidate();
+		if (mAnimView!=null) mAnimView.invalidate();
 	}
+	// TODO
 	public void switchCamera(Camera camera)
 	{
 		setCamera(camera);
@@ -399,9 +402,9 @@ implements SurfaceHolder.Callback
 		int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
 		int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
 		setMeasuredDimension(width, height);
-		if (mSupportedCameraSizes != null)
+		if (mCamera!=null && mCameraSize==null)
 		{
-			mCameraSize = getOptimalCameraPreviewSize(mSupportedCameraSizes, width, height);
+			mCameraSize = getOptimalCameraPreviewSize(mCamera.getParameters().getSupportedPreviewSizes(), width, height);
 			if (V) Log.d(TAG_QRCODE,"camera size="+mCameraSize.width+","+mCameraSize.height);
 		}
 	}
@@ -513,7 +516,6 @@ implements SurfaceHolder.Callback
 
 	public void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		if (I) Log.i(TAG_QRCODE, "handle valide decode " + rawResult);
 		mLastResult = rawResult;
 		drawPreviousBitmap(barcode);
 	}
@@ -527,11 +529,8 @@ implements SurfaceHolder.Callback
 	 */
 	public void handleDecode(Result rawResult, Bitmap barcode)
 	{
-		if (!QRCODE_BUG)
-		{
-			drawResultBitmap(barcode);
-			drawResultPoints(barcode, rawResult);
-		}
+		drawResultBitmap(barcode);
+		drawResultPoints(barcode, rawResult);
 		mBeepManager.playBeepSoundAndVibrate();
 		if (mCallBack!=null)
 		{
@@ -553,21 +552,17 @@ implements SurfaceHolder.Callback
 		{
 			Canvas canvas = new Canvas(barcode);
 			Paint paint = new Paint();
-			paint.setColor(getResources().getColor(
-				R.color.qrcode_result_image_border));
+			paint.setColor(getResources().getColor(R.color.qrcode_result_image_border));
 			paint.setStrokeWidth(3.0f);
 			paint.setStyle(Paint.Style.STROKE);
 			Rect border = new Rect(2, 2, barcode.getWidth() - 2, barcode.getHeight() - 2);
-			canvas.drawRect(
-				border, paint);
+			canvas.drawRect(border, paint);
 
-			paint.setColor(getResources().getColor(
-				R.color.qrcode_result_points));
+			paint.setColor(getResources().getColor(R.color.qrcode_result_points));
 			if (points.length == 2)
 			{
 				paint.setStrokeWidth(4.0f);
-				drawLine(
-					canvas, paint, points[0], points[1]);
+				drawLine(canvas, paint, points[0], points[1]);
 			}
 			else if (points.length == 4 && (rawResult.getBarcodeFormat().equals(
 				BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat().equals(
@@ -575,10 +570,8 @@ implements SurfaceHolder.Callback
 			{
 				// Hacky special case -- draw two lines, for the barcode and
 				// metadata
-				drawLine(
-					canvas, paint, points[0], points[1]);
-				drawLine(
-					canvas, paint, points[2], points[3]);
+				drawLine(canvas, paint, points[0], points[1]);
+				drawLine(canvas, paint, points[2], points[3]);
 			}
 			else
 			{
@@ -591,8 +584,7 @@ implements SurfaceHolder.Callback
 					p.x = (int) point.getX();
 					p.y = (int) point.getY();
 					p = scaledRotatePoint(p, mRotation , canvas.getWidth(), canvas.getHeight());
-					canvas.drawPoint(
-						p.x, p.y, paint);
+					canvas.drawPoint(p.x, p.y, paint);
 				}
 			}
 		}
@@ -634,11 +626,7 @@ implements SurfaceHolder.Callback
 		mCamera = camera;
 		if (mCamera != null)
 		{
-			mSupportedCameraSizes = mCamera.getParameters().getSupportedPreviewSizes();
-setRotation(Surface.ROTATION_0);			
-//Camera.Parameters parameters=mCamera.getParameters();
-//parameters.setRotation(180);
-//mCamera.setParameters(parameters);
+			setRotation(Surface.ROTATION_0);			
 			requestLayout();
 		}
 	}
@@ -687,8 +675,6 @@ setRotation(Surface.ROTATION_0);
 	}
 	private Size getOptimalCameraPreviewSize(List<Size> sizes, int w, int h)
 	{
-if (false) // OPT: Invoqué plusieurs fois
-	return sizes.get(0);
 		// Select resolution with the minimum number of pixels
 		int posMin=-1;
 		long pixels=Long.MAX_VALUE;

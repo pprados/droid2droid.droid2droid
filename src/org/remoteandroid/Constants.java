@@ -4,8 +4,6 @@ import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PROBE_INTERVAL_MS;
 import static org.remoteandroid.internal.Constants.PROBE_SENT;
 
-import java.nio.charset.Charset;
-
 import android.telephony.SmsMessage;
 
 //TODO: Manage battery low !
@@ -152,15 +150,12 @@ public final class Constants
     public static final boolean QRCODE									=true;
 	/** Patch ZXing: for debug, use classic exception in ZXing, else share the exception. */ 
 	public static final boolean QRCODE_DEBUG							=true;
-    public static final boolean QRCODE_BUG								=false; // FIXME
 	/** Show the current bitmap to analyze in overlay layer. */
-	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=true;
+	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=false;
 	/** Force auto-focus before analyze bitmap. */
 	public static final boolean QRCODE_AUTOFOCUS						=true;
 	/** Re-ask autofocus after each QRCODE_AUTOFOCUS_INTERVAL_MS. */
 	public static final boolean QRCODE_REPEAT_AUTOFOCUS					=true;
-	/** Interval between auto focus. */
-	public static final long	QRCODE_AUTOFOCUS_INTERVAL_MS			= 1000L;
 	
 	//-----------------------------------------------------------------------------
 	// --- SMS parameters ---

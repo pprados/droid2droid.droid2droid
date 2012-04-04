@@ -110,8 +110,11 @@ public final class CaptureHandler extends Handler
 	public final void startScan()
 	{
 		final Camera camera=getCamera();
-		camera.setOneShotPreviewCallback(mPreviewCallback);
-		camera.startPreview();
+		if (camera!=null)
+		{
+			camera.setOneShotPreviewCallback(mPreviewCallback);
+			camera.startPreview();
+		}
 
 	}
 	private final Camera getCamera()

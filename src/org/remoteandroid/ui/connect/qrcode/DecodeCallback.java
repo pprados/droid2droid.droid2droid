@@ -29,6 +29,7 @@ import org.remoteandroid.R;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -66,13 +67,25 @@ final class DecodeCallback
 			return;
 		if (data==null)
 			return;
-		new Thread() // FIXME: recycle
+		new AsyncTask<Void, Void, Void>()
 		{
-			public void run() 
+
+			@Override
+			protected Void doInBackground(Void... params)
 			{
 				decode(data,width,height);
+				return null;
 			}
-		}.start();
+			
+		}.execute();
+//		new Thread() // FIXME: recycle
+//		{
+//			
+//			public void run() 
+//			{
+//				decode(data,width,height);
+//			}
+//		}.start();
 	}
 	
 	private final CaptureHandler gerHandler()
@@ -95,6 +108,8 @@ final class DecodeCallback
 		Result rawResult = null;
 
 		PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
+		if (source==null)
+			return;
 		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 		// BinaryBitmap bitmap = new BinaryBitmap(new GlobalHistogramBinarizer(source)); //FIXME
 		// ----------
@@ -154,6 +169,8 @@ final class DecodeCallback
 	 */
 	private PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height)
 	{
+		final Camera camera=mScannerView.mCamera;
+		if (camera==null) return null;
 		final Rect scanningRect = mScannerView.getFramingRectInPreview();
 		final Rect cameraRect=mScannerView.getCameraRect();
 		Rect scanningRectInCameraPrevious;
@@ -190,7 +207,7 @@ final class DecodeCallback
 //			(scanningRect.right*height)/cameraRect.height(),
 //			(scanningRect.bottom*width)/cameraRect.width());
 //scanningRectInCameraPrevious=scanningRect;		
-		final Camera.Parameters parameters = mScannerView.mCamera.getParameters();
+		final Camera.Parameters parameters = camera.getParameters();
 		int previewFormat = parameters.getPreviewFormat();
 		String previewFormatString = parameters.get("preview-format");
 

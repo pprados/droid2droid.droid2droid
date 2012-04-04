@@ -233,7 +233,6 @@ implements QRCodeScannerView.QRCodeResult
 	{
 		if (I) Log.i( TAG_CONNECT, "handle valide decode " + rawResult);
 		mCache.mInactivityTimer.onActivity();
-		QRCodeScannerView.CURRENT_POINT_OPACITY = 0xFF;
 
 		ConnectActivity activity = (ConnectActivity) getActivity();
 		Messages.Candidates candidates;

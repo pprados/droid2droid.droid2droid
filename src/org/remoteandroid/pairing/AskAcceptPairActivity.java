@@ -50,7 +50,7 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 		{
 			if (mIsFinish) return;
 			CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
-					new Boolean(false));
+					Boolean.FALSE);
 			AskAcceptPairActivity activity = mActivity.get();
 			if (activity != null)
 				activity.finish();
@@ -117,7 +117,7 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 			if (V) Log.v(TAG_PAIRING, PREFIX_LOG + "Inform pairing is accepted");
 			mFinisher.mIsFinish=true;			
 			CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
-					new Boolean(true));
+					Boolean.TRUE);
 			moveTaskToBack(true);
 			finish();
 		}
@@ -127,7 +127,7 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 			if (V) Log.v(TAG_PAIRING, PREFIX_LOG + "Inform pairing is refused");
 			mFinisher.mIsFinish=true;			
 			CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
-					new Boolean(false));
+				Boolean.FALSE);
 			moveTaskToBack(true);
 			finish();
 		}
@@ -137,7 +137,7 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 	protected void onUserLeaveHint()
 	{
 		CommunicationWithLock.putResult(LOCK_ASK_PAIRING,
-			new Boolean(false));
+			Boolean.FALSE);
 		moveTaskToBack(true);
 		finish();
 	}
