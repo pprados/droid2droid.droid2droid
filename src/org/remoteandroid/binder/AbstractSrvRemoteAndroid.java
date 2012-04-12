@@ -591,7 +591,6 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv try ask to user for accept the package...");
 			final String device=getContext(connid).mClientInfo.name;
 			final SharedPreferences preferences=Application.getPreferences();
-			ConnectionContext ctx=getContext(connid);
 			boolean accept=(getType()==ConnectionType.GSM) 
 				? preferences.getBoolean(PREFERENCES_KNOWN_ACCEPT_ALL, false)
 				: true;

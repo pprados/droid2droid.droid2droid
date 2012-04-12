@@ -1,9 +1,7 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.SHOW_FINAL_NOTIF_AFTER_DOWNLOAD;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
 
 import org.remoteandroid.Constants;
@@ -20,7 +18,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 import android.widget.RemoteViews;
 public final class Notifications
 {

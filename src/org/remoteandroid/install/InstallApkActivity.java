@@ -1,16 +1,13 @@
 package org.remoteandroid.install;
 
-import java.io.File;
+import static org.remoteandroid.Constants.EXTRA_INSTALLER_PACKAGE_NAME;
+import static org.remoteandroid.Constants.LOCK_WAIT_INSTALL;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_INSTALL;
+import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.internal.Constants.W;
 
-/*
- * Install from market, after authent
- * $.post('/install', {
- *   id: 'com.attacker.maliciousapp',
- * device: initProps['selectedDeviceId'],
- * token: initProps['token'],
- * xhr: '1' }, function(data) {
- * });
- */
+import java.io.File;
 
 import org.remoteandroid.CommunicationWithLock;
 
@@ -19,13 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import static org.remoteandroid.Constants.EXTRA_INSTALLER_PACKAGE_NAME;
-import static org.remoteandroid.Constants.LOCK_ASK_PAIRING;
-import static org.remoteandroid.Constants.LOCK_WAIT_INSTALL;
-import static org.remoteandroid.internal.Constants.*;
 public final class InstallApkActivity extends Activity
 {
 	public static final String EXTRA_FILENAME="filename";

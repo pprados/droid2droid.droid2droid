@@ -9,15 +9,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.connect.AbstractConnectFragment;
 
 import android.content.ComponentCallbacks2;
@@ -33,10 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.provider.ContactsContract.Contacts;
-import android.provider.SearchRecentSuggestions;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;

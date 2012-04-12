@@ -1,79 +1,52 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.RemoteAndroidInfo.*;
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.Constants.TAG_QRCODE;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_CAMERA;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
-import static org.remoteandroid.internal.Constants.W;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
-import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
-import org.remoteandroid.ui.connect.qrcode.FinishListener;
-import org.remoteandroid.ui.connect.qrcode.InactivityTimer;
 import org.remoteandroid.ui.connect.qrcode.QRCodeScannerView;
 
-import org.remoteandroid.ui.connect.qrcode.*;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.google.zxing.ResultMetadataType;
-import com.google.zxing.ResultPoint;
 
+// TODO: After 3 minutes, stop the camera
 public final class ConnectQRCodeFragment extends AbstractConnectFragment 
 implements QRCodeScannerView.QRCodeResult
 {
 	public static int sDefaultCamera = 0; // API >=9 Camera.CameraInfo.CAMERA_FACING_BACK;
 	
-	private static final boolean NO_CAMERA = false;
-
+	// FIXME: use it ?
 	static class Cache
 	{
 		private CaptureHandler mHandler;
-
-		private InactivityTimer mInactivityTimer;
-
 	}
 
 	Cache mCache;
@@ -82,8 +55,6 @@ implements QRCodeScannerView.QRCodeResult
 
 	private TextView mUsage;
 	
-	private QRCodeScannerView mQRCode;
-	private Camera mCamera;
 	private QRCodeScannerView mQRCodeScanner;
 
 	public static class Provider extends FeatureTab
@@ -123,6 +94,7 @@ implements QRCodeScannerView.QRCodeResult
 			mUsage.setText(R.string.connect_qrcode_help_ip_bt);
 		}
 	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -130,26 +102,13 @@ implements QRCodeScannerView.QRCodeResult
 		mUsage = (TextView) mViewer.findViewById(R.id.usage);
 		mQRCodeScanner = (QRCodeScannerView) mViewer.findViewById(R.id.qrcode);
 		mQRCodeScanner.setOnResult(this);
-		mQRCodeScanner.setRotation(getActivity().getWindowManager().getDefaultDisplay().getRotation());
+//		mQRCodeScanner.setRotation(getActivity().getWindowManager().getDefaultDisplay().getRotation());
 		
-		DisplayMetrics metrics = new DisplayMetrics();
-		getActivity().getWindowManager().getDefaultDisplay().getMetrics(
-			metrics);
-
-		Window window = getActivity().getWindow();
-
-		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		mCache = null;
 
 		if (mCache == null)
 		{
 			mCache = new Cache();
-			mCache.mHandler = null;
-			mCache.mInactivityTimer = new InactivityTimer(getActivity()); // FIXME
-		}
-		else
-		{
-			mCache.mInactivityTimer.setActivity(getActivity());
 		}
 
 		return mViewer;
@@ -159,10 +118,9 @@ implements QRCodeScannerView.QRCodeResult
 	public void onResume()
 	{
 		super.onResume();
-		mCache.mInactivityTimer.onResume();
+		Window window = getActivity().getWindow();
+		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		onConfigurationChanged(getResources().getConfiguration());
-//		mQRCodeManager.onResume();
-		
 		openCamera();
 	}
 
@@ -170,7 +128,6 @@ implements QRCodeScannerView.QRCodeResult
 	public void onPause()
 	{
 		super.onPause();
-//		mQRCodeManager.onPause();
 		closeCamera();
 		
 		if (I) Log.i(TAG_QRCODE, "onPause...");
@@ -179,47 +136,36 @@ implements QRCodeScannerView.QRCodeResult
 			mCache.mHandler.quitSynchronously();
 			mCache.mHandler = null;
 		}
-
-		mCache.mInactivityTimer.onPause();
-//		if (!NO_CAMERA)
-//			CameraManager.get().closeDriver();
 	}
 
 	private void openCamera()
 	{
-		if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
+		try
 		{
-			mCamera = Camera.open(sDefaultCamera);
+			if (V) Log.v(TAG_QRCODE,"open camera...");
+			mQRCodeScanner.setCamera(sDefaultCamera);
+			Window window = getActivity().getWindow();
+			window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
-		else
-			mCamera = Camera.open();		
-		mQRCodeScanner.setCamera(mCamera);
+		catch (IOException e)
+		{
+			if (E) Log.e(TAG_QRCODE,"Impossible to open camera.",e);
+		}
 	}
 
 	private void closeCamera()
 	{
-		mCamera.release();
-		mCamera=null;
-		mQRCodeScanner.setCamera(null);
-	}
-
-	@Override
-	public void onDestroy()
-	{
-		if (I) Log.i(TAG_QRCODE, "onDestroy...");
-
-		if (mCache != null && mCache.mInactivityTimer != null)
-
-			mCache.mInactivityTimer.shutdown();
-		super.onDestroy();
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-//		CameraManager.get().closeDriver();
-		mQRCodeScanner.setRotation(getActivity().getWindowManager().getDefaultDisplay().getRotation());
+		try
+		{
+			if (V) Log.v(TAG_QRCODE,"close camera...");
+			Window window = getActivity().getWindow();
+			window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			mQRCodeScanner.setCamera(-1);
+		}
+		catch (IOException e)
+		{
+			if (E) Log.e(TAG_QRCODE,"Impossible to open camera.",e);
+		}
 	}
 
 	/**
@@ -232,9 +178,6 @@ implements QRCodeScannerView.QRCodeResult
 	public void onQRCode(Result rawResult)
 	{
 		if (I) Log.i( TAG_CONNECT, "handle valide decode " + rawResult);
-		mCache.mInactivityTimer.onActivity();
-
-		ConnectActivity activity = (ConnectActivity) getActivity();
 		Messages.Candidates candidates;
 		try
 		{
@@ -251,8 +194,7 @@ implements QRCodeScannerView.QRCodeResult
 		}
 		catch (InvalidProtocolBufferException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (E) Log.d(TAG_QRCODE,"Error when analyse qrcode from QRCode.",e);
 		}
 	}
 
@@ -264,9 +206,9 @@ implements QRCodeScannerView.QRCodeResult
 	 * version of android Note: Earlier versions (gingerbread) are not affected
 	 * by this bug
 	 */
-	public void getBytes(String s, int start, int end, byte[] data, int index)
+	private void getBytes(String s, int start, int end, byte[] data, int index)
 	{
-		char[] value = s.toCharArray();
+		final char[] value = s.toCharArray();
 		if (0 <= start && start <= end && end <= s.length())
 		{
 

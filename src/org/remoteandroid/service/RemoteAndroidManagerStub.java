@@ -1,23 +1,22 @@
 package org.remoteandroid.service;
 
+import static org.remoteandroid.Constants.PAIR_AUTO_IF_NO_COOKIE;
+import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
+import static org.remoteandroid.internal.Constants.COOKIE_NO;
+import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
-import static org.remoteandroid.internal.Constants.*;
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.Cookies;
-import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.IRemoteAndroidManager;
 import org.remoteandroid.internal.Messages.Type;
-import org.remoteandroid.internal.Messages;
-import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
@@ -27,8 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 

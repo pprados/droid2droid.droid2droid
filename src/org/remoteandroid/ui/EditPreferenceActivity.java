@@ -10,8 +10,9 @@ import static org.remoteandroid.Constants.TAG_SERVER_BIND;
 import static org.remoteandroid.Constants.TIME_TO_DISCOVER;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.SCHEME_TCP;
 import static org.remoteandroid.internal.Constants.TAG_NFC;
@@ -27,26 +28,20 @@ import java.util.List;
 import java.util.UUID;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.ListRemoteAndroidInfo;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.Compatibility;
-import org.remoteandroid.internal.ListRemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidService;
-import org.remoteandroid.ui.expose.ExposeNFCFragment;
 
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -61,7 +56,6 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
 import android.nfc.NfcManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -82,7 +76,6 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.zxing.common.StringUtils;
 
 // TODO: Sur xoom, enlever le menu contextuel
 public final class EditPreferenceActivity extends PreferenceActivity 

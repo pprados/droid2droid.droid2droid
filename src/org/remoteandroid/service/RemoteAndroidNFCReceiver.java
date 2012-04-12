@@ -1,26 +1,20 @@
 package org.remoteandroid.service;
 
 import static org.remoteandroid.Constants.NFC;
-import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_NFC;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.util.Arrays;
 
-import org.remoteandroid.Application;
-import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -29,6 +23,8 @@ import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 // Activity to broadcast the RemoteAndroidInfo from a NFC tag.
 public final class RemoteAndroidNFCReceiver extends Activity

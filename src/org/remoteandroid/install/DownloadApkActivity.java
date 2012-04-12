@@ -1,7 +1,10 @@
 package org.remoteandroid.install;
 
 import static org.remoteandroid.Constants.LOCK_WAIT_INSTALL;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_INSTALL;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.lang.ref.WeakReference;
 

@@ -204,7 +204,6 @@ public final class ConnectDialogFragment extends DialogFragment
 	public void onResume()
 	{
 		super.onResume();
-		boolean acceptAnonymous=true;
 		mTryConnections=new TryConnection();
 		mTryConnections.execute(); // FIXME: Lock sur l'execution. Utiliser un autre Executors ?
 	}

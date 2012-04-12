@@ -15,7 +15,7 @@
  */
 
 package com.google.zxing;
-import static org.remoteandroid.Constants.*;
+
 /**
  * Thrown when a barcode was not found in the image. It might have been
  * partially detected but could not be confirmed.
@@ -29,19 +29,9 @@ public final class NotFoundException extends ReaderException {
   private NotFoundException() {
     // do nothing
   }
-  private NotFoundException(String msg) 
-  {
-	  super(msg);
-  }
 
   public static NotFoundException getNotFoundInstance() {
-	  return instance;
-  }
-  public static NotFoundException getNotFoundInstance(String msg) {
-	  if (QRCODE_DEBUG)
-		  return new NotFoundException(msg);
-	  else
-		  return instance;
+    return instance;
   }
 
 }

@@ -1,11 +1,20 @@
 package org.remoteandroid.pairing;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.ETHERNET_REFUSE_LOCAL_IPV6;
 import static org.remoteandroid.Constants.PAIR_PERSISTENT;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.Constants.TAG_EXPOSE;
 import static org.remoteandroid.Constants.TIMEOUT_PAIR;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
+import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.SCHEME_TCP;
+import static org.remoteandroid.internal.Constants.TIMEOUT_PAIRING_ASK_CHALENGE;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -31,7 +40,6 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
 import org.remoteandroid.discovery.Discover;
-import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Compatibility;
@@ -40,7 +48,6 @@ import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Tools;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

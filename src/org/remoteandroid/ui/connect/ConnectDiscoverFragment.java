@@ -146,7 +146,7 @@ public final class ConnectDiscoverFragment extends AbstractConnectFragment imple
 				StringBuilder b = new StringBuilder("( ")
 						.append(Application.getTechnologies(info, false));
 						
-				if (info.isBonded())
+				if (info.isBound())
 					b.append(", ").append(mContext.getString(R.string.connect_device_paired));
 				b.append(')');
 				tag.mText2.setText(b);

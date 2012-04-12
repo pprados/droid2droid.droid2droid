@@ -1,6 +1,5 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.RemoteAndroidInfo.FEATURE_ACCELEROMETER;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_LOCATION;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;

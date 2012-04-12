@@ -1,10 +1,17 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
+import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
+import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.ETHERNET;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.SCHEME_TCP;
+import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
 import static org.remoteandroid.internal.Constants.TAG_PREFERENCE;
-import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -15,7 +22,6 @@ import org.remoteandroid.R;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Driver;
-import org.remoteandroid.internal.Pair;
 import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;

@@ -1,7 +1,7 @@
 package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.NFC;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
@@ -14,7 +14,6 @@ import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;

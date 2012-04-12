@@ -34,6 +34,7 @@ public class AndroidLogHandler extends Handler
 	{
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void publish(LogRecord paramLogRecord)
 	{

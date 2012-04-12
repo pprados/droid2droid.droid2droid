@@ -489,7 +489,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 							{
 								Log.d(TAG_MDNS,"Error when change to new network");
 								for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
-									Log.e(TAG_MDNS,""+networks.nextElement());
+									Log.d(TAG_MDNS,""+networks.nextElement());
 							}
 					    }
 						final WifiManager wifi=(WifiManager)Application.sAppContext.getSystemService(Context.WIFI_SERVICE);

@@ -1,11 +1,8 @@
 package org.remoteandroid;
 
-import org.remoteandroid.internal.Compatibility;
-
+import static org.remoteandroid.internal.Constants.E;
 import android.os.Build;
 import android.util.Log;
-import static org.remoteandroid.internal.Constants.*;
-import static org.remoteandroid.Constants.*;
 
 public final class LogMarket
 {

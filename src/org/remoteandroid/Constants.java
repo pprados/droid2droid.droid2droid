@@ -153,9 +153,22 @@ public final class Constants
 	/** Show the current bitmap to analyze in overlay layer. */
 	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=false;
 	/** Force auto-focus before analyze bitmap. */
-	public static final boolean QRCODE_AUTOFOCUS						=true;
-	/** Re-ask autofocus after each QRCODE_AUTOFOCUS_INTERVAL_MS. */
-	public static final boolean QRCODE_REPEAT_AUTOFOCUS					=true;
+	public static final boolean QRCODE_AUTOFOCUS						=false;
+	/** Vibrate when find QRCode. */
+	public static final long QRCODE_VIBRATE_DURATION 					=100L; // 0 for no vibrate
+	/** Percent of width for the square to scan QRCode. */
+	public static final int QRCODE_PERCENT_WIDTH_PORTRAIT				=60;
+	/** Percent of width for the square to scan QRCode. */
+	public static final int QRCODE_PERCENT_WIDTH_LANDSCAPE				=75;
+	public static final int QRCODE_ALPHA								=128;
+	/** Minimal size to select. */
+	public static final int QRCODE_MINIMAL_CAMERA_RESOLUTION 			= 240*160;
+	public static final long QRCODE_ANIMATION_DELAY 					= 300L; // Ms
+	/** When auto-focus event happend, what just a few time before take picture ? */
+	public static final long QRCODE_DELAY_AFTER_AUTOFOCUS				=300;
+	/** Sometime, camera.autofocus throw a RuntimeException. */
+	public static final long QRCODE_DELAY_RETRY_AUTOFOCUS_IF_ERROR		=500; // Not below 100ms
+	public static final int QRCODE_MAX_ERROR_AUTOFOCUS					=3; // Stop after X errors
 	
 	//-----------------------------------------------------------------------------
 	// --- SMS parameters ---

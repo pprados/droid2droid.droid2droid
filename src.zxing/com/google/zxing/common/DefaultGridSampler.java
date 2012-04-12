@@ -23,6 +23,7 @@ import com.google.zxing.NotFoundException;
  */
 public final class DefaultGridSampler extends GridSampler {
 
+  @Override
   public BitMatrix sampleGrid(BitMatrix image,
                               int dimensionX,
                               int dimensionY,
@@ -42,12 +43,13 @@ public final class DefaultGridSampler extends GridSampler {
     return sampleGrid(image, dimensionX, dimensionY, transform);
   }
 
+  @Override
   public BitMatrix sampleGrid(BitMatrix image,
                               int dimensionX,
                               int dimensionY,
                               PerspectiveTransform transform) throws NotFoundException {
     if (dimensionX <= 0 || dimensionY <= 0) {
-      throw NotFoundException.getNotFoundInstance("Dimension not correct");      
+      throw NotFoundException.getNotFoundInstance();      
     }
     BitMatrix bits = new BitMatrix(dimensionX, dimensionY);
     float[] points = new float[dimensionX << 1];
@@ -77,7 +79,7 @@ public final class DefaultGridSampler extends GridSampler {
         // This results in an ugly runtime exception despite our clever checks above -- can't have
         // that. We could check each point's coordinates but that feels duplicative. We settle for
         // catching and wrapping ArrayIndexOutOfBoundsException.
-        throw NotFoundException.getNotFoundInstance("Error array of of bound");
+        throw NotFoundException.getNotFoundInstance();
       }
     }
     return bits;

@@ -5,7 +5,6 @@ import static org.remoteandroid.Constants.ACTION_CLEAR_PROPOSED;
 import static org.remoteandroid.Constants.ACTION_COMPLETE_HIDE;
 import static org.remoteandroid.Constants.DEBUG;
 import static org.remoteandroid.Constants.LOCK_ASK_DOWNLOAD;
-import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.Constants.TAG_SERVER_BIND;
 import static org.remoteandroid.internal.Constants.E;
@@ -22,9 +21,7 @@ import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.ui.Notifications;
 
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;

@@ -1,14 +1,15 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
+import static org.remoteandroid.internal.Constants.COOKIE_NO;
+import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.Cookies;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.Driver;

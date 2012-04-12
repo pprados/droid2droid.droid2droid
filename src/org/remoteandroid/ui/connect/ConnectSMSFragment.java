@@ -8,7 +8,6 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_TELEPHONY;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
@@ -31,7 +30,6 @@ import android.provider.Settings;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;

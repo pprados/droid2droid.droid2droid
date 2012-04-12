@@ -1,17 +1,11 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.internal.Constants.E;
-
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public abstract class StyleFragmentActivity extends SherlockFragmentActivity
 {

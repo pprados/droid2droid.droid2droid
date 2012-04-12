@@ -25,7 +25,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;

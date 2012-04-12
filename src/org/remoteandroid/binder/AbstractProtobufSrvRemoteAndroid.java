@@ -1,23 +1,23 @@
 package org.remoteandroid.binder;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.PAIR_AUTO_IF_NO_COOKIE;
+import static org.remoteandroid.Constants.PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE;
 import static org.remoteandroid.Constants.PAIR_CHECK_WIFI_ANONYMOUS;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.TAG_SERVER_BIND;
+import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.SECURITY;
 import static org.remoteandroid.internal.Constants.TAG_SECURITY;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.V;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.ConnectionType;
-import org.remoteandroid.Cookies;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext.State;
-import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;

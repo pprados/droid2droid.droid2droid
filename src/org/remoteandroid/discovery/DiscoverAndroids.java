@@ -1,6 +1,5 @@
 package org.remoteandroid.discovery;
 
-import org.remoteandroid.service.RemoteAndroidManagerStub;
 
 public interface DiscoverAndroids
 {

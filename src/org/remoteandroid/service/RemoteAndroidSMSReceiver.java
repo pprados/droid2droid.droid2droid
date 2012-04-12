@@ -1,11 +1,14 @@
 package org.remoteandroid.service;
 
+import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
+import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.SMS_MESSAGE_SIZE;
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.SMS_PORT;
 import static org.remoteandroid.Constants.TAG_SMS;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -16,15 +19,12 @@ import org.remoteandroid.Application;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
-import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Driver;
 import org.remoteandroid.internal.Messages;
-import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
-import org.remoteandroid.ui.connect.ConnectDialogFragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

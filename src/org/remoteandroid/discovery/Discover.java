@@ -1,21 +1,19 @@
 package org.remoteandroid.discovery;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.TAG_DISCOVERY;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.ETHERNET;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
-import android.content.Intent;
-import android.os.RemoteException;
 import android.util.Log;
 
 public final class Discover

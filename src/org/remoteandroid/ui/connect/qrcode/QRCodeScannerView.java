@@ -16,13 +16,21 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.QRCODE_ALPHA;
+import static org.remoteandroid.Constants.QRCODE_ANIMATION_DELAY;
+import static org.remoteandroid.Constants.QRCODE_MINIMAL_CAMERA_RESOLUTION;
+import static org.remoteandroid.Constants.QRCODE_PERCENT_WIDTH_LANDSCAPE;
+import static org.remoteandroid.Constants.QRCODE_PERCENT_WIDTH_PORTRAIT;
 import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.QRCODE_VIBRATE_DURATION;
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
+
+import static android.hardware.Camera.Parameters.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,11 +38,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.remoteandroid.R;
+import org.remoteandroid.internal.Compatibility;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -47,6 +56,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -57,6 +67,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -73,6 +84,23 @@ import com.google.zxing.ResultPoint;
 public final class QRCodeScannerView extends ViewGroup
 implements SurfaceHolder.Callback
 {
+	/**
+	 * 
+	 * Call-back
+	 *
+	 */
+	public interface QRCodeResult
+	{
+		void onQRCode(Result rawResult);
+	}
+
+	public static final int msg_auto_focus=1;
+	public static final int msg_request_frame=2;
+	public static final int msg_show_frame=3;
+	public static final int msg_decode=4;
+	public static final int msg_decode_succeeded=5;
+	public static final int msg_decode_failed=6;
+	
 	// View with surface for camera previous
 	private SurfaceView mSurfaceView;
 	// The surface holder
@@ -85,22 +113,18 @@ implements SurfaceHolder.Callback
 	/*private*/ Point mPreviousSize;
 	
 	/*private*/ Camera mCamera;
+	private int mCameraId;
 	/*private*/ int mRotation;
 	private boolean mOptimizeSize;
 
 	private Rect mCameraRect;
 	private Rect mRect = new Rect(); // Working rect
+	/*package*/Rect mFramingRectInPreview;
 	
-
-	public interface QRCodeResult
-	{
-		void onQRCode(Result rawResult);
-	}
 	private QRCodeResult mCallBack;
 	
-	private static final long ANIMATION_DELAY = 100L;
 	private static final int CURRENT_POINT_OPACITY = 0xFF;
-	private static final int MAX_RESULT_POINTS = 20;
+	private static final int MAX_RESULT_POINTS = 20; // TODO:QRCode result points
 
 	private final Paint mPaint=new Paint();
 
@@ -109,8 +133,6 @@ implements SurfaceHolder.Callback
 	private Bitmap mResultBitmap;
 
 	private Bitmap mPreviousBitmap;
-
-	private Result mLastResult;
 
 	private final int mMaskColor;
 
@@ -130,35 +152,41 @@ implements SurfaceHolder.Callback
 
 	private Long mStartTime = 0L;
 
-//	private Handler mHandler = new Handler();
-
 	private BeepManager mBeepManager;
+	
 	private Runnable mUpdateTimeTask = new Runnable()
 	{
 		public void run()
 		{
 			++mAnimPos;
 			mStartTime = SystemClock.uptimeMillis();
-			mCaptureHandler.postAtTime(
-				this, mStartTime + 300);
+			mCaptureHandler.postAtTime(this, mStartTime + QRCODE_ANIMATION_DELAY);
 		}
 	};
 
-	
-	private static final int[] sSurfaceRotationToCameraDegree=
+	private static final int[] sSurfaceRotationToCameraDegreeForLandscapeDefault=
 		{
-			90, // 0
-			0, // 90°
-			270,// 180°
-			180 // 270°
+			0, 		// Surface.ROTATION_0
+			270,	// Surface.ROTATION_90
+			180,	// Surface.ROTATION_180
+			90,		// Surface.ROTATION_270
+			
+		};
+	private static final int[] sSurfaceRotationToCameraDegreeForPortraitDefaut=
+		{
+			90,		// Surface.ROTATION_0
+			0, 		// Surface.ROTATION_90
+			270,	// Surface.ROTATION_180
+			180,	// Surface.ROTATION_270
 		};
 	
-	class AnimView extends View
+	private class AnimView extends View
 	{
 		AnimView(Context context)
 		{
 			super(context);
 		}
+		@Override
 		protected void onDraw(Canvas canvas) 
 		{
 			Rect frame = getFramingRectInPreview();
@@ -167,11 +195,8 @@ implements SurfaceHolder.Callback
 				return;
 			}
 
-			int width = canvas.getWidth();
-			int height = canvas.getHeight();
-//			mPaint.setColor(android.R.color.white);
-//			mPaint.setStyle(Style.FILL);
-//			canvas.drawRect(0, 0, width/2, height/2, mPaint);
+			final int width = canvas.getWidth();
+			final int height = canvas.getHeight();
 			
 			// Draw the exterior (i.e. outside the framing rect) darkened
 			mPaint.setStyle(Style.FILL);
@@ -203,19 +228,16 @@ implements SurfaceHolder.Callback
 				// Draw a red "laser scanner" line through the middle to show
 				// decoding is active
 				mPaint.setColor(mLaserColor);
-				mPaint.setAlpha(128); // FIXME
-				// mPaint.setAlpha(SCANNER_ALPHA[mScannerAlpha]);
+				mPaint.setAlpha(QRCODE_ALPHA);
 				mPaint.setStyle(Style.STROKE);
 				mPaint.setStrokeWidth(5);
 
-				// TODO: Cadre plus petit que la réalité !
 				int animPos = mAnimPos % 8;
 				int w = frame.width();
 				int h = frame.height();
 				int ww = w / 20 * (animPos);
 				int hh = h / 20 * (animPos);
 				mRect.set(frame.left + ww, frame.top + hh, frame.right - ww, frame.bottom- hh);
-				// mScannerAlpha = (mScannerAlpha + 1) % SCANNER_ALPHA.length;
 				canvas.drawRect(mRect, mPaint);
 
 				int boxLeft = mRect.width() / 8;
@@ -250,14 +272,10 @@ implements SurfaceHolder.Callback
 						frame.bottom + 1, mPaint);
 				}
 
-//				Rect previewFrame = CameraManager.get().getFramingRectInPreview();
 				Rect previewFrame = frame;
 				float scaleX = frame.width() / (float) previewFrame.width();
 				float scaleY = frame.height() / (float) previewFrame.height();
 
-				//Log.d("camera", "surface size in view : " +this.getWidth() + "," + this.getHeight() + "  framing " + previewFrame);
-				
-				
 				List<ResultPoint> currentPossible = mPossibleResultPoints;
 				List<ResultPoint> currentLast = mLastPossibleResultPoints;
 				if (currentPossible.isEmpty())
@@ -302,18 +320,19 @@ implements SurfaceHolder.Callback
 					}
 				}
 
-				// Request another update at the animation interval, but only
-				// repaint the laser line,
+				// Request another update at the animation interval, but only repaint the laser line,
 				// not the entire viewfinder mask.
 				if (!QRCODE_SHOW_CURRENT_DECODE)
 					postInvalidateDelayed(
-						ANIMATION_DELAY, frame.left, frame.top, frame.right,
+						QRCODE_ANIMATION_DELAY, frame.left, frame.top, frame.right,
 						frame.bottom);
 			}
 			
 		}
 	}
+	
 	// This constructor is used when the class is built from an XML resource.
+	@SuppressWarnings("deprecation")
 	public QRCodeScannerView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
@@ -348,51 +367,46 @@ implements SurfaceHolder.Callback
 				mUpdateTimeTask, 100);
 		}
 		mBeepManager=new BeepManager(getContext());
-		
-
 	}
 
-	public void setOnResult(QRCodeResult callback)
+	/**
+	 * Set callback on qrcode is decoded.
+	 * 
+	 * @param callback The call back.
+	 */
+	public final void setOnResult(QRCodeResult callback)
 	{
 		mCallBack=callback;
 	}
+	
 	/**
-	 * Optimize the previous size for camera.
+	 * Optimize the previous size for camera. Else, use the optimized resolution.
+	 * 
 	 * @param optimizeSize true or false
 	 */
-	public void setOptimizeSize(boolean optimizeSize)
+	public final void setOptimizeSize(boolean optimizeSize)
 	{
 		mOptimizeSize=optimizeSize;
 	}
-	public boolean isOptimizeSize()
+	
+	public final boolean isOptimizeSize()
 	{
 		return mOptimizeSize;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void invalidate()
 	{
 		super.invalidate();
 		if (mAnimView!=null) mAnimView.invalidate();
 	}
-	// TODO
-	public void switchCamera(Camera camera)
-	{
-		setCamera(camera);
-		try
-		{
-			camera.setPreviewDisplay(mHolder);
-		}
-		catch (IOException exception)
-		{
-			if (E) Log.e(TAG_QRCODE, "IOException caused by setPreviewDisplay()", exception);
-		}
-		Camera.Parameters parameters = camera.getParameters();
-		parameters.setPreviewSize(mCameraSize.width, mCameraSize.height);
-		requestLayout();
-
-		camera.setParameters(parameters);
-	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
@@ -405,7 +419,7 @@ implements SurfaceHolder.Callback
 		if (mCamera!=null && mCameraSize==null)
 		{
 			mCameraSize = getOptimalCameraPreviewSize(mCamera.getParameters().getSupportedPreviewSizes(), width, height);
-			if (V) Log.d(TAG_QRCODE,"camera size="+mCameraSize.width+","+mCameraSize.height);
+			if (V) Log.v(TAG_QRCODE,"camera size="+mCameraSize.width+","+mCameraSize.height);
 		}
 	}
 
@@ -413,36 +427,58 @@ implements SurfaceHolder.Callback
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
+		// The onConfigurationChanged is not allways invoked.
+		final int detectOrientation=((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+		setRotation(detectOrientation);
+//		if (r>b)
+//		{
+//			if (mRotation!=0)
+//			{
+//				setRotation(Surface.ROTATION_0);
+//			}
+//		}
+//		else
+//		{
+//			if (mRotation!=90)
+//			{
+//				setRotation(Surface.ROTATION_90);
+//			}
+//		}
 		if (changed && getChildCount() > 0)
 		{
-			final int width = r - l;
-			final int height = b - t;
-
-			int previewWidth = width;
-			int previewHeight = height;
-			if (mOptimizeSize && mCameraSize != null)
-			{
-				previewWidth = mCameraSize.width;
-				previewHeight = mCameraSize.height;
-			}
-			// Center the child SurfaceView within the parent.
-			if (width * previewHeight > height * previewWidth)
-			{
-				final int scaledChildWidth = previewWidth * height / previewHeight;
-				mCameraRect=new Rect((width - scaledChildWidth) / 2, 0, (width + scaledChildWidth) / 2, height);
-			}
-			else
-			{
-				final int scaledChildHeight = previewHeight * width / previewWidth;
-				mCameraRect=new Rect(0, (height - scaledChildHeight) / 2, width, (height + scaledChildHeight) / 2);
-			}
+			calcCameraRect(l, t, r, b);
 			mSurfaceView.layout(mCameraRect.left,mCameraRect.top,mCameraRect.width(),mCameraRect.height());
 			if (mAnimView!=null)
 				mAnimView.layout(mCameraRect.left,mCameraRect.top,mCameraRect.width(),mCameraRect.height());
 		}
 	}
+
+	private void calcCameraRect(int l, int t, int r, int b)
+	{
+		final int width = r - l;
+		final int height = b - t;
+
+		int previewWidth = width;
+		int previewHeight = height;
+		if (mOptimizeSize && mCameraSize != null)
+		{
+			previewWidth = mCameraSize.width;
+			previewHeight = mCameraSize.height;
+		}
+		// Center the child SurfaceView within the parent.
+		if (width * previewHeight > height * previewWidth)
+		{
+			final int scaledChildWidth = previewWidth * height / previewHeight;
+			mCameraRect=new Rect((width - scaledChildWidth) / 2, 0, (width + scaledChildWidth) / 2, height);
+		}
+		else
+		{
+			final int scaledChildHeight = previewHeight * width / previewWidth;
+			mCameraRect=new Rect(0, (height - scaledChildHeight) / 2, width, (height + scaledChildHeight) / 2);
+		}
+	}
 	
-	public void drawViewfinder()
+	/*package*/ void drawViewfinder()
 	{
 		if (!QRCODE_SHOW_CURRENT_DECODE)
 		{
@@ -470,7 +506,8 @@ implements SurfaceHolder.Callback
 		invalidate();
 	}
 
-	public void addPossibleResultPoint(ResultPoint point)
+	// TODO: Show result points ?
+	/*package*/ void addPossibleResultPoint(ResultPoint point)
 	{
 		List<ResultPoint> points = mPossibleResultPoints;
 		synchronized (point)
@@ -490,9 +527,7 @@ implements SurfaceHolder.Callback
 	private Point scaledRotatePoint(Point p, int rotation, int canvasW, int canvasH)
 	{
 		Point tmp = new Point();
-		if (D)
-			Log.d(
-				TAG_QRCODE, "rotating result points to match the device orientation (rotation: " + rotation + "°)");
+		if (D) Log.d(TAG_QRCODE, "rotating result points to match the device orientation (rotation: " + rotation + "°)");
 		switch(rotation){
 			case 90:
 				tmp.x = canvasW - p.y;
@@ -514,9 +549,8 @@ implements SurfaceHolder.Callback
 		return tmp;
 	}
 
-	public void handlePrevious(Result rawResult, Bitmap barcode)
+	/*package*/ void handlePrevious(Result rawResult, Bitmap barcode)
 	{
-		mLastResult = rawResult;
 		drawPreviousBitmap(barcode);
 	}
 	
@@ -527,7 +561,7 @@ implements SurfaceHolder.Callback
 	 * @param rawResult The contents of the barcode.
 	 * @param barcode A greyscale bitmap of the camera data which was decoded.
 	 */
-	public void handleDecode(Result rawResult, Bitmap barcode)
+	/*package*/ void handleDecode(Result rawResult, Bitmap barcode)
 	{
 		drawResultBitmap(barcode);
 		drawResultPoints(barcode, rawResult);
@@ -568,8 +602,7 @@ implements SurfaceHolder.Callback
 				BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat().equals(
 				BarcodeFormat.EAN_13)))
 			{
-				// Hacky special case -- draw two lines, for the barcode and
-				// metadata
+				// Hacky special case -- draw two lines, for the barcode and metadata
 				drawLine(canvas, paint, points[0], points[1]);
 				drawLine(canvas, paint, points[2], points[3]);
 			}
@@ -595,54 +628,155 @@ implements SurfaceHolder.Callback
 		canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
 	}
 
-	
+	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
 	{
-		Camera.Parameters parameters = mCamera.getParameters();
-		final String focusMode = findSettableValue(parameters.getSupportedFocusModes(),
-			Camera.Parameters.FOCUS_MODE_AUTO, 
-			Camera.Parameters.FOCUS_MODE_MACRO);
-		if (focusMode != null)
-			parameters.setFocusMode(focusMode);
-		final String whiteBalance = findSettableValue(parameters.getSupportedWhiteBalance(),
-			Camera.Parameters.WHITE_BALANCE_AUTO);
-		if (whiteBalance!=null)
-			parameters.setWhiteBalance(whiteBalance);
-		final String sceneMode = findSettableValue(parameters.getSupportedSceneModes(),
-			Camera.Parameters.SCENE_MODE_BARCODE,
-			Camera.Parameters.SCENE_MODE_AUTO);
-		if (sceneMode!=null)
-			parameters.setSceneMode(sceneMode);
+		mCamera.setParameters(getCameraParameters());
 		
-		mCamera.setParameters(parameters);
-//		mCamera.setDisplayOrientation(mOrientation);
-		mCaptureHandler.mStarted=false;
 		mCaptureHandler.startScan();
 		requestLayout();
 	}
 
-	public void setCamera(Camera camera)
+	private Camera.Parameters getCameraParameters()
 	{
-		mCamera = camera;
-		if (mCamera != null)
+		Camera.Parameters parameters = mCamera.getParameters();
+		final String focusMode = findSettableValue(parameters.getSupportedFocusModes(),
+			FOCUS_MODE_AUTO,FOCUS_MODE_MACRO);
+		if (focusMode != null)
+			parameters.setFocusMode(focusMode);
+		final String whiteBalance = findSettableValue(parameters.getSupportedWhiteBalance(),
+			WHITE_BALANCE_AUTO,WHITE_BALANCE_FLUORESCENT);
+		if (whiteBalance!=null)
+			parameters.setWhiteBalance(whiteBalance);
+		final String sceneMode = findSettableValue(parameters.getSupportedSceneModes(),
+			SCENE_MODE_BARCODE,SCENE_MODE_ACTION,SCENE_MODE_AUTO);
+		if (sceneMode!=null)
+			parameters.setSceneMode(sceneMode);
+		final String colorEffect = findSettableValue(parameters.getSupportedColorEffects(),
+			EFFECT_MONO,EFFECT_NONE);
+		if (colorEffect!=null)
+			parameters.setColorEffect(colorEffect);
+		final String flashMode = findSettableValue(parameters.getSupportedFlashModes(),
+			FLASH_MODE_AUTO,FLASH_MODE_OFF);
+		if (flashMode!=null)
+			parameters.setFlashMode(flashMode);
+		final String antiBandingMode = findSettableValue(parameters.getSupportedAntibanding(),
+			ANTIBANDING_AUTO,ANTIBANDING_60HZ,ANTIBANDING_OFF);
+		if (antiBandingMode!=null)
+			parameters.setAntibanding(antiBandingMode);
+		
+		parameters.setAntibanding(ANTIBANDING_AUTO);
+		if ((Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) && parameters.isVideoStabilizationSupported())
+			parameters.setVideoStabilization(true);
+		if (parameters.isZoomSupported())
+			parameters.setZoom(0);
+		if (D)
 		{
-			setRotation(Surface.ROTATION_0);			
-			requestLayout();
+			Log.d(TAG_QRCODE,"--------------");
+			Log.d(TAG_QRCODE,"White balance="+parameters.getWhiteBalance());
+			Log.d(TAG_QRCODE,"Scene        ="+parameters.getSceneMode());
+			Log.d(TAG_QRCODE,"Color effect ="+parameters.getColorEffect());
+			Log.d(TAG_QRCODE,"Flash mode   ="+parameters.getFlashMode());
+			Log.d(TAG_QRCODE,"Anti-banding ="+parameters.getAntibanding());
+			Log.d(TAG_QRCODE,"Zoom         ="+parameters.getZoom());
+			Log.d(TAG_QRCODE,"--------------");
 		}
+		return parameters;
 	}
-	public void setRotation(int displayRotation)
+
+	public final void setCamera(int cameraId) throws IOException
 	{
 		if (mCamera!=null)
 		{
-			mRotation=sSurfaceRotationToCameraDegree[displayRotation];
-			Camera.Parameters parameters=mCamera.getParameters();
-			parameters.setRotation(mRotation);
-			mCamera.setParameters(parameters);
-			mCamera.setDisplayOrientation(mRotation);
+			mCamera.stopPreview();
+			mCamera.cancelAutoFocus();
+			mCamera.release();
+			mCamera=null;
+		}
+		if (cameraId!=-1)
+		{
+			if (Compatibility.VERSION_SDK_INT >= Compatibility.VERSION_GINGERBREAD)
+			{
+				mCamera = Camera.open(cameraId);
+			}
+			else
+				mCamera = Camera.open();		
+			mCameraId=cameraId;
+			
+			if (mCamera != null)
+			{
+				if (Build.VERSION.SDK_INT >= 8)
+					mCamera.setDisplayOrientation(mRotation);
+				mCamera.setPreviewDisplay(mHolder);
+			}
+		}
+		requestLayout();
+	}
+	
+	public final Camera getCamera()
+	{
+		return mCamera;
+	}
+	private int getDeviceDefaultOrientation()
+	{
+
+		WindowManager lWindowManager =  (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+
+		Configuration cfg = getResources().getConfiguration();
+		int lRotation = lWindowManager.getDefaultDisplay().getRotation();
+
+		if (
+				(((lRotation == Surface.ROTATION_0) ||(lRotation == Surface.ROTATION_180)) &&   
+				(cfg.orientation == Configuration.ORIENTATION_LANDSCAPE)) ||
+				(((lRotation == Surface.ROTATION_90) ||(lRotation == Surface.ROTATION_270)) &&    
+						(cfg.orientation == Configuration.ORIENTATION_PORTRAIT)))
+		{
+			return Configuration.ORIENTATION_LANDSCAPE;
+		}     
+		return Configuration.ORIENTATION_PORTRAIT;
+	}	
+	private void setRotation(int displayRotation)
+	{
+		if (D)
+		{
+			int detectOrientation=((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+			if  (detectOrientation!=displayRotation)
+			{
+				if (E) Log.e(TAG_QRCODE,"detectOrientation="+detectOrientation+", displayRotation="+displayRotation);
+			}
+			assert (detectOrientation==displayRotation);
+		}
+		int rotation;
+		int defaultOrientation=getDeviceDefaultOrientation();
+		if (defaultOrientation==Configuration.ORIENTATION_LANDSCAPE)
+			rotation=sSurfaceRotationToCameraDegreeForLandscapeDefault[displayRotation];
+		else
+			rotation=sSurfaceRotationToCameraDegreeForPortraitDefaut[displayRotation];
+		if (mCamera!=null && rotation!=mRotation)
+		{
+			try
+			{
+				Camera.Parameters parameters=getCameraParameters();
+				parameters.setRotation(mRotation=rotation);
+//FIXME		setCamera(mCameraId);
+				mCamera.setParameters(parameters);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
+				{
+					mCamera.setDisplayOrientation(mRotation);
+				}
+			}
+			catch (Exception e)
+			{
+				if (E) Log.e(TAG_QRCODE,"Error when reconnect the camera",e);
+			}
+			mCamera.startPreview();
 			requestLayout();
 		}
+		mCaptureHandler.startScan();
+		mFramingRectInPreview=null;
+		mCameraRect=null;
 	}
-
+	
 	@Override
 	public void surfaceCreated(SurfaceHolder holder)
 	{
@@ -655,7 +789,7 @@ implements SurfaceHolder.Callback
 				mCamera.setPreviewDisplay(holder);
 				Size s=mCamera.getParameters().getPreviewSize();
 				mPreviousSize=new Point(s.width,s.height);
-				mCaptureHandler.startScan();
+//				mCaptureHandler.startScan();
 			}
 		}
 		catch (IOException exception)
@@ -673,51 +807,49 @@ implements SurfaceHolder.Callback
 			mCamera.stopPreview();
 		}
 	}
+	
 	private Size getOptimalCameraPreviewSize(List<Size> sizes, int w, int h)
 	{
 		// Select resolution with the minimum number of pixels
+		final int minimalSize=QRCODE_MINIMAL_CAMERA_RESOLUTION; 
 		int posMin=-1;
-		long pixels=Long.MAX_VALUE;
+		int pixels=Integer.MAX_VALUE;
+		Size size;
 		for (int i=0;i<sizes.size();++i)
 		{
-			Size size=sizes.get(i);
-			long p=size.height*size.height;
-			if (p<pixels)
+			size=sizes.get(i);
+			//if (V) Log.v(TAG_QRCODE,i+" Check size "+size.width+","+size.height);
+			final int p=size.height*size.width;
+			if (p<pixels && p>=minimalSize)
 			{
 				pixels=p;
 				posMin=i;
 			}
 		}
-		return sizes.get(posMin);
+		if (posMin==-1)
+			posMin=0;
+		size=sizes.get(posMin);
+		if (I) Log.i(TAG_QRCODE,"Select resolution "+size.width+","+size.height+" for the camera");
+		return size;
 	}
 
-	/*package*/Rect mFramingRectInPreview;
-	
-	public Rect getFramingRectInPreview()
+	/*package*/ Rect getFramingRectInPreview()
 	{
-//		if (mCameraResolution==null) return null;
+		final int width=getWidth();
+		final int height=getHeight();
 		if (mFramingRectInPreview == null)
 		{
-//			mFramingRectInPreview=new Rect(0,0,10,5);
-//			mFramingRectInPreview=new Rect(0,0,getWidth(),getHeight());
-//			int width=Math.min(getWidth(),getHeight())/2;
-//			int height=Math.min(getWidth(),getHeight())/2;
-			int width=getWidth()/2;
-			int height=getHeight()/2;
-//			mFramingRectInPreview=new Rect(0,0,width,height); // 0,240,320,480
-//			mFramingRectInPreview=new Rect(0,height,width,height*2); // 320,240,640,480
-//			mFramingRectInPreview=new Rect(width,height,width*2,height*2); // 0,240,320,480
-			// Version 80%
-			final int sizemax=Math.min(getWidth(),getHeight())*80/100;
+			final int coef=(mRotation==90) ? QRCODE_PERCENT_WIDTH_PORTRAIT : QRCODE_PERCENT_WIDTH_LANDSCAPE;
+			final int sizemax=Math.min(width,height)*coef/100;
 			mFramingRectInPreview=new Rect();
-			mFramingRectInPreview.left=(getWidth()-sizemax)/2;
-			mFramingRectInPreview.top=(getHeight()-sizemax)/2;
+			mFramingRectInPreview.left=(width-sizemax)/2;
+			mFramingRectInPreview.top=(height-sizemax)/2;
 			mFramingRectInPreview.right=mFramingRectInPreview.left+sizemax;
 			mFramingRectInPreview.bottom=mFramingRectInPreview.top+sizemax;
 		}
 		return mFramingRectInPreview;
 	}
-	public Rect getCameraRect()
+	/*package*/ Rect getCameraRect()
 	{
 		return mCameraRect;
 	}
@@ -738,12 +870,10 @@ implements SurfaceHolder.Callback
 		return result;
 	}
 
-	static final class BeepManager
+	private static final class BeepManager
 	{
 
 		private static final float BEEP_VOLUME = 0.10f;
-
-		private static final long VIBRATE_DURATION = 200L;
 
 		private Context mContext;
 
@@ -751,19 +881,12 @@ implements SurfaceHolder.Callback
 
 		private boolean mPlayBeep;
 
-		private boolean mVibrate;
-
 		public BeepManager(Context context)
 		{
 			mContext = context;
 			
 			mMediaPlayer = null;
 			updatePrefs();
-		}
-
-		public void setActivity(Activity activity)
-		{
-			mContext = activity;
 		}
 
 		public void updatePrefs()
@@ -790,18 +913,17 @@ implements SurfaceHolder.Callback
 			{
 				mMediaPlayer.start();
 			}
-			if (mVibrate)
+			if (QRCODE_VIBRATE_DURATION!=0)
 			{
-				Vibrator vibrator = (Vibrator) mContext
-						.getSystemService(Context.VIBRATOR_SERVICE);
-				vibrator.vibrate(VIBRATE_DURATION);
+				final Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+				vibrator.vibrate(QRCODE_VIBRATE_DURATION);
 			}
 		}
 
 		private static boolean shouldBeep(SharedPreferences prefs, Context activity)
 		{
 			boolean shouldPlayBeep = true;
-			// FIXME prefs.getBoolean(PreferencesActivity.KEY_PLAY_BEEP, true);
+			// TODO prefs.getBoolean(PreferencesActivity.KEY_PLAY_BEEP, true);
 			if (shouldPlayBeep)
 			{
 				// See if sound settings overrides this

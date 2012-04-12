@@ -7,12 +7,10 @@ import org.remoteandroid.R;
 import org.remoteandroid.ui.Collapser;
 import org.remoteandroid.ui.Collapser.Collapsible;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.provider.ContactsContract.CommonDataKinds.Phone;

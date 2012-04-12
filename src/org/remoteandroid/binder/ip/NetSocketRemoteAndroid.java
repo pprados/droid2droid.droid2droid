@@ -8,7 +8,6 @@ import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
-import java.io.NotActiveException;
 
 import org.remoteandroid.binder.AbstractProtobufSrvRemoteAndroid;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid;

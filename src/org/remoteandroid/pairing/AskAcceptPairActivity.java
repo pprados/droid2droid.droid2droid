@@ -2,14 +2,15 @@ package org.remoteandroid.pairing;
 
 import static org.remoteandroid.Constants.LOCK_ASK_PAIRING;
 import static org.remoteandroid.Constants.TIMEOUT_ASK_PAIR;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_INSTALL;
+import static org.remoteandroid.internal.Constants.TAG_PAIRING;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
 
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.R;
-
 
 import android.app.AlertDialog;
 import android.app.Dialog;
