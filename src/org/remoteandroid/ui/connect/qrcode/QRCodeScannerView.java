@@ -16,6 +16,20 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static android.hardware.Camera.Parameters.ANTIBANDING_60HZ;
+import static android.hardware.Camera.Parameters.ANTIBANDING_AUTO;
+import static android.hardware.Camera.Parameters.ANTIBANDING_OFF;
+import static android.hardware.Camera.Parameters.EFFECT_MONO;
+import static android.hardware.Camera.Parameters.EFFECT_NONE;
+import static android.hardware.Camera.Parameters.FLASH_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
+import static android.hardware.Camera.Parameters.SCENE_MODE_ACTION;
+import static android.hardware.Camera.Parameters.SCENE_MODE_AUTO;
+import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
+import static android.hardware.Camera.Parameters.WHITE_BALANCE_AUTO;
+import static android.hardware.Camera.Parameters.WHITE_BALANCE_FLUORESCENT;
 import static org.remoteandroid.Constants.QRCODE_ALPHA;
 import static org.remoteandroid.Constants.QRCODE_ANIMATION_DELAY;
 import static org.remoteandroid.Constants.QRCODE_MINIMAL_CAMERA_RESOLUTION;
@@ -29,8 +43,6 @@ import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
-
-import static android.hardware.Camera.Parameters.*;
 
 import java.io.IOException;
 import java.util.ArrayList;

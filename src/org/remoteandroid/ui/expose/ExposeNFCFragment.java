@@ -5,8 +5,9 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.TAG_NFC;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.Constants.*;
 
 import java.io.IOException;
 
@@ -100,7 +101,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	@Override
 	protected void updateStatus(int activeNetwork)
 	{
-		if (V) Log.v("Frag","ExposeQRCodeFragment.updateHelp...");
+		if (V) Log.v(TAG_QRCODE,"ExposeQRCodeFragment.updateHelp...");
 		if (mUsage==null) // Not yet initialized
 			return;
 		

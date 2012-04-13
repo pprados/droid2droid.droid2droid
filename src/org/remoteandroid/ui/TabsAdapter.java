@@ -96,11 +96,9 @@ public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager
 	@Override
 	public void onPageSelected(int position)
 	{
-		if (V) Log.v("Frag","onPageSelected("+position+")...");
 		if (mActionBar!=null)
 			mActionBar.setSelectedNavigationItem(position);
 		mTabs.get(position).mFragment.onPageSelected();
-		if (V) Log.v("Frag","onPageSelected("+position+") done");
 	}
 
 	@Override
@@ -111,7 +109,6 @@ public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction fft)
 	{
-		if (V) Log.v("Frag","onTabSelected()...");
 		Application.hideSoftKeyboard(mContext);
 		mContext.setProgressBarIndeterminateVisibility(false);
 		FragmentTransaction ft = fft;
@@ -121,7 +118,6 @@ public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager
 		if (fft == null)
 			ft.commit();
 		((AbstractBodyFragment)getItem(mViewPager.getCurrentItem())).onPageSelected();
-		if (V) Log.v("Frag","onTabSelected() done");
 	}
 
 	@Override

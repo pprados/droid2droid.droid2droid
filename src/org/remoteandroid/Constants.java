@@ -149,9 +149,7 @@ public final class Constants
 	// --- QRCode parameters ---
     public static final boolean QRCODE									=true;
 	/** Show the current bitmap to analyze in overlay layer. */
-	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=true;
-	/** Force auto-focus before analyze bitmap. */
-	public static final boolean QRCODE_AUTOFOCUS						=true;
+	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=false;
 	/** Vibrate when find QRCode. */
 	public static final long QRCODE_VIBRATE_DURATION 					=100L; // 0 for no vibrate
 	/** Percent of width for the square to scan QRCode. */
@@ -159,6 +157,9 @@ public final class Constants
 	/** Percent of width for the square to scan QRCode. */
 	public static final int QRCODE_PERCENT_WIDTH_LANDSCAPE				=75;
 	public static final int QRCODE_ALPHA								=128;
+	/** Encoding String to binary */
+	public static final String QRCODE_BYTE_MODE_ENCODING				="ISO-8859-1";
+
 	/** Minimal size to select. */
 	public static final int QRCODE_MINIMAL_CAMERA_RESOLUTION 			= 240*160;
 	public static final long QRCODE_ANIMATION_DELAY 					= 300L; // Ms

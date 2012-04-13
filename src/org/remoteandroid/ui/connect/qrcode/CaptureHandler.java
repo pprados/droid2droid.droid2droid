@@ -62,7 +62,7 @@ public final class CaptureHandler extends Handler
 		public void onPreviewFrame(byte[] data, Camera camera)
 		{
 			Point previousSize = mQRCodeScannerView.mPreviousSize;
-			if (!mStarted && QRCODE_AUTOFOCUS)
+			if (!mStarted)
 			{
 				// Warning: Start autofocus AFTER the first preview frame.
 				mStarted=true;
@@ -224,10 +224,7 @@ public final class CaptureHandler extends Handler
 
 	private void restartPreviewAndDecode()
 	{
-		if (QRCODE_AUTOFOCUS)
-			obtainMessage(msg_auto_focus).sendToTarget();
-		else
-			obtainMessage(msg_request_frame).sendToTarget();
+		obtainMessage(msg_auto_focus).sendToTarget();
 		mQRCodeScannerView.drawViewfinder();
 	}
 	

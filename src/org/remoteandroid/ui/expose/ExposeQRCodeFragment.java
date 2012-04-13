@@ -1,8 +1,8 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.TAG_QRCODE;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
@@ -75,7 +75,6 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 	@Override
 	public void onResume()
 	{
-		if (V) Log.v("Frag","ExposeQRCodeFragment.onResume");
 		super.onResume();
 //		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
 //		mScreenBrightness=layoutParams.screenBrightness;
@@ -88,7 +87,6 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 	@Override
 	public void onPause()
 	{
-		if (V) Log.v("Frag","ExposeQRCodeFragment.onPause");
 		super.onPause();
 //		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
 //		layoutParams.screenBrightness = mScreenBrightness;
@@ -99,7 +97,6 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		if (V) Log.v("Frag","ExposeQRCodeFragment.onCreateView");
 		View main=inflater.inflate(R.layout.expose_qrcode, container, false);
 
 		mUsage=(TextView)main.findViewById(R.id.usage);
@@ -108,13 +105,16 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 		return main;
 	}
 
-	
+	int mOldActiveNetwork;
 	@Override
 	protected void updateStatus(int activeNetwork)
 	{
-		if (V) Log.v("Frag","ExposeQRCodeFragment.updateHelp...");
+		if (V) Log.v(TAG_QRCODE,"ExposeQRCodeFragment.updateHelp...");
 		if (mUsage==null) // Not yet initialized
 			return;
+		if (mOldActiveNetwork==activeNetwork)
+			return;
+		mOldActiveNetwork=activeNetwork;
 		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
 		if (airplane)
 		{
@@ -187,7 +187,6 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 		{
 			Messages.Candidates candidates = Trusted.getConnectMessage(context);
 			byte[] data = candidates.toByteArray();		
-//data=new byte[]{-83, 1, 113, 1, -88,};	
 			if (data.length==0)
 				return null;
 			String contents = null;
@@ -216,7 +215,7 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 	{
 		if (V) Log.v(TAG_QRCODE,"Calculate QRCode");
 		 Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>(2);
-		 hints.put(EncodeHintType.CHARACTER_SET, ""/*"US-ASCII"*/); // WARNING: Patch in QRCodeWriter to accept this kind of char set
+		 hints.put(EncodeHintType.CHARACTER_SET, QRCODE_BYTE_MODE_ENCODING); // WARNING: Patch in QRCodeWriter to accept this kind of char set
 
 		Writer writer = new QRCodeWriter();
 		BitMatrix result = writer.encode(contents, format, 0, 0, hints);
