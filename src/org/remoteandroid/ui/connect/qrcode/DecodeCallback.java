@@ -16,9 +16,9 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static org.remoteandroid.Constants.QRCODE_BYTE_MODE_ENCODING;
 import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
 import static org.remoteandroid.Constants.TAG_QRCODE;
-import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.ui.connect.qrcode.QRCodeScannerView.msg_decode_failed;
 import static org.remoteandroid.ui.connect.qrcode.QRCodeScannerView.msg_decode_succeeded;
@@ -62,7 +62,7 @@ final class DecodeCallback
 	{
 		mHints = new Hashtable<DecodeHintType, Object>(1);
 //		mHints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, resultPointCallback);
-		mHints.put(DecodeHintType.CHARACTER_SET, "");
+		mHints.put(DecodeHintType.CHARACTER_SET, QRCODE_BYTE_MODE_ENCODING); // WARNING: Patch in QRCodeWriter to accept this kind of char set
 		mReader = new QRCodeReader();
 	}
 	public boolean requestDecode(QRCodeScannerView scannerView,final byte[] data,final int width, final int height)

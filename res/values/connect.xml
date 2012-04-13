@@ -63,11 +63,15 @@
 	<!-- ******* -->	    
 	<string name="connect_discover">Discover</string>
 	<string name="connect_discover_description">Discovers devices in proximity.</string>
-	<string name="connect_discover_help">Discover the devices if they are connected in the same WIFI network or have the bluetooth activated.\n
+	<string name="connect_discover_help">Discover the devices if they are connected in the same local network.\n
 Then, select one discovered device to try to connect.
     </string>
+<!-- 	<string name="connect_discover_help">Discover the devices if they are connected in the same local network or have the bluetooth activated.\n -->
+<!-- Then, select one discovered device to try to connect. -->
+<!--     </string> -->
 	<string name="connect_discover_help_airplane">To discover the device at proximity, you must desactivate the airplane mode.</string>
-	<string name="connect_discover_help_wifi_or_bt">To discover the device at proximity, you must activate WIFI or bluetooth.</string>
+	<string name="connect_discover_help_wifi_or_bt">To discover the device at proximity, you must activate WIFI.</string>
+<!-- 	<string name="connect_discover_help_wifi_or_bt">To discover the device at proximity, you must activate WIFI or bluetooth.</string> -->
 	<string name="connect_discover_empty_help">
         <p><b>Discovers</b> devices proximity (WIFI and Bluetooth).\n\n</p>
 	</string>
@@ -92,8 +96,9 @@ Then, select one discovered device to try to connect.
 	<string name="connect_qrcode_description">Scan QRCode from remote device.</string>
 	<string name="connect_qrcode_help">Place a qrcode from Remote Android inside the viewfinder rectangle without reflexion to scan it.</string>
 	<string name="connect_qrcode_help_airplane">Remove airplane mode.</string>
-	<string name="connect_qrcode_help_ip_bt">Activate network or bluetooth.</string>
-		<string name="connect_qrcode_empty_help">
+	<string name="connect_qrcode_help_ip_bt">Activate local network.</string>
+<!-- 	<string name="connect_qrcode_help_ip_bt">Activate local network or bluetooth.</string> -->
+	<string name="connect_qrcode_empty_help">
         <b>QRCode</b> propose to connect two devices with the camera and a QRCode. One device expose the QRCode and this one scan the code.\n\n
 	</string>
 <!-- 	<string name="connect_qrcode_empty_help"> -->

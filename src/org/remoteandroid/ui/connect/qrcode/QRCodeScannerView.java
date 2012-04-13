@@ -16,6 +16,20 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
+import static android.hardware.Camera.Parameters.ANTIBANDING_60HZ;
+import static android.hardware.Camera.Parameters.ANTIBANDING_AUTO;
+import static android.hardware.Camera.Parameters.ANTIBANDING_OFF;
+import static android.hardware.Camera.Parameters.EFFECT_MONO;
+import static android.hardware.Camera.Parameters.EFFECT_NONE;
+import static android.hardware.Camera.Parameters.FLASH_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
+import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
+import static android.hardware.Camera.Parameters.SCENE_MODE_ACTION;
+import static android.hardware.Camera.Parameters.SCENE_MODE_AUTO;
+import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
+import static android.hardware.Camera.Parameters.WHITE_BALANCE_AUTO;
+import static android.hardware.Camera.Parameters.WHITE_BALANCE_FLUORESCENT;
 import static org.remoteandroid.Constants.QRCODE_ALPHA;
 import static org.remoteandroid.Constants.QRCODE_ANIMATION_DELAY;
 import static org.remoteandroid.Constants.QRCODE_MINIMAL_CAMERA_RESOLUTION;
@@ -29,8 +43,6 @@ import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
-
-import static android.hardware.Camera.Parameters.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -645,7 +657,7 @@ implements SurfaceHolder.Callback
 		if (sceneMode!=null)
 			parameters.setSceneMode(sceneMode);
 		final String colorEffect = findSettableValue(parameters.getSupportedColorEffects(),
-			EFFECT_MONO,EFFECT_NONE);
+			EFFECT_NONE);
 		if (colorEffect!=null)
 			parameters.setColorEffect(colorEffect);
 		final String flashMode = findSettableValue(parameters.getSupportedFlashModes(),
@@ -753,7 +765,7 @@ implements SurfaceHolder.Callback
 			{
 				Camera.Parameters parameters=getCameraParameters();
 				parameters.setRotation(mRotation=rotation);
-//FIXME		setCamera(mCameraId);
+setCamera(mCameraId);
 				mCamera.setParameters(parameters);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
 				{
@@ -768,7 +780,6 @@ implements SurfaceHolder.Callback
 			requestLayout();
 		}
 		mFramingRectInPreview=null;
-//FIXME mCameraRect=null;
 		mCaptureHandler.startScan();
 	}
 	
@@ -813,7 +824,7 @@ implements SurfaceHolder.Callback
 		for (int i=0;i<sizes.size();++i)
 		{
 			size=sizes.get(i);
-			//if (V) Log.v(TAG_QRCODE,i+" Check size "+size.width+","+size.height);
+			if (V) Log.v(TAG_QRCODE,i+" Check size "+size.width+","+size.height);
 			final int p=size.height*size.width;
 			if (p<pixels && p>=minimalSize)
 			{

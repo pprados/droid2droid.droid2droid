@@ -32,7 +32,7 @@ import com.google.zxing.LuminanceSource;
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Yohann Melo
  */
-public final class PlanarYUVLuminanceSource extends LuminanceSource
+final class PlanarYUVLuminanceSource extends LuminanceSource
 {
 	private final byte[] mYuvData;
 	private final int mDataWidth;
