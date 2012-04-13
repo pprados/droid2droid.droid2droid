@@ -45,6 +45,8 @@ import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -442,6 +444,23 @@ implements SurfaceHolder.Callback
 		else
 			return ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
 	}
+
+	// ---- Hack compatibility
+	private void setCameraDisplayOrientation(int rotation)
+	{
+		if (mCamera==null) 
+			return;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
+			mCamera.setDisplayOrientation(rotation);
+		else
+		{
+				Camera.Parameters parameters = mCamera.getParameters();
+				parameters.set("orientation", (rotation==90) ? "portrait" : "landscape");
+				parameters.set("rotation",rotation);
+				mCamera.setParameters(parameters);
+		}
+		
+	}
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
@@ -674,6 +693,9 @@ implements SurfaceHolder.Callback
 			parameters.setVideoStabilization(true);
 		if (parameters.isZoomSupported())
 			parameters.setZoom(0);
+parameters.set("orientation", "landscape");
+parameters.set("rotation",90);
+		
 		if (D)
 		{
 			Log.d(TAG_QRCODE,"--------------");
@@ -714,8 +736,7 @@ implements SurfaceHolder.Callback
 			
 			if (mCamera != null)
 			{
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
-					mCamera.setDisplayOrientation(mRotation);
+				setCameraDisplayOrientation(mRotation);
 				mCamera.setPreviewDisplay(mHolder);
 			}
 		}
@@ -765,12 +786,9 @@ implements SurfaceHolder.Callback
 			{
 				Camera.Parameters parameters=getCameraParameters();
 				parameters.setRotation(mRotation=rotation);
-setCamera(mCameraId);
+				setCamera(mCameraId);
 				mCamera.setParameters(parameters);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
-				{
-					mCamera.setDisplayOrientation(mRotation);
-				}
+				setCameraDisplayOrientation(mRotation);
 			}
 			catch (Exception e)
 			{
@@ -779,6 +797,7 @@ setCamera(mCameraId);
 			mCamera.startPreview();
 			requestLayout();
 		}
+setCameraDisplayOrientation(mRotation);
 		mFramingRectInPreview=null;
 		mCaptureHandler.startScan();
 	}
