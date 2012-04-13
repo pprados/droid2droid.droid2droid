@@ -175,7 +175,7 @@ public final class CaptureHandler extends Handler
 					int width=message.arg1;
 					int height=message.arg2;
 					mWaitDecode=true;
-					boolean isDecode=/*mDecodeCallback*/new DecodeCallback().requestDecode(mQRCodeScannerView,data, width, height);
+					boolean isDecode=new DecodeCallback().requestDecode(mQRCodeScannerView,data, width, height);
 					if (!isDecode)
 					{
 						restartPreviewAndDecode();

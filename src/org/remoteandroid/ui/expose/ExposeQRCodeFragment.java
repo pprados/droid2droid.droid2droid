@@ -8,6 +8,8 @@ import static org.remoteandroid.internal.Constants.V;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.util.Hashtable;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
@@ -33,7 +35,9 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
 import com.google.zxing.Writer;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -182,7 +186,8 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 		try
 		{
 			Messages.Candidates candidates = Trusted.getConnectMessage(context);
-			byte[] data = candidates.toByteArray();
+			byte[] data = candidates.toByteArray();		
+//data=new byte[]{-83, 1, 113, 1, -88,};	
 			if (data.length==0)
 				return null;
 			String contents = null;
@@ -209,11 +214,12 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 	private static Bitmap encodeAsBitmap(String contents, BarcodeFormat format, int dimension)
 			throws WriterException
 	{
-//		 Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>(2);
-//		 hints.put(EncodeHintType.CHARACTER_SET, null);
+		if (V) Log.v(TAG_QRCODE,"Calculate QRCode");
+		 Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>(2);
+		 hints.put(EncodeHintType.CHARACTER_SET, ""/*"US-ASCII"*/); // WARNING: Patch in QRCodeWriter to accept this kind of char set
 
 		Writer writer = new QRCodeWriter();
-		BitMatrix result = writer.encode(contents, format, 0, 0, null/*hints*/);
+		BitMatrix result = writer.encode(contents, format, 0, 0, hints);
 		int width = result.getWidth();
 		int height = result.getHeight();
 		int[] pixels = new int[width * height];

@@ -227,7 +227,7 @@ final class DecodedBitStreamParser {
       encoding = currentCharacterSetECI.name();
     }
     try {
-      result.append(new String(readBytes, encoding));
+      result.append(encoding.equals("") ? new String(readBytes, 0) : new String(readBytes, encoding));
     } catch (UnsupportedEncodingException uce) {
       throw FormatException.getFormatInstance();
     }

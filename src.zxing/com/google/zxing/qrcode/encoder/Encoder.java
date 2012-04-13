@@ -540,7 +540,15 @@ public final class Encoder {
       throws WriterException {
     byte[] bytes;
     try {
-      bytes = content.getBytes(encoding);
+    	if (encoding.equals(""))
+    	{
+    		char[] data=content.toCharArray(); // data=new byte[]{-83, 1, 113, 1, -88,};	
+    		bytes=new byte[content.length()];
+    		for (int i=data.length-1;i>=0;--i)
+    			bytes[i]=(byte)data[i];
+    	}
+    	else
+    		bytes = content.getBytes(encoding);
     } catch (UnsupportedEncodingException uee) {
       throw new WriterException(uee.toString());
     }

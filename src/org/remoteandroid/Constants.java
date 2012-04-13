@@ -148,12 +148,10 @@ public final class Constants
 	//-----------------------------------------------------------------------------
 	// --- QRCode parameters ---
     public static final boolean QRCODE									=true;
-	/** Patch ZXing: for debug, use classic exception in ZXing, else share the exception. */ 
-	public static final boolean QRCODE_DEBUG							=true;
 	/** Show the current bitmap to analyze in overlay layer. */
-	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=false;
+	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=true;
 	/** Force auto-focus before analyze bitmap. */
-	public static final boolean QRCODE_AUTOFOCUS						=false;
+	public static final boolean QRCODE_AUTOFOCUS						=true;
 	/** Vibrate when find QRCode. */
 	public static final long QRCODE_VIBRATE_DURATION 					=100L; // 0 for no vibrate
 	/** Percent of width for the square to scan QRCode. */

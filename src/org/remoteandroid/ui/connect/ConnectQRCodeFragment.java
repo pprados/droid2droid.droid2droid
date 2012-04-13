@@ -102,7 +102,7 @@ implements QRCodeScannerView.QRCodeResult
 		mUsage = (TextView) mViewer.findViewById(R.id.usage);
 		mQRCodeScanner = (QRCodeScannerView) mViewer.findViewById(R.id.qrcode);
 		mQRCodeScanner.setOnResult(this);
-//		mQRCodeScanner.setRotation(getActivity().getWindowManager().getDefaultDisplay().getRotation());
+//		getWindowRotation();
 		
 		mCache = null;
 
@@ -184,7 +184,6 @@ implements QRCodeScannerView.QRCodeResult
 			String s = rawResult.getText();
 
 			byte[] data = new byte[s.length()];
-
 			getBytes(s, 0, s.length(), data, 0);
 			candidates = Messages.Candidates.parseFrom(data);
 			showConnect(
@@ -214,9 +213,9 @@ implements QRCodeScannerView.QRCodeResult
 
 			try
 			{
-				for (int i = 0 + start; i < end; i++)
+				for (int i = start; i < end; i++)
 				{
-					data[index++] = (byte) value[i];
+					data[index++] = (byte)(value[i] & 0xFF);
 				}
 			}
 			catch (ArrayIndexOutOfBoundsException e)

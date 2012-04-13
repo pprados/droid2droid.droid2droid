@@ -423,27 +423,18 @@ implements SurfaceHolder.Callback
 		}
 	}
 
-	
+	private final int getWindowRotation()
+	{
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO)
+			return ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+		else
+			return ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getOrientation();
+	}
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
 		// The onConfigurationChanged is not allways invoked.
-		final int detectOrientation=((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
-		setRotation(detectOrientation);
-//		if (r>b)
-//		{
-//			if (mRotation!=0)
-//			{
-//				setRotation(Surface.ROTATION_0);
-//			}
-//		}
-//		else
-//		{
-//			if (mRotation!=90)
-//			{
-//				setRotation(Surface.ROTATION_90);
-//			}
-//		}
+		setRotation(getWindowRotation());
 		if (changed && getChildCount() > 0)
 		{
 			calcCameraRect(l, t, r, b);
@@ -631,7 +622,8 @@ implements SurfaceHolder.Callback
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
 	{
-		mCamera.setParameters(getCameraParameters());
+		if (mCamera!=null)
+			mCamera.setParameters(getCameraParameters());
 		
 		mCaptureHandler.startScan();
 		requestLayout();
@@ -684,6 +676,11 @@ implements SurfaceHolder.Callback
 		return parameters;
 	}
 
+	/**
+	 * 
+	 * @param cameraId Camera.CameraInfo.CAMERA_* or -1
+	 * @throws IOException
+	 */
 	public final void setCamera(int cameraId) throws IOException
 	{
 		if (mCamera!=null)
@@ -705,7 +702,7 @@ implements SurfaceHolder.Callback
 			
 			if (mCamera != null)
 			{
-				if (Build.VERSION.SDK_INT >= 8)
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
 					mCamera.setDisplayOrientation(mRotation);
 				mCamera.setPreviewDisplay(mHolder);
 			}
@@ -720,10 +717,8 @@ implements SurfaceHolder.Callback
 	private int getDeviceDefaultOrientation()
 	{
 
-		WindowManager lWindowManager =  (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-
 		Configuration cfg = getResources().getConfiguration();
-		int lRotation = lWindowManager.getDefaultDisplay().getRotation();
+		int lRotation = getWindowRotation();
 
 		if (
 				(((lRotation == Surface.ROTATION_0) ||(lRotation == Surface.ROTATION_180)) &&   
@@ -739,7 +734,7 @@ implements SurfaceHolder.Callback
 	{
 		if (D)
 		{
-			int detectOrientation=((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
+			int detectOrientation=getWindowRotation();
 			if  (detectOrientation!=displayRotation)
 			{
 				if (E) Log.e(TAG_QRCODE,"detectOrientation="+detectOrientation+", displayRotation="+displayRotation);
@@ -772,9 +767,9 @@ implements SurfaceHolder.Callback
 			mCamera.startPreview();
 			requestLayout();
 		}
-		mCaptureHandler.startScan();
 		mFramingRectInPreview=null;
-		mCameraRect=null;
+//FIXME mCameraRect=null;
+		mCaptureHandler.startScan();
 	}
 	
 	@Override

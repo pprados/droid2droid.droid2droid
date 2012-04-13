@@ -62,6 +62,7 @@ final class DecodeCallback
 	{
 		mHints = new Hashtable<DecodeHintType, Object>(1);
 //		mHints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, resultPointCallback);
+		mHints.put(DecodeHintType.CHARACTER_SET, "");
 		mReader = new QRCodeReader();
 	}
 	public boolean requestDecode(QRCodeScannerView scannerView,final byte[] data,final int width, final int height)
