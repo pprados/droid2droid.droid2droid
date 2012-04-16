@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.ActionBar;
 
+@Deprecated
 public final class ExposeWifiDirectFragment extends AbstractBodyFragment
 {
 	protected static final String KEY_WIFI_DIRECT="WifiDirect";

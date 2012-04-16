@@ -6,9 +6,11 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 
 import org.remoteandroid.R;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 
+@Deprecated
 public final class ConnectArroundFragment extends AbstractConnectFragment
 {
 	private View mViewer;
@@ -44,7 +47,7 @@ public final class ConnectArroundFragment extends AbstractConnectFragment
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
-	
+
 	@Override
 	protected void updateStatus(int activeNetwork)
 	{

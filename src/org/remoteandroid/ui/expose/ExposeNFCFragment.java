@@ -12,15 +12,18 @@ import static org.remoteandroid.Constants.*;
 import java.io.IOException;
 
 import org.remoteandroid.AsyncTaskWithException;
+import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
@@ -73,26 +76,29 @@ implements AbstractBodyFragment.OnNfcEvent
 			public void onClick(View v)
 			{
 				final Tag tag=(Tag)getActivity().getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-				new AsyncTaskWithException<Void,Void,Integer>()
+				if (tag!=null)
 				{
-					@Override
-					protected Integer doInBackground(Void... params) throws Exception
+					new AsyncTaskWithException<Void,Void,Integer>()
 					{
-						return writeTag(tag);
-					}
-					protected void onPostExecute(Integer result) 
-					{
-						Toast.makeText(getActivity(), result, Toast.LENGTH_LONG).show();
-						mWrite.setEnabled(false);
-					}
-					@Override
-					protected void onException(Throwable e)
-					{
-						Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-						mWrite.setEnabled(false);
-					}
-
-				}.execute();
+						@Override
+						protected Integer doInBackground(Void... params) throws Exception
+						{
+							return NfcUtils.writeTag(getActivity(),tag);
+						}
+						protected void onPostExecute(Integer result) 
+						{
+							Toast.makeText(getActivity(), result, Toast.LENGTH_LONG).show();
+							mWrite.setEnabled(false);
+						}
+						@Override
+						protected void onException(Throwable e)
+						{
+							Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+							mWrite.setEnabled(false);
+						}
+	
+					}.execute();
+				}
 			}
 		});
 		return main;
@@ -124,48 +130,4 @@ implements AbstractBodyFragment.OnNfcEvent
 		mWrite.setEnabled(true);
 	}
 	
-	private int writeTag(Tag tag) throws IOException, FormatException
-	{
-		
-		RemoteAndroidInfo info=Trusted.getInfo(getActivity());
-//RemoteAndroidInfoImpl ii=((RemoteAndroidInfoImpl)info)	;
-//ii.uris.clear();ii.uris.add("ip://192.168.0.63:19876");
-		Ndef tech = Ndef.get(tag);
-		try
-		{
-			String[] techList=tag.getTechList();
-			String ndefName=Ndef.class.getName();
-			int i=0;
-			for (;i<techList.length;++i)
-			{ 
-				if (techList[i].equals(ndefName))
-					break;
-			}
-			if (i==techList.length) 
-			{
-				return R.string.expose_nfc_error_unknown_format;
-			}
-			
-			if (!tech.isWritable())
-			{
-				if (E) Log.e(TAG_NFC, PREFIX_LOG+"NFC No writable");
-				return R.string.expose_nfc_error_no_writable;
-			}
-			tech.connect();
-			NdefMessage msg=AbstractFeatureTabActivity.createNdefMessage(getActivity(),info);
-			tech.writeNdefMessage(msg);
-			return R.string.expose_nfc_writed;
-		}
-		finally
-		{
-			try
-			{
-				if (tech!=null) tech.close();
-			}
-			catch (IOException e)
-			{
-				if (E) Log.e("NFC", "IOException while closing MifareUltralight...", e);
-			}
-		}
-	}
 }

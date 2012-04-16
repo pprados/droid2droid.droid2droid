@@ -43,6 +43,9 @@ public final class Constants
 	public static final String PREFERENCES_KNOWN_ACTIVE			="known.active";
 	public static final String PREFERENCES_KNOWN_ACCEPT_ALL		="known.accept_all";
 	
+	// Delay before close a dialog after finish the job.
+	public static final int DELAY_SHOW_TERMINATE				=1000;
+
 	public static final int LOCK_ASK_DOWNLOAD							=10000;
 	public static final int LOCK_WAIT_INSTALL							=20000;
 	public static final int LOCK_ASK_PAIRING							=30000;

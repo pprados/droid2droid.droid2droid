@@ -32,8 +32,8 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 	private static final FeatureTab[] sTabsBroadcast=
 		{
 			new ConnectDiscoverFragment.Provider(), // FIXME sur basculement
-			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
+			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 
@@ -43,8 +43,8 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 	private static final FeatureTab[] sTabsConnect=
 		{
 			new ConnectDiscoverFragment.Provider(), // FIXME sur basculement
-			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
+			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 

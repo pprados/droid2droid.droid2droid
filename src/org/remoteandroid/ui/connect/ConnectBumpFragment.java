@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
+@Deprecated
 public final class ConnectBumpFragment extends AbstractConnectFragment
 {
 	private View mViewer;

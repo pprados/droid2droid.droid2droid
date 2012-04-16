@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 
+@Deprecated
 public final class ExposeBumpFragment extends AbstractBodyFragment
 {
 	public static class Provider extends FeatureTab

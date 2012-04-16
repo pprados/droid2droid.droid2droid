@@ -687,7 +687,7 @@ implements SurfaceHolder.Callback
 		if (colorEffect!=null)
 			parameters.setColorEffect(colorEffect);
 		final String flashMode = findSettableValue(parameters.getSupportedFlashModes(),
-			FLASH_MODE_AUTO,FLASH_MODE_OFF);
+			/*FLASH_MODE_AUTO,*/FLASH_MODE_OFF);
 		if (flashMode!=null)
 			parameters.setFlashMode(flashMode);
 		final String antiBandingMode = findSettableValue(parameters.getSupportedAntibanding(),

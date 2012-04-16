@@ -259,7 +259,7 @@
         	android:label="@string/app_name" 
         	android:description="@string/editpreference_description" 
         	android:icon="@drawable/ic_launcher_remoteandroid"
-		android:configChanges="orientation|screenSize"
+			android:configChanges="orientation|screenSize"
         	>
             <intent-filter>
                 <category android:name="android.intent.category.PREFERENCE" />               
@@ -281,12 +281,12 @@
 	        android:launchMode="singleTask"
 	        android:taskAffinity=":remoteandroid"
         	android:exported="false" 
-		android:excludeFromRecents="true"
-		android:multiprocess="false"
+			android:excludeFromRecents="true"
+			android:multiprocess="false"
         	android:theme="@android:style/Theme.Translucent"
-		android:noHistory="true"
-		android:icon="@drawable/ic_launcher_remoteandroid"
-		android:configChanges="orientation|screenSize"
+			android:noHistory="true"
+			android:icon="@drawable/ic_launcher_remoteandroid"
+			android:configChanges="orientation|screenSize"
 	        />
 
         <activity 
@@ -379,6 +379,14 @@
 <!--                 <action android:name="org.remoteandroid.action.test.QRCODE" /> -->
 <!--             </intent-filter> -->
 <!--          </activity> -->
+         <activity 
+             android:enabled="true"
+             android:launchMode="singleTop" 
+             android:exported="false"
+             android:noHistory="true"
+             android:excludeFromRecents="true"
+             android:theme="@android:style/Theme.Dialog"
+             android:name=".ui.connect.nfc.WriteNfcActivity"/>
          
     </application>
 

@@ -1,6 +1,6 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
 import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
@@ -29,7 +29,6 @@ public abstract class AbstractConnectFragment extends AbstractBodyFragment
 implements ConnectDialogFragment.OnConnected
 {
 	public static final long ESTIMATION_CONNEXION_3G=TIMEOUT_CONNECT_WIFI;
-	private static final int DELAY_SHOW_TERMINATE=1000;
 	private ConnectDialogFragment mDlg;
 	protected void setProgressBarIndeterminateVisibility(boolean value)
 	{

@@ -14,44 +14,43 @@
         android:text=""
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-	<ProgressBar android:id="@+id/progress"
-		style="?android:attr/progressBarStyleHorizontal"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="12dip"
-		android:layout_marginBottom="1dip"
-		android:layout_marginLeft="10dip"
-		android:layout_marginRight="10dip"
-		android:layout_centerHorizontal="true" />
-	
-	<TextView
-            android:id="@+id/progress_percent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="16dip"
-            android:layout_marginLeft="16dip"
-            android:layout_marginRight="16dip"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/progress"
-        />
-
-	<LinearLayout android:id="@+id/buttonPanel"
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_below="@+id/step" />
+
+    <TextView
+        android:id="@+id/progress_percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:paddingBottom="16dip" 
+        android:layout_below="@+id/progress"/>
+
+    <LinearLayout
+        android:id="@+id/buttonPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/progress_percent"
         android:divider="?android:attr/dividerHorizontal"
-        android:showDividers="beginning"
         android:dividerPadding="0dip"
-        android:layout_below="@+id/progress_percent"	>
-        
-	    <Button
-	        android:id="@+id/cancel"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:text="@android:string/cancel" 
-	        style="?android:attr/buttonBarButtonStyle"
-			android:textSize="14sp"	/>
-	    
+        android:orientation="vertical"
+        android:showDividers="beginning" >
+
+        <Button
+            android:id="@+id/cancel"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"
+            android:textSize="14sp" />
     </LinearLayout>
 
 </RelativeLayout>
