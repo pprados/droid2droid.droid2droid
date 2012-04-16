@@ -167,6 +167,9 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		else
 		{
 			int type = conn.getActiveNetworkInfo().getType();
+			// If emulator
+			if (Build.MANUFACTURER.equals("unknown"))
+				type=ConnectivityManager.TYPE_ETHERNET;
 			switch (type)
 			{
 				case ConnectivityManager.TYPE_MOBILE:

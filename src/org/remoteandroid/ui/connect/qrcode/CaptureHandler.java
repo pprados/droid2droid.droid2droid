@@ -84,7 +84,8 @@ public final class CaptureHandler extends Handler
 			}	
 			else
 			{
-				obtainMessage(msg_decode, previousSize.x, previousSize.y, data).sendToTarget();
+				if (previousSize!=null)
+					obtainMessage(msg_decode, previousSize.x, previousSize.y, data).sendToTarget();
 			}
 		}
 

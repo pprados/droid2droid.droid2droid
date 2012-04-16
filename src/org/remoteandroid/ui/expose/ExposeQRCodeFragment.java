@@ -6,6 +6,7 @@ import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
+import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
@@ -190,7 +191,7 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 			if (data.length==0)
 				return null;
 			String contents = null;
-			contents = new String(data, 0);
+			contents = new String(data, "ISO-8859-1");
 			return encodeAsBitmap(contents, format, smallerDimension);
 		}
 		catch (UnknownHostException e)
@@ -204,6 +205,10 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 			return null;
 		}
 		catch (WriterException e)
+		{
+			if (E) Log.e(TAG_QRCODE,PREFIX_LOG+"Error when create QRCode ("+e.getMessage()+")");
+			return null;
+		} catch (UnsupportedEncodingException e) 
 		{
 			if (E) Log.e(TAG_QRCODE,PREFIX_LOG+"Error when create QRCode ("+e.getMessage()+")");
 			return null;

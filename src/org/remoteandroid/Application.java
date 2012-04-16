@@ -351,22 +351,25 @@ public final class Application extends android.app.Application
 	public static long sFeature;
 	private void initFeature()
 	{
-		long f=0;
-		f|=FEATURE_SCREEN;
+		long f=FEATURE_SCREEN|FEATURE_NET;
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
 		{
-			for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
+			// Emulator v10 with x86 return null
+			if (getPackageManager().getSystemAvailableFeatures()!=null)
 			{
-				if (QRCODE && "android.hardware.camera".equals(feature.name))					f|=FEATURE_CAMERA;
-				else if (SOUND && "android.hardware.microphone".equals(feature.name))			f|=FEATURE_MICROPHONE|FEATURE_HP;
-				else if (NFC && "android.hardware.nfc".equals(feature.name))					f|=FEATURE_NFC;
-				else if (SMS && "android.hardware.telephony".equals(feature.name))				f|=FEATURE_TELEPHONY;
-				else if (ETHERNET && "android.hardware.wifi".equals(feature.name))				f|=FEATURE_WIFI|FEATURE_NET;
-				else if (WIFI_DIRECT && "android.hardware.wifi.direct".equals(feature.name)) 	f|=FEATURE_WIFI_DIRECT;
-				else if (BUMP && "android.hardware.location.gps".equals(feature.name)) 			f|=FEATURE_LOCATION;
-				else if (BUMP && "android.hardware.sensor.accelerometer".equals(feature.name)) 	f|=FEATURE_ACCELEROMETER;
-				else if (BT && "android.hardware.bluetooth".equals(feature.name)) 				f|=FEATURE_BLUETOOTH;
-				else if ("android.hardware.microphone".equals(feature.name)) 					f|=FEATURE_MICROPHONE;
+				for (FeatureInfo feature:getPackageManager().getSystemAvailableFeatures())
+				{
+					if (QRCODE && "android.hardware.camera".equals(feature.name))					f|=FEATURE_CAMERA;
+					else if (SOUND && "android.hardware.microphone".equals(feature.name))			f|=FEATURE_MICROPHONE|FEATURE_HP;
+					else if (NFC && "android.hardware.nfc".equals(feature.name))					f|=FEATURE_NFC;
+					else if (SMS && "android.hardware.telephony".equals(feature.name))				f|=FEATURE_TELEPHONY;
+					else if (ETHERNET && "android.hardware.wifi".equals(feature.name))				f|=FEATURE_WIFI|FEATURE_NET;
+					else if (WIFI_DIRECT && "android.hardware.wifi.direct".equals(feature.name)) 	f|=FEATURE_WIFI_DIRECT;
+					else if (BUMP && "android.hardware.location.gps".equals(feature.name)) 			f|=FEATURE_LOCATION;
+					else if (BUMP && "android.hardware.sensor.accelerometer".equals(feature.name)) 	f|=FEATURE_ACCELEROMETER;
+					else if (BT && "android.hardware.bluetooth".equals(feature.name)) 				f|=FEATURE_BLUETOOTH;
+					else if ("android.hardware.microphone".equals(feature.name)) 					f|=FEATURE_MICROPHONE;
+				}
 			}
 		}
 		else

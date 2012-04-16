@@ -31,7 +31,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 	// To broadcast my infos
 	private static final FeatureTab[] sTabsBroadcast=
 		{
-//			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
+			new ConnectDiscoverFragment.Provider(), // FIXME sur basculement
 			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
@@ -42,7 +42,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		};	
 	private static final FeatureTab[] sTabsConnect=
 		{
-			new ConnectDiscoverFragment.Provider(), // BUG sur basculement
+			new ConnectDiscoverFragment.Provider(), // FIXME sur basculement
 			new ConnectQRCodeFragment.Provider(), 
 			new ConnectSMSFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),

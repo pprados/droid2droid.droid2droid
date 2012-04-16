@@ -451,15 +451,22 @@ implements SurfaceHolder.Callback
 		if (mCamera==null) 
 			return;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
-			mCamera.setDisplayOrientation(rotation);
-		else
 		{
-				Camera.Parameters parameters = mCamera.getParameters();
-				parameters.set("orientation", (rotation==90) ? "portrait" : "landscape");
-				parameters.set("rotation",rotation);
-				mCamera.setParameters(parameters);
+			try
+			{
+				mCamera.setDisplayOrientation(rotation);
+				return;
+			}
+			catch (RuntimeException e)
+			{
+				// Ignore
+			}
 		}
-		
+		// Else
+		Camera.Parameters parameters = mCamera.getParameters();
+		parameters.set("orientation", (rotation==90) ? "portrait" : "landscape");
+		parameters.set("rotation",rotation);
+		mCamera.setParameters(parameters);
 	}
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
