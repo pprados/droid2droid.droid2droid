@@ -4,6 +4,7 @@ import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.Messages;
@@ -152,7 +153,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 					@Override
 					public NdefMessage createNdefMessage(NfcEvent event)
 					{
-						return AbstractFeatureTabActivity.createNdefMessage(
+						return NfcUtils.createNdefMessage(
 							AbstractFeatureTabActivity.this,Trusted.getInfo(AbstractFeatureTabActivity.this));
 					}
 	        		
@@ -186,22 +187,6 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 		}
     }
     
-    // TODO: move to another place
-	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
-	{
-		Messages.Identity msg=ProtobufConvs.toIdentity(info);
-		byte[] payload=msg.toByteArray();
-		return new NdefMessage(
-			new NdefRecord[]
-			{
-				NdefRecord.createApplicationRecord("org.remoteandroid"),
-				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-//				NdefRecord.createUri("www.remotandroid.org")
-			}
-		);
-		
-	}
-	
 //----------------------------------
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)

@@ -341,13 +341,14 @@ implements OnItemClickListener, OnItemLongClickListener
 				false);
 		}
 	}
-	// A long clic for write a tag with the selected Remote Android Info.
+	// A long clic to write a tag with the selected Remote Android Info.
 	@Override
-	public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
 	{
 		if ((getConnectActivity().getActiveNetwork() & NetworkTools.ACTIVE_NFC)!=0)
 		{
-			startActivity(new Intent(getConnectActivity(),WriteNfcActivity.class));
+			startActivity(new Intent(getConnectActivity(),WriteNfcActivity.class)
+				.putExtra(WriteNfcActivity.EXTRA_INFO, mAdapter.getItem(position)));
 		}
 		return true;
 	}

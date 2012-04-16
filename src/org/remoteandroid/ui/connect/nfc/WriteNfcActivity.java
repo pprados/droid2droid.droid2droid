@@ -1,6 +1,7 @@
 package org.remoteandroid.ui.connect.nfc;
 
-import static org.remoteandroid.Constants.DELAY_SHOW_TERMINATE;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.AsyncTaskWithException;
@@ -16,16 +17,15 @@ import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
-// TODO: améliorer l'interface
 public class WriteNfcActivity extends Activity
 {
 	public static final String EXTRA_INFO="info";
-	public static final String EXTRA_EXPOSE="expose";
-	
-	NfcAdapter mNfcAdapter;
+
+	private NfcAdapter mNfcAdapter;
 
 	private RemoteAndroidInfo mInfo;
 	private TextView mText;
@@ -41,16 +41,10 @@ public class WriteNfcActivity extends Activity
 		mText=(TextView)findViewById(R.id.help);
 		Intent intent=getIntent();
 		mInfo=(RemoteAndroidInfo)intent.getParcelableExtra(EXTRA_INFO);
-		if (mInfo==null)
-		{
-			mInfo=Trusted.getInfo(this);
-		}
-		// Check for available NFC Adapter
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (mNfcAdapter == null)
 		{
-			Toast.makeText(
-				this, "NFC is not available", Toast.LENGTH_LONG).show();
+			if (E) Log.e(TAG_NFC,"Invalide adapter");
 			finish();
 			return;
 		}
@@ -63,7 +57,8 @@ public class WriteNfcActivity extends Activity
 		
 		mText.setText(R.string.nfc_waiting);
 		PendingIntent pendingIntent = 
-				PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+				PendingIntent.getActivity(this, 0, 
+					new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 		mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
 	}
 
@@ -86,7 +81,7 @@ public class WriteNfcActivity extends Activity
 			@Override
 			protected Void doInBackground(Void... params) throws Exception
 			{
-				NfcUtils.writeTag(WriteNfcActivity.this,tag);
+				NfcUtils.writeTag(WriteNfcActivity.this,tag,mInfo);
 				return null;
 			}
 			protected void onPostExecute(Void result) 

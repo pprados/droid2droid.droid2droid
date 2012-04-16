@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
@@ -373,7 +374,7 @@ implements Discover.Listener
 					@Override
 					public NdefMessage createNdefMessage(NfcEvent event)
 					{
-						return AbstractFeatureTabActivity.createNdefMessage(
+						return NfcUtils.createNdefMessage(
 							EditPreferenceActivity.this,Trusted.getInfo(EditPreferenceActivity.this));
 					}
 	        		

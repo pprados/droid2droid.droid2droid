@@ -1,27 +1,30 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_NFC;
 
 import java.io.IOException;
 
+import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
 
 import android.content.Context;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.util.Log;
 
 public class NfcUtils
 {
-	public static int writeTag(Context context,Tag tag) throws IOException, FormatException
+	public static int writeTag(Context context,Tag tag,RemoteAndroidInfo info) throws IOException, FormatException
 	{
 		
-		RemoteAndroidInfo info=Trusted.getInfo(context);
 // Hack to register specific device		
 //RemoteAndroidInfoImpl ii=((RemoteAndroidInfoImpl)info)	;
 //ii.uris.clear();ii.uris.add("ip://192.168.0.60:19876");
@@ -47,8 +50,7 @@ public class NfcUtils
 				return R.string.expose_nfc_error_no_writable;
 			}
 			tech.connect();
-			NdefMessage msg=AbstractFeatureTabActivity.createNdefMessage(context,info);
-			tech.writeNdefMessage(msg);
+			tech.writeNdefMessage(createNdefMessage(context,info));
 			return R.string.expose_nfc_writed;
 		}
 		finally
@@ -63,5 +65,20 @@ public class NfcUtils
 			}
 		}
 	}
+	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
+	{
+		Messages.Identity msg=ProtobufConvs.toIdentity(info);
+		byte[] payload=msg.toByteArray();
+		return new NdefMessage(
+			new NdefRecord[]
+			{
+				NdefRecord.createApplicationRecord("org.remoteandroid"),
+				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
+//				NdefRecord.createUri("www.remotandroid.org")
+			}
+		);
+		
+	}
+	
 
 }

@@ -83,7 +83,7 @@ implements AbstractBodyFragment.OnNfcEvent
 						@Override
 						protected Integer doInBackground(Void... params) throws Exception
 						{
-							return NfcUtils.writeTag(getActivity(),tag);
+							return NfcUtils.writeTag(getActivity(),tag,Trusted.getInfo(getActivity()));
 						}
 						protected void onPostExecute(Integer result) 
 						{

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.NfcUtils;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.IRemoteAndroidManager;
@@ -157,7 +158,7 @@ implements Discover.Listener
 	@Override
 	public NdefMessage createNdefMessage()
 	{
-		return AbstractFeatureTabActivity.createNdefMessage(Application.sAppContext, getInfo());
+		return NfcUtils.createNdefMessage(Application.sAppContext, getInfo());
 	}
 
 	@Override
