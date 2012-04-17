@@ -7,6 +7,7 @@ import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
 import static org.remoteandroid.internal.Constants.TAG_INSTALL;
 import static org.remoteandroid.internal.Constants.TAG_PAIRING;
 import static org.remoteandroid.internal.Constants.TAG_SECURITY;
@@ -30,6 +31,7 @@ import org.remoteandroid.Application;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.RemoteAndroidInfo;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
@@ -84,6 +86,7 @@ public final class LoginImpl extends Login
 			AbstractProtoBufRemoteAndroid android,
 			Uri uri,
 			Type type,
+			int flags,
 			long timeout) throws UnknownHostException, IOException, RemoteException
 	{
 		try
@@ -95,6 +98,7 @@ public final class LoginImpl extends Login
 			if (challenge==0) challenge=1;
 			
 			// Step 1: Ask a challenge with my public key
+    		if (V) Log.v(TAG_CLIENT_BIND,PREFIX_LOG+"-> CONNECT_FOR_COOKIE");
 			msg = Msg.newBuilder()
 				.setType(type)
 				.setThreadid(threadid)
@@ -102,19 +106,19 @@ public final class LoginImpl extends Login
 				.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
 				.build();
 			resp = android.sendRequestAndReadResponse(msg,timeout);
+    		if (V) Log.v(TAG_CLIENT_BIND,PREFIX_LOG+"<- "+resp.getStatus());
 			if (//type==Type.CONNECT_FOR_PAIRING ||
 				resp.getStatus()==AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS ||
 				resp.getStatus()==AbstractRemoteAndroidImpl.STATUS_REFUSE_NO_BOUND
 				)
 			{
 				// Branch pairing
-				if (type!=Type.CONNECT_FOR_PAIRING && resp.getChallengestep()!=11)
+				if (((flags & RemoteAndroidManager.FLAG_PROPOSE_PAIRING)==0) || resp.getType()!=type || resp.getChallengestep()!=11)
 				{
-					if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject login process");
-					throw new SecurityException("Reject login process");
+					if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Remote device refuse anonymous. Add FLAG_PROPOSE_PAIRING ?");
+					throw new SecurityException("Remote device refuse anonymous. Add FLAG_PROPOSE_PAIRING ?");
 				}
-			    
-				RemoteAndroidInfo serverInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
+			    RemoteAndroidInfo serverInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
 				android.mInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
 			    byte[] nonceA = new byte[NONCE_BYTES_NEEDED];
 		        Application.randomNextBytes(nonceA);

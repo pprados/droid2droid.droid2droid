@@ -1,9 +1,9 @@
 package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
-import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
 import static org.remoteandroid.internal.Constants.COOKIE_NO;
+import static org.remoteandroid.internal.Constants.COOKIE_SECURITY;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
@@ -19,6 +19,7 @@ import java.net.SocketException;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Driver;
@@ -29,9 +30,7 @@ import org.remoteandroid.pairing.Trusted;
 
 import android.content.Context;
 import android.net.Uri;
-import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.util.Log;
@@ -170,22 +169,6 @@ public final class DevicePreference extends Preference
 		inflater.inflate(mInfo.isBonded ? R.menu.context_device_bonded
 				: R.menu.context_device_unbonded, menu);
 		menu.setHeaderTitle(mInfo.getName());
-		boolean nfc=false;
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-		{
-			try
-			{
-				nfc=(NfcAdapter.getDefaultAdapter(getContext())!=null);
-			}
-			catch (UnsupportedOperationException e)
-			{
-				// Ignore
-			}
-		}
-		if (!NFC || !nfc)
-		{
-			menu.removeItem(R.id.context_write_nfc);
-		}
 	}
 
 	public boolean onContextItemSelected(MenuItem item)
@@ -224,8 +207,8 @@ public final class DevicePreference extends Preference
 					for (int i=0;i<mInfo.uris.size();++i)
 					{
 						String uri=mInfo.uris.get(i);
-	    				long cookie=Application.sDiscover.getCookie(uri,Type.CONNECT_FOR_PAIRING);
-	    				if (cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_NO)
+	    				long cookie=Application.sDiscover.getCookie(RemoteAndroidManager.FLAG_PROPOSE_PAIRING,uri,Type.CONNECT_FOR_PAIRING);
+	    				if (cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_NO && cookie!=COOKIE_SECURITY)
 	    					break;
 					}
 				}
@@ -259,6 +242,7 @@ public final class DevicePreference extends Preference
 			@Override
 			protected Void doInBackground(Void... params)
 			{
+				Trusted.unregisterDevice(Application.sAppContext,mInfo);
 				for (int i=0;i<mInfo.uris.size();++i)
 				{
 					final Uri uri=Uri.parse(mInfo.uris.get(i));
@@ -275,8 +259,7 @@ public final class DevicePreference extends Preference
 							if (driver==null)
 								throw new MalformedURLException("Unknown "+uri);
 							binder=driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
-							binder.connect(Type.CONNECT_FOR_PAIRING, -1l,ETHERNET_TRY_TIMEOUT);
-							Trusted.unregisterDevice(Application.sAppContext,mInfo);
+							binder.connect(Type.CONNECT_FOR_PAIRING, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
 							return null;
 						}
 						catch (SecurityException e)
@@ -289,19 +272,16 @@ public final class DevicePreference extends Preference
 						{
 							if (E && !D) Log.e(TAG_CLIENT_BIND,"Connection impossible for ask cookie. Imcompatible with ipv6? ("+e.getMessage()+")");
 							if (D) Log.d(TAG_CLIENT_BIND,"Connection impossible for ask cookie. Imcompatible with ipv6?",e);
-							return null;
 						}
 						catch (IOException e)
 						{
 							if (E && !D) Log.e(TAG_CLIENT_BIND,"Connection impossible for ask cookie ("+e.getMessage()+")");
 							if (D) Log.d(TAG_CLIENT_BIND,"Connection impossible for ask cookie.",e);
-							return null;
 						}
 						catch (Exception e)
 						{
 							if (E && !D) Log.e(TAG_CLIENT_BIND,"Connection impossible for ask cookie ("+e.getMessage()+")");
 							if (D) Log.d(TAG_CLIENT_BIND,"Connection impossible for ask cookie.",e);
-							return null;
 						}
 						finally
 						{

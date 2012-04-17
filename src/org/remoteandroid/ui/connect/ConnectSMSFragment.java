@@ -63,7 +63,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 	{
 		Bundle bundle=new Bundle();
 		bundle.putString(KEY_PHONE_NUMBER, receiver);
-		showConnect(new String[0], true,bundle);
+		showConnect(new String[0], getConnectActivity().mFlags,bundle);
 	}
 
 	private static long[] sBootStrapEstimations=new long[]{ESTIMATION_SEND_SMS,
@@ -75,6 +75,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 			ProgressJobs<?,?> progressJobs,
 			ConnectDialogFragment fragment,
 			String[] uris,
+			int flags,
 			Bundle param)
 	{
 		try
@@ -132,7 +133,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 			System.arraycopy(sBootStrapEstimations, 0, estimations, 0, sBootStrapEstimations.length);
 			progressJobs.setEstimations(estimations);
 			progressJobs.incCurrentStep();
-			return ConnectDialogFragment.tryAllUris(progressJobs, uris, this);
+			return ConnectDialogFragment.tryAllUris(progressJobs, uris, flags,this);
 		}
 		catch (InterruptedException e)
 		{

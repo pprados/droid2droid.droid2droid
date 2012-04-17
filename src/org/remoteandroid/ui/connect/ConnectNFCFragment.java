@@ -98,9 +98,9 @@ implements AbstractBodyFragment.OnNfcEvent
 			return; // Bad format
 		}
 		RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(getActivity(),identity);
-		showConnect(info.getUris(), true,null);
+		showConnect(info.getUris(), getConnectActivity().mFlags,null);
 	}
-	protected Messages.Identity nfcCheckDiscovered(Intent intent)
+	private Messages.Identity nfcCheckDiscovered(Intent intent)
 	{
 		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) 
 		{
@@ -117,8 +117,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	        			{
 	        				try
 							{
-		        				Messages.Identity bmsg=Messages.Identity.newBuilder().mergeFrom(record.getPayload()).build();
-		        				return bmsg;
+		        				return Messages.Identity.newBuilder().mergeFrom(record.getPayload()).build();
 							}
 							catch (InvalidProtocolBufferException e)
 							{

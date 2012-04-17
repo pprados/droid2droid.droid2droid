@@ -641,6 +641,7 @@ public final class Application extends android.app.Application
 	}
 
 
+	@SuppressWarnings("unused")
 	public static void enableStrictMode()
 	{
 		if (D && STRICT_MODE && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)

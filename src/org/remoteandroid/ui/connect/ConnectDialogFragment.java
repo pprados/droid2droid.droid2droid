@@ -30,8 +30,8 @@ public final class ConnectDialogFragment extends DialogFragment
 {
 	interface OnConnected
 	{
-		Object doTryConnect(ProgressJobs<?,?> progressJobs,ConnectDialogFragment fragment,String[] uris,Bundle param);
-		public Object onTryConnect(String uri) throws SecurityException, IOException, RemoteException;
+		Object doTryConnect(ProgressJobs<?,?> progressJobs,ConnectDialogFragment fragment,String[] uris,int flags,Bundle param);
+		public Object onTryConnect(String uri,int flags) throws IOException, RemoteException;
 		void onConnected(RemoteAndroidInfoImpl uri);
 		void onCancel();
 		void onFailed(int err);
@@ -39,6 +39,7 @@ public final class ConnectDialogFragment extends DialogFragment
 	
 	private static final String KEY_URIS="uris";
 	private static final String KEY_BUNDLE="bundle";
+	private static final String KEY_FLAGS="flags";
 
 	private View mViewer;
 	private TextView mStep;
@@ -49,15 +50,17 @@ public final class ConnectDialogFragment extends DialogFragment
 	private OnConnected mOnEvent;
 	private String[] mUris;
 	private Bundle mParams;
+	private int mFlags;
 
 	private TryConnection mTryConnections;
 	
-	public static final ConnectDialogFragment newTryConnectFragment(boolean acceptAnonymous,String[] uris,Bundle params)
+	public static final ConnectDialogFragment newTryConnectFragment(int flags,String[] uris,Bundle params)
 	{
 		ConnectDialogFragment fragment=new ConnectDialogFragment();
 		Bundle bundle=new Bundle();
 		bundle.putStringArray(KEY_URIS, uris);
 		bundle.putBundle(KEY_BUNDLE, params);
+		bundle.putInt(KEY_FLAGS, flags);
 		fragment.setArguments(bundle);
 		return fragment;
 	}
@@ -75,6 +78,7 @@ public final class ConnectDialogFragment extends DialogFragment
 		super.onCreate(savedInstanceState);
 		mUris=getArguments().getStringArray(KEY_URIS);		
 		mParams=getArguments().getBundle(KEY_BUNDLE);
+		mFlags=getArguments().getInt(KEY_FLAGS);
 	}
 
 	public class TryConnection extends ProgressJobs<Void, Object>
@@ -82,7 +86,7 @@ public final class ConnectDialogFragment extends DialogFragment
 		@Override
 		protected Object doInBackground(Void...params)
 		{
-			return mOnEvent.doTryConnect(this,ConnectDialogFragment.this,mUris,mParams);
+			return mOnEvent.doTryConnect(this,ConnectDialogFragment.this,mUris,mFlags,mParams);
 		}
 		@Override
 		protected void onProgressUpdate(Integer... values)
@@ -124,7 +128,7 @@ public final class ConnectDialogFragment extends DialogFragment
 		}
 		
 	}
-	public static Object tryAllUris(ProgressJobs<?,?> progressJobs,String[] uris,OnConnected onEvent)
+	public static Object tryAllUris(ProgressJobs<?,?> progressJobs,String[] uris,int flags,OnConnected onEvent)
 	{
 		for (int i=0;i<uris.length;++i)
 		{
@@ -137,7 +141,7 @@ public final class ConnectDialogFragment extends DialogFragment
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Try "+uri+"...");
 				if (onEvent!=null)
 				{
-					return onEvent.onTryConnect(uri);
+					return onEvent.onTryConnect(uri,flags);
 				}
 				else
 					return ProgressJobs.CANCEL;
@@ -157,20 +161,13 @@ public final class ConnectDialogFragment extends DialogFragment
 					});
 				}
 			}
-			catch (SecurityException e)
-			{
-				// Accept only bounded device.
-				RemoteAndroidInfoImpl info=new Trusted(Application.sAppContext, Application.sHandler).pairWith(uris);
-				if (info==null)
-				{
-					if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Pairing impossible");
-					return R.string.connect_alert_pairing_impossible;
-				}
-				if (I) Log.i(TAG_CONNECT,PREFIX_LOG+"Pairing successfull");
-			}
 			catch (RemoteException e)
 			{
 				if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Send broadcast impossible");
+			}
+			catch (SecurityException e)
+			{
+				if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Remote device refuse anonymous.");
 			}
 		}
 		return R.string.connect_alert_connection_impossible;
@@ -201,18 +198,17 @@ public final class ConnectDialogFragment extends DialogFragment
 	}
 	
 	@Override
-	public void onResume()
+	public void onStart()
 	{
-		super.onResume();
+		super.onStart();
 		mTryConnections=new TryConnection();
-		mTryConnections.execute(); // FIXME: Lock sur l'execution. Utiliser un autre Executors ?
+		mTryConnections.execute();
 	}
 	
 	@Override
 	public void onPause()
 	{
 		super.onPause();
-		mTryConnections.cancel(true); // FIXME: true ?
 	}
 	
 	public void publishInDialog(int id,int progress)

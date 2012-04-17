@@ -1,7 +1,7 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
 
@@ -37,9 +37,9 @@ implements ConnectDialogFragment.OnConnected
 			activity.setSupportProgressBarIndeterminateVisibility(value ? Boolean.TRUE : Boolean.FALSE);
 	}
 	
-	protected void showConnect(String[] uris,boolean acceptAnonymous,Bundle param)
+	protected void showConnect(String[] uris,int flags,Bundle param)
 	{
-		mDlg=ConnectDialogFragment.newTryConnectFragment(acceptAnonymous, uris,param);
+		mDlg=ConnectDialogFragment.newTryConnectFragment(flags, uris,param);
 		mDlg.setOnConnected(this);
 		mDlg.show(getFragmentManager(), "dialog");
 	}
@@ -89,17 +89,18 @@ implements ConnectDialogFragment.OnConnected
 	public Object doTryConnect(ProgressJobs<?,?> progressJobs,
 			ConnectDialogFragment fragment,
 			String[] uris,
+			int flags,
 			Bundle param)
 	{
 		long[] estimations=new long[uris.length];
 		Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
 		progressJobs.setEstimations(estimations);
 		progressJobs.resetCurrentStep();
-		return ConnectDialogFragment.tryAllUris(progressJobs,uris,this);
+		return ConnectDialogFragment.tryAllUris(progressJobs,uris,flags,this);
 	}
 
 	@Override
-	public Object onTryConnect(String uri) throws SecurityException, IOException, RemoteException
+	public Object onTryConnect(String uri,int flags) throws IOException, RemoteException
 	{
 		if (getConnectActivity().isBroadcast())
 		{
@@ -111,7 +112,7 @@ implements ConnectDialogFragment.OnConnected
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
 				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uuri);
-				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,ETHERNET_TRY_TIMEOUT))
+				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,0,ETHERNET_TRY_TIMEOUT))
 					return ProgressJobs.OK; // Hack, simulate normal connection
 				else
 					throw new IOException();
@@ -124,12 +125,12 @@ implements ConnectDialogFragment.OnConnected
 		}
 		else
 		{
-			Pair<RemoteAndroidInfoImpl,Long> msg=Application.getManager().askMsgCookie(Uri.parse(uri));
+			Pair<RemoteAndroidInfoImpl,Long> msg=Application.getManager().askMsgCookie(Uri.parse(uri),flags);
 			if (msg==null || msg.second==0)
 				throw new SecurityException();
 			RemoteAndroidInfoImpl remoteInfo=msg.first;
 			final long cookie=msg.second;
-			if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION)
+			if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_SECURITY)
 				Application.sDiscover.addCookie(remoteInfo,cookie);
 			return msg.first;
 		}

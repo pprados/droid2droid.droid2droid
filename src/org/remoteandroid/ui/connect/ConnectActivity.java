@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.hardware.Camera;
 import android.nfc.Tag;
 import android.os.Bundle;
 
@@ -27,11 +28,13 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 {
 	private boolean mIsLight;
 	private int mDisplaySet;
+	protected int mFlags;
+	/*package*/ boolean mBroadcast;
 	
 	// To broadcast my infos
 	private static final FeatureTab[] sTabsBroadcast=
 		{
-			new ConnectDiscoverFragment.Provider(), // FIXME sur basculement
+			new ConnectDiscoverFragment.Provider(),
 			new ConnectSMSFragment.Provider(), 
 			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
@@ -42,7 +45,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		};	
 	private static final FeatureTab[] sTabsConnect=
 		{
-			new ConnectDiscoverFragment.Provider(), // FIXME sur basculement
+			new ConnectDiscoverFragment.Provider(),
 			new ConnectSMSFragment.Provider(), 
 			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
@@ -53,8 +56,6 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			new ConnectTicketFragment.Provider(), 
 		};	
 
-	private boolean mBroadcast; // false: Broadcast
-	
 	protected FeatureTab[] getFeatureTabs()
 	{
 		return (mBroadcast) ? sTabsBroadcast : sTabsConnect;
@@ -114,6 +115,8 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		ComponentName calling=getCallingActivity();
 		Resources resources=null;
 		ApplicationInfo appInfo=null;
+		mFlags = intent.getIntExtra(RemoteAndroidManager.EXTRA_FLAGS,0);
+
 		mDisplaySet=ActionBar.DISPLAY_HOME_AS_UP|ActionBar.DISPLAY_SHOW_HOME|ActionBar.DISPLAY_SHOW_TITLE|ActionBar.DISPLAY_USE_LOGO;
 		int displayMask=ActionBar.DISPLAY_HOME_AS_UP|ActionBar.DISPLAY_SHOW_HOME|ActionBar.DISPLAY_SHOW_TITLE|ActionBar.DISPLAY_USE_LOGO;
 		if (!isBroadcast())
@@ -283,7 +286,6 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			else
 				title=appInfo.name;
 		}
-//    	intent.getIntExtra(RemoteAndroidManager.EXTRA_THEME_ID,ActionBar.DISPLAY_SHOW_HOME|ActionBar.DISPLAY_USE_LOGO);
 		if (!isBroadcast() && resources!=null)
 		{
 			if (title!=null)
@@ -298,11 +300,6 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		Application.startService();
 	}
 
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{

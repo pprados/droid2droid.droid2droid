@@ -43,14 +43,6 @@ implements QRCodeScannerView.QRCodeResult
 {
 	public static int sDefaultCamera = 0; // API >=9 Camera.CameraInfo.CAMERA_FACING_BACK;
 	
-	// FIXME: use it ?
-	static class Cache
-	{
-		private CaptureHandler mHandler;
-	}
-
-	Cache mCache;
-
 	private LinearLayout mViewer;
 
 	private TextView mUsage;
@@ -102,15 +94,6 @@ implements QRCodeScannerView.QRCodeResult
 		mUsage = (TextView) mViewer.findViewById(R.id.usage);
 		mQRCodeScanner = (QRCodeScannerView) mViewer.findViewById(R.id.qrcode);
 		mQRCodeScanner.setOnResult(this);
-//		getWindowRotation();
-		
-		mCache = null;
-
-		if (mCache == null)
-		{
-			mCache = new Cache();
-		}
-
 		return mViewer;
 	}
 
@@ -118,9 +101,6 @@ implements QRCodeScannerView.QRCodeResult
 	public void onResume()
 	{
 		super.onResume();
-		Window window = getActivity().getWindow();
-		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		onConfigurationChanged(getResources().getConfiguration());
 		openCamera();
 	}
 
@@ -129,13 +109,6 @@ implements QRCodeScannerView.QRCodeResult
 	{
 		super.onPause();
 		closeCamera();
-		
-		if (I) Log.i(TAG_QRCODE, "onPause...");
-		if (mCache.mHandler != null)
-		{
-			mCache.mHandler.quitSynchronously();
-			mCache.mHandler = null;
-		}
 	}
 
 	private void openCamera()
@@ -189,7 +162,7 @@ implements QRCodeScannerView.QRCodeResult
 			showConnect(
 				ProtobufConvs.toUris(Application.sAppContext,candidates)
 				.toArray(new String[0]), 
-				true,null); // FIXME: anonymous
+				getConnectActivity().mFlags,null);
 		}
 		catch (InvalidProtocolBufferException e)
 		{

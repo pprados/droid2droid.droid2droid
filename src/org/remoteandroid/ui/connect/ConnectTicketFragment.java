@@ -94,7 +94,7 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 			{
 				if (actionId==EditorInfo.IME_ACTION_DONE)
 				{
-					showConnect(new String[0], true,null); // FIXME: acceptano
+					showConnect(new String[0], getConnectActivity().mFlags,null);
 					return true;
 				}
 				return false;
@@ -108,7 +108,7 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 			@Override
 			public void onClick(View v)
 			{
-				showConnect(new String[0], true,null); // FIXME: acceptano
+				showConnect(new String[0], getConnectActivity().mFlags,null);
 			}
 
 		});
@@ -147,6 +147,7 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 			ProgressJobs<?,?> progressJobs,
 			ConnectDialogFragment fragment,
 			String[] uris,
+			int flags,
 			Bundle param)
 	{
 		try
@@ -173,7 +174,7 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 					Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
 					estimations[0]=ESTIMATION_TICKET_3G;
 					progressJobs.setEstimations(estimations);
-					return ConnectDialogFragment.tryAllUris(progressJobs, uris, this);
+					return ConnectDialogFragment.tryAllUris(progressJobs, uris, flags,this);
 				}
 				else
 				{

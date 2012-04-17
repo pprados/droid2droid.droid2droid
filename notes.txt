@@ -1,3 +1,21 @@
+Utilisation de virtualbox:
+- Il faut monter une virtual box avec android,
+- puis brancher 2 cartes réseaux. La première en bridge sur wlan
+- la seconde en NAT sur eth0 avec redirection des ports 5554 et 5555 sur les mêmes ports
+Après lancement, si pas de réseau, Alt+f1 et
+net eth0 up dhcp (pour activer le wifi)
+net eth1 up dhcp (pour le nat).
+
+Debug sur ip de wifi
+adb connect 192.168.1.118
+Debug sur NAT
+adb connect localhost
+
+Pour mixer les réseaux, il faut indiquer dans les paramètrages de la connexion Wifi du Linux, dans le paramétrage IPV4, 
+dans "Route...", 
+le drapeau "Utiliser cette connexion uniquement pour les ressources de son réseau"
+
+
 Ergonomie:
 - Ajouter un espace sous le champs du ticket pour éviter d'avoir un pb lors de la saisie d'un 'a' en premier caractère
 - Gérer les changements d'état des 2 boutons principaux

@@ -82,6 +82,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -353,7 +354,7 @@ implements SurfaceHolder.Callback
 
 		// Init camera previous
 		mSurfaceView = new SurfaceView(context);
-		addView(mSurfaceView);
+		addView(mSurfaceView); // Generate a screen black flash :-(
 		mAnimView=new AnimView(context);
 		addView(mAnimView);
 		mCaptureHandler = new CaptureHandler(getContext(),this);
@@ -657,16 +658,6 @@ implements SurfaceHolder.Callback
 		canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
 	}
 
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
-	{
-		if (mCamera!=null)
-			mCamera.setParameters(getCameraParameters());
-		
-		mCaptureHandler.startScan();
-		requestLayout();
-	}
-
 	private Camera.Parameters getCameraParameters()
 	{
 		Camera.Parameters parameters = mCamera.getParameters();
@@ -700,8 +691,6 @@ implements SurfaceHolder.Callback
 			parameters.setVideoStabilization(true);
 		if (parameters.isZoomSupported())
 			parameters.setZoom(0);
-parameters.set("orientation", "landscape");
-parameters.set("rotation",90);
 		
 		if (D)
 		{
@@ -821,7 +810,6 @@ setCameraDisplayOrientation(mRotation);
 				mCamera.setPreviewDisplay(holder);
 				Size s=mCamera.getParameters().getPreviewSize();
 				mPreviousSize=new Point(s.width,s.height);
-//				mCaptureHandler.startScan();
 			}
 		}
 		catch (IOException exception)
@@ -829,6 +817,16 @@ setCameraDisplayOrientation(mRotation);
 			if (E) Log.e(TAG_QRCODE, "IOException caused by setPreviewDisplay()", exception);
 		}
 	}
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
+	{
+		if (mCamera!=null)
+			mCamera.setParameters(getCameraParameters());
+		
+		mCaptureHandler.startScan();
+		requestLayout();
+	}
+
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder)

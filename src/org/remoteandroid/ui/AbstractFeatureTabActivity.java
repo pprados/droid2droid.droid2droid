@@ -1,22 +1,16 @@
 package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.NFC;
-import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
-import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.internal.Messages;
-import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
@@ -31,8 +25,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-
-
 
 public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventActivity
 {
@@ -166,7 +158,6 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	{
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
 		{
-			NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 			if (NFC && mNfcAdapter!=null)
 			{
 				PendingIntent pendingIntent = 

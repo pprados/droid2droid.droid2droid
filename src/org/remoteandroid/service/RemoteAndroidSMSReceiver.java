@@ -182,7 +182,7 @@ public final class RemoteAndroidSMSReceiver extends BroadcastReceiver
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
 				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
-				if (binder.connect(Type.CONNECT_FOR_BROADCAST, cookie,ETHERNET_TRY_TIMEOUT))
+				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,cookie,ETHERNET_TRY_TIMEOUT))
 					break;
 				binder.close();
 			}

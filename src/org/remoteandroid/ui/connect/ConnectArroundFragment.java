@@ -6,11 +6,9 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 
 import org.remoteandroid.R;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;

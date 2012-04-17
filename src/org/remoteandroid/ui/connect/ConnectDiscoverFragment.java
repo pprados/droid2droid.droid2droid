@@ -2,14 +2,12 @@ package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-
-import java.io.IOException;
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.remoteandroid.Application;
-import org.remoteandroid.AsyncTaskWithException;
-import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
@@ -17,8 +15,6 @@ import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.ui.AbstractBodyFragment;
-import org.remoteandroid.ui.AbstractNetworkEventActivity;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
@@ -26,12 +22,10 @@ import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.nfc.FormatException;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -43,7 +37,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -189,6 +182,12 @@ implements OnItemClickListener, OnItemLongClickListener
 		@Override
 		public void onDiscover(final RemoteAndroidInfoImpl remoteAndroidInfo)
 		{
+			if (((getConnectActivity().mFlags & RemoteAndroidManager.FLAG_PROPOSE_PAIRING)==0)
+				&& !remoteAndroidInfo.isBonded)
+			{
+				if (D) Log.d(TAG_DISCOVERY,"Refuse "+remoteAndroidInfo);
+				return;
+			}
 			for (int i = mListInfo.size() - 1; i >= 0; --i)
 			{
 				RemoteAndroidInfoImpl and = mListInfo.get(i);
@@ -232,7 +231,7 @@ implements OnItemClickListener, OnItemLongClickListener
 	{
 		RemoteAndroidInfo info = mAdapter.getItem(position);
 		showConnect(
-			info.getUris(), true, null); // FIXME: anonymous
+			info.getUris(), getConnectActivity().mFlags, null);
 	}
 	@Override 
     public void onCreateContextMenu(ContextMenu menu, View view,ContextMenuInfo menuInfo) 
@@ -345,7 +344,7 @@ implements OnItemClickListener, OnItemLongClickListener
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
 	{
-		if ((getConnectActivity().getActiveNetwork() & NetworkTools.ACTIVE_NFC)!=0)
+		if ((getConnectActivity().mBroadcast) && (getConnectActivity().getActiveNetwork() & NetworkTools.ACTIVE_NFC)!=0)
 		{
 			startActivity(new Intent(getConnectActivity(),WriteNfcActivity.class)
 				.putExtra(WriteNfcActivity.EXTRA_INFO, mAdapter.getItem(position)));

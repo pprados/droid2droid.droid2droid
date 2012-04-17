@@ -3,6 +3,7 @@ package org.remoteandroid.ui;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.ui.connect.ConnectActivity;
 import org.remoteandroid.ui.expose.ExposeActivity;
 
@@ -66,8 +67,8 @@ implements MainFragment.CallBack
 	@Override
 	public void onConnect()
 	{
-		//Intent intent = new Intent(RemoteAndroidManager.ACTION_CONNECT_ANDROID); // TODO
-		Intent intent = new Intent(this, ConnectActivity.class); // TO remove
+		Intent intent = new Intent(this, ConnectActivity.class) // For broadcast mode
+			.putExtra(RemoteAndroidManager.EXTRA_FLAGS, RemoteAndroidManager.FLAG_PROPOSE_PAIRING);
 		startActivity(intent);
 	}
 	@Override

@@ -136,7 +136,7 @@ public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndro
 		close(); // TODO disconnect the connexion
 	}
 	@Override
-	public boolean connect(Type type,long cookie,long timeout)
+	public boolean connect(Type type,int flags,long cookie,long timeout)
 	{
 		throw new IllegalArgumentException(); // Not implemented in serveur.
 	}
