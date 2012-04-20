@@ -18,13 +18,13 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 
-// TODO: expose invalide si non actif
+// TODO: expose NFC tag
 public final class MainActivity extends SherlockFragmentActivity
 implements MainFragment.CallBack
 {
 	FragmentManager	mFragmentManager;
 	MainFragment	mFragment;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -83,5 +83,5 @@ implements MainFragment.CallBack
 				return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 }
