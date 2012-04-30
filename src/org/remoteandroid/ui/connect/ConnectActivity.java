@@ -47,7 +47,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		{
 			new ConnectDiscoverFragment.Provider(),
 			new ConnectSMSFragment.Provider(), 
-			new ConnectQRCodeFragment.Provider(), 
+//			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 

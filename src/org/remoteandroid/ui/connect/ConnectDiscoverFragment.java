@@ -182,7 +182,7 @@ implements OnItemClickListener, OnItemLongClickListener
 		@Override
 		public void onDiscover(final RemoteAndroidInfoImpl remoteAndroidInfo)
 		{
-			if (((getConnectActivity().mFlags & RemoteAndroidManager.FLAG_PROPOSE_PAIRING)==0)
+			if (((getConnectActivity().mFlags & RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS|RemoteAndroidManager.FLAG_PROPOSE_PAIRING)==0)
 				&& !remoteAndroidInfo.isBonded)
 			{
 				if (D) Log.d(TAG_DISCOVERY,"Refuse "+remoteAndroidInfo);

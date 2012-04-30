@@ -106,8 +106,8 @@ final class NetServerSocketChannel implements Runnable
 										}
 										catch (Exception e)
 										{
-											// TODO Auto-generated catch block
-											e.printStackTrace();
+											// TODO : BUG SI PERTE DE CONNEXION A CHAUD
+											if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"TODO IP Receive exception",e);
 										}
 									}
 								});

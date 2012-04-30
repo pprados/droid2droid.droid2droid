@@ -358,7 +358,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	 * @param max 0: infinite, else number of ip to find
 	 */
 	@Override
-	public boolean startDiscovery(final long timeToDiscover,final int flags)
+	public boolean startDiscovery(final long timeToDiscover,final int flags) // FIXME: use flags
 	{
 		if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP start discover...");
 		final MultipleJmDNS dns=sDNS;
