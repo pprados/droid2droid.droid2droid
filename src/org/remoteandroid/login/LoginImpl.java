@@ -199,7 +199,7 @@ public final class LoginImpl extends Login
 			
 			
 			
-			android.checkStatus(resp.getStatus());
+			android.checkStatus(resp);
 			if (resp.getChallengestep()!=2)
 			{
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject login process");
@@ -217,7 +217,7 @@ public final class LoginImpl extends Login
 				.setChallenge2(ByteString.copyFrom(cipher(Tools.longToByteArray(challenge),remoteInfo.getPublicKey())))
 				.build();
 			resp = android.sendRequestAndReadResponse(msg,timeout);
-			android.checkStatus(resp.getStatus());
+			android.checkStatus(resp);
 			if (resp.getChallengestep()!=4)
 			{
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject login process");
