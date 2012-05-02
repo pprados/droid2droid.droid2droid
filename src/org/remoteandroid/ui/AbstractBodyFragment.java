@@ -1,6 +1,8 @@
 package org.remoteandroid.ui;
 
 
+import org.remoteandroid.RemoteAndroidInfo;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +14,7 @@ public abstract class AbstractBodyFragment extends SherlockFragment
 {
 	public interface OnNfcEvent
 	{
-		public void onNfcTag(Intent intent);
+		public void onNfcDiscover(RemoteAndroidInfo info);
 	};
 	protected ContentResolver mContentResolver;
 	

@@ -1,5 +1,6 @@
 package org.remoteandroid;
 
+import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -12,12 +13,17 @@ import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.nfc.Tag;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.tech.Ndef;
+import android.os.Build;
 import android.util.Log;
 
 public class NfcUtils
@@ -74,11 +80,35 @@ public class NfcUtils
 			{
 				NdefRecord.createApplicationRecord("org.remoteandroid"),
 				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-//				NdefRecord.createUri("www.remotandroid.org")
+//				NdefRecord.createUri("www.remoteandroid.org")
 			}
 		);
 		
 	}
 	
+	// Register a listener when another device ask my tag
+	public static void onResume(final Activity activity,RemoteAndroidNfcHelper helper)
+	{
+		final Context context=activity.getApplicationContext();
+		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
+		{
+			NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
+			nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
+	        if (nfcAdapter != null) 
+	        {
+	        	nfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+	        	{
 
+					@Override
+					public NdefMessage createNdefMessage(NfcEvent event)
+					{
+						return NfcUtils.createNdefMessage(
+							context,Trusted.getInfo(context));
+					}
+	        		
+	        	}, activity);
+	        }
+		}
+		helper.onResume(activity);
+	}
 }

@@ -124,7 +124,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	}
 	
 	@Override
-	public void onNfcTag(Intent intent)
+	public void onNfcDiscover(RemoteAndroidInfo info)
 	{
 		// Detect a NFC tag. It's possible to write it with my current infos.
 		mWrite.setEnabled(true);

@@ -30,7 +30,6 @@ public final class ExposeActivity extends AbstractFeatureTabActivity
 	{
 		super.onCreate(savedInstanceState);
     	setTitle(R.string.expose);
-		onNfcCreate();
 	}
 	
 }

@@ -1,6 +1,7 @@
 package org.remoteandroid.ui.connect;
 
 import org.remoteandroid.Application;
+import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -47,7 +48,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		{
 			new ConnectDiscoverFragment.Provider(),
 			new ConnectSMSFragment.Provider(), 
-//			new ConnectQRCodeFragment.Provider(), 
+			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 
@@ -326,51 +327,6 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		}
 	}
 	
-//	@Override
-//	protected void onNfcCreate()
-//	{
-//		// Not publish my RemoteAndroidInfo.
-//		// Accept only a published info
-//		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-//		{
-//			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-//	        if (mNfcAdapter != null) 
-//	        {
-//	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
-//	        	{
-//
-//					@Override
-//					public NdefMessage createNdefMessage(NfcEvent event)
-//					{
-//						return null;
-//					}
-//	        		
-//	        	}, this);
-//	        }
-//		}
-//	}
-	
-	@Override
-	protected void onNfcTag(Tag tag)
-	{
-		super.onNfcTag(tag);
-//		Messages.BroadcastMsg bmsg=nfcCheckDiscovered();
-//		if (bmsg!=null)
-//		{
-//			//if (bmsg.getType()==Messages.BroadcastMsg.Type.CONNECT)
-//			{
-//				RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
-//				info.isDiscoverNFC=true;
-//				info.isBonded=Trusted.isBonded(info);
-// FIXME		Discover.getDiscover().discover(info);
-//				Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
-//				intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-//				Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-//	//FIXME											onDiscover(info, true);
-//			}
-//		}
-
-	}
 	public void onConnected(RemoteAndroidInfoImpl info)
 	{
 		if (info!=null)

@@ -5,6 +5,10 @@ import static org.remoteandroid.Constants.NFC;
 import org.remoteandroid.Application;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidInfo;
+import org.remoteandroid.RemoteAndroidNfcHelper;
+import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
+import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
 
@@ -27,9 +31,12 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventActivity
+implements OnNfcDiscover
 {
 	
-	protected NfcAdapter mNfcAdapter;
+	private RemoteAndroidNfcHelper mNfcIntegration;
+	
+	//protected NfcAdapter mNfcAdapter;
 	protected ViewPager  mViewPager;
 	protected TabsAdapter mTabsAdapter;
 	protected FragmentManager mFragmentManager;
@@ -45,6 +52,8 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
         
         super.onCreate(savedInstanceState);
 
+        mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
+        
     	mFragmentManager = getSupportFragmentManager();
 
     	mViewPager = new ViewPager(this);
@@ -72,7 +81,6 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
         {
         	getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt("index"));
         }
-        onNfcCreate();
     }
 
     @Override
@@ -87,13 +95,13 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
     {
     	super.onResume();
     	Application.hideSoftKeyboard(this);
-		onNfcResume();
+    	NfcUtils.onResume(this, mNfcIntegration);
     }
 	@Override
 	protected void onPause()
 	{
-		super.onPause();
-		onNfcPause();
+		super.onPause();	// Register a listener when another device ask my tag
+		mNfcIntegration.onPause(this);
 	}
     
 	// Invoked when NFC tag detected
@@ -101,82 +109,23 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		setIntent(intent);
-		onNfcNewIntent(intent);
+		mNfcIntegration.onNewIntent(this, intent);
 	}
-	protected void onNfcTag(Tag tag)
-	{
-		
-	}
+
 // ----------------------------------------
-	protected void onNfcNewIntent(Intent intent)
+	public void onNfcDiscover(RemoteAndroidInfo info)
 	{
-		final Tag tag=(Tag)intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-		if (tag!=null)
+		for (int i=0;i<mTabsAdapter.getCount();++i)
 		{
-			// Check the caller. Refuse spoof events
-			checkCallingPermission("com.android.nfc.permission.NFCEE_ADMIN");
-
-			onNfcTag(tag);
-			
-			for (int i=0;i<mTabsAdapter.getCount();++i)
+			AbstractBodyFragment fragment=(AbstractBodyFragment)mTabsAdapter.getItem(i);
+			if (fragment instanceof OnNfcEvent)
 			{
-				AbstractBodyFragment fragment=(AbstractBodyFragment)mTabsAdapter.getItem(i);
-				if (fragment instanceof OnNfcEvent)
-				{
-					mTabsAdapter.onPageSelected(i);
-					((OnNfcEvent)fragment).onNfcTag(intent);
-				}
+				mTabsAdapter.onPageSelected(i);
+				((OnNfcEvent)fragment).onNfcDiscover(info);
 			}
 		}
 	}
 
-	// Register a listener when another device ask my tag
-	protected void onNfcCreate()
-	{
-		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-			mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-	        if (mNfcAdapter != null) 
-	        {
-	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
-	        	{
-
-					@Override
-					public NdefMessage createNdefMessage(NfcEvent event)
-					{
-						return NfcUtils.createNdefMessage(
-							AbstractFeatureTabActivity.this,Trusted.getInfo(AbstractFeatureTabActivity.this));
-					}
-	        		
-	        	}, this);
-	        }
-		}
-	}
-	
-	protected void onNfcResume()
-	{
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-			if (NFC && mNfcAdapter!=null)
-			{
-				PendingIntent pendingIntent = 
-						PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-				mNfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-			}
-		}
-	}
-	// Unregister the exposition of my tag
-    protected void onNfcPause()
-    {
-		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-	    	if (NFC && mNfcAdapter!=null)
-	    	{
-	    		mNfcAdapter.disableForegroundDispatch(this);
-	    	}
-		}
-    }
     
 //----------------------------------
 	@Override

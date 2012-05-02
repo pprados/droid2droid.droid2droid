@@ -9,6 +9,7 @@ import static org.remoteandroid.internal.Constants.W;
 import java.util.Arrays;
 
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
@@ -89,15 +90,8 @@ implements AbstractBodyFragment.OnNfcEvent
 	}
 	
 	@Override
-	public void onNfcTag(Intent intent)
+	public void onNfcDiscover(RemoteAndroidInfo info)
 	{
-		Messages.Identity identity=nfcCheckDiscovered(intent);
-		if (identity==null) 
-		{
-			Toast.makeText(getActivity(), R.string.connect_nfc_invalide_tag, Toast.LENGTH_LONG).show();
-			return; // Bad format
-		}
-		RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(getActivity(),identity);
 		showConnect(info.getUris(), getConnectActivity().mFlags,null);
 	}
 	private Messages.Identity nfcCheckDiscovered(Intent intent)
