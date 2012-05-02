@@ -116,7 +116,6 @@
     <uses-permission android:name="android.permission.NFC" />
     
     <application 
-    	android:debuggable="true" 
     	android:process="org.remoteandroid"
     	android:name=".Application"
     	android:enabled="true" 
