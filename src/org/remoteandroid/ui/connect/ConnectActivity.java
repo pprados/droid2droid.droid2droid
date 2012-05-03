@@ -16,6 +16,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
 
@@ -109,7 +110,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 	{
 		mBroadcast=!RemoteAndroidManager.ACTION_CONNECT_ANDROID.equals(getIntent().getAction());
 		final Intent intent=getIntent();
-		String title=null;
+ 		String title=null;
 		String subtitle=null;
 		int themeId=0;
 		Drawable icon=null;
@@ -299,8 +300,19 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 				actionBar.setLogo(icon);
 		}
 		Application.startService();
+		
 	}
 
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		Intent intent=getIntent();
+		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()))
+		{
+			mNfcIntegration.onNewIntent(ConnectActivity.this, intent);
+		}
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{

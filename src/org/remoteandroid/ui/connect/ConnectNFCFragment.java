@@ -88,11 +88,26 @@ implements AbstractBodyFragment.OnNfcEvent
 			mUsage.setText(R.string.connect_nfc_help_nfc);
 		}
 	}
-	
+	private RemoteAndroidInfo mPendingInfo;
 	@Override
 	public void onNfcDiscover(RemoteAndroidInfo info)
 	{
-		showConnect(info.getUris(), getConnectActivity().mFlags,null);
+		if (getConnectActivity()==null)
+		{
+			mPendingInfo=info;
+		}
+		else
+			showConnect(info.getUris(),getConnectActivity().mFlags,null);
+	}
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		if (mPendingInfo!=null)
+		{
+			showConnect(mPendingInfo.getUris(),getConnectActivity().mFlags,null);
+			mPendingInfo=null;
+		}
 	}
 	private Messages.Identity nfcCheckDiscovered(Intent intent)
 	{

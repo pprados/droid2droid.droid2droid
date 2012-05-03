@@ -34,7 +34,7 @@ public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventAct
 implements OnNfcDiscover
 {
 	
-	private RemoteAndroidNfcHelper mNfcIntegration;
+	protected RemoteAndroidNfcHelper mNfcIntegration;
 	
 	//protected NfcAdapter mNfcAdapter;
 	protected ViewPager  mViewPager;

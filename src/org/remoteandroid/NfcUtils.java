@@ -78,9 +78,9 @@ public class NfcUtils
 		return new NdefMessage(
 			new NdefRecord[]
 			{
-				NdefRecord.createApplicationRecord("org.remoteandroid"),
 				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-//				NdefRecord.createUri("www.remoteandroid.org")
+				//NdefRecord.createUri("www.remoteandroid.org")
+				NdefRecord.createApplicationRecord("org.remoteandroid"),
 			}
 		);
 		

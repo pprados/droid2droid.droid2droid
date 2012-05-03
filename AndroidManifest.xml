@@ -71,7 +71,7 @@
         
     <!-- FIXME: a virer -->
 	<uses-permission android:name="android.permission.SET_DEBUG_APP"/>
-	
+
 	<!-- Private privileges -->
 	<uses-permission android:name="org.remoteandroid.permission.discover.SEND"/>
 	<uses-permission android:name="org.remoteandroid.permission.discover.RECEIVE"/>
@@ -215,28 +215,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
         </activity>
-        
-<!--        <activity-alias android:targetActivity=".ui.MainActivity" -->
-<!--            android:name=".ui.NFC"> -->
-<!-- 			<intent-filter> -->
-<!--                	<action android:name="android.nfc.action.NDEF_DISCOVERED"/> -->
-<!--     			<category android:name="android.intent.category.DEFAULT"/> -->
-<!--     			<data android:mimeType="application/org.remoteandroid" /> -->
-<!--     			<data android:host="www.remoteandroid.org" /> -->
-<!--             </intent-filter>        -->
-<!--        </activity-alias> -->
-       
        
         <activity 
             android:enabled="true"
         	android:name=".ui.expose.ExposeActivity"
         	android:exported="false"
         	android:launchMode="singleTask"
-        	android:label="@string/app_name" 
-        	android:description="@string/main_description" 
-		android:configChanges="orientation|screenSize"
+        	android:label="@string/expose_label" 
+        	android:description="@string/expose_description" 
+			android:configChanges="orientation|screenSize"
 		>
 		    <intent-filter>
 			    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
@@ -248,9 +236,9 @@
             android:enabled="true"
         	android:name=".ui.connect.ConnectActivity"
         	android:exported="true"
-			android:label="@string/connect_label"
 			android:launchMode="standard" 
-        	android:description="@string/main_description" 
+        	android:label="@string/connect_label" 
+        	android:description="@string/connect_description" 
 			android:configChanges="orientation|screenSize"
 			android:permission="android.permission.INTERNET"
 			android:windowSoftInputMode="adjustPan"
@@ -260,6 +248,21 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity-alias
+            android:targetActivity=".ui.connect.ConnectActivity"
+            android:name=".NfcConnection"
+        	android:exported="true"
+			android:launchMode="standard" 
+        	android:description="@string/main_description" 
+			android:configChanges="orientation|screenSize"
+			android:windowSoftInputMode="adjustPan"
+        >
+			<intent-filter>
+  				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+  				<category android:name="android.intent.category.DEFAULT"/>
+  				<data android:mimeType="application/org.remoteandroid"/>
+  			</intent-filter>
+        </activity-alias>
         
         <!--  Activity to parameter service -->
         <activity 
@@ -303,27 +306,27 @@
 	        android:name=".install.InstallApkActivity"
         	android:launchMode="singleTask"
 	        android:taskAffinity=":remoteandroid"
-		android:exported="false" 
+			android:exported="false" 
         	android:theme="@android:style/Theme.Translucent"
-		android:icon="@drawable/ic_launcher_remoteandroid"
-		android:noHistory="true"
-		android:excludeFromRecents="true"
-		android:multiprocess="false"
-		android:configChanges="orientation|screenSize"
+			android:icon="@drawable/ic_launcher_remoteandroid"
+			android:noHistory="true"
+			android:excludeFromRecents="true"
+			android:multiprocess="false"
+			android:configChanges="orientation|screenSize"
 	        />
         
 		<!--  Activity to accept to download an APK -->
         <activity 
 	        android:name=".install.AskAcceptDownloadApkActivity"
         	android:theme="@android:style/Theme.Translucent"
-		android:icon="@drawable/ic_launcher_remoteandroid"
-		android:exported="false" 
+			android:icon="@drawable/ic_launcher_remoteandroid"
+			android:exported="false" 
         	android:launchMode="singleInstance"
-		android:noHistory="true"
-		android:excludeFromRecents="true"
-		android:multiprocess="false"
-		android:taskAffinity=""
-		android:configChanges="orientation|screenSize"
+			android:noHistory="true"
+			android:excludeFromRecents="true"
+			android:multiprocess="false"
+			android:taskAffinity=""
+			android:configChanges="orientation|screenSize"
 	        />
 
 		<!--  Activity to download an APK -->
@@ -352,22 +355,22 @@
          </activity>
 
          <!-- Propagate Remote android discoved when tag is presented. -->
-         <activity 
-             android:launchMode="standard" 
-             android:name=".service.RemoteAndroidNFCReceiver"
-             android:exported="true"
-             android:noHistory="true"
-			 android:excludeFromRecents="true"
+<!--          <activity  -->
+<!--              android:launchMode="standard"  -->
+<!--              android:name=".service.RemoteAndroidNFCReceiver" -->
+<!--              android:exported="true" -->
+<!--              android:noHistory="true" -->
+<!-- 			 android:excludeFromRecents="true" -->
 			 
-             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-             android:configChanges="orientation|screenSize">
-			<intent-filter>
-  				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-  				<category android:name="android.intent.category.DEFAULT"/>
-  				<data android:mimeType="application/org.remoteandroid"/>
-			</intent-filter>
-		</activity>
-
+<!--              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
+<!--              android:configChanges="orientation|screenSize"> -->
+<!-- 			<intent-filter> -->
+<!--   				<action android:name="android.nfc.action.NDEF_DISCOVERED"/> -->
+<!--   				<category android:name="android.intent.category.DEFAULT"/> -->
+<!--   				<data android:mimeType="application/org.remoteandroid"/> -->
+<!--   			</intent-filter> -->
+<!-- 		</activity> -->
+         
 <!-- Tests activities -->
 
 <!--         <activity  -->

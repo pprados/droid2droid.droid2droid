@@ -2,7 +2,9 @@
 <resources>
 
 	<string name="connect">Connect</string>
-	    
+	<string name="connect_label">Connect</string>
+	<string name="connect_description">Connect remote android</string>
+		    
 	<!-- Hack for Honneycomb combatility -->
 	<style name="activated"/>
 

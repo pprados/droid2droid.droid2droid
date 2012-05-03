@@ -46,25 +46,37 @@ implements ConnectDialogFragment.OnConnected
 
 	protected void dismissDialog()
 	{
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-	    mDlg.dismiss();
-	    ft.commit();
-	    mDlg=null;
+		if (mDlg!=null)
+		{
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+		    mDlg.dismiss();
+		    ft.commit();
+		    mDlg=null;
+		}
+	}
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		mDlg=null;
 	}
 	@Override
 	public void onConnected(final RemoteAndroidInfoImpl info)
 	{
-		mDlg.publishInDialog(R.string.connect_done,1000);
-		Application.sHandler.postDelayed(new Runnable()
+		if (mDlg!=null)
 		{
-			
-			@Override
-			public void run()
+			mDlg.publishInDialog(R.string.connect_done,1000);
+			Application.sHandler.postDelayed(new Runnable()
 			{
-				dismissDialog();
-				getConnectActivity().onConnected(info);
-			}
-		}, DELAY_SHOW_TERMINATE);
+				
+				@Override
+				public void run()
+				{
+					dismissDialog();
+					getConnectActivity().onConnected(info);
+				}
+			}, DELAY_SHOW_TERMINATE);
+		}
 	}
 
 	@Override

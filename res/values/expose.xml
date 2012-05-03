@@ -3,7 +3,9 @@
 	<integer name="expose_qrcode_maxsize">0</integer>
 
 	<string name="expose">Expose</string>
-	
+	<string name="expose_label">Expose</string>
+	<string name="expose_description">Expose remote android</string>
+		
 	<!-- TODO -->
 	<string name="expose_help0_wifi">Check if the devices shared the same WIFI network;\n</string>
 	<string name="expose_help0_bt">Check if the devices activate the Bluetooth;\n</string>
