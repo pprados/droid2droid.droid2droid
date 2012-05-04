@@ -1,6 +1,11 @@
 package org.remoteandroid.ui;
 
 
+import java.io.File;
+
+import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.internal.Constants.*;
+
 import org.remoteandroid.Application;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
@@ -8,20 +13,28 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.RemoteAndroidNfcHelper;
 import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
+import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
 import org.remoteandroid.ui.connect.ConnectActivity;
 import org.remoteandroid.ui.expose.ExposeActivity;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
+import com.actionbarsherlock.widget.ShareActionProvider;
 
 
 // TODO: expose NFC tag
@@ -37,6 +50,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 	{
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_CONTEXT_MENU);
+        setTheme(R.style.Theme_Sherlock);
 		super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity);
@@ -46,6 +60,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 		Application.startService();
 		mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
 	}
+
 	@Override
 	protected void onNewIntent(Intent intent)
 	{
@@ -71,6 +86,29 @@ implements MainFragment.CallBack,OnNfcDiscover
 	{
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.main_fragment_menu, menu);
+		
+		// Share menu
+	    try
+	    {
+		    MenuItem item = menu.findItem(R.id.menu_item_share);
+		    PackageManager pm=getPackageManager();
+		    ApplicationInfo info=pm.getApplicationInfo(getPackageName(), 0);
+		    
+		    Intent shareIntent=new Intent(Intent.ACTION_SEND)
+		    	.putExtra(Intent.EXTRA_SUBJECT,pm.getText(getPackageName(), info.labelRes, info))
+		    	.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(info.sourceDir)))
+//		    	.setType("application/vnd.android.package-archive");
+		    	.setType("*/*") // Android >3.x refuse to download apk
+//		    	.setType("image/jpeg")
+		    	;
+		    ShareActionProvider shareActionProvider = (ShareActionProvider) item.getActionProvider();
+		    shareActionProvider.setShareIntent(shareIntent);
+	    }
+		catch (NameNotFoundException e)
+		{
+			// Ignore
+			if (E) Log.e(TAG_INSTALL,"Impossible to share Remote Android");
+		}
 		return true;
 	}
 	

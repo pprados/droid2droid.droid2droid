@@ -28,6 +28,7 @@ public final class ExposeActivity extends AbstractFeatureTabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+        setTheme(R.style.Theme_Sherlock);
 		super.onCreate(savedInstanceState);
     	setTitle(R.string.expose);
 	}

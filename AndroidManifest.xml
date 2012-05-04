@@ -32,7 +32,13 @@
         <screen android:screenSize="xlarge" android:screenDensity="hdpi" />
         <screen android:screenSize="xlarge" android:screenDensity="xhdpi" />
     </compatible-screens>
-    
+    <uses-configuration 
+	android:reqFiveWayNav="false" 
+        android:reqHardKeyboard="false"
+        android:reqKeyboardType="undefined"
+        android:reqNavigation="undefined"
+        android:reqTouchScreen="undefined"/>
+
 	<supports-screens 
 		android:xlargeScreens="true"
         android:largeScreens="true"

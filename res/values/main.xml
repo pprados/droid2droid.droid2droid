@@ -6,4 +6,5 @@
 	
 	<string name="main_ic_menu_help">Help</string>
 	<string name="main_ic_menu_preferences">Preferences</string>
+	<string name="main_ic_menu_share">Share</string>
 </resources>

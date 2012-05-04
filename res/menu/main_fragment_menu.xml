@@ -6,10 +6,15 @@
           android:title="@string/main_ic_menu_preferences"
     	  android:icon="@android:drawable/ic_menu_preferences"
           android:visible="true"
-          android:showAsAction="ifRoom"/>           
+          android:showAsAction="ifRoom"/>     
     <item android:id="@+id/help"
           android:title="@string/main_ic_menu_help"
     	  android:icon="@android:drawable/ic_menu_help"
           android:visible="true"
           android:showAsAction="ifRoom"/>           
+    <item android:id="@+id/menu_item_share"
+        android:showAsAction="ifRoom"
+        android:title="@string/main_ic_menu_share"
+        android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"
+         />                    
 </menu>
