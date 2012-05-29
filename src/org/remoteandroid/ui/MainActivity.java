@@ -1,10 +1,10 @@
 package org.remoteandroid.ui;
 
 
-import java.io.File;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.TAG_INSTALL;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import java.io.File;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.NfcUtils;
@@ -13,18 +13,15 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.RemoteAndroidNfcHelper;
 import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
-import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
 import org.remoteandroid.ui.connect.ConnectActivity;
 import org.remoteandroid.ui.expose.ExposeActivity;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -104,7 +101,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 		    ShareActionProvider shareActionProvider = (ShareActionProvider) item.getActionProvider();
 		    shareActionProvider.setShareIntent(shareIntent);
 	    }
-		catch (NameNotFoundException e)
+		catch (NameNotFoundException e) // $codepro.audit.disable logExceptions
 		{
 			// Ignore
 			if (E) Log.e(TAG_INSTALL,"Impossible to share Remote Android");

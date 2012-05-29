@@ -71,7 +71,7 @@ public final class CaptureHandler extends Handler
 					getCamera().autoFocus(mAutoFocusCallback);
 					mWaitAutoFocus=true;
 				}
-				catch (RuntimeException e)
+				catch (RuntimeException e) // $codepro.audit.disable logExceptions
 				{
 					// Sometime, with ICS... try later
 					if (W) Log.w(TAG_QRCODE,"Camera autoFocus throw a RuntimeException after onPrevious frame. Retry.");
@@ -140,7 +140,7 @@ public final class CaptureHandler extends Handler
 					{
 						camera.autoFocus(mAutoFocusCallback);
 					}
-					catch (RuntimeException e)
+					catch (RuntimeException e) // $codepro.audit.disable logExceptions
 					{
 						if (W) Log.w(TAG_QRCODE,"Camera autoFocus throw a RuntimeException when receive autofocus message. Retry.");
 						if (++mErrorAutofocus<QRCODE_MAX_ERROR_AUTOFOCUS)

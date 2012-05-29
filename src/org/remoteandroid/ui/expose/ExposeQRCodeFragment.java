@@ -1,15 +1,15 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.QRCODE_BYTE_MODE_ENCODING;
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.Hashtable;
 
 import org.remoteandroid.Application;
@@ -36,7 +36,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.Writer;
@@ -83,16 +82,6 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 //		layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
 //		getActivity().getWindow().setAttributes(layoutParams);
 		mImg.requestFocus();
-	}
-
-	@Override
-	public void onPause()
-	{
-		super.onPause();
-//		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-//		layoutParams.screenBrightness = mScreenBrightness;
-//		layoutParams.flags&=~LayoutParams.FLAG_KEEP_SCREEN_ON;
-//		getActivity().getWindow().setAttributes(layoutParams);
 	}
 
 	@Override
@@ -170,15 +159,6 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 		}
 	}
 
-	@Override
-	public void onPageUnselected()
-	{
-		super.onPageUnselected();
-//		WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-//		layoutParams.screenBrightness = mScreenBrightness;
-//		layoutParams.flags&=~LayoutParams.FLAG_KEEP_SCREEN_ON;
-//		getActivity().getWindow().setAttributes(layoutParams);
-	}
 //---------------------------
 	public static Bitmap buildQRCode(Context context,int smallerDimension)
 	{

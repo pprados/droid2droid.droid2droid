@@ -1,7 +1,5 @@
 package org.remoteandroid.ui;
 
-import static org.remoteandroid.Constants.NFC;
-
 import org.remoteandroid.Application;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
@@ -9,17 +7,9 @@ import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidNfcHelper;
 import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
 import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
-import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
 
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcEvent;
-import android.nfc.Tag;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;

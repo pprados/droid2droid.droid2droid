@@ -107,14 +107,14 @@ LoaderManager.LoaderCallbacks<Cursor>
 					final Reference<Bitmap> photoRef = sBitmapCache.get(contactId);
 					if (photoRef == null)
 					{
-						setDefaultImage(imageView);;
+						setDefaultImage(imageView);
 						break;
 					}
 					final Bitmap photo = photoRef.get();
 					
 					if (photo == null)
 					{
-						setDefaultImage(imageView);;
+						setDefaultImage(imageView);
 						sBitmapCache.remove(contactId);
 						break;
 					}

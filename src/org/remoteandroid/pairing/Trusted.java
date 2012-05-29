@@ -5,15 +5,12 @@ import static org.remoteandroid.Constants.PAIR_PERSISTENT;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_EXPOSE;
-import static org.remoteandroid.Constants.TIMEOUT_PAIR;
-import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.SCHEME_TCP;
-import static org.remoteandroid.internal.Constants.TIMEOUT_PAIRING_ASK_CHALENGE;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.net.Inet4Address;
@@ -35,12 +32,10 @@ import java.util.UUID;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.ConnectionType;
-import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
 import org.remoteandroid.discovery.Discover;
-import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
@@ -48,21 +43,13 @@ import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Tools;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.protobuf.ByteString;
 
@@ -336,6 +323,7 @@ public final class Trusted
 	}
 	// Note: With device <Honey_comb, only one data network is on. Wifi OR mobile.
 	// In honeycomb, it's possible to have Widi AND Mobile.
+	@SuppressWarnings("unused")
 	public static Messages.Candidates getConnectMessage(Context context) throws UnknownHostException, SocketException
 	{
 		final WifiManager wifi=(WifiManager)context.getSystemService(Context.WIFI_SERVICE);
@@ -353,7 +341,7 @@ public final class Trusted
 				NetworkInterface network=networks.nextElement();
 				for (Enumeration<InetAddress> addrs=network.getInetAddresses();addrs.hasMoreElements();)
 				{
-					InetAddress add=(InetAddress)addrs.nextElement();
+					InetAddress add=addrs.nextElement();
 					if (V) Log.v(TAG_CONNECT,PREFIX_LOG+"Analyse "+network.getName()+" "+add);
 					if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
 					{

@@ -28,6 +28,7 @@ public final class Constants
 	public static final String TAG_SMS							="Sms"; //TAG_CONNECT;
 	public static final String TAG_DTMF							="DTMF"; // TAG_CONNECT
 	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
+	public static final String TAG_UI							="UI"; // TAG_CONNECT;
 		
 	public static final String PREFERENCES_DEVICE_ID			="deviceid";
 	public static final String PREFERENCES_NAME					="name";

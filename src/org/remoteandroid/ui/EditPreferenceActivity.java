@@ -590,7 +590,7 @@ implements Discover.Listener
 			{
 				RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)inf;
 				info.clearDiscover();
-				addInfo((RemoteAndroidInfoImpl)info);
+				addInfo(info);
 			}
     	}
     }
@@ -662,7 +662,7 @@ implements Discover.Listener
 //				        				else
 //											if (W) Log.d(TAG_NFC,PREFIX_LOG+"Connect tag. Ignore.");
 									}
-									catch (InvalidProtocolBufferException e)
+									catch (InvalidProtocolBufferException e) // $codepro.audit.disable logExceptions
 									{
 										if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
 									}

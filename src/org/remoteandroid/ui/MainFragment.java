@@ -25,12 +25,6 @@ public final class MainFragment extends Fragment
 		mCallBack=callBack;
 	}
 	Drawable mDrawable;
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-	}
-	
 	View mViewer;
 	
 	@Override

@@ -18,7 +18,6 @@ import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
 import org.remoteandroid.ui.connect.qrcode.QRCodeScannerView;
 
 import android.os.Bundle;

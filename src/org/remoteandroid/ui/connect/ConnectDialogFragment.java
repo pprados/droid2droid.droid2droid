@@ -2,7 +2,6 @@ package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.W;
 
@@ -11,7 +10,6 @@ import java.io.IOException;
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.pairing.Trusted;
 
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -161,11 +159,11 @@ public final class ConnectDialogFragment extends DialogFragment
 					});
 				}
 			}
-			catch (RemoteException e)
+			catch (RemoteException e) // $codepro.audit.disable logExceptions
 			{
 				if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Send broadcast impossible");
 			}
-			catch (SecurityException e)
+			catch (SecurityException e) // $codepro.audit.disable logExceptions
 			{
 				if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Remote device refuse anonymous.");
 			}
@@ -178,7 +176,7 @@ public final class ConnectDialogFragment extends DialogFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		getDialog().setTitle(R.string.connect_try);
-		mViewer = (View) inflater.inflate(R.layout.try_connect, container, false);
+		mViewer =  inflater.inflate(R.layout.try_connect, container, false);
 		mStep=(TextView)mViewer.findViewById(R.id.step);
 		mProgressBar=(ProgressBar)mViewer.findViewById(R.id.progress);
 		mProgressBar.setMax(1000);
@@ -203,12 +201,6 @@ public final class ConnectDialogFragment extends DialogFragment
 		super.onStart();
 		mTryConnections=new TryConnection();
 		mTryConnections.execute();
-	}
-	
-	@Override
-	public void onPause()
-	{
-		super.onPause();
 	}
 	
 	public void publishInDialog(int id,int progress)

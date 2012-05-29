@@ -43,7 +43,7 @@ public final class ConnectSoundFragment extends AbstractConnectFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		mViewer = (View) inflater.inflate(R.layout.connect_sound, container, false);
+		mViewer =  inflater.inflate(R.layout.connect_sound, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
@@ -67,12 +67,6 @@ public final class ConnectSoundFragment extends AbstractConnectFragment
 		{
 			mUsage.setText(R.string.connect_sound_help_network);
 		}
-	}
-	
-	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
 	}
 	
 }

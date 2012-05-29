@@ -73,7 +73,7 @@ public final class RemoteAndroidNFCReceiver extends Activity
 										info.isBonded=Trusted.isBonded(info);
 										Discover.getDiscover().discover(info);
 									}
-									catch (InvalidProtocolBufferException e)
+									catch (InvalidProtocolBufferException e) // $codepro.audit.disable logExceptions
 									{
 										if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
 									}

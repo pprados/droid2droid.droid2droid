@@ -239,6 +239,7 @@ public final class DevicePreference extends Preference
 		mInfo.isBonded=false;
 		new AsyncTask<Void, Void, Void>()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			protected Void doInBackground(Void... params)
 			{
@@ -259,7 +260,7 @@ public final class DevicePreference extends Preference
 							if (driver==null)
 								throw new MalformedURLException("Unknown "+uri);
 							binder=driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
-							binder.connect(Type.CONNECT_FOR_PAIRING, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
+							binder.connect(Type.CONNECT_FOR_PAIRING, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1L,ETHERNET_TRY_TIMEOUT);
 							return null;
 						}
 						catch (SecurityException e)

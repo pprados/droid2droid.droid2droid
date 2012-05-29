@@ -102,7 +102,7 @@ final class NetServerSocketChannel implements Runnable
 									{
 									    try
 										{
-											mHandler.messageReceived(id,(Msg)msg,channel);
+											mHandler.messageReceived(id,msg,channel);
 										}
 										catch (Exception e)
 										{

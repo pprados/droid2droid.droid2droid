@@ -120,7 +120,7 @@ public final class RemoteAndroidSMSReceiver extends BroadcastReceiver
 				bmsg = Messages.BroadcastMsg.newBuilder().mergeFrom(result).build();
 				onMessage(context,bmsg);
 			}
-			catch (InvalidProtocolBufferException e)
+			catch (InvalidProtocolBufferException e) // $codepro.audit.disable logExceptions
 			{
 				if (W) Log.w(TAG_SMS,"Invalide protobuf message");
 			}

@@ -1,35 +1,23 @@
 package org.remoteandroid.ui.expose;
 
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.V;
-import static org.remoteandroid.Constants.*;
-
-import java.io.IOException;
 
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment;
-import org.remoteandroid.ui.AbstractFeatureTabActivity;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
-import android.content.Context;
-import android.content.Intent;
-import android.nfc.FormatException;
-import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;

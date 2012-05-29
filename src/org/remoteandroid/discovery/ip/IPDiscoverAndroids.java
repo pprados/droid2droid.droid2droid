@@ -166,7 +166,8 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	private static BroadcastReceiver sNetworkStateReceiver=new BroadcastReceiver() 
     {
     	
-        @Override
+        @SuppressWarnings("unused")
+		@Override
         public void onReceive(final Context context, Intent intent) 
         {
             // deprecated

@@ -1,14 +1,14 @@
 package org.remoteandroid.ui.connect.nfc;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.DELAY_SHOW_TERMINATE;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.TAG_NFC;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.pairing.Trusted;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -19,7 +19,6 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class WriteNfcActivity extends Activity
 {

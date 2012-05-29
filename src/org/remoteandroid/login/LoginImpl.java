@@ -162,7 +162,7 @@ public final class LoginImpl extends Login
 					.build();
 				resp = android.sendRequestAndReadResponse(msg,timeout);
 				if ((resp.getType() != type) || resp.getChallengestep()!=14)
-					throw new SecurityException("Reject login process");;
+					throw new SecurityException("Reject login process");
 
 				mDigest.reset();
 			    mDigest.update(clientModulus);

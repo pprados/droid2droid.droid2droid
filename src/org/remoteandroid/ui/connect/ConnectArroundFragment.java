@@ -41,7 +41,7 @@ public final class ConnectArroundFragment extends AbstractConnectFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		mViewer = (View) inflater.inflate(R.layout.connect_arround, container, false);
+		mViewer =  inflater.inflate(R.layout.connect_arround, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
@@ -65,12 +65,6 @@ public final class ConnectArroundFragment extends AbstractConnectFragment
 		{
 			mUsage.setText(R.string.connect_arround_help_internet);
 		}
-	}
-	
-	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
 	}
 	
 }

@@ -3,7 +3,7 @@ package org.remoteandroid;
 import static org.remoteandroid.Constants.BT;
 import static org.remoteandroid.Constants.BUMP;
 import static org.remoteandroid.Constants.HACK_UUID;
-import static org.remoteandroid.Constants.NFC;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_BACKNAME;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
@@ -29,7 +29,7 @@ import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_TELEPHONY;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_WIFI;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_WIFI_DIRECT;
-import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
@@ -211,8 +211,9 @@ public final class Application extends android.app.Application
 			{
 				Thread.sleep(100);
 			}
-			catch (InterruptedException e)
+			catch (InterruptedException e) // $codepro.audit.disable emptyCatchClause, logExceptions
 			{
+				if (I) Log.i(TAG_SERVER_BIND,PREFIX_LOG+"Interrupted when sleep");
 				// Ignore
 			}
 		}
@@ -426,7 +427,7 @@ public final class Application extends android.app.Application
 	        Class.forName("android.net.http.HttpResponseCache")
 	            .getMethod("install", File.class, long.class)
 	            .invoke(null, httpCacheDir, httpCacheSize);
-	    } catch (Exception httpResponseCacheNotAvailable) 
+	    } catch (Exception httpResponseCacheNotAvailable)  // $codepro.audit.disable logExceptions
 	    {
 	    	if (V) Log.v(TAG,PREFIX_LOG+"Failed to enable http cache");
 	    }

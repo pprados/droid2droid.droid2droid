@@ -347,7 +347,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 				if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"Enter wait loop...");
 				ref.wait(10000); // FIXME: 10s pour attendre la connexion locale d'un service
 			}
-			catch (InterruptedException e)
+			catch (InterruptedException e) // $codepro.audit.disable logExceptions
 			{
 				// Ignore
 				if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"Wait loop interrupted.");
@@ -582,8 +582,9 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 					}
 				}
 			}
-			catch (NameNotFoundException e)
+			catch (NameNotFoundException e) // $codepro.audit.disable emptyCatchClause
 			{
+				if (I) Log.i(TAG_SERVER_BIND,PREFIX_LOG+"Error",e);
 				// Ignore
 			}
 

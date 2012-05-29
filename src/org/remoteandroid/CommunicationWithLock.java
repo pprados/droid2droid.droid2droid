@@ -48,7 +48,7 @@ public final class CommunicationWithLock
 				{
 					sResults.wait(to);
 				}
-				catch (InterruptedException e)
+				catch (InterruptedException e) // $codepro.audit.disable logExceptions
 				{
 					to-=System.currentTimeMillis()-t;
 				}

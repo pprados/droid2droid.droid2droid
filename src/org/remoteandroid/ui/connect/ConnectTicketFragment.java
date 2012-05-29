@@ -137,12 +137,6 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 	}
 	
 	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
-	}
-	
-	@Override
 	public Object doTryConnect(
 			ProgressJobs<?,?> progressJobs,
 			ConnectDialogFragment fragment,

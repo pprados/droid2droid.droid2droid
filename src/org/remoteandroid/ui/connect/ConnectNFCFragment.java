@@ -1,9 +1,11 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
-import static org.remoteandroid.RemoteAndroidInfo.*;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.TAG_NFC;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.util.Arrays;
@@ -12,8 +14,6 @@ import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
@@ -30,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -63,7 +62,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		setProgressBarIndeterminateVisibility(true);
-		mViewer = (View) inflater.inflate(R.layout.connect_nfc, container, false);
+		mViewer =  inflater.inflate(R.layout.connect_nfc, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
@@ -128,11 +127,11 @@ implements AbstractBodyFragment.OnNfcEvent
 							{
 		        				return Messages.Identity.newBuilder().mergeFrom(record.getPayload()).build();
 							}
-							catch (InvalidProtocolBufferException e)
+							catch (InvalidProtocolBufferException e) // $codepro.audit.disable logExceptions
 							{
 								if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
 							}
-	        				catch (UninitializedMessageException e)
+	        				catch (UninitializedMessageException e) // $codepro.audit.disable logExceptions
 	        				{
 								if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
 	        				}

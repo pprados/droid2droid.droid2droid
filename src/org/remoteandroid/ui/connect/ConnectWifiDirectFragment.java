@@ -43,7 +43,7 @@ public final class ConnectWifiDirectFragment extends AbstractConnectFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		mViewer = (View) inflater.inflate(R.layout.connect_wifi_direct, container, false);
+		mViewer =  inflater.inflate(R.layout.connect_wifi_direct, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}
@@ -67,12 +67,6 @@ public final class ConnectWifiDirectFragment extends AbstractConnectFragment
 		{
 			mUsage.setText(R.string.connect_wifi_direct_help_wifi_direct);
 		}
-	}
-	
-	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
 	}
 	
 }

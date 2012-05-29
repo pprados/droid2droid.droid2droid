@@ -147,7 +147,7 @@ implements OnItemClickListener, OnItemLongClickListener
 			}
 			else
 				tag = (Tag) view.getTag();
-			RemoteAndroidInfoImpl info = (RemoteAndroidInfoImpl) mListInfo.get(position);
+			RemoteAndroidInfoImpl info = mListInfo.get(position);
 			tag.mText1.setText(info.getName());
 			if (tag.mText2 != null)
 			{
@@ -207,7 +207,7 @@ implements OnItemClickListener, OnItemLongClickListener
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		setProgressBarIndeterminateVisibility(true);
-		mViewer = (View) inflater.inflate(
+		mViewer =  inflater.inflate(
 			R.layout.connect_discover, container, false);
 		mUsage = (TextView) mViewer.findViewById(R.id.usage);
 		mList = (ListView) mViewer.findViewById(R.id.connect_discover_list);
@@ -319,12 +319,6 @@ implements OnItemClickListener, OnItemLongClickListener
 	{
 		super.onPageUnselected();
 		setProgressBarIndeterminateVisibility(false);
-	}
-
-	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
 	}
 
 	private void progress(boolean onoff)

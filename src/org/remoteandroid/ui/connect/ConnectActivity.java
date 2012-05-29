@@ -1,7 +1,10 @@
 package org.remoteandroid.ui.connect;
 
+import static org.remoteandroid.Constants.TAG_UI;
+import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+
 import org.remoteandroid.Application;
-import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -15,10 +18,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.hardware.Camera;
 import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
@@ -274,6 +276,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			catch (NameNotFoundException e)
 			{
 				// Ignore
+				if (I) Log.i(TAG_UI,PREFIX_LOG+"Error",e);
 			}
 		}
 		if ((mDisplaySet & ActionBar.DISPLAY_SHOW_TITLE)!=0)
