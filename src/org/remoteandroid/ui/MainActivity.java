@@ -50,7 +50,6 @@ implements MainFragment.CallBack,OnNfcDiscover
 	{
 		requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_CONTEXT_MENU);
-        setTheme(R.style.Theme_Sherlock);
 		super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity);
@@ -91,6 +90,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 	    try
 	    {
 		    MenuItem item = menu.findItem(R.id.menu_item_share);
+	        
 		    PackageManager pm=getPackageManager();
 		    ApplicationInfo info=pm.getApplicationInfo(getPackageName(), 0);
 		    
@@ -102,6 +102,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 //		    	.setType("image/jpeg")
 		    	;
 		    ShareActionProvider shareActionProvider = (ShareActionProvider) item.getActionProvider();
+		    shareActionProvider.setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
 		    shareActionProvider.setShareIntent(shareIntent);
 	    }
 		catch (NameNotFoundException e)
