@@ -49,16 +49,16 @@ implements ConnectDialogFragment.OnConnected
 		if (mDlg!=null)
 		{
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
-		    mDlg.dismiss();
+			final ConnectDialogFragment dlg=mDlg;
+			mDlg=null;
+		    dlg.dismiss();
 		    ft.commit();
-		    mDlg=null;
 		}
 	}
 	@Override
 	public void onPause()
 	{
 		super.onPause();
-		mDlg=null;
 	}
 	@Override
 	public void onConnected(final RemoteAndroidInfoImpl info)
@@ -92,6 +92,12 @@ implements ConnectDialogFragment.OnConnected
 		Toast.makeText(getActivity(), err, Toast.LENGTH_LONG).show();
 	}
 	
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		mDlg=null;
+	}
 	protected final ConnectActivity getConnectActivity()
 	{
 		return (ConnectActivity)getActivity();

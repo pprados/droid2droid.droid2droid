@@ -7,7 +7,7 @@
     <!-- For API level 11 or later, we can use the magical DialogWhenLarge theme. -->
     <style name="ThemeDialogWhenLarge" parent="android:style/Theme.Holo.DialogWhenLarge">
     </style>    
-    <style name="MyTheme" parent="@style/Theme.Sherlock">
+    <style name="Theme" parent="@style/Theme.Sherlock">
         <!-- Any customizations for your app running on devices with Theme.Holo here -->
     </style>
 </resources>

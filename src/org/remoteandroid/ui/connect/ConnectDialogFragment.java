@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 
@@ -168,6 +169,9 @@ public final class ConnectDialogFragment extends DialogFragment
 			catch (SecurityException e)
 			{
 				if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Remote device refuse anonymous.");
+				return ((flags & RemoteAndroidManager.FLAG_PROPOSE_PAIRING)!=0) 
+						? R.string.connect_alert_pairing_impossible
+						: R.string.connect_alert_connection_refused;
 			}
 		}
 		return R.string.connect_alert_connection_impossible;

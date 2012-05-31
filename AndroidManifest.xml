@@ -132,7 +132,7 @@
     	android:icon="@drawable/ic_launcher_remoteandroid" 
     	android:description="@string/app_description" 
     	android:hardwareAccelerated="true"
-    	android:theme="@style/MyTheme"
+    	android:theme="@style/Theme"
     	
     	android:backupAgent=".service.RemoteAndroidBackup"
     	android:allowBackup="true"

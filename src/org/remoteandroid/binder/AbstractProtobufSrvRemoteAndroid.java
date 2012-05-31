@@ -82,15 +82,16 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             else if (type==Type.CONNECT_FOR_BROADCAST)
             {
             	RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(mContext,msg.getIdentity());
-            	if (Trusted.getBonded(info.uuid.toString())==null && !acceptAnonymous)
-            	{
-            		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"<- Refuse anonymous");
-	    			return Msg.newBuilder()
-							.setType(msg.getType())
-							.setThreadid(msg.getThreadid())
-							.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
-							.build();
-            	}
+            	// Est-ce que j'accept un broadcast si je n'accepte pas les anonymes ? C'est ensuite que cela sera traité
+//            	if (Trusted.getBonded(info.uuid.toString())==null && !acceptAnonymous)
+//            	{
+//            		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"<- Refuse anonymous");
+//	    			return Msg.newBuilder()
+//							.setType(msg.getType())
+//							.setThreadid(msg.getThreadid())
+//							.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
+//							.build();
+//            	}
             		
     			if (!PendingBroadcastRequest.notify(msg.getCookie(),info))
     			{

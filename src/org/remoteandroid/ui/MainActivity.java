@@ -4,6 +4,8 @@ package org.remoteandroid.ui;
 import java.io.File;
 
 import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_PROPOSE_PAIRING;
 import static org.remoteandroid.internal.Constants.*;
 
 import org.remoteandroid.Application;
@@ -123,7 +125,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 	public void onConnect()
 	{
 		Intent intent = new Intent(this, ConnectActivity.class) // For broadcast mode
-			.putExtra(RemoteAndroidManager.EXTRA_FLAGS, RemoteAndroidManager.FLAG_PROPOSE_PAIRING);
+			.putExtra(RemoteAndroidManager.EXTRA_FLAGS, FLAG_PROPOSE_PAIRING|FLAG_ACCEPT_ANONYMOUS);
 		startActivity(intent);
 	}
 	@Override

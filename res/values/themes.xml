@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="MyTheme" parent="@style/Theme.Sherlock">
+    <style name="Theme" parent="@style/Theme.Sherlock">
         Any customizations for your app running on pre-3.0 devices here
     </style>
     <!-- This is a theme that will adjust itself depending on the API version.

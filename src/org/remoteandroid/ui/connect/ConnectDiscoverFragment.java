@@ -22,6 +22,7 @@ import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -83,23 +84,24 @@ implements OnItemClickListener, OnItemLongClickListener
 
 		private Context mContext;
 
-		private int mColorTextDark_nodisable;
+		private int mColorText_nodisable;
 
-		private int mColorTextDark;
+		private int mColorText;
 
 		public ListRemoteAndroidInfoAdapter(Context context, List<RemoteAndroidInfoImpl> listInfo)
 		{
 			Resources resource = context.getResources();
 			mContext = context;
+			//TODO: It's better to use Theme and obtainStyledAttributes. See source code of TextView
 			if (getConnectActivity().isLight())
 			{
-				mColorTextDark_nodisable = resource.getColor(android.R.color.primary_text_light_nodisable);
-				mColorTextDark = resource.getColor(android.R.color.tertiary_text_light);
+				mColorText_nodisable = resource.getColor(android.R.color.primary_text_light_nodisable);
+				mColorText = resource.getColor(android.R.color.tertiary_text_light);
 			}
 			else
 			{
-				mColorTextDark_nodisable = resource.getColor(android.R.color.primary_text_dark_nodisable);
-				mColorTextDark = resource.getColor(android.R.color.tertiary_text_dark);
+				mColorText_nodisable = resource.getColor(android.R.color.primary_text_dark_nodisable);
+				mColorText = resource.getColor(android.R.color.tertiary_text_dark);
 			}
 			mListInfo = listInfo;
 		}
@@ -160,8 +162,8 @@ implements OnItemClickListener, OnItemLongClickListener
 				tag.mText2.setText(b);
 			}
 			boolean enabled = parent.isEnabled() && info.isDiscover();
-			tag.mText1.setTextColor(enabled ? mColorTextDark_nodisable : mColorTextDark);
-			tag.mText2.setTextColor(enabled ? mColorTextDark_nodisable : mColorTextDark);
+			tag.mText1.setTextColor(enabled ? mColorText_nodisable : mColorText);
+			tag.mText2.setTextColor(enabled ? mColorText_nodisable : mColorText);
 			return view;
 		}
 
