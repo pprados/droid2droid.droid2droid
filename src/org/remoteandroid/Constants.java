@@ -81,8 +81,8 @@ public final class Constants
 	public static final boolean PAIR_ANTI_SPOOF							=false; // TODO: PAIR_ANTI_SPOOF must be true
 	/** Save pairing devices. */
 	public static final boolean PAIR_PERSISTENT							=true;
-	/** Automaticaly pairing the bounded BT devices. */
-	public static final boolean PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE		=true;
+	/** Automaticaly pairing the bonded BT devices. */
+	public static final boolean PAIR_AUTO_PAIR_BT_BONDED_DEVICE		=true;
 	/** Accept anonymous. */
 	public static final boolean PAIR_CHECK_WIFI_ANONYMOUS				=true;
 

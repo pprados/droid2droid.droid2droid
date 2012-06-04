@@ -63,9 +63,11 @@ import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.login.LoginImpl;
+import org.remoteandroid.pairing.PairingImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
 import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.service.RemoteAndroidService;
@@ -538,6 +540,7 @@ public final class Application extends android.app.Application
 
 			if (V) Log.v(TAG, PREFIX_LOG+"Application init preferences.");
 			Login.sLogin=new LoginImpl();
+			Pairing.sPairing=new PairingImpl();
 			String adapterName=null;
 			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
 			if (adapter!=null)

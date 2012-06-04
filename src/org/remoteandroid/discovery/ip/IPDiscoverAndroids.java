@@ -260,7 +260,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			RemoteAndroidInfoImpl info=Trusted.getBonded(struuid);
 			if (!sIsDiscovering && info==null)
 			{
-				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS ignore '"+dnsInfo.getName()+"' because is not bounded.");
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS ignore '"+dnsInfo.getName()+"' because is not bonded.");
 				return;
 			}
 			// Discover a remote android. Try to connect.
@@ -281,7 +281,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 					{
 						RemoteAndroidInfoImpl info=null;
 						// Update the current ip address of bonded device
-						RemoteAndroidInfoImpl boundedInfo=Trusted.update(UUID.fromString(struuid),dnsInfo.getInetAddresses());
+						RemoteAndroidInfoImpl bondedInfo=Trusted.update(UUID.fromString(struuid),dnsInfo.getInetAddresses());
 						if (sIsDiscovering)
 						{
 							if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Ask info for '"+dnsInfo.getName()+"'...");
@@ -297,15 +297,15 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 						}
 						else
 						{
-							if (boundedInfo!=null)
+							if (bondedInfo!=null)
 							{
-								boundedInfo.isDiscoverEthernet=true;
-								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP '"+boundedInfo.getName()+"' has Ips address.");
-								mDiscover.discover(boundedInfo);
+								bondedInfo.isDiscoverEthernet=true;
+								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP '"+bondedInfo.getName()+"' has Ips address.");
+								mDiscover.discover(bondedInfo);
 								
 							}
 							else
-								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Discover '"+dnsInfo.getName()+"' but ignore because it's not a bounded device.");
+								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Discover '"+dnsInfo.getName()+"' but ignore because it's not a bonded device.");
 						}
 					}
 				});
@@ -545,14 +545,14 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 					if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS closed");
 					sDNS=null;
 			        sLock.release();
-					// Signal all IP of bounded device are failed
-					if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Signal all ip of bounded device are failed...");
+					// Signal all IP of bonded device are failed
+					if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Signal all ip of bonded device are failed...");
 					for (RemoteAndroidInfoImpl info:Trusted.getBonded())
 					{
 						Trusted.update(info.getUuid(),null);
 						mDiscover.discover(info);
 					}
-					if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Signal all ip of bounded device are failed done");
+					if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"Signal all ip of bonded device are failed done");
 					sServiceInfo=null;
 					isStopping=false;
 				}

@@ -38,7 +38,9 @@ import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.IRemoteAndroid;
 import org.remoteandroid.internal.Login;
 import org.remoteandroid.internal.NormalizeIntent;
+import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.pairing.PairingImpl;
 import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.Notifications;
 
@@ -96,6 +98,8 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 		public RemoteAndroidInfoImpl mClientInfo;
 		
 		public Login mLogin;
+		
+		public Pairing mPairing;
 		
 		public ConnectionType mType;
 		

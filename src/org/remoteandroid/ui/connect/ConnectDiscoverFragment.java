@@ -11,6 +11,7 @@ import org.remoteandroid.Application;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
+import static org.remoteandroid.RemoteAndroidManager.*;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -184,8 +185,8 @@ implements OnItemClickListener, OnItemLongClickListener
 		@Override
 		public void onDiscover(final RemoteAndroidInfoImpl remoteAndroidInfo)
 		{
-			if (((getConnectActivity().mFlags & RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS|RemoteAndroidManager.FLAG_PROPOSE_PAIRING)==0)
-				&& !remoteAndroidInfo.isBonded)
+			int flags=getConnectActivity().mFlags;
+			if (!remoteAndroidInfo.isBonded && (flags & (FLAG_ACCEPT_ANONYMOUS|FLAG_PROPOSE_PAIRING))==0)
 			{
 				if (D) Log.d(TAG_DISCOVERY,"Refuse "+remoteAndroidInfo);
 				return;
@@ -255,7 +256,7 @@ implements OnItemClickListener, OnItemLongClickListener
 				if ((active & NetworkTools.ACTIVE_NOAIRPLANE | NetworkTools.ACTIVE_BLUETOOTH | NetworkTools.ACTIVE_LOCAL_NETWORK) != 0)
 				{
 					Discover.getDiscover().startDiscover(
-						RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS, RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+						FLAG_ACCEPT_ANONYMOUS, DISCOVER_BEST_EFFORT);
 				}
 				return null;
 			}
@@ -312,7 +313,7 @@ implements OnItemClickListener, OnItemLongClickListener
 		if (mListInfo != null && !Application.sDiscover.isDiscovering())
 		{
 			Discover.getDiscover().startDiscover(
-				RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS, RemoteAndroidManager.DISCOVER_BEST_EFFORT);
+				FLAG_ACCEPT_ANONYMOUS, DISCOVER_BEST_EFFORT);
 		}
 	}
 

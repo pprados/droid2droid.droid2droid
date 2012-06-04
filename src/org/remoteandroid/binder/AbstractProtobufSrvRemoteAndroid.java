@@ -1,7 +1,7 @@
 package org.remoteandroid.binder;
 
 import static org.remoteandroid.Constants.PAIR_AUTO_IF_NO_COOKIE;
-import static org.remoteandroid.Constants.PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE;
+import static org.remoteandroid.Constants.PAIR_AUTO_PAIR_BT_BONDED_DEVICE;
 import static org.remoteandroid.Constants.PAIR_CHECK_WIFI_ANONYMOUS;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
@@ -24,6 +24,7 @@ import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.login.LoginImpl;
+import org.remoteandroid.pairing.PairingImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.Notifications;
 
@@ -110,7 +111,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 						.setStatus(AbstractRemoteAndroidImpl.STATUS_OK)
 						.build();
             }
-            else if (type==Type.CONNECT || type==Type.CONNECT_FOR_PAIRING || type==Type.CONNECT_FOR_COOKIE || type==Type.CONNECT_FOR_DISCOVERING)
+            else if (type==Type.CONNECT || type==Type.CONNECT_FOR_COOKIE || type==Type.CONNECT_FOR_DISCOVERING)
             {
             	// Create a connection context ?
             	if (conContext==null)
@@ -121,7 +122,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		conContext.mType=getType();
             		// and remote infos
             		conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(mContext,msg.getIdentity());
-		    		if (PAIR_AUTO_PAIR_BT_BOUNDED_DEVICE) // FIXME: pas si for discovering
+		    		if (PAIR_AUTO_PAIR_BT_BONDED_DEVICE) // FIXME: pas si for discovering
 		    		{
                 		// Auto register binded bluetooth devices
                 		if (btsecure && !Trusted.isBonded(conContext.mClientInfo))
@@ -132,32 +133,30 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		    		}
 		    		setContext(connid,conContext);
             	}
-            	if (type==Type.CONNECT || type==Type.CONNECT_FOR_COOKIE || type==Type.CONNECT_FOR_DISCOVERING)
-            	{
-            		// Check connection with anonymous
-	        		if (SECURITY && PAIR_CHECK_WIFI_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
-	        		{
-	        			// Accept anonymous only from specific wifi network
-	        			if (getType()==ConnectionType.ETHERNET)
-	        			{
-	                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Check wifi network before accept anonymous");
-	        				WifiManager manager=(WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-	        				if (manager!=null)
-	        				{
-	    	    				String[] wifis=preferences.getString(PREFERENCES_ANO_WIFI_LIST,"").split(",");
-	    	    				if (!"#ALL#".equals(wifis[0]))
-	    	    				{
-	    	        				acceptAnonymous=false;
-	    	    					String wifiname=manager.getConnectionInfo().getSSID();
-	    	    					for (int i=wifis.length-1;i>=0;--i)
-	    	    						if (wifis[i].equals(wifiname))
-	    	    						{
-	    	    							acceptAnonymous=true;
-	    	    	                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Accept anonymous if wifi "+wifiname);
-	    	    							break;
-	    	    						}
-	    	    				}
-	        				}
+        		// Check connection with anonymous
+        		if (SECURITY && PAIR_CHECK_WIFI_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
+        		{
+        			// Accept anonymous only from specific wifi network
+        			if (getType()==ConnectionType.ETHERNET)
+        			{
+                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Check wifi network before accept anonymous");
+        				WifiManager manager=(WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+        				if (manager!=null)
+        				{
+    	    				String[] wifis=preferences.getString(PREFERENCES_ANO_WIFI_LIST,"").split(",");
+    	    				if (!"#ALL#".equals(wifis[0]))
+    	    				{
+    	        				acceptAnonymous=false;
+    	    					String wifiname=manager.getConnectionInfo().getSSID();
+    	    					for (int i=wifis.length-1;i>=0;--i)
+    	    						if (wifis[i].equals(wifiname))
+    	    						{
+    	    							acceptAnonymous=true;
+    	    	                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Accept anonymous if wifi "+wifiname);
+    	    							break;
+    	    						}
+    	    				}
+        				}
 //	        				if (SECURITY && !acceptAnonymous && !Trusted.isBonded(conContext.mClientInfo))
 //	        				{
 //	        					if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject anonymous call from '"+conContext.mClientInfo.getName()+'\'');
@@ -169,39 +168,42 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 //	        						.build();
 //	        				}
 
-	        			}
-	        		}
-	        		
-        			if (SECURITY && (type==Type.CONNECT_FOR_COOKIE) && !acceptAnonymous && conContext.mLogin==null)
-        			{
-        				Application.removeCookie(conContext.mClientInfo.uuid.toString()); // FIXME
-        				if (!Trusted.isBonded(conContext.mClientInfo))
-        				{
-                			if (conContext.mLogin==null)
-                			{
-    	                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Register login context");
-                				conContext.mLogin=new LoginImpl();
-                			}
-                			if (PAIR_AUTO_IF_NO_COOKIE)
-                			{
-                				if (I) Log.i(TAG_SECURITY,PREFIX_LOG+"<- Reject no bounded device '"+conContext.mClientInfo.getName()+'\'');
-                			}
-                			else
-                			{
-                				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"<- Reject no bounded device '"+conContext.mClientInfo.getName()+'\'');
-                			}
-        					return Msg.newBuilder()
-        						.setType(msg.getType())
-        						.setThreadid(msg.getThreadid())
-        						.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_NO_BOUND)
-        						.setIdentity(ProtobufConvs.toIdentity(Trusted.getInfo(mContext)))
-        						.setChallengestep(11)
-								.build();
-        				}
         			}
-            	}
+        		}
+        		
+    			if (SECURITY && (type==Type.CONNECT_FOR_COOKIE) && !acceptAnonymous && conContext.mLogin==null)
+    			{
+    				Application.removeCookie(conContext.mClientInfo.uuid.toString()); // FIXME
+//    				if (msg.getPairing() && conContext.mPairing==null)
+//    				{
+//    					conContext.mPairing=new PairingImpl();
+//    				}
+    				if (!Trusted.isBonded(conContext.mClientInfo))
+    				{
+            			if (conContext.mLogin==null)
+            			{
+	                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Register login context");
+            				conContext.mLogin=new LoginImpl();
+            			}
+            			if (PAIR_AUTO_IF_NO_COOKIE)
+            			{
+            				if (I) Log.i(TAG_SECURITY,PREFIX_LOG+"<- Reject no bonded device '"+conContext.mClientInfo.getName()+'\'');
+            			}
+            			else
+            			{
+            				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"<- Reject no bonded device '"+conContext.mClientInfo.getName()+'\'');
+            			}
+    					return Msg.newBuilder()
+    						.setType(msg.getType())
+    						.setThreadid(msg.getThreadid())
+    						.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_NO_BOUND)
+    						.setIdentity(ProtobufConvs.toIdentity(Trusted.getInfo(mContext)))
+    						.setChallengestep(11)
+							.build();
+    				}
+    			}
             	
-        		if (SECURITY && type==Type.CONNECT_FOR_COOKIE /*|| type==Type.CONNECT_FOR_PAIRING*/)
+        		if (SECURITY && type==Type.CONNECT_FOR_COOKIE)
         		{
         			// Connection to receive a cookie, then close. Must be called only from RemoteAndroid.apk
         			// because the others applications can't known the private key.
@@ -212,10 +214,21 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
                 		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Register login context");
         				conContext.mLogin=new LoginImpl();
         			}
+    				if (msg.getPairing() && conContext.mPairing==null)
+    				{
+    					conContext.mPairing=new PairingImpl();
+    				}
+
             		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Enter in login steps");
-        			return conContext.mLogin.server(conContext,msg,cookie);
+            		if (msg.getChallengestep()>10)
+            		{
+            			return conContext.mPairing.server(conContext,msg,cookie);
+            		}
+            		else
+            			return conContext.mLogin.server(conContext,msg,cookie,acceptAnonymous);
         		}
         		conContext.mLogin=null;
+        		conContext.mPairing=null;
         		
         		// Must present a valid cookie
         		if (SECURITY && type==Type.CONNECT)

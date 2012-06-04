@@ -53,7 +53,9 @@ implements Discover.Listener
 	{
 		return getCookie(flags,uri,Type.CONNECT_FOR_COOKIE);
 	}
-	public long getCookie(int flags,String uri,Type type)
+	public long getCookie(int flags,String uri,
+			Type type // FIXME: Pourquoi est-ce encore nécessaire ?
+			)
 	{
 		long cookie=Application.getCookie(uri);
 		if (cookie==COOKIE_NO)
@@ -144,11 +146,17 @@ implements Discover.Listener
 	}
 
 	@Override
-	public List<RemoteAndroidInfoImpl> getBoundedDevices() throws RemoteException
+	public List<RemoteAndroidInfoImpl> getBondedDevices() throws RemoteException
 	{
 		return Trusted.getBonded();
 	}
 
+	@Override
+	public boolean isBonded(RemoteAndroidInfoImpl info)
+	{
+		return Trusted.isBonded(info);
+	}
+	
 	@Override
 	public NdefMessage createNdefMessage()
 	{

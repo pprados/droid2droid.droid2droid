@@ -207,7 +207,8 @@ public final class DevicePreference extends Preference
 					for (int i=0;i<mInfo.uris.size();++i)
 					{
 						String uri=mInfo.uris.get(i);
-	    				long cookie=Application.sDiscover.getCookie(RemoteAndroidManager.FLAG_PROPOSE_PAIRING,uri,Type.CONNECT_FOR_PAIRING);
+	    				long cookie=
+	    						Application.sDiscover.getCookie(RemoteAndroidManager.FLAG_PROPOSE_PAIRING,uri,Type.CONNECT_FOR_COOKIE);
 	    				if (cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_NO && cookie!=COOKIE_SECURITY)
 	    					break;
 					}
@@ -259,7 +260,7 @@ public final class DevicePreference extends Preference
 							if (driver==null)
 								throw new MalformedURLException("Unknown "+uri);
 							binder=driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
-							binder.connect(Type.CONNECT_FOR_PAIRING, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
+							binder.connect(Type.CONNECT_FOR_COOKIE, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
 							return null;
 						}
 						catch (SecurityException e)
