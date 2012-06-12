@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
@@ -172,7 +172,7 @@ implements Discover.Listener
 							            mListEthernet.setEntries(names.toArray(entriesArray));
 							        	mListEthernet.setEntryValues(valuesArray);
 							        	// FIXME: default value not activated !
-							        	mListEthernet.setDefaultValue(Application.getPreferences().getString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
+							        	mListEthernet.setDefaultValue(RAApplication.getPreferences().getString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
 							        	if (mLastValue!=null) 
 							        		mListEthernet.setValue(mLastValue);
 							        	mListEthernet.setEnabled(true);
@@ -343,7 +343,7 @@ implements Discover.Listener
 		super.onCreate(savedInstanceState);
 		setTitle(R.string.app_name);
 		
-		getPreferenceManager().setSharedPreferencesName(Application.sDeviceId);
+		getPreferenceManager().setSharedPreferencesName(RAApplication.sDeviceId);
 		final Intent intent=getIntent();
 		initSync(intent);
 		
@@ -352,7 +352,7 @@ implements Discover.Listener
 		
         onDiscoverStart();
 		// Device name
-		mName.setSummary(Application.getName());
+		mName.setSummary(RAApplication.getName());
 		new Thread()
 		{
 			public void run() 
@@ -415,7 +415,7 @@ implements Discover.Listener
 			@Override
 			public boolean onPreferenceChange(Preference preference, final Object newValue)
 			{
-				Application.clearCookies();
+				RAApplication.clearCookies();
 				if (((Boolean)newValue).booleanValue())
 				{
 					startService(intentRemoteContext);
@@ -428,7 +428,7 @@ implements Discover.Listener
 					delayEnableActive(); 
 				}
 				mPreferences.edit().putBoolean(PREFERENCES_ACTIVE, ((Boolean)newValue).booleanValue()).commit();
-				Application.dataChanged();
+				RAApplication.dataChanged();
 				return true;
 			}
 			// Bug with BT with version GINGERBREAD_MR1
@@ -452,7 +452,7 @@ implements Discover.Listener
 			@Override
 			public boolean onPreferenceChange(Preference preference, final Object newValue)
 			{
-				Application.clearCookies();
+				RAApplication.clearCookies();
 				return true;
 			}
 			
@@ -473,11 +473,11 @@ implements Discover.Listener
 				String newVal=(String)newValue;
 				newVal=newVal.trim();
 				if (newVal.length()==0)
-					Application.setName(null);
+					RAApplication.setName(null);
 				else
-					Application.setName(newVal);
-				mName.setSummary(Application.getName());
-				Application.dataChanged();
+					RAApplication.setName(newVal);
+				mName.setSummary(RAApplication.getName());
+				RAApplication.dataChanged();
 				return true;
 			}
 		});
@@ -517,8 +517,8 @@ implements Discover.Listener
 	// Initialisation asynchrone
 	private void initAsync(Intent intent) 
 	{
-		mPreferences=Application.getPreferences();
-		Application.startService();
+		mPreferences=RAApplication.getPreferences();
+		RAApplication.startService();
 		// Scan
 		runOnUiThread(new Runnable()
 		{
@@ -536,7 +536,7 @@ implements Discover.Listener
 	        String curPref=mPreferences.getString(PREFERENCE_DEVICE_LIST, null);
 	        if (curPref==null)
 	        {
-	        	Application.propertyCommit(mPreferences.edit().putString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
+	        	RAApplication.propertyCommit(mPreferences.edit().putString(PREFERENCE_DEVICE_LIST, ALL_WIFI));
 	        }
         }
 
@@ -740,7 +740,7 @@ implements Discover.Listener
 		super.onContentChanged();
 		if (Compatibility.VERSION_SDK_INT>=Compatibility.VERSION_FROYO) 
 		{
-			Application.dataChanged();
+			RAApplication.dataChanged();
 		}
 	}
 
@@ -891,7 +891,7 @@ implements Discover.Listener
 		if (!Discover.getDiscover().isDiscovering())
 		{
 			initBonded();
-			Application.sThreadPool.execute(new Runnable()
+			RAApplication.sThreadPool.execute(new Runnable()
 			{
 				
 				@Override

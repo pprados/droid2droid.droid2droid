@@ -12,7 +12,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.Hashtable;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
 import org.remoteandroid.internal.Messages;
@@ -152,7 +152,7 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 				@Override
 				protected Bitmap doInBackground(Void... params)
 				{
-					return buildQRCode(Application.sAppContext,mMax);
+					return buildQRCode(RAApplication.sAppContext,mMax);
 				}
 
 				@Override

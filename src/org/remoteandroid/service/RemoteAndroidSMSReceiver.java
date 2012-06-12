@@ -15,7 +15,7 @@ import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
@@ -138,17 +138,17 @@ public final class RemoteAndroidSMSReceiver extends BroadcastReceiver
 			Discover.getDiscover().discover(info);
 			Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 			intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
-			Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+			RAApplication.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 		}
 		else if (msg.getType()==Messages.BroadcastMsg.Type.CONNECT)
 		{
 			// Send call-back broadcast
-        	final SharedPreferences preferences=Application.getPreferences();
+        	final SharedPreferences preferences=RAApplication.getPreferences();
 			if (preferences.getBoolean(PREFERENCES_ACTIVE, false))
 			{
 	
 				final RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(context,msg.getIdentity());
-				Application.sThreadPool.execute(new Runnable()
+				RAApplication.sThreadPool.execute(new Runnable()
 				{
 					@Override
 					public void run()
@@ -181,7 +181,7 @@ public final class RemoteAndroidSMSReceiver extends BroadcastReceiver
 				Driver driver=RemoteAndroidManagerImpl.sDrivers.get(uri.getScheme());
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
-				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
+				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(RAApplication.sAppContext,RAApplication.getManager(),uri);
 				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,cookie,ETHERNET_TRY_TIMEOUT))
 					break;
 				binder.close();

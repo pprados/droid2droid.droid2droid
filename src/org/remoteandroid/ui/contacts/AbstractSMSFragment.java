@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.ui.connect.AbstractConnectFragment;
 
@@ -300,7 +300,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 				final long id = ((Cursor) adapter.getItemAtPosition(position)).getLong(POS_ID);
 				if (id>0)
 				{
-					Application.hideSoftKeyboard(getActivity());
+					RAApplication.hideSoftKeyboard(getActivity());
 					final PhoneDisambigDialog phoneDialog = 
 							new PhoneDisambigDialog(getActivity(), AbstractSMSFragment.this,id);
 					phoneDialog.show();

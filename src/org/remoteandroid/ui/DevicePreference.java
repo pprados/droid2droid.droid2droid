@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
@@ -134,7 +134,7 @@ public final class DevicePreference extends Preference
 	{
 		setTitle(mInfo.getName());
 
-		StringBuilder buf = Application.getTechnologies(mInfo,true);
+		StringBuilder buf = RAApplication.getTechnologies(mInfo,true);
 		if (buf.length()!=0)
 		{
 			buf.insert(0, " ( ");
@@ -208,7 +208,7 @@ public final class DevicePreference extends Preference
 					{
 						String uri=mInfo.uris.get(i);
 	    				long cookie=
-	    						Application.sDiscover.getCookie(RemoteAndroidManager.FLAG_PROPOSE_PAIRING,uri,Type.CONNECT_FOR_COOKIE);
+	    						RAApplication.sDiscover.getCookie(RemoteAndroidManager.FLAG_PROPOSE_PAIRING,uri,Type.CONNECT_FOR_COOKIE);
 	    				if (cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_NO && cookie!=COOKIE_SECURITY)
 	    					break;
 					}
@@ -243,7 +243,7 @@ public final class DevicePreference extends Preference
 			@Override
 			protected Void doInBackground(Void... params)
 			{
-				Trusted.unregisterDevice(Application.sAppContext,mInfo);
+				Trusted.unregisterDevice(RAApplication.sAppContext,mInfo);
 				for (int i=0;i<mInfo.uris.size();++i)
 				{
 					final Uri uri=Uri.parse(mInfo.uris.get(i));
@@ -259,7 +259,7 @@ public final class DevicePreference extends Preference
 							Driver driver=RemoteAndroidManagerImpl.sDrivers.get(uri.getScheme());
 							if (driver==null)
 								throw new MalformedURLException("Unknown "+uri);
-							binder=driver.factoryBinder(Application.sAppContext,Application.getManager(),uri);
+							binder=driver.factoryBinder(RAApplication.sAppContext,RAApplication.getManager(),uri);
 							binder.connect(Type.CONNECT_FOR_COOKIE, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
 							return null;
 						}

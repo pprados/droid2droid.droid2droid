@@ -21,7 +21,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.RemoteAndroidInfo;
@@ -102,7 +102,7 @@ public final class PairingImpl extends Pairing
 
 	public PairingImpl()
 	{
-		mChallenge=Application.randomNextLong();
+		mChallenge=RAApplication.randomNextLong();
 	    try
 		{
 			mDigest = MessageDigest.getInstance(HASH_ALGORITHM);
@@ -126,13 +126,13 @@ public final class PairingImpl extends Pairing
 		Msg msg;
 		Msg resp=null;
 		final long threadid = Thread.currentThread().getId();
-		long challenge=Application.randomNextLong();
+		long challenge=RAApplication.randomNextLong();
 		if (challenge==0) challenge=1;
 		
 	    byte[] nonceA = new byte[NONCE_BYTES_NEEDED];
-        Application.randomNextBytes(nonceA);
+        RAApplication.randomNextBytes(nonceA);
 
-        RemoteAndroidInfo clientInfo=Application.getManager().getInfos();
+        RemoteAndroidInfo clientInfo=RAApplication.getManager().getInfos();
         // 1. Send hash(Pka,Pkb,nonce);
 		RSAPublicKey clientPubRsa=(RSAPublicKey)clientInfo.getPublicKey();
 		RSAPublicKey serverPubRsa=(RSAPublicKey)android.mInfo.getPublicKey();
@@ -199,7 +199,7 @@ public final class PairingImpl extends Pairing
 			throw new SecurityException("Reject login process");
 		if (accept)
 		{
-			Trusted.registerDevice(Application.sAppContext, ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity()),
+			Trusted.registerDevice(RAApplication.sAppContext, ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,resp.getIdentity()),
 				ConnectionType.ETHERNET); // FIXME: Not always ethernet
 		}
 		return new Pair<RemoteAndroidInfoImpl,Long>(android.mInfo,resp.getCookie());
@@ -212,7 +212,7 @@ public final class PairingImpl extends Pairing
 		int step=msg.getChallengestep();
 		if (step==0) // Unpairing
 		{
-			Trusted.unregisterDevice(Application.sAppContext, ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext, msg.getIdentity()));
+			Trusted.unregisterDevice(RAApplication.sAppContext, ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext, msg.getIdentity()));
 			return Msg.newBuilder()
 				.setType(Type.CONNECT_FOR_COOKIE)
 				.setThreadid(msg.getThreadid())
@@ -227,7 +227,7 @@ public final class PairingImpl extends Pairing
 				return Msg.newBuilder()
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())
-						.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
+						.setIdentity(ProtobufConvs.toIdentity(RAApplication.sDiscover.getInfo()))
 						.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
 						.setChallengestep(11)
 						.build();
@@ -235,7 +235,7 @@ public final class PairingImpl extends Pairing
 				// Receive H(Pka,Pkb,na,0)
 				mHa=msg.getData().toByteArray();
 				mNonceB = new byte[NONCE_BYTES_NEEDED];
-		        Application.randomNextBytes(mNonceB);
+		        RAApplication.randomNextBytes(mNonceB);
 		        return Msg.newBuilder()
 	        		.setType(msg.getType())
 	        		.setThreadid(msg.getThreadid())
@@ -247,7 +247,7 @@ public final class PairingImpl extends Pairing
 				// Receive nA
 				mNonceA=msg.getData().toByteArray();
 				RSAPublicKey clientPubRsa=(RSAPublicKey)conContext.mClientInfo.getPublicKey();
-				RSAPublicKey serverPubRsa=(RSAPublicKey)Application.getManager().getInfos().getPublicKey();
+				RSAPublicKey serverPubRsa=(RSAPublicKey)RAApplication.getManager().getInfos().getPublicKey();
 				byte[] clientModulus=clientPubRsa.getModulus().abs().toByteArray();
 			    byte[] clientExponent=clientPubRsa.getPublicExponent().abs().toByteArray();
 			    byte[] serverModulus=serverPubRsa.getModulus().abs().toByteArray();
@@ -294,7 +294,7 @@ public final class PairingImpl extends Pairing
 				
 			case 15:
 				boolean rc=finishAsPairing();
-				conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,msg.getIdentity());
+				conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,msg.getIdentity());
 				if (conContext.mType==ConnectionType.BT)
 				{
 					conContext.mClientInfo.isDiscoverBT=true;
@@ -304,11 +304,11 @@ public final class PairingImpl extends Pairing
 					conContext.mClientInfo.isDiscoverEthernet=true;
 				}
 				if (rc && msg.getRc())
-					Trusted.registerDevice(Application.sAppContext,conContext);
+					Trusted.registerDevice(RAApplication.sAppContext,conContext);
 				else
 				{
 					cookie=COOKIE_NO;
-					Application.removeCookie(conContext.mClientInfo.uuid.toString());
+					RAApplication.removeCookie(conContext.mClientInfo.uuid.toString());
 				}
 		        return Msg.newBuilder()
 	        		.setType(msg.getType())
@@ -316,7 +316,7 @@ public final class PairingImpl extends Pairing
 	        		.setChallengestep(16)
 	        		.setCookie(cookie)
 	        		.setRc(rc)
-	        		.setIdentity(ProtobufConvs.toIdentity(Application.getManager().getInfos())) // Publish alls informations
+	        		.setIdentity(ProtobufConvs.toIdentity(RAApplication.getManager().getInfos())) // Publish alls informations
 	        		.build();
 			default:
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject login process from '"+conContext.mClientInfo.getName()+'\'');
@@ -347,7 +347,7 @@ public final class PairingImpl extends Pairing
 	{
 		if (isGlobalLock()) 
 			return;
-		final Intent intent = new Intent(Application.sAppContext,AskAcceptPairActivity.class);
+		final Intent intent = new Intent(RAApplication.sAppContext,AskAcceptPairActivity.class);
 		intent.putExtra(AskAcceptPairActivity.EXTRA_DEVICE, device);
 		intent.putExtra(AskAcceptPairActivity.EXTRA_PASSKEY, passkey);
 		intent.setFlags(
@@ -359,12 +359,12 @@ public final class PairingImpl extends Pairing
 //			|Intent.FLAG_ACTIVITY_SINGLE_TOP
 			|Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
 			);
-		Application.sHandler.post(new Runnable()
+		RAApplication.sHandler.post(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				Application.sAppContext.startActivity(intent);
+				RAApplication.sAppContext.startActivity(intent);
 			}
 		});
 	}

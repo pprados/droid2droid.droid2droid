@@ -3,7 +3,7 @@ package org.remoteandroid.ui.connect.nfc;
 import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.*;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
@@ -87,7 +87,7 @@ public class WriteNfcActivity extends Activity
 			protected void onPostExecute(Void result) 
 			{
 				mText.setText(R.string.nfc_writed);
-				Application.sHandler.postDelayed(new Runnable()
+				RAApplication.sHandler.postDelayed(new Runnable()
 				{
 					
 					@Override

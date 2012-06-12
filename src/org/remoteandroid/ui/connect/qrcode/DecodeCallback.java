@@ -26,7 +26,7 @@ import static org.remoteandroid.ui.connect.qrcode.QRCodeScannerView.msg_show_fra
 
 import java.util.Hashtable;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -99,7 +99,7 @@ final class DecodeCallback
 				mScanningRect.bottom*height/mCameraRect.bottom
 				);
 		}
-		Application.sThreadPool.execute(new Runnable()
+		RAApplication.sThreadPool.execute(new Runnable()
 		{
 			@Override
 			public void run()

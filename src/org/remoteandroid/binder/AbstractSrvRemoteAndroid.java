@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.R;
@@ -596,7 +596,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			// Ask user to confirm the download
 			if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv try ask to user for accept the package...");
 			final String device=getContext(connid).mClientInfo.name;
-			final SharedPreferences preferences=Application.getPreferences();
+			final SharedPreferences preferences=RAApplication.getPreferences();
 			boolean accept=(getType()==ConnectionType.GSM) 
 				? preferences.getBoolean(PREFERENCES_KNOWN_ACCEPT_ALL, false)
 				: true;
@@ -623,7 +623,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 				// Notify the user
 				if (NOTIFY_NEW_APK)
 				{
-					Application.sHandler.post(new Runnable()
+					RAApplication.sHandler.post(new Runnable()
 					{
 						@Override
 						public void run()
@@ -640,7 +640,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 								cancelIntent.setAction(ACTION_CLEAR_PROPOSED);
 								cancelIntent.putExtra(Notifications.EXTRA_ID, id);
 								mNotifications.incomingApk(id,label,intent,cancelIntent);
-								Application.sHandler.postAtTime(new Runnable()
+								RAApplication.sHandler.postAtTime(new Runnable()
 								{
 									@Override
 									public void run()
@@ -663,7 +663,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 				}
 				else
 				{
-					Application.sHandler.post(new Runnable()
+					RAApplication.sHandler.post(new Runnable()
 					{
 						@Override
 						public void run()
@@ -735,7 +735,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			if (df.progress==0)
 			{
 				// Start the train of time out event to check if the download process is running
-				boolean rc=Application.sHandler.postDelayed(new Runnable()
+				boolean rc=RAApplication.sHandler.postDelayed(new Runnable()
 				{
 					@Override
 					public void run()
@@ -753,7 +753,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 							else
 							{
 								if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv restart delayed message");
-								Application.sHandler.postDelayed(this, TIMEOUT_BETWEEN_SEND_FILE_DATA);
+								RAApplication.sHandler.postDelayed(this, TIMEOUT_BETWEEN_SEND_FILE_DATA);
 							}
 						}
 					}
@@ -763,7 +763,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			
 			if ((df.progress==0) && START_PROGRESS_ACTIVITY_WHEN_DOWNLOAD_APK)
 			{
-				Application.sHandler.post(new Runnable()
+				RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
@@ -896,7 +896,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 		
 		// If possible, install without ask the user
 		// Run only if this application is installed in /system/app
-		final SharedPreferences preferences=Application.getPreferences();
+		final SharedPreferences preferences=RAApplication.getPreferences();
 		boolean accept=preferences.getBoolean("accept_all", false);
 		if (accept && 
 				mContext.checkPermission("android.permission.INSTALL_PACKAGES", 
@@ -947,7 +947,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 		    {
 			    Intent i=mContext.registerReceiver(packageListener, filter);
 			    if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv post start install apk activity");
-			    Application.sHandler.post(new Runnable()
+			    RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
@@ -979,7 +979,7 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 	void uninstall() // TODO: gestion de uninstall
 	{
 		if (V) Log.v(TAG_INSTALL,PREFIX_LOG+"srv post uninstall");
-		Application.sHandler.post(new Runnable()
+		RAApplication.sHandler.post(new Runnable()
 		{
 			@Override
 			public void run()

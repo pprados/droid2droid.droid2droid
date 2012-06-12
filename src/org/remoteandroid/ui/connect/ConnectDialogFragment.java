@@ -8,7 +8,7 @@ import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -152,12 +152,12 @@ public final class ConnectDialogFragment extends DialogFragment
 				if (W) Log.w(TAG_CONNECT,PREFIX_LOG+"Connection for cookie impossible ("+e.getMessage()+")");
 				if (D)
 				{
-					Application.sHandler.post(new Runnable()
+					RAApplication.sHandler.post(new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+							Toast.makeText(RAApplication.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
 						}
 					});
 				}

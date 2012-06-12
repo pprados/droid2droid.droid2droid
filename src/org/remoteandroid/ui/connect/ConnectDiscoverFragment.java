@@ -7,7 +7,7 @@ import static org.remoteandroid.internal.Constants.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
@@ -155,7 +155,7 @@ implements OnItemClickListener, OnItemLongClickListener
 			if (tag.mText2 != null)
 			{
 				StringBuilder b = new StringBuilder("( ")
-						.append(Application.getTechnologies(info, false));
+						.append(RAApplication.getTechnologies(info, false));
 						
 				if (info.isBound())
 					b.append(", ").append(mContext.getString(R.string.connect_device_paired));
@@ -308,9 +308,9 @@ implements OnItemClickListener, OnItemLongClickListener
 	public void onPageSelected()
 	{
 		super.onPageSelected();
-		if (Application.sDiscover.isDiscovering())
+		if (RAApplication.sDiscover.isDiscovering())
 			setProgressBarIndeterminateVisibility(true);
-		if (mListInfo != null && !Application.sDiscover.isDiscovering())
+		if (mListInfo != null && !RAApplication.sDiscover.isDiscovering())
 		{
 			Discover.getDiscover().startDiscover(
 				FLAG_ACCEPT_ANONYMOUS, DISCOVER_BEST_EFFORT);

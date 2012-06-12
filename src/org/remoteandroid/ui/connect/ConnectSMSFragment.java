@@ -13,7 +13,7 @@ import static org.remoteandroid.internal.Constants.V;
 
 import java.util.Arrays;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.binder.PendingBroadcastRequest;
 import org.remoteandroid.internal.Messages;
@@ -88,7 +88,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 				progressJobs.setEstimations(sBootStrapEstimationsBroadcast);
 				PendingBroadcastRequest.registerListener(this);
 				// 1. Send SMS
-				long cookie=Application.randomNextLong();
+				long cookie=RAApplication.randomNextLong();
 				progressJobs.incCurrentStep();
 				RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
 				Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()
@@ -104,7 +104,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 				progressJobs.setEstimations(sBootStrapEstimations);
 				PendingBroadcastRequest.registerListener(this);
 				// 1. Send SMS
-				long cookie=Application.randomNextLong();
+				long cookie=RAApplication.randomNextLong();
 				progressJobs.incCurrentStep();
 				RemoteAndroidInfoImpl info=Trusted.getInfo(getActivity());
 				Messages.BroadcastMsg msg=Messages.BroadcastMsg.newBuilder()

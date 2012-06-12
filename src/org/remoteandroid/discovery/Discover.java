@@ -9,7 +9,7 @@ import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -72,7 +72,7 @@ public final class Discover
 		for (int i=mCallBacks.size()-1;i>=0;--i)
 		{
 			final Listener cb=mCallBacks.get(i);
-			Application.sHandler.post(new Runnable()
+			RAApplication.sHandler.post(new Runnable()
 			{
 				@Override
 				public void run()
@@ -109,7 +109,7 @@ public final class Discover
 			for (int i=mCallBacks.size()-1;i>=0;--i)
 			{
 				final Listener cb=mCallBacks.get(i);
-				Application.sHandler.post(new Runnable()
+				RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
@@ -132,7 +132,7 @@ public final class Discover
 			for (int i=mCallBacks.size()-1;i>=0;--i)
 			{
 				final Listener cb=mCallBacks.get(i);
-				Application.sHandler.post(new Runnable()
+				RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
@@ -155,7 +155,7 @@ public final class Discover
 		for (int i=mCallBacks.size()-1;i>=0;--i)
 		{
 			final Listener cb=mCallBacks.get(i);
-			Application.sHandler.post(new Runnable()
+			RAApplication.sHandler.post(new Runnable()
 			{
 				@Override
 				public void run()

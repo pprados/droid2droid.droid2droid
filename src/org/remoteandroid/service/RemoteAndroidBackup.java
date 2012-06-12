@@ -1,7 +1,7 @@
 package org.remoteandroid.service;
 
-import static org.remoteandroid.Application.sDeviceId;
-import static org.remoteandroid.Application.sPackageName;
+import static org.remoteandroid.RAApplication.sDeviceId;
+import static org.remoteandroid.RAApplication.sPackageName;
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.BackupManager;
 import android.app.backup.SharedPreferencesBackupHelper;

@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.crypto.Cipher;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
@@ -52,7 +52,7 @@ public final class LoginImpl extends Login
 
 	public LoginImpl()
 	{
-		mChallenge=Application.randomNextLong();
+		mChallenge=RAApplication.randomNextLong();
 	}
 	/**
 	 * @return 0 if error. Else, return cookie.
@@ -71,7 +71,7 @@ public final class LoginImpl extends Login
 			Msg msg;
 			Msg resp=null;
 			final long threadid = Thread.currentThread().getId();
-			long challenge=Application.randomNextLong();
+			long challenge=RAApplication.randomNextLong();
 			if (challenge==0) challenge=1;
 			
 			// Step 1: Ask a challenge with my public key
@@ -80,12 +80,12 @@ public final class LoginImpl extends Login
 				.setType(type)
 				.setThreadid(threadid)
 				.setChallengestep(1)
-				.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
+				.setIdentity(ProtobufConvs.toIdentity(RAApplication.sDiscover.getInfo()))
 				.setPairing(isProposePairing)
 				.build();
 			resp = android.sendRequestAndReadResponse(msg,timeout);
     		if (V) Log.v(TAG_CLIENT_BIND,PREFIX_LOG+"<- "+resp.getStatus());
-		    final RemoteAndroidInfoImpl remoteInfo=ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
+		    final RemoteAndroidInfoImpl remoteInfo=ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,resp.getIdentity());
 		    final boolean isBonded=Trusted.isBonded(remoteInfo);
 		    android.mInfo=remoteInfo;
 			android.checkStatus(resp);
@@ -107,7 +107,7 @@ public final class LoginImpl extends Login
 				.setType(type)
 				.setThreadid(threadid)
 				.setChallengestep(3)
-				.setChallenge1(ByteString.copyFrom(uncipher(resp.getChallenge1().toByteArray(),Application.getKeyPair().getPrivate())))
+				.setChallenge1(ByteString.copyFrom(uncipher(resp.getChallenge1().toByteArray(),RAApplication.getKeyPair().getPrivate())))
 				.setChallenge2(ByteString.copyFrom(cipher(Tools.longToByteArray(challenge),remoteInfo.getPublicKey())))
 				.setPairing(isProposePairing)
 				.build();
@@ -144,7 +144,7 @@ public final class LoginImpl extends Login
 		if (step==0) // Unpairing
 		{
 			// FIXME
-			Trusted.unregisterDevice(Application.sAppContext, ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext, msg.getIdentity()));
+			Trusted.unregisterDevice(RAApplication.sAppContext, ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext, msg.getIdentity()));
 			return Msg.newBuilder()
 				.setType(Type.CONNECT_FOR_COOKIE)
 				.setThreadid(msg.getThreadid())
@@ -161,7 +161,7 @@ public final class LoginImpl extends Login
 					return Msg.newBuilder()
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())
-						.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
+						.setIdentity(ProtobufConvs.toIdentity(RAApplication.sDiscover.getInfo()))
 						.setChallenge1(ByteString.copyFrom(cipher(Tools.longToByteArray(mChallenge),conContext.mClientInfo.publicKey)))
 						.setChallengestep(2)
 						.build();
@@ -174,7 +174,7 @@ public final class LoginImpl extends Login
 					return Msg.newBuilder()
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())
-						.setChallenge2(ByteString.copyFrom(uncipher(msg.getChallenge2().toByteArray(),Application.getKeyPair().getPrivate())))
+						.setChallenge2(ByteString.copyFrom(uncipher(msg.getChallenge2().toByteArray(),RAApplication.getKeyPair().getPrivate())))
 						.setChallengestep(4)
 						.setCookie(msg.getPairing() ? (isBound||acceptAnonymous ? cookie : 0) : cookie) // Too early to publish cookie ?
 						.build();

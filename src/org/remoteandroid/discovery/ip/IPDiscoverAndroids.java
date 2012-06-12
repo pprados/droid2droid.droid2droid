@@ -43,7 +43,7 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.ip.NetSocketRemoteAndroid;
@@ -238,7 +238,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 		@Override
 		public void serviceAdded(final ServiceEvent event)
 		{
-			if (event.getName().equals(Application.getName()))
+			if (event.getName().equals(RAApplication.getName()))
 					return;
 			if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS service added '"+event.getName()+"', wait service info...");
 			// Required to force serviceResolved to be called again (after the first search)
@@ -252,7 +252,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			final String struuid=dnsInfo.getPropertyString("uuid");
 			if (struuid==null)
 				return;
-			if (Application.getUUID().toString().equals(struuid))
+			if (RAApplication.getUUID().toString().equals(struuid))
 			{
 				if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS It's me. Ignore.");
 				return; // It's me. Ignore.
@@ -273,7 +273,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			{
 				timeout=System.currentTimeMillis()+ETHERNET_DELAY_ANTI_REPEAT_DISCOVER;
 				mPending.put(struuid, timeout);
-				Application.sThreadPool.execute(new Runnable()
+				RAApplication.sThreadPool.execute(new Runnable()
 				{
 					
 					@Override
@@ -322,7 +322,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			// Discover a remote android. Try to connect.
 			if (name!=null)
 			{
-				Application.sSingleThread.execute(new Runnable()
+				RAApplication.sSingleThread.execute(new Runnable()
 				{
 					
 					@Override
@@ -367,7 +367,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			if (W) Log.w(TAG_MDNS,PREFIX_LOG+"IP Discover refused because MDNS not started!");
 			return false;
 		}
-	    boolean isNetwork= (NetworkTools.getActiveNetwork(Application.sAppContext) & NetworkTools.ACTIVE_LOCAL_NETWORK)!=0;
+	    boolean isNetwork= (NetworkTools.getActiveNetwork(RAApplication.sAppContext) & NetworkTools.ACTIVE_LOCAL_NETWORK)!=0;
 	    if (!isNetwork) 
 	    {
 			if (W) Log.w(TAG_MDNS,PREFIX_LOG+"IP Discover refused because network is disabled");
@@ -385,7 +385,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 				{
 					timeTo=ETHERNET_TIME_TO_DISCOVER;
 				}
-				Application.sScheduledPool.schedule(new Runnable()
+				RAApplication.sScheduledPool.schedule(new Runnable()
 				{
 					@Override
 					public void run()
@@ -426,7 +426,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	private static synchronized void asyncStartMulticastDNS()
 	{
     	if (!ETHERNET) return;
-    	Application.sSingleThread.execute(new Runnable()
+    	RAApplication.sSingleThread.execute(new Runnable()
 			{
 				public void run() 
 				{
@@ -492,12 +492,12 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 									Log.d(TAG_MDNS,""+networks.nextElement());
 							}
 					    }
-						final WifiManager wifi=(WifiManager)Application.sAppContext.getSystemService(Context.WIFI_SERVICE);
+						final WifiManager wifi=(WifiManager)RAApplication.sAppContext.getSystemService(Context.WIFI_SERVICE);
 					    sLock = wifi.createMulticastLock("Multicast DNS");
 				        sLock.setReferenceCounted(true);
 				        sLock.acquire();
 				
-				        MultipleJmDNS dns=new MultipleJmDNS(Application.getName());
+				        MultipleJmDNS dns=new MultipleJmDNS(RAApplication.getName());
 						// Add to detect binded device
 						if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS Register listener");						
 						dns.addServiceListener(REMOTEANDROID_SERVICE,sListener);
@@ -522,7 +522,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	private static synchronized void asyncStopMulticastDNS()
 	{
     	if (!ETHERNET) return;
-    	Application.sSingleThread.execute(new Runnable()
+    	RAApplication.sSingleThread.execute(new Runnable()
 			{
 				public void run() 
 				{
@@ -568,8 +568,8 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			if (dns!=null && sServiceInfo==null)
 			{
 				sServiceInfo = 
-						ServiceInfo.create(REMOTEANDROID_SERVICE,Application.getName(), ETHERNET_LISTEN_PORT,"Remote android");//FIXME: variable port number
-				RemoteAndroidInfo info=Trusted.getInfo(Application.sAppContext);
+						ServiceInfo.create(REMOTEANDROID_SERVICE,RAApplication.getName(), ETHERNET_LISTEN_PORT,"Remote android");//FIXME: variable port number
+				RemoteAndroidInfo info=Trusted.getInfo(RAApplication.sAppContext);
 				Map<String,String> props=new HashMap<String,String>();
 				props.put("uuid", info.getUuid().toString());
 				props.put("os", info.getOs());
@@ -578,7 +578,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 				props.put("raversion", Integer.toString(REMOTE_ANDROID_VERSION));
 				sServiceInfo.setText(props);
 				dns.registerService(sServiceInfo);
-				if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS service "+Application.getName()+REMOTEANDROID_SERVICE+" registered");
+				if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS service "+RAApplication.getName()+REMOTEANDROID_SERVICE+" registered");
 			}
 		}
 		catch (IOException e)
@@ -589,7 +589,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	}
 	public static void asyncUnregisterService()
 	{
-		Application.sSingleThread.execute(new Runnable()
+		RAApplication.sSingleThread.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -600,7 +600,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 					if (D) Log.d(TAG_MDNS,PREFIX_LOG+"Unregister service");						
 					dns.unregisterService(sServiceInfo);
 					sServiceInfo=null;
-					if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS service "+Application.getName()+REMOTEANDROID_SERVICE+" unregistered");
+					if (D) Log.d(TAG_MDNS,PREFIX_LOG+"IP MDNS service "+RAApplication.getName()+REMOTEANDROID_SERVICE+" unregistered");
 				}
 				else
 				{
@@ -611,7 +611,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	}
 	public static void asyncRegisterService()
 	{
-		Application.sSingleThread.execute(new Runnable()
+		RAApplication.sSingleThread.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -623,7 +623,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	
 	private static void asyncUnregisterListener()
 	{
-		Application.sSingleThread.execute(new Runnable()
+		RAApplication.sSingleThread.execute(new Runnable()
 		{
 			@Override
 			public void run()
@@ -645,7 +645,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	private static RemoteAndroidInfoImpl checkRemoteAndroid(ServiceInfo dnsinfo)
 	{
 		if ("remoteandroid".equals(dnsinfo.getApplication()) &&
-				!Application.getName().equals(dnsinfo.getName())
+				!RAApplication.getName().equals(dnsinfo.getName())
 		   )
 		{	
 			String[] urls=dnsinfo.getURLs("tcp");
@@ -676,7 +676,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 				}
 				catch (Exception e)
 				{
-					if (Application.hackNullException(e)!=null)
+					if (RAApplication.hackNullException(e)!=null)
 						e.printStackTrace(); // TODO
 				}
 			}
@@ -707,7 +707,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			Msg msg = Msg.newBuilder()
 				.setType(Type.CONNECT_FOR_DISCOVERING)
 				.setThreadid(threadid)
-				.setIdentity(ProtobufConvs.toIdentity(Application.sDiscover.getInfo()))
+				.setIdentity(ProtobufConvs.toIdentity(RAApplication.sDiscover.getInfo()))
 				.build();
 			Channel.writeMsg(msg, socket.getOutputStream());
 	
@@ -741,7 +741,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			Msg resp=(Msg)Channel.sPrototype.newBuilderForType().mergeFrom(buf, 4, length).build();
 			if (resp.getRc())
 			{
-				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(Application.sAppContext,resp.getIdentity());
+				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,resp.getIdentity());
 				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info ("+info.name+")");
 				info.isDiscoverEthernet=true;
 				info.isBonded=Trusted.isBonded(info);
@@ -764,12 +764,12 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error",e);
 			if (D) 
 			{
-				Application.sHandler.post(new Runnable()
+				RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+						Toast.makeText(RAApplication.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
 					}
 				});
 			}
@@ -781,12 +781,12 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+uri+" error",e);
 			if (D) 
 			{
-				Application.sHandler.post(new Runnable()
+				RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+						Toast.makeText(RAApplication.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
 					}
 				});
 			}

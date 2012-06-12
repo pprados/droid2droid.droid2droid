@@ -4,7 +4,7 @@ import static org.remoteandroid.Constants.TAG_SERVER_BIND;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 
 import android.app.Service;
 import android.content.Intent;
@@ -17,7 +17,7 @@ public final class RemoteAndroidBinderService extends Service
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"onBind mBoss="+Application.sDiscover);
-		return Application.sDiscover;
+		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"onBind mBoss="+RAApplication.sDiscover);
+		return RAApplication.sDiscover;
 	}
 }

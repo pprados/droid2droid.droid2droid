@@ -2,7 +2,7 @@ package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.NFC;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
@@ -72,7 +72,7 @@ implements OnNfcDiscover
         FeatureTab[] featureTabs=getFeatureTabs();
     	for (int i=0;i<featureTabs.length;++i)
     	{
-    		if ((featureTabs[i].mFeature & Application.sFeature) == featureTabs[i].mFeature)
+    		if ((featureTabs[i].mFeature & RAApplication.sFeature) == featureTabs[i].mFeature)
     		{
     			featureTabs[i].createTab(mTabsAdapter,mActionBar);
     		}
@@ -94,7 +94,7 @@ implements OnNfcDiscover
     protected void onResume()
     {
     	super.onResume();
-    	Application.hideSoftKeyboard(this);
+    	RAApplication.hideSoftKeyboard(this);
     	NfcUtils.onResume(this, mNfcIntegration);
     }
 	@Override

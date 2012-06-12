@@ -4,7 +4,7 @@ import static org.remoteandroid.internal.Constants.V;
 
 import java.util.ArrayList;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -109,7 +109,7 @@ public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction fft)
 	{
-		Application.hideSoftKeyboard(mContext);
+		RAApplication.hideSoftKeyboard(mContext);
 		mContext.setProgressBarIndeterminateVisibility(false);
 		FragmentTransaction ft = fft;
 		if (ft == null)

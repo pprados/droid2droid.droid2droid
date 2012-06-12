@@ -12,7 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Constants;
@@ -169,7 +169,7 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 					loc=loc.substring(ExposeTicketFragment.BASE_SHORTEN.length());
 					byte[] bytes=Base64.decode(loc, Base64.URL_SAFE);
 					Messages.Candidates candidates=Messages.Candidates.parseFrom(bytes);
-					uris=ProtobufConvs.toUris(Application.sAppContext,candidates).toArray(new String[0]);
+					uris=ProtobufConvs.toUris(RAApplication.sAppContext,candidates).toArray(new String[0]);
 					estimations=new long[uris.length+1];
 					Arrays.fill(estimations, ESTIMATION_CONNEXION_3G);
 					estimations[0]=ESTIMATION_TICKET_3G;
@@ -194,12 +194,12 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 			if (D)
 			{
 				if (D) Log.d(TAG_CONNECT,PREFIX_LOG+"Error when retreive shorten ticket ("+e.getMessage()+")",e);
-				Application.sHandler.post(new Runnable()
+				RAApplication.sHandler.post(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						Toast.makeText(Application.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
+						Toast.makeText(RAApplication.sAppContext, e.getMessage(), Toast.LENGTH_LONG).show();
 					}
 				});
 			}

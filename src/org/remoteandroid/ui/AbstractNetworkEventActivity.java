@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.URL;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.service.RemoteAndroidService;
@@ -95,6 +95,12 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	}
 
+	@Override
+	public RAApplication getApplicationContext()
+	{
+		return (RAApplication)super.getApplicationContext();
+	}
+	
 	@Override
 	protected void onResume()
 	{
@@ -214,7 +220,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 							if (D) Log.d(TAG_EXPOSE,"Ping google fail");
 						}
 						final boolean res=result;
-						Application.sHandler.post(new Runnable()
+						RAApplication.sHandler.post(new Runnable()
 						{
 							public void run() 
 							{

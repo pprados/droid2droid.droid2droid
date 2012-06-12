@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.Driver;
@@ -66,7 +66,7 @@ implements ConnectDialogFragment.OnConnected
 		if (mDlg!=null)
 		{
 			mDlg.publishInDialog(R.string.connect_done,1000);
-			Application.sHandler.postDelayed(new Runnable()
+			RAApplication.sHandler.postDelayed(new Runnable()
 			{
 				
 				@Override
@@ -129,7 +129,7 @@ implements ConnectDialogFragment.OnConnected
 				Driver driver=RemoteAndroidManagerImpl.sDrivers.get(uuri.getScheme());
 				if (driver==null)
 					throw new MalformedURLException("Unknown "+uri);
-				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(Application.sAppContext,Application.getManager(),uuri);
+				binder=(AbstractProtoBufRemoteAndroid)driver.factoryBinder(RAApplication.sAppContext,RAApplication.getManager(),uuri);
 				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,0,ETHERNET_TRY_TIMEOUT))
 					return ProgressJobs.OK; // Hack, simulate normal connection
 				else
@@ -143,13 +143,13 @@ implements ConnectDialogFragment.OnConnected
 		}
 		else
 		{
-			Pair<RemoteAndroidInfoImpl,Long> msg=Application.getManager().askMsgCookie(Uri.parse(uri),flags);
+			Pair<RemoteAndroidInfoImpl,Long> msg=RAApplication.getManager().askMsgCookie(Uri.parse(uri),flags);
 			if (msg==null || msg.second==0)
 				throw new SecurityException();
 			RemoteAndroidInfoImpl remoteInfo=msg.first;
 			final long cookie=msg.second;
 			if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_SECURITY)
-				Application.sDiscover.addCookie(remoteInfo,cookie);
+				RAApplication.sDiscover.addCookie(remoteInfo,cookie);
 			return msg.first;
 		}
 	}

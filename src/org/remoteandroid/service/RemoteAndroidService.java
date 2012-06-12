@@ -11,7 +11,7 @@ import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.Constants;
 import org.remoteandroid.RemoteAndroidManager;
@@ -37,6 +37,11 @@ public final class RemoteAndroidService extends Service
     	return sMe!=null;
     }
     
+	@Override
+	public RAApplication getApplicationContext()
+	{
+		return (RAApplication)super.getApplicationContext();
+	}
 
 	/**
      * Called by the system when the service is first created.  Do not call this method directly.
@@ -58,7 +63,7 @@ public final class RemoteAndroidService extends Service
     	super.onDestroy();
     	sMe=null;
     	if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Stop RemoteAndroidService");
-    	Application.sSingleThread.execute(new Runnable()
+    	RAApplication.sSingleThread.execute(new Runnable()
     	{
     		public void run() 
     		{
@@ -72,7 +77,7 @@ public final class RemoteAndroidService extends Service
 	{
 		try
 		{
-			Application.sDiscover.cancelDiscover();
+			RAApplication.sDiscover.cancelDiscover();
 		}
 		catch (RemoteException e)
 		{
@@ -99,7 +104,7 @@ public final class RemoteAndroidService extends Service
 	//    	{
 	//    		setForeground(false); // Android <2.0
 	//    	}
-			Application.sAppContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_START_REMOTE_ANDROID),
+			RAApplication.sAppContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_START_REMOTE_ANDROID),
 				RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 	    	
 		}
@@ -113,7 +118,7 @@ public final class RemoteAndroidService extends Service
 	{
 		NetSocketRemoteAndroid.stopDaemon(getApplicationContext());
 		IPDiscoverAndroids.asyncUnregisterService();
-		Application.sAppContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_REMOTE_ANDROID),
+		RAApplication.sAppContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_REMOTE_ANDROID),
 			RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 	}
 

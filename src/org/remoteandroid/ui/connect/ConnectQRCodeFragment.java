@@ -11,7 +11,7 @@ import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
 import org.remoteandroid.internal.Messages;
@@ -160,7 +160,7 @@ implements QRCodeScannerView.QRCodeResult
 			getBytes(s, 0, s.length(), data, 0);
 			candidates = Messages.Candidates.parseFrom(data);
 			showConnect(
-				ProtobufConvs.toUris(Application.sAppContext,candidates)
+				ProtobufConvs.toUris(RAApplication.sAppContext,candidates)
 				.toArray(new String[0]), 
 				getConnectActivity().mFlags,null);
 		}

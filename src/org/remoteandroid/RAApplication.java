@@ -109,14 +109,14 @@ import android.view.inputmethod.InputMethodManager;
 // TODO: fermer le service en cas de perte d'énergie
 
 //@ReportsCrashes(formKey = "dDg0Wkx6MS1wLXV4QlFxMXJON2c0SHc6MQ")
-public final class Application extends android.app.Application
+public final class RAApplication extends android.app.Application
 {
 
 	static String			TAG			= "Application";
 
 	public static Context	sAppContext;
 
-	private static UUID		sUuid;
+	private static UUID	sUuid;
 	
 	private static KeyPair	sKeyPair;
 
@@ -386,8 +386,8 @@ public final class Application extends android.app.Application
 	}
 	public static long getActiveFeature()
 	{
-		long f=Application.sFeature & FEATURE_SCREEN|FEATURE_HP|FEATURE_MICROPHONE|FEATURE_CAMERA;
-		int netStatus=NetworkTools.getActiveNetwork(Application.sAppContext);
+		long f=RAApplication.sFeature & FEATURE_SCREEN|FEATURE_HP|FEATURE_MICROPHONE|FEATURE_CAMERA;
+		int netStatus=NetworkTools.getActiveNetwork(RAApplication.sAppContext);
 		if ((netStatus & NetworkTools.ACTIVE_NOAIRPLANE)!=0)
 		{
 			if ((netStatus & NetworkTools.ACTIVE_BLUETOOTH)!=0)
@@ -546,7 +546,7 @@ public final class Application extends android.app.Application
 			if (adapter!=null)
 				adapterName=adapter.getName();
 			String userName=getUserName();
-			sPreferences=sAppContext.getSharedPreferences(Application.sDeviceId, Context.MODE_PRIVATE);
+			sPreferences=sAppContext.getSharedPreferences(RAApplication.sDeviceId, Context.MODE_PRIVATE);
 			final SharedPreferences preferences = sPreferences;
 			Editor editor = null;
 			sName = preferences.getString(PREFERENCES_NAME, null);
@@ -796,7 +796,7 @@ public final class Application extends android.app.Application
 			@Override
 			protected Void doInBackground(Void... params)
 			{
-				Application.getPreferences();
+				RAApplication.getPreferences();
 				return null;
 			}
 			protected void onPostExecute(Void result) 

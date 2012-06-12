@@ -8,7 +8,7 @@ import static org.remoteandroid.RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS;
 import static org.remoteandroid.RemoteAndroidManager.FLAG_PROPOSE_PAIRING;
 import static org.remoteandroid.internal.Constants.*;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
@@ -58,7 +58,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 		setProgressBarIndeterminateVisibility(Boolean.FALSE); // Important: Use Boolean value !
 		mFragmentManager = getSupportFragmentManager(); // getSupportFragmentManager();
 		mFragment = (MainFragment) mFragmentManager.findFragmentById(R.id.fragment);
-		Application.startService();
+		RAApplication.startService();
 		mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
 	}
 

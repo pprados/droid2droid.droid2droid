@@ -2,7 +2,7 @@ package org.remoteandroid.service;
 
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,7 +20,7 @@ public final class RemoteAndroidBootReceiver extends BroadcastReceiver
 
         if (action.equals(Intent.ACTION_BOOT_COMPLETED)) 
         {
-    		final SharedPreferences preferences=Application.getPreferences();
+    		final SharedPreferences preferences=RAApplication.getPreferences();
 			if (preferences.getBoolean(PREFERENCES_ACTIVE, false))
 				context.startService(new Intent(context,RemoteAndroidService.class));
         }

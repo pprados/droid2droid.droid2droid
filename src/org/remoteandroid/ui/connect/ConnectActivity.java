@@ -1,6 +1,6 @@
 package org.remoteandroid.ui.connect;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidManager;
@@ -300,7 +300,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			if (actionBar!=null && icon!=null)
 				actionBar.setLogo(icon);
 		}
-		Application.startService();
+		RAApplication.startService();
 		
 	}
 

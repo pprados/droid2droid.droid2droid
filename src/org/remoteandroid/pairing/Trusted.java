@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
@@ -81,18 +81,18 @@ public final class Trusted
 	public static RemoteAndroidInfoImpl getInfo(Context context)
 	{
 		final RemoteAndroidInfoImpl info=new RemoteAndroidInfoImpl();
-		info.uuid=Application.getUUID();
-		info.name=Application.getName();
-		info.publicKey=Application.getKeyPair().getPublic();
+		info.uuid=RAApplication.getUUID();
+		info.name=RAApplication.getName();
+		info.publicKey=RAApplication.getKeyPair().getPublic();
 		info.version=Compatibility.VERSION_SDK_INT;
-		info.feature=Application.sFeature;
-		final SharedPreferences preferences=Application.getPreferences();
+		info.feature=RAApplication.sFeature;
+		final SharedPreferences preferences=RAApplication.getPreferences();
 		final boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
 
 		try
 		{
 			Messages.Candidates candidates = getConnectMessage(context);
-			info.uris=ProtobufConvs.toUris(Application.sAppContext,candidates);
+			info.uris=ProtobufConvs.toUris(RAApplication.sAppContext,candidates);
 		}
 		catch (UnknownHostException e)
 		{
@@ -157,14 +157,14 @@ public final class Trusted
 		String baseKey=PAIRING_PREFIX+info.uuid.toString();
 		if (PAIR_PERSISTENT)
 		{
-			Editor editor=Application.getPreferences().edit();
+			Editor editor=RAApplication.getPreferences().edit();
 			editor
 				.putBoolean(baseKey+KEY_ID, true)
 				.putString(baseKey+KEY_PUBLICKEY, Base64.encodeToString(info.publicKey.getEncoded(),Base64.DEFAULT))
 				.putString(baseKey+KEY_NAME, info.name)
 				.commit();
 		}
-		Application.dataChanged();
+		RAApplication.dataChanged();
 		getBonded().add(info);
 
 		if (type==ConnectionType.ETHERNET)
@@ -177,17 +177,17 @@ public final class Trusted
 	public static synchronized void unregisterDevice(Context context,RemoteAndroidInfo info)
 	{
 		if (I) Log.i(TAG_PAIRING,PREFIX_LOG + "Unregister device "+info.getName());
-		Application.clearCookies();
+		RAApplication.clearCookies();
 		RemoteAndroidInfoImpl infoImpl=(RemoteAndroidInfoImpl)info;
 		infoImpl.isBonded=false;
 		String baseKey=PAIRING_PREFIX+infoImpl.uuid.toString();
-		Editor editor=Application.getPreferences().edit();
+		Editor editor=RAApplication.getPreferences().edit();
 		editor
 			.remove(baseKey+KEY_ID)
 			.remove(baseKey+KEY_NAME)
 			.remove(baseKey+KEY_PUBLICKEY)
 			.commit();
-		Application.dataChanged();
+		RAApplication.dataChanged();
 		if (!getBonded().remove(info))
 		{
 			if (E) Log.e(TAG_PAIRING,PREFIX_LOG+"Impossible to remove "+info);
@@ -203,7 +203,7 @@ public final class Trusted
 			if (sCachedBonded==null)
 			{
 				List<RemoteAndroidInfoImpl> result=Collections.synchronizedList(new ArrayList<RemoteAndroidInfoImpl>());
-				SharedPreferences prefs=Application.getPreferences();
+				SharedPreferences prefs=RAApplication.getPreferences();
 				Map<String,?> alls=prefs.getAll();
 				for (Map.Entry<String,?> entry:alls.entrySet())
 				{

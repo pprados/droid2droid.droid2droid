@@ -11,7 +11,7 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.List;
 
-import org.remoteandroid.Application;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
@@ -39,7 +39,7 @@ implements Discover.Listener
 	{
 		mContext=context.getApplicationContext();
 		Discover.getDiscover().registerListener(this);
-		Application.startService();
+		RAApplication.startService();
 	}
 	
 	/**
@@ -57,14 +57,14 @@ implements Discover.Listener
 			Type type // FIXME: Pourquoi est-ce encore nécessaire ?
 			)
 	{
-		long cookie=Application.getCookie(uri);
+		long cookie=RAApplication.getCookie(uri);
 		if (cookie==COOKIE_NO)
 		{
 			try
 			{
-				cookie=Application.getManager().askCookie(Uri.parse(uri),type,flags);
+				cookie=RAApplication.getManager().askCookie(Uri.parse(uri),type,flags);
 				if (cookie!=COOKIE_NO && cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_SECURITY)
-					Application.addCookie(uri, cookie);
+					RAApplication.addCookie(uri, cookie);
 			}
 			catch (SecurityException e)
 			{
@@ -104,12 +104,12 @@ implements Discover.Listener
 	{
 		for (int i=info.uris.size()-1;i>=0;--i)
 		{
-			Application.addCookie(info.uris.get(i), cookie);
+			RAApplication.addCookie(info.uris.get(i), cookie);
 		}
 	}
 	public void removeCookie(String uri)
 	{
-		Application.removeCookie(uri);
+		RAApplication.removeCookie(uri);
 	}
 	@Override
 	public synchronized void startDiscover(int flags,long timeToDiscover) throws RemoteException
@@ -160,7 +160,7 @@ implements Discover.Listener
 	@Override
 	public NdefMessage createNdefMessage()
 	{
-		return NfcUtils.createNdefMessage(Application.sAppContext, getInfo());
+		return NfcUtils.createNdefMessage(RAApplication.sAppContext, getInfo());
 	}
 
 	@Override
@@ -198,7 +198,7 @@ implements Discover.Listener
 			Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 			intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
 			intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE, info);
-			Application.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+			RAApplication.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
 		}
 	}
 
