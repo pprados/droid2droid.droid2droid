@@ -351,6 +351,8 @@ implements Discover.Listener
         // Register callback
 		
         onDiscoverStart();
+		// Device name
+		mName.setSummary(Application.getName());
 		new Thread()
 		{
 			public void run() 
@@ -516,9 +518,7 @@ implements Discover.Listener
 	private void initAsync(Intent intent) 
 	{
 		mPreferences=Application.getPreferences();
-		mName.setSummary(Application.getName());
 		Application.startService();
-		// Device name
 		// Scan
 		runOnUiThread(new Runnable()
 		{

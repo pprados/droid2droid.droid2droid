@@ -21,6 +21,7 @@ import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext.State
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.Messages.Type;
+import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.login.LoginImpl;
@@ -113,6 +114,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             }
             else if (type==Type.CONNECT || type==Type.CONNECT_FOR_COOKIE || type==Type.CONNECT_FOR_DISCOVERING)
             {
+            	boolean isTrusted=false;
             	// Create a connection context ?
             	if (conContext==null)
             	{
@@ -122,6 +124,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		conContext.mType=getType();
             		// and remote infos
             		conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(mContext,msg.getIdentity());
+            		isTrusted=Pairing.isTemporaryAcceptAnonymous() || Trusted.isBonded(conContext.mClientInfo);
 		    		if (PAIR_AUTO_PAIR_BT_BONDED_DEVICE) // FIXME: pas si for discovering
 		    		{
                 		// Auto register binded bluetooth devices
@@ -134,7 +137,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		    		setContext(connid,conContext);
             	}
         		// Check connection with anonymous
-        		if (SECURITY && PAIR_CHECK_WIFI_ANONYMOUS && acceptAnonymous) // FIXME Si non actif , pairing ?
+        		if (SECURITY && PAIR_CHECK_WIFI_ANONYMOUS && acceptAnonymous)
         		{
         			// Accept anonymous only from specific wifi network
         			if (getType()==ConnectionType.ETHERNET)
@@ -178,7 +181,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 //    				{
 //    					conContext.mPairing=new PairingImpl();
 //    				}
-    				if (!Trusted.isBonded(conContext.mClientInfo))
+    				if (!isTrusted)
     				{
             			if (conContext.mLogin==null)
             			{

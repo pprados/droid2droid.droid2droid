@@ -17,34 +17,34 @@ public final class Constants
 	public static final boolean LOGGER_WARNING					=W;
 	public static final boolean LOGGER_INFO						=false; //I
 	public static final boolean LOGGER_FINE						=LOGGER_INFO;
-	public static final boolean LOGGER_FINER					=LOGGER_FINE;
+	public static final boolean LOGGER_FINER						=LOGGER_FINE;
 	public static final boolean LOGGER_FINEST					=false;//V
 
-	public static final String TAG_DISCOVERY					="Discovery";
+	public static final String TAG_DISCOVERY						="Discovery";
 	public static final String TAG_MDNS							="MDNS";
 	public static final String TAG_SERVER_BIND					="Server";
 	public static final String TAG_CONNECT						="Connect";
-	public static final String TAG_EXPOSE						="Expose";
+	public static final String TAG_EXPOSE							="Expose";
 	public static final String TAG_SMS							="Sms"; //TAG_CONNECT;
 	public static final String TAG_DTMF							="DTMF"; // TAG_CONNECT
-	public static final String TAG_QRCODE						="QRCode"; // TAG_CONNECT;
+	public static final String TAG_QRCODE							="QRCode"; // TAG_CONNECT;
 		
-	public static final String PREFERENCES_DEVICE_ID			="deviceid";
+	public static final String PREFERENCES_DEVICE_ID				="deviceid";
 	public static final String PREFERENCES_NAME					="name";
 	public static final String PREFERENCES_BACKNAME				="backname";
 	public static final String PREFERENCES_UUID					="uuid";
-	public static final String PREFERENCES_PUBLIC_KEY			="public";
+	public static final String PREFERENCES_PUBLIC_KEY				="public";
 	public static final String PREFERENCES_PRIVATE_KEY			="private";
 
-	public static final String PREFERENCES_EXPOSE				="expose";
-	public static final String PREFERENCES_ACTIVE				="active";
-	public static final String PREFERENCES_ANO_ACTIVE			="ano.active";
-	public static final String PREFERENCES_ANO_WIFI_LIST		="ano.select_wifi";
+	public static final String PREFERENCES_EXPOSE					="expose";
+	public static final String PREFERENCES_ACTIVE					="active";
+	public static final String PREFERENCES_ANO_ACTIVE				="ano.active";
+	public static final String PREFERENCES_ANO_WIFI_LIST			="ano.select_wifi";
 	public static final String PREFERENCES_KNOWN_ACTIVE			="known.active";
 	public static final String PREFERENCES_KNOWN_ACCEPT_ALL		="known.accept_all";
 	
 	// Delay before close a dialog after finish the job.
-	public static final int DELAY_SHOW_TERMINATE				=1000;
+	public static final int DELAY_SHOW_TERMINATE						=1000;
 
 	public static final int LOCK_ASK_DOWNLOAD							=10000;
 	public static final int LOCK_WAIT_INSTALL							=20000;
@@ -105,7 +105,6 @@ public final class Constants
     /** Timeout before expire the cookie */
 	public static final long 	TIMEOUT_COOKIE							=15*60L*1000; // 15mn
 
-	
 	// Flag to describe the installer (extract from Android sources)
 	public static final String EXTRA_INSTALLER_PACKAGE_NAME
     	= "android.intent.extra.INSTALLER_PACKAGE_NAME";

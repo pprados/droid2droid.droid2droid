@@ -14,7 +14,9 @@ import java.util.Hashtable;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
 import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
@@ -82,6 +84,9 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 //		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
 //		layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
 //		getActivity().getWindow().setAttributes(layoutParams);
+		boolean anoQRCode=getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("ano.qrcode", false);
+		if (anoQRCode)
+			Pairing.enableTemporaryAcceptAnonymous();
 		mImg.requestFocus();
 	}
 

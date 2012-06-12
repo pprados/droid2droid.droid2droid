@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import org.remoteandroid.Application;
 import org.remoteandroid.R;
+import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
@@ -155,7 +156,6 @@ implements QRCodeScannerView.QRCodeResult
 		try
 		{
 			String s = rawResult.getText();
-
 			byte[] data = new byte[s.length()];
 			getBytes(s, 0, s.length(), data, 0);
 			candidates = Messages.Candidates.parseFrom(data);

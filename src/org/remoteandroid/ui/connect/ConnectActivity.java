@@ -181,8 +181,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 					case android.R.style.Theme_DeviceDefault_Light_NoActionBar:
 					case android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen:
 					case android.R.style.Theme_Light_NoTitleBar:
-//						themeId=R.style.Theme_Sherlock_Light;
-						themeId=android.R.style.Theme_Light;
+						themeId=R.style.Theme_Sherlock_Light;
 						mDisplaySet=0;
 						mIsLight=true;
 						break;

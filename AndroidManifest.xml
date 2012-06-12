@@ -136,7 +136,7 @@
     	
     	android:backupAgent=".service.RemoteAndroidBackup"
     	android:allowBackup="true"
-		android:restoreAnyVersion="false"
+	android:restoreAnyVersion="false"
     >
     	 
    	<meta-data android:name="com.google.android.backup.api_key"
