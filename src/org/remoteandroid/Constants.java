@@ -75,6 +75,9 @@ public final class Constants
 	/** Timeout to wait a user response when ask to validate the pairing process. */
 	public static final long 	TIMEOUT_PAIR							=20000L; // FIXME: 2000L;
 
+	/** Implementation name for X509 */
+	public static final String X509												="X509";
+
 	/** Auto ask pairing if refuse cookie.*/
 	public static final boolean PAIR_AUTO_IF_NO_COOKIE					=true;
 
@@ -82,7 +85,7 @@ public final class Constants
 	/** Save pairing devices. */
 	public static final boolean PAIR_PERSISTENT							=true;
 	/** Automaticaly pairing the bonded BT devices. */
-	public static final boolean PAIR_AUTO_PAIR_BT_BONDED_DEVICE		=true;
+	public static final boolean PAIR_AUTO_PAIR_BT_BONDED_DEVICE			=true;
 	/** Accept anonymous. */
 	public static final boolean PAIR_CHECK_WIFI_ANONYMOUS				=true;
 
@@ -124,10 +127,6 @@ public final class Constants
     public static final int 	ETHERNET_TRY_TIMEOUT					=150000; 	// FIXME Timeout for try connection
 	/** Socket timeout for read message. */
     public static final int 	ETHERNET_SO_TIMEOUT						=3600000; 	// FIXME Timeout for read message
-    /** Flush current data before close the socket. */
-    public static final boolean ETHERNET_SO_LINGER						=true; 		// Vide les derniers paquets avant la fermeture du socket
-    /** Timeout to flush the last datas. */
-    public static final int 	ETHERNET_SO_LINGER_TIMEOUT				=50000; 	// FIXME Delay for flush last packets
     /** Keep the socket alive. */
     public static final boolean ETHERNET_KEEP_ALIVE						=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */

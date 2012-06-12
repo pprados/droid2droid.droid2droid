@@ -57,6 +57,7 @@ import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.Tools;
 import org.remoteandroid.internal.socket.Channel;
+import org.remoteandroid.internal.socket.ip.NetworkSocketBossSender;
 import org.remoteandroid.pairing.Trusted;
 
 import android.content.BroadcastReceiver;
@@ -698,7 +699,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			final InetAddress address=InetAddress.getByName(Tools.uriGetHostIPV6(u));
 			int port=Tools.uriGetPortIPV6(u);
 			if (port==-1) port=RemoteAndroidManager.DEFAULT_PORT;
-			socket=new Socket(address,port);
+			socket=NetworkSocketBossSender.createSocket(address,port);
 			socket.setTcpNoDelay(true);
 			socket.setSoTimeout(ETHERNET_TRY_TIMEOUT); // FIXME: Pas toujours ethernet !
 			if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" connected. Ask info...");

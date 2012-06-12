@@ -9,6 +9,7 @@ import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
 
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.binder.AbstractProtobufSrvRemoteAndroid;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
 import org.remoteandroid.binder.UpstreamHandler;
@@ -24,7 +25,7 @@ import android.util.Log;
 // Implementation de Remote android, utilise un socket channel
 public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 {
-	Context mContext;
+	RAApplication mContext;
     private int mListenPort;
 
     private static NetServerSocketChannel sServerSocket;
@@ -90,7 +91,7 @@ public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndro
     private NetSocketRemoteAndroid(Context context,Notifications notifications)
 	{
     	super(context,notifications);
-		mContext=context.getApplicationContext();
+		mContext=(RAApplication)context.getApplicationContext();
 		mListenPort=ETHERNET_LISTEN_PORT;
 	}
     @Override

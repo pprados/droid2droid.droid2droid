@@ -1,7 +1,7 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.Constants.BT;
-import static org.remoteandroid.Constants.BUMP;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.HACK_UUID;
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
@@ -43,22 +43,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.Socket;
+import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.X509KeyManager;
+import javax.security.auth.x500.X500Principal;
+
+import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.remoteandroid.discovery.ip.IPDiscoverAndroids;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Login;
@@ -66,6 +81,7 @@ import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
+import org.remoteandroid.internal.socket.ip.NetworkSocketBossSender;
 import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.pairing.PairingImpl;
 import org.remoteandroid.service.RemoteAndroidBackup;
@@ -165,7 +181,10 @@ public final class RAApplication extends android.app.Application
 			throw new InternalError(e.getMessage());
 		}
     }
-
+    public static SecureRandom getSecureRandom()
+    {
+    	return sRandom;
+    }
     public static synchronized long getCookie(String uri)
     {
     	return sCookies.getCookie(uri);
@@ -194,7 +213,10 @@ public final class RAApplication extends android.app.Application
 	public static String getName()
 	{
 		waitInit();
-		// Settings.Secure.getString(context.getContentResolver(), "android_id");
+		return getName_();
+	}
+	private static String getName_()
+	{
 		if (sName != null)
 			return sName;
 		return sBackName;
@@ -203,6 +225,98 @@ public final class RAApplication extends android.app.Application
 	{
 		waitInit();
 		return sKeyPair;
+	}
+	private static KeyManager[] sKeyManager;
+	private static final String[] sServerAlias={"server"};
+	private static final String[] sClientAlias={"client"};
+	public static synchronized KeyManager[] getKeyManager()
+	{
+		if (sKeyManager==null)
+		{
+			try
+			{
+				final X509Certificate cert=generateX509V1Certificate(sKeyPair,getName_(),sRandom);
+				sKeyManager=new KeyManager[]
+				{
+					new X509KeyManager()
+					{
+						
+						@Override
+						public String[] getServerAliases(String keyType, Principal[] issuers)
+						{
+							return sServerAlias;
+						}
+						@Override
+						public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket)
+						{
+							return sServerAlias[0];
+						}
+						
+						@Override
+						public String[] getClientAliases(String keyType, Principal[] issuers)
+						{
+							return sClientAlias;
+						}
+						@Override
+						public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket)
+						{
+							return sClientAlias[0];
+						}
+						
+						@Override
+						public X509Certificate[] getCertificateChain(String alias)
+						{
+							return new X509Certificate[]{cert};
+						}
+						@Override
+						public PrivateKey getPrivateKey(String alias)
+						{
+							return sKeyPair.getPrivate();
+						}
+					}
+				};
+				NetworkSocketBossSender.setKeyManagers(sKeyManager);
+			}
+			catch (Exception e)
+			{
+				throw new Error(e);
+			}
+		}
+		return sKeyManager;
+	}
+	private static X509Certificate generateX509V1Certificate(KeyPair pair, String name,SecureRandom sr)
+	{
+		try
+		{
+			String dn="CN="+name+",DC=remoteandroid,DC=org";
+			java.security.Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+	
+			final Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.HOUR, -1);
+			final Date startDate = new Date(calendar.getTimeInMillis());
+			calendar.add(Calendar.YEAR, 1);
+			final Date expiryDate = new Date(calendar.getTimeInMillis());
+			final BigInteger serialNumber = BigInteger.valueOf(Math.abs(System.currentTimeMillis()));
+	
+			X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
+			X500Principal dnName = new X500Principal(dn);
+			certGen.setSerialNumber(serialNumber);
+			certGen.setIssuerDN(dnName);
+			certGen.setNotBefore(startDate);
+			certGen.setNotAfter(expiryDate);
+			certGen.setSubjectDN(dnName); // note: same as issuer
+			certGen.setPublicKey(pair.getPublic());
+			certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+	
+			// FIXME: This method is deprecated, but Android Eclair does not provide the
+			// generate() methods.
+			//X509Certificate cert = certGen.generateX509Certificate(pair.getPrivate(), "BC");
+			return  certGen.generate(pair.getPrivate(), sr);
+		}
+		catch (Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 	
 	private static void waitInit() // FIXME: Remove this method
@@ -292,7 +406,7 @@ public final class RAApplication extends android.app.Application
 		{
 			BluetoothAdapter.getDefaultAdapter();
 		}
-
+System.setProperty("javax.net.debug", "ssl"); // FIXME
 		enableStrictMode();
 		enableHttpResponseCache();
 		disableConnectionReuseIfNecessary();
@@ -617,6 +731,9 @@ public final class RAApplication extends android.app.Application
 				sKeyPair=new KeyPair(publicKey, privateKey);
 				if (V) Log.v(TAG,PREFIX_LOG+"Key pair done.");
 			}
+			if (V) Log.v(TAG,PREFIX_LOG+"Init key managers..."); 
+			getKeyManager();
+			if (V) Log.v(TAG,PREFIX_LOG+"Key managers done."); 
 			if (editor != null)
 			{
 				editor.commit();

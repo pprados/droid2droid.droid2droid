@@ -1,12 +1,12 @@
 package org.remoteandroid.binder.ip;
 
 import static org.remoteandroid.Constants.ETHERNET_KEEP_ALIVE;
-import static org.remoteandroid.Constants.ETHERNET_SO_LINGER;
-import static org.remoteandroid.Constants.ETHERNET_SO_LINGER_TIMEOUT;
 import static org.remoteandroid.Constants.ETHERNET_SO_TIMEOUT;
-import static org.remoteandroid.Constants.TAG_SERVER_BIND;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.ETHERNET_SO_LINGER_TIMEOUT;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
@@ -14,9 +14,19 @@ import static org.remoteandroid.internal.Constants.V;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.X509TrustManager;
+
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.binder.UpstreamHandler;
 import org.remoteandroid.internal.Messages.Msg;
 import org.remoteandroid.internal.socket.ip.NetworkSocketChannel;
@@ -36,13 +46,55 @@ final class NetServerSocketChannel implements Runnable
 
 	protected ExecutorService mExecutors=Executors.newCachedThreadPool();
 	protected UpstreamHandler mHandler;
-    protected ServerSocket mSocket;
+    protected SSLServerSocket mSocket;
     
     NetServerSocketChannel(UpstreamHandler handler,int listenPort) throws IOException
     {
     	mHandler=handler;
-		mSocket=new ServerSocket(listenPort);
-		mSocket.setReuseAddress(true); // Re-use if is in TIME_WAIT status
+    	try
+    	{
+	    	final SSLContext sslcontext = SSLContext.getInstance(TLS);
+			final KeyManager[] keyManagers=RAApplication.getKeyManager(); 
+			sslcontext.init(
+				keyManagers,
+				new X509TrustManager[]
+				{ 
+					new X509TrustManager()
+					{
+						public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+						{
+							System.out.println("check client trusted");
+						}
+		
+						public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+						{
+							System.out.println("check server trusted");
+						}
+		
+						public X509Certificate[] getAcceptedIssuers()
+						{
+							System.out.println("getAcceptedIssuers");
+							return new X509Certificate[0];
+						}
+					} 
+				}, 
+				RAApplication.getSecureRandom());
+			mSocket=(SSLServerSocket)sslcontext.getServerSocketFactory().createServerSocket(listenPort);
+			mSocket.setReuseAddress(true); // FIXME: Re-use if is in TIME_WAIT status
+			mSocket.setWantClientAuth(true);
+    	}
+		catch (NoSuchAlgorithmException e)
+		{
+			throw new Error(e);
+		}
+		catch (KeyManagementException e)
+		{
+			throw new Error(e);
+		}
+    	finally
+    	{
+    		
+    	}
     }
 
     public void stop()
