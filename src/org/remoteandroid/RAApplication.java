@@ -290,7 +290,6 @@ public final class RAApplication extends android.app.Application
 		try
 		{
 			String dn="CN="+sUuid.toString();
-			java.security.Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 	
 			final Calendar calendar = Calendar.getInstance();
 			calendar.add(Calendar.HOUR, -1);

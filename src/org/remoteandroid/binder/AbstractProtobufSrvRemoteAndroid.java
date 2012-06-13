@@ -236,10 +236,11 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
         		conContext.mLogin=null;
         		conContext.mPairing=null;
         		
+        		Msg.Builder builder=Msg.newBuilder();
         		// Must present a valid cookie
         		if (SECURITY && type==Type.CONNECT)
         		{
-                	Msg msgCookie=checkCookie(msg, conContext);
+                	Msg msgCookie=checkCookie(msg, builder,conContext);
         			if (msgCookie!=null)
         				return msgCookie;
             		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Connection state:connected");
@@ -250,7 +251,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
         		if (!SECURITY)
         			conContext.mState=State.CONNECTED;
         		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"<- OK");
-            	return Msg.newBuilder()
+            	return builder
 					.setType(type)
         			.setThreadid(msg.getThreadid())
 					.setIdentity(ProtobufConvs.toIdentity(Trusted.getInfo(mContext)))
@@ -336,7 +337,15 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		
 	}
 
-	private Msg checkCookie(Msg msg, ConnectionContext conContext)
+	private final long srvCookie(long cookie)
+	{
+		return cookie & 0xFFFF0000;
+	}
+	private final long cliCookie(long cookie)
+	{
+		return cookie & 0xFFFF;
+	}    
+	private Msg checkCookie(Msg msg, Msg.Builder builder,ConnectionContext conContext)
 	{
 		long cookie=RAApplication.getCookie(conContext.mClientInfo.uuid.toString());
 		if (V) Log.v(TAG_SECURITY,PREFIX_LOG+"Get cookie for '"+conContext.mClientInfo.uuid+"' is "+cookie);
@@ -351,7 +360,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 				.setChallengestep(11)
 				.build();
 		}
-		if (clientCookie!=cookie)
+		if (clientCookie!=cliCookie(cookie))
 		{
 			if (I) Log.i(TAG_SECURITY,PREFIX_LOG+"Invalide cookie '"+cookie+"' from '"+conContext.mClientInfo.getName()+'\'');
 			return Msg.newBuilder()
@@ -360,6 +369,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 				.setStatus(AbstractRemoteAndroidImpl.STATUS_INVALIDE_COOKIE)
 				.build();
 		}
+		builder.setCookie(srvCookie(cookie));
 		return null;
 	}
 
