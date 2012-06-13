@@ -111,6 +111,7 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 
 // La stratégie de gestion des paramètres est la suivante:
@@ -206,6 +207,10 @@ public final class RAApplication extends android.app.Application
 		waitInit();
 		return sUuid;
 	}
+	public static final UUID getUUID_()
+	{
+		return sUuid;
+	}
 	public static RemoteAndroidManagerImpl getManager()
 	{
 		return sManager;
@@ -213,10 +218,6 @@ public final class RAApplication extends android.app.Application
 	public static String getName()
 	{
 		waitInit();
-		return getName_();
-	}
-	private static String getName_()
-	{
 		if (sName != null)
 			return sName;
 		return sBackName;
@@ -235,7 +236,7 @@ public final class RAApplication extends android.app.Application
 		{
 			try
 			{
-				final X509Certificate cert=generateX509V1Certificate(sKeyPair,getName_(),sRandom);
+				final X509Certificate cert=generateX509V1Certificate(sKeyPair,sRandom);
 				sKeyManager=new KeyManager[]
 				{
 					new X509KeyManager()
@@ -284,11 +285,11 @@ public final class RAApplication extends android.app.Application
 		}
 		return sKeyManager;
 	}
-	private static X509Certificate generateX509V1Certificate(KeyPair pair, String name,SecureRandom sr)
+	private static X509Certificate generateX509V1Certificate(KeyPair pair, SecureRandom sr)
 	{
 		try
 		{
-			String dn="CN="+name+",DC=remoteandroid,DC=org";
+			String dn="CN="+sUuid.toString();
 			java.security.Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 	
 			final Calendar calendar = Calendar.getInstance();
@@ -653,7 +654,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 			// Initialise the UUID, keys and name
 
 			if (V) Log.v(TAG, PREFIX_LOG+"Application init preferences.");
-			Login.sLogin=new LoginImpl();
+			Login.sLogin=new LoginImpl(null);
 			Pairing.sPairing=new PairingImpl();
 			String adapterName=null;
 			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();

@@ -14,6 +14,8 @@ import static org.remoteandroid.internal.Constants.SECURITY;
 import static org.remoteandroid.internal.Constants.TAG_SECURITY;
 import static org.remoteandroid.internal.Constants.V;
 
+import java.security.PublicKey;
+
 import org.remoteandroid.RAApplication;
 import org.remoteandroid.ConnectionType;
 import org.remoteandroid.RemoteAndroidManager;
@@ -37,6 +39,7 @@ import android.net.wifi.WifiManager;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.protobuf.ByteString;
 
@@ -62,7 +65,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
     	return ByteString.copyFrom(p.marshall());
     }
 
-    protected Msg doAndWriteReply(int connid,Msg msg,boolean btsecure) throws RemoteException, SendIntentException
+    protected Msg doAndWriteReply(PublicKey clientKey,int connid,Msg msg,boolean btsecure) throws RemoteException, SendIntentException
 	{
 		final SharedPreferences preferences=RAApplication.getPreferences();
 		boolean acceptAnonymous=preferences.getBoolean(PREFERENCES_ANO_ACTIVE, false); //TODO: et pour BT ? Cf BT_DISCOVER_ANONYMOUS
@@ -186,7 +189,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             			if (conContext.mLogin==null)
             			{
 	                		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Register login context");
-            				conContext.mLogin=new LoginImpl();
+            				conContext.mLogin=new LoginImpl(clientKey);
             			}
             			if (PAIR_AUTO_IF_NO_COOKIE)
             			{
@@ -215,7 +218,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
         			if (conContext.mLogin==null)
         			{
                 		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Register login context");
-        				conContext.mLogin=new LoginImpl();
+        				conContext.mLogin=new LoginImpl(clientKey);
         			}
     				if (msg.getPairing() && conContext.mPairing==null)
     				{
@@ -360,7 +363,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 		return null;
 	}
 
-    private long getCookie(ConnectionContext conContext)
+    private Long getCookie(ConnectionContext conContext)
     {
     	String strUUID=conContext.mClientInfo.uuid.toString();
 		long cookie=RAApplication.getCookie(strUUID);

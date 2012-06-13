@@ -23,6 +23,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
@@ -113,6 +114,20 @@ public final class Trusted
 			for (RemoteAndroidInfo i:sCachedBonded)
 			{
 				if (i.getUuid().equals(info.getUuid()))
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isBonded(PublicKey pubKey)
+	{
+		getBonded();
+		synchronized(sCachedBonded)
+		{
+			for (RemoteAndroidInfo i:sCachedBonded)
+			{
+				if (i.getPublicKey().equals(pubKey))
 					return true;
 			}
 		}

@@ -67,23 +67,23 @@ public final class Constants
 	public static final int		PROGRESS_TIMER=1000;
 
 	/** Expiration delay before purge discovery device. */
-	public static final long	PURGE_FRESH_DISCOVERY_MS=PROBE_INTERVAL_MS*(PROBE_SENT+1);
+	public static final long	PURGE_FRESH_DISCOVERY_MS					=PROBE_INTERVAL_MS*(PROBE_SENT+1);
     /** Delay to discover others remote androids. */
-	public static final long 	TIME_TO_DISCOVER						=RemoteAndroidManager.DISCOVER_BEST_EFFORT;
+	public static final long 	TIME_TO_DISCOVER							=RemoteAndroidManager.DISCOVER_BEST_EFFORT;
 	/** Timeout to wait a user response when ask to validate the pairing process. */
-	public static final long 	TIMEOUT_ASK_PAIR						=45000L;
+	public static final long 	TIMEOUT_ASK_PAIR							=45000L;
 	/** Timeout to wait a user response when ask to validate the pairing process. */
-	public static final long 	TIMEOUT_PAIR							=20000L; // FIXME: 2000L;
+	public static final long 	TIMEOUT_PAIR								=5000L;
 
-	/** Implementation name for X509 */
-	public static final String X509												="X509";
+	/** Use client SSL certificat to authenticate device. */
+	public static final boolean TLS_WANT_CLIENT_AUTH						=true;
 
 	/** Auto ask pairing if refuse cookie.*/
 	public static final boolean PAIR_AUTO_IF_NO_COOKIE					=true;
 
 	public static final boolean PAIR_ANTI_SPOOF							=false; // TODO: PAIR_ANTI_SPOOF must be true
 	/** Save pairing devices. */
-	public static final boolean PAIR_PERSISTENT							=true;
+	public static final boolean PAIR_PERSISTENT							=true;  // FIXME: check usage
 	/** Automaticaly pairing the bonded BT devices. */
 	public static final boolean PAIR_AUTO_PAIR_BT_BONDED_DEVICE			=true;
 	/** Accept anonymous. */

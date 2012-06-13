@@ -14,12 +14,10 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.crypto.Cipher;
 
 import org.remoteandroid.RAApplication;
-import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
@@ -45,15 +43,18 @@ public final class LoginImpl extends Login
 
     private long mChallenge;
 
-	byte[] mHa;
-    byte[] mNonceA;
-    byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
+    private byte[] mHa;
+	private byte[] mNonceA;
+    private byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
 
+    private PublicKey mClientKey;
 
-	public LoginImpl()
+	public LoginImpl(PublicKey clientKey)
 	{
 		mChallenge=RAApplication.randomNextLong();
+		mClientKey=clientKey;
 	}
+	
 	/**
 	 * @return 0 if error. Else, return cookie.
 	 */
@@ -67,12 +68,10 @@ public final class LoginImpl extends Login
 	{
 		try
 		{
-			final boolean isProposePairing=(flags & FLAG_PROPOSE_PAIRING)!=9;
+			final boolean isProposePairing=(flags & FLAG_PROPOSE_PAIRING)!=0;
 			Msg msg;
 			Msg resp=null;
 			final long threadid = Thread.currentThread().getId();
-			long challenge=RAApplication.randomNextLong();
-			if (challenge==0) challenge=1;
 			
 			// Step 1: Ask a challenge with my public key
     		if (V) Log.v(TAG_CLIENT_BIND,PREFIX_LOG+"-> CONNECT_FOR_COOKIE");
@@ -86,22 +85,27 @@ public final class LoginImpl extends Login
 			resp = android.sendRequestAndReadResponse(msg,timeout);
     		if (V) Log.v(TAG_CLIENT_BIND,PREFIX_LOG+"<- "+resp.getStatus());
 		    final RemoteAndroidInfoImpl remoteInfo=ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,resp.getIdentity());
-		    final boolean isBonded=Trusted.isBonded(remoteInfo);
 		    android.mInfo=remoteInfo;
 			android.checkStatus(resp);
+			if (resp.getChallengestep()==4)
+			{
+				PublicKey pubKey=android.getPeerPublicKey();
+				String uuid=android.getPeerUUID();
+				RemoteAndroidInfoImpl info=Trusted.getBonded(uuid);
+				if (!info.getPublicKey().equals(pubKey))
+					throw new SecurityException("Invalid public key");
+
+				return new Pair<RemoteAndroidInfoImpl,Long>(remoteInfo,resp.getCookie());
+			}
 			if (resp.getChallengestep()!=2)
 			{
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject login process");
 				return new Pair<RemoteAndroidInfoImpl,Long>(remoteInfo,COOKIE_SECURITY);
-				//throw new SecurityException("Reject login process");
 			}
 			
-//			if (((flags & RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS)==0)
-//				&& !isBonded)
-//			{
-//				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Invalide challenge");
-//				throw new SecurityException("Refuse anonymous connection");
-//			}
+			long challenge=RAApplication.randomNextLong();
+			if (challenge==0) challenge=1;
+			
 			// Step 2: Resolve the chalenge and send a new chalenge with remote public key
 			msg = Msg.newBuilder()
 				.setType(type)
@@ -126,8 +130,7 @@ public final class LoginImpl extends Login
 				if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Invalide challenge");
 				throw new SecurityException("Invalide challenge");
 			}
-			long cookie=resp.getCookie();
-			return new Pair<RemoteAndroidInfoImpl,Long>(remoteInfo,cookie);
+			return new Pair<RemoteAndroidInfoImpl,Long>(remoteInfo,resp.getCookie());
 		}
 		catch (GeneralSecurityException e)
 		{
@@ -139,6 +142,7 @@ public final class LoginImpl extends Login
 	@Override
 	public Msg server(Object ctx,Msg msg,long cookie,boolean acceptAnonymous)
 	{
+		boolean isBound;
 		ConnectionContext conContext=(ConnectionContext)ctx;
 		int step=msg.getChallengestep();
 		if (step==0) // Unpairing
@@ -158,6 +162,19 @@ public final class LoginImpl extends Login
 			{
 				case 1 :
 					// Propose a cypher challenge with public key of the caller
+					// Short circuit because use a TLS channel
+					if (mClientKey!=null)
+					{
+						isBound=Trusted.isBonded(mClientKey);
+						return Msg.newBuilder()
+								.setType(msg.getType())
+								.setThreadid(msg.getThreadid())
+								.setChallengestep(4)
+								.setIdentity(ProtobufConvs.toIdentity(RAApplication.sDiscover.getInfo()))
+								.setCookie(msg.getPairing() ? (isBound||acceptAnonymous ? cookie : 0) : cookie) // Too early to publish cookie ?
+								.build();
+					}
+
 					return Msg.newBuilder()
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())
@@ -170,7 +187,7 @@ public final class LoginImpl extends Login
 					long resolvedChallenge=Tools.byteArrayToLong(msg.getChallenge1().toByteArray());
 					if (mChallenge!=resolvedChallenge)
 						throw new GeneralSecurityException("Chalenge failed");
-					boolean isBound=Trusted.isBonded(conContext.mClientInfo);
+					isBound=Trusted.isBonded(conContext.mClientInfo);
 					return Msg.newBuilder()
 						.setType(msg.getType())
 						.setThreadid(msg.getThreadid())

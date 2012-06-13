@@ -16,6 +16,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.ExecutorService;
@@ -23,7 +26,9 @@ import java.util.concurrent.Executors;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509TrustManager;
 
 import org.remoteandroid.RAApplication;
@@ -47,6 +52,27 @@ final class NetServerSocketChannel implements Runnable
 	protected ExecutorService mExecutors=Executors.newCachedThreadPool();
 	protected UpstreamHandler mHandler;
     protected SSLServerSocket mSocket;
+    private static final X509TrustManager[] sX509TrustManager=
+    		new X509TrustManager[]
+			{ 
+				new X509TrustManager()
+				{
+					public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+					{
+						if (V) Log.v(TAG_SECURITY,"check client trusted");
+					}
+		
+					public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+					{
+						if (V) Log.v(TAG_SECURITY,"check server trusted");
+					}
+		
+					public X509Certificate[] getAcceptedIssuers()
+					{
+						return new X509Certificate[0];
+					}
+				} 
+			};
     
     NetServerSocketChannel(UpstreamHandler handler,int listenPort) throws IOException
     {
@@ -57,31 +83,12 @@ final class NetServerSocketChannel implements Runnable
 			final KeyManager[] keyManagers=RAApplication.getKeyManager(); 
 			sslcontext.init(
 				keyManagers,
-				new X509TrustManager[]
-				{ 
-					new X509TrustManager()
-					{
-						public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
-						{
-							System.out.println("check client trusted");
-						}
-		
-						public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
-						{
-							System.out.println("check server trusted");
-						}
-		
-						public X509Certificate[] getAcceptedIssuers()
-						{
-							System.out.println("getAcceptedIssuers");
-							return new X509Certificate[0];
-						}
-					} 
-				}, 
+				sX509TrustManager, 
 				RAApplication.getSecureRandom());
 			mSocket=(SSLServerSocket)sslcontext.getServerSocketFactory().createServerSocket(listenPort);
-			mSocket.setReuseAddress(true); // FIXME: Re-use if is in TIME_WAIT status
-			mSocket.setWantClientAuth(true);
+			mSocket.setReuseAddress(true);
+			if (TLS_WANT_CLIENT_AUTH)
+				mSocket.setWantClientAuth(true);
     	}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -125,7 +132,7 @@ final class NetServerSocketChannel implements Runnable
 				if (mSocket==null) // Sometime, with quick on/off
 					return;
 				if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"IP Accept socket...");
-				final Socket socket=mSocket.accept();
+				final SSLSocket socket=(SSLSocket)mSocket.accept();
 				if (V) Log.v(TAG_SERVER_BIND,"IP Accept socket done.");
 				socket.setTcpNoDelay(true);
 				socket.setSoLinger(ETHERNET_SO_LINGER, ETHERNET_SO_LINGER_TIMEOUT);
@@ -139,6 +146,19 @@ final class NetServerSocketChannel implements Runnable
 					{
 						final int id=System.identityHashCode(socket);
 						final NetworkSocketChannel channel=new NetworkSocketChannel(socket);
+						PublicKey clientPublicKey;
+						try
+						{
+							Certificate[] certificatesChaine=socket.getSession().getPeerCertificates();
+							clientPublicKey=certificatesChaine[0].getPublicKey();
+						}
+						catch (SSLPeerUnverifiedException e)
+						{
+							// Ignore. Client without authentification
+							clientPublicKey=null;
+						}
+						final PublicKey clientKey=clientPublicKey;
+						
 						for (;;)
 						{
 							if (Thread.interrupted())
@@ -154,7 +174,7 @@ final class NetServerSocketChannel implements Runnable
 									{
 									    try
 										{
-											mHandler.messageReceived(id,(Msg)msg,channel);
+											mHandler.messageReceived(clientKey,id,(Msg)msg,channel);
 										}
 										catch (Exception e)
 										{

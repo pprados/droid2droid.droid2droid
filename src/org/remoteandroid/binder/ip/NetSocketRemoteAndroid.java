@@ -8,6 +8,7 @@ import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
+import java.security.PublicKey;
 
 import org.remoteandroid.RAApplication;
 import org.remoteandroid.binder.AbstractProtobufSrvRemoteAndroid;
@@ -62,9 +63,9 @@ public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndro
     {
 
 		@Override
-		public void messageReceived(int id,Msg msg,Channel channel) throws Exception
+		public void messageReceived(PublicKey clientKey,int id,Msg msg,Channel channel) throws Exception
 		{
-			Msg resp=doAndWriteReply(id,msg,false);
+			Msg resp=doAndWriteReply(clientKey,id,msg,false);
 			if (resp!=null)
 				channel.write(resp);
 		}
