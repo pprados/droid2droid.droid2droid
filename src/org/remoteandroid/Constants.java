@@ -1,9 +1,10 @@
 package org.remoteandroid;
 
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PROBE_INTERVAL_MS;
 import static org.remoteandroid.internal.Constants.PROBE_SENT;
-
+import static org.remoteandroid.internal.Constants.W;
 import android.telephony.SmsMessage;
 
 //TODO: Manage battery low !
@@ -40,21 +41,22 @@ public final class Constants
 	public static final String PREFERENCES_ACTIVE					="active";
 	public static final String PREFERENCES_ANO_ACTIVE				="ano.active";
 	public static final String PREFERENCES_ANO_WIFI_LIST			="ano.select_wifi";
+	public static final String PREFERENCES_ANO_QRCODE			="ano.qrcode";
 	public static final String PREFERENCES_KNOWN_ACTIVE			="known.active";
 	public static final String PREFERENCES_KNOWN_ACCEPT_ALL		="known.accept_all";
 	
 	// Delay before close a dialog after finish the job.
-	public static final int DELAY_SHOW_TERMINATE						=1000;
+	public static final int DELAY_SHOW_TERMINATE							=1000;
 
-	public static final int LOCK_ASK_DOWNLOAD							=10000;
-	public static final int LOCK_WAIT_INSTALL							=20000;
-	public static final int LOCK_ASK_PAIRING							=30000;
+	public static final int LOCK_ASK_DOWNLOAD								=10000;
+	public static final int LOCK_WAIT_INSTALL								=20000;
+	public static final int LOCK_ASK_PAIRING								=30000;
 	
-	public static final boolean STRICT_MODE=false; 
-	public static final boolean HACK_UUID=true; // FIXME: false
+	public static final boolean STRICT_MODE								=false; 
+	public static final boolean HACK_UUID								=true; // FIXME: false
 	
 	/** True if can connect device throw internet (and not only intranet). */
-	public static final boolean CONNECTION_WITH_INTERNET				=false;
+	public static final boolean CONNECTION_WITH_INTERNET					=false;
     /**
      * the intent that gets sent when deleting the notifications of outbound and
      * inbound completed transfer
@@ -64,7 +66,7 @@ public final class Constants
     public static final String 	ACTION_CLEAR_DOWNLOAD 					= "org.remoteaandroid.intent.action.CLEAR_DOWNLOAD";
     
     /** Timer for refresh progression */
-	public static final int		PROGRESS_TIMER=1000;
+	public static final int		PROGRESS_TIMER							=1000;
 
 	/** Expiration delay before purge discovery device. */
 	public static final long	PURGE_FRESH_DISCOVERY_MS					=PROBE_INTERVAL_MS*(PROBE_SENT+1);
@@ -103,10 +105,10 @@ public final class Constants
 	public static final boolean SHOW_FINAL_NOTIF_AFTER_DOWNLOAD			=true;
 	
 	/** Timeout to send a bloc of data. */
-	public static final long 	TIMEOUT_BETWEEN_SEND_FILE_DATA			=10000L; // 10s (10_000 ms)
+	public static final long 	TIMEOUT_BETWEEN_SEND_FILE_DATA				=10000L; // 10s (10_000 ms)
 
     /** Timeout before expire the cookie */
-	public static final long 	TIMEOUT_COOKIE							=15*60L*1000; // 15mn
+	public static final long 	TIMEOUT_COOKIE								=15*60L*1000; // 15mn
 
 	// Flag to describe the installer (extract from Android sources)
 	public static final String EXTRA_INSTALLER_PACKAGE_NAME
@@ -114,37 +116,39 @@ public final class Constants
 	
 	//-----------------------------------------------------------------------------
 	/** For debug, force to use fragments in horizontal view. */
-	public static final boolean HACK_CONNECT_FORCE_FRAGMENTS			=false;
+	public static final boolean HACK_CONNECT_FORCE_FRAGMENTS				=false;
 	
 	//-----------------------------------------------------------------------------
 	// --- Ethernet parameters ---
-    public static boolean 		ETHERNET_CAN_RECEIVE_MULTICAST 			= true;
+    public static boolean 	ETHERNET_CAN_RECEIVE_MULTICAST 				= true;
 	/** IP Listen port to accept connection from remotes androids. */
-	public static final int 	ETHERNET_LISTEN_PORT					=RemoteAndroidManager.DEFAULT_PORT;
+	public static final int 	ETHERNET_LISTEN_PORT						=RemoteAndroidManager.DEFAULT_PORT;
     /** Delay to discover others remote androids. */
-	public static final long 	ETHERNET_TIME_TO_DISCOVER				=(D) ? 15000L : 5000L;	// FIXME: 5000L;
+	public static final long 	ETHERNET_TIME_TO_DISCOVER					=(D) ? 15000L : 5000L;	// FIXME: 5000L;
 	/** Socket timeout for read message. */
-    public static final int 	ETHERNET_TRY_TIMEOUT					=150000; 	// FIXME Timeout for try connection
+    public static final int 	ETHERNET_TRY_TIMEOUT						=150000; 	// FIXME Timeout for try connection
 	/** Socket timeout for read message. */
-    public static final int 	ETHERNET_SO_TIMEOUT						=3600000; 	// FIXME Timeout for read message
+    public static final int 	ETHERNET_SO_TIMEOUT							=3600000; 	// FIXME Timeout for read message
     /** Keep the socket alive. */
     public static final boolean ETHERNET_KEEP_ALIVE						=true;		// Socket maintenu en vie, même sans trafic
 	/** For some model, wait before ask mDNS service info. */
-    public static final long 	HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY=300L; 	// Timeout before ask mDNS info (for HTC Desire)
-    public static final long 	ETHERNET_WAIT_SERVICE_INFO_TIMEOUT		=1000L;
+    public static final long 	HACK_ETHERNET_BEFORE_GET_MDNS_INFO_DELAY	=300L; 	// Timeout before ask mDNS info (for HTC Desire)
+    public static final long 	ETHERNET_WAIT_SERVICE_INFO_TIMEOUT			=1000L;
+	/** Socket tag for stats. */
+    public static final int 	ETHERNET_SOCKET_TAG							=0xFECA;
     /** True if want to reset MDNS when used change from WIFI to another WIFI network. */
     public static final boolean HACK_WIFI_CHANGED_RESTART_MDNS			=true;
     /** Invalide IP in network devices when shutdown wifi and shuton wifi quickly. */
-    public static final long 	HACK_WAIT_BEFORE_RESTART_MDNS			=500;
+    public static final long 	HACK_WAIT_BEFORE_RESTART_MDNS				=500;
     
 	/** Timeout to receive a service info. */
-    public static final long 	ETHERNET_GET_INFO_MDNS_TIMEOUT			=500L; // Timeout for try to receive mDNS infos.
-    public static final long 	ETHERNET_DELAY_ANTI_REPEAT_DISCOVER		=2000L; // Timeout to refuse same UUID
+    public static final long 	ETHERNET_GET_INFO_MDNS_TIMEOUT				=500L; // Timeout for try to receive mDNS infos.
+    public static final long 	ETHERNET_DELAY_ANTI_REPEAT_DISCOVER			=2000L; // Timeout to refuse same UUID
     public static final boolean ETHERNET_REFUSE_LOCAL_IPV6				= true; 		// Else we must select the interface
 	//-----------------------------------------------------------------------------
 	// Multicast DNS service
 	// http://tools.ietf.org/html/draft-cheshire-dnsext-dns-sd-10
-    public final static String REMOTEANDROID_SERVICE 				= "_remoteandroid._tcp.local.";
+    public final static String REMOTEANDROID_SERVICE 						= "_remoteandroid._tcp.local.";
     
 	//-----------------------------------------------------------------------------
 	// --- QRCode parameters ---
@@ -152,58 +156,58 @@ public final class Constants
 	/** Show the current bitmap to analyze in overlay layer. */
 	public static final boolean	QRCODE_SHOW_CURRENT_DECODE				=false;
 	/** Vibrate when find QRCode. */
-	public static final long QRCODE_VIBRATE_DURATION 					=100L; // 0 for no vibrate
+	public static final long QRCODE_VIBRATE_DURATION 						=100L; // 0 for no vibrate
 	/** Percent of width for the square to scan QRCode. */
-	public static final int QRCODE_PERCENT_WIDTH_PORTRAIT				=60;
+	public static final int QRCODE_PERCENT_WIDTH_PORTRAIT					=60;
 	/** Percent of width for the square to scan QRCode. */
 	public static final int QRCODE_PERCENT_WIDTH_LANDSCAPE				=75;
-	public static final int QRCODE_ALPHA								=128;
+	public static final int QRCODE_ALPHA									=128;
 	/** Encoding String to binary */
-	public static final String QRCODE_BYTE_MODE_ENCODING				="ISO-8859-1";
+	public static final String QRCODE_BYTE_MODE_ENCODING					="ISO-8859-1";
 
 	/** Minimal size to select. */
-	public static final int QRCODE_MINIMAL_CAMERA_RESOLUTION 			= 320*240; // 240*160; // zero for maximum resolution
-	public static final long QRCODE_ANIMATION_DELAY 					= 300L; // Ms
+	public static final int QRCODE_MINIMAL_CAMERA_RESOLUTION 				= 320*240; // 240*160; // zero for maximum resolution
+	public static final long QRCODE_ANIMATION_DELAY 						= 300L; // Ms
 	/** When auto-focus event happend, what just a few time before take picture ? */
-	public static final long QRCODE_DELAY_AFTER_AUTOFOCUS				=300;
+	public static final long QRCODE_DELAY_AFTER_AUTOFOCUS					=300;
 	/** Sometime, camera.autofocus throw a RuntimeException. */
 	public static final long QRCODE_DELAY_RETRY_AUTOFOCUS_IF_ERROR		=500; // Not below 100ms
 	public static final int QRCODE_MAX_ERROR_AUTOFOCUS					=3; // Stop after X errors
 	
 	//-----------------------------------------------------------------------------
 	// --- SMS parameters ---
-	public static final boolean SMS									=true;
+	public static final boolean SMS										=true;
 	/** Port use to receive technical message. */
-	public static final short 	SMS_PORT 							=RemoteAndroidManager.DEFAULT_PORT;
+	public static final short 	SMS_PORT 								=RemoteAndroidManager.DEFAULT_PORT;
 	/** Timeout to wait to receive SMS. */
-	public static final int 	SMS_TIMEOUT_WAIT					=60000; // 60s
-	public static final int 	SMS_MESSAGE_SIZE					=SmsMessage.MAX_USER_DATA_BYTES-7;
+	public static final int 	SMS_TIMEOUT_WAIT							=60000; // 60s
+	public static final int 	SMS_MESSAGE_SIZE							=SmsMessage.MAX_USER_DATA_BYTES-7;
 
 	//-----------------------------------------------------------------------------
 	// --- DTMF parameters ---
-	public static final boolean SOUND								=true;
-	public static final int 	DTMF_VOLUME 						= /*100*/50; // %
-	public static final int 	DTMF_TIMEOUT_WAIT					=60000; // 60s
-	public static final int 	DTMF_FREQUENCY_DELTA				=2; // +-2
-	public static final int 	DTMF_MIN_PRESENCE_START_STOP		=1;
-	public static final int 	DTMF_MIN_PRESENCE					=2;
-	public static final int 	DTMF_DELAY_EMISSION					=400; // Ms
-	public static final int 	DTMF_DELAY_START_STOP				=1000;
+	public static final boolean SOUND									=true;
+	public static final int 	DTMF_VOLUME 								= /*100*/50; // %
+	public static final int 	DTMF_TIMEOUT_WAIT							=60000; // 60s
+	public static final int 	DTMF_FREQUENCY_DELTA						=2; // +-2
+	public static final int 	DTMF_MIN_PRESENCE_START_STOP				=1;
+	public static final int 	DTMF_MIN_PRESENCE							=2;
+	public static final int 	DTMF_DELAY_EMISSION							=400; // Ms
+	public static final int 	DTMF_DELAY_START_STOP						=1000;
 
 	//-----------------------------------------------------------------------------
 	// --- NFC parameters ---
-	public static final boolean NFC								=true;
+	public static final boolean NFC										=true;
 
 	//-----------------------------------------------------------------------------
 	// --- WIFI direct ---
-	public static final boolean WIFI_DIRECT						=true;
+	public static final boolean WIFI_DIRECT								=true;
 	
 	//-----------------------------------------------------------------------------
 	// --- Bump ---
-	public static final boolean BUMP							=true;
+	public static final boolean BUMP										=true;
 	
 	//-----------------------------------------------------------------------------
 	// --- Bluetooth ---
-	public static final boolean BT								=true;
+	public static final boolean BT										=true;
 	
 }

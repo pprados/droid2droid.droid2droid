@@ -60,6 +60,7 @@ import org.remoteandroid.internal.socket.Channel;
 import org.remoteandroid.internal.socket.ip.NetworkSocketBossSender;
 import org.remoteandroid.pairing.Trusted;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -84,7 +85,8 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 	// FIXME: Utiliser Jmmdns pour s'enregistrer sur toutes les interfaces http://sourceforge.net/projects/jmdns/forums/forum/324612/topic/4729651
 	static class MultipleJmDNS
 	{
-		private ArrayList<JmDNS> mJmdns    = new ArrayList<JmDNS>();
+		private final ArrayList<JmDNS> mJmdns    = new ArrayList<JmDNS>();
+		@TargetApi(9)
 		MultipleJmDNS(String name) throws IOException
 		{
 			for (Enumeration<NetworkInterface> networks=NetworkInterface.getNetworkInterfaces();networks.hasMoreElements();)
@@ -258,10 +260,9 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 				if (V) Log.v(TAG_MDNS,PREFIX_LOG+"IP MDNS It's me. Ignore.");
 				return; // It's me. Ignore.
 			}
-			RemoteAndroidInfoImpl info=Trusted.getBonded(struuid);
-			if (!sIsDiscovering && info==null)
+			if (!sIsDiscovering)
 			{
-				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS ignore '"+dnsInfo.getName()+"' because is not bonded.");
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP MDNS ignore '"+dnsInfo.getName()+"' because is out of time.");
 				return;
 			}
 			// Discover a remote android. Try to connect.
@@ -429,6 +430,8 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
     	if (!ETHERNET) return;
     	RAApplication.sSingleThread.execute(new Runnable()
 			{
+				@TargetApi(9)
+				@Override
 				public void run() 
 				{
 					try
@@ -525,6 +528,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
     	if (!ETHERNET) return;
     	RAApplication.sSingleThread.execute(new Runnable()
 			{
+				@Override
 				public void run() 
 				{
 					final MultipleJmDNS dns=sDNS;

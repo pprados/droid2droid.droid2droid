@@ -1,19 +1,17 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.Constants.TIMEOUT_COOKIE;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.COOKIE_NO;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import android.util.Pair;
 
 public final class Cookies // TODO: cookie persistant ?
 {
 	private class Cookie
 	{
 		long cookie;
-		long srvcookie;
 		long timestamp;
 	};
 	private Map<String, Cookie> mCookies=Collections.synchronizedMap(new HashMap<String,Cookie>());

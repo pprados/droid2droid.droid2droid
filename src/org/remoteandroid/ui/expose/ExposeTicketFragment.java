@@ -74,7 +74,7 @@ public final class ExposeTicketFragment extends AbstractBodyFragment
 	//http://code.google.com/intl/fr-FR/apis/urlshortener/v1/getting_started.html#APIKey
 	class ShortenURL extends AsyncTaskWithException<Void, Void, String>
 	{
-		private String mMessage;
+		private final String mMessage;
 		public ShortenURL(String message)
 		{
 			mMessage=message;
@@ -131,7 +131,7 @@ public final class ExposeTicketFragment extends AbstractBodyFragment
 		@Override
 		protected void onException(final Throwable e)
 		{
-			if (getActivity().isFinishing()) 
+			if ((getActivity()==null) || getActivity().isFinishing()) 
 				return;
 			if (D) Log.d(TAG_EXPOSE,PREFIX_LOG+"Error when load shorten url",e);
 //			if (D)

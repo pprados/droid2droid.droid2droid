@@ -2,6 +2,7 @@ package org.remoteandroid.service;
 
 import static org.remoteandroid.RAApplication.sDeviceId;
 import static org.remoteandroid.RAApplication.sPackageName;
+import android.annotation.TargetApi;
 import android.app.backup.BackupAgentHelper;
 import android.app.backup.BackupManager;
 import android.app.backup.SharedPreferencesBackupHelper;
@@ -11,6 +12,7 @@ import android.app.backup.SharedPreferencesBackupHelper;
  * 
  * @author pprados
  */
+@TargetApi(8)
 public final class RemoteAndroidBackup extends BackupAgentHelper
 {
 	public RemoteAndroidBackup()

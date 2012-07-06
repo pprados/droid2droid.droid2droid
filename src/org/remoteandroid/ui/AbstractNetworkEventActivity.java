@@ -16,6 +16,7 @@ import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.service.RemoteAndroidService;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,7 +38,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 
 	private static final String NFC_ACTION_ADAPTER_STATE_CHANGED = "android.nfc.action.ADAPTER_STATE_CHANGED";
 	
-	private BroadcastReceiver mRemoteAndroidReceiver = new BroadcastReceiver()
+	private final BroadcastReceiver mRemoteAndroidReceiver = new BroadcastReceiver()
 	{
 
 		@Override
@@ -47,7 +48,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	};
 
-	private BroadcastReceiver mNetworkStateReceiver = new BroadcastReceiver()
+	private final BroadcastReceiver mNetworkStateReceiver = new BroadcastReceiver()
 	{
 
 		@Override
@@ -58,7 +59,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	};
 
-	private BroadcastReceiver mBluetoothReceiver = new BroadcastReceiver()
+	private final BroadcastReceiver mBluetoothReceiver = new BroadcastReceiver()
 	{
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -68,7 +69,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	};
 
-	private BroadcastReceiver mNfcReceiver = new BroadcastReceiver()
+	private final BroadcastReceiver mNfcReceiver = new BroadcastReceiver()
 	{
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -76,7 +77,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 			onReceiveNfcEvent(context, intent);
 		}
 	};
-	private BroadcastReceiver mAirPlaneReceiver = new BroadcastReceiver()
+	private final BroadcastReceiver mAirPlaneReceiver = new BroadcastReceiver()
 	{
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -149,6 +150,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 			mActiveNetwork&=~NetworkTools.ACTIVE_REMOTE_ANDROID;
 		onUpdateActiveNetwork();		
 	}
+	@TargetApi(10)
 	protected void onReceiveNetworkEvent(Context context, Intent intent)
 	{
 		if (getActiveFragment()==null) return;
@@ -222,6 +224,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 						final boolean res=result;
 						RAApplication.sHandler.post(new Runnable()
 						{
+							@Override
 							public void run() 
 							{
 								if (res)

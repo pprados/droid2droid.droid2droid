@@ -1,18 +1,18 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS;
 import static org.remoteandroid.internal.Constants.D;
-import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
-import org.remoteandroid.pairing.Trusted;
 
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -66,9 +66,6 @@ public final class ConnectDialogFragment extends DialogFragment
 		return fragment;
 	}
 	
-	private ConnectDialogFragment()
-	{
-	}
 	public void setOnConnected(OnConnected callback)
 	{
 		mOnEvent=callback;
@@ -131,6 +128,10 @@ public final class ConnectDialogFragment extends DialogFragment
 	}
 	public static Object tryAllUris(ProgressJobs<?,?> progressJobs,String[] uris,int flags,OnConnected onEvent)
 	{
+		if ((flags & FLAG_ACCEPT_ANONYMOUS)!=0)
+		{
+			Pairing.enableTemporaryAcceptAnonymous();
+		}
 		for (int i=0;i<uris.length;++i)
 		{
 			progressJobs.incCurrentStep();
@@ -182,7 +183,7 @@ public final class ConnectDialogFragment extends DialogFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		getDialog().setTitle(R.string.connect_try);
-		mViewer = (View) inflater.inflate(R.layout.try_connect, container, false);
+		mViewer = inflater.inflate(R.layout.try_connect, container, false);
 		mStep=(TextView)mViewer.findViewById(R.id.step);
 		mProgressBar=(ProgressBar)mViewer.findViewById(R.id.progress);
 		mProgressBar.setMax(1000);

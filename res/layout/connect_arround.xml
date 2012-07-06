@@ -9,6 +9,5 @@
         android:text="@string/connect_arround_help"
 	    style="@style/connect_help"
         />
->
 
 </RelativeLayout>

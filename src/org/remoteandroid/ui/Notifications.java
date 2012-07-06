@@ -11,6 +11,7 @@ import org.remoteandroid.install.DownloadApkActivity;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.service.RemoteAndroidService;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,7 +23,7 @@ import android.widget.RemoteViews;
 public final class Notifications
 {
 	public static final String LABEL_NOTIF_DOWNLOAD="download";
-	private Context mContext;
+	private final Context mContext;
     public NotificationManager mNotificationMgr;
     int mInboundSuccNumber;
     int mInboundFailNumber;
@@ -63,6 +64,7 @@ public final class Notifications
 		{
 			new Runnable()
 			{
+				@Override
 				public void run() 
 				{
 			        mNotificationMgr.cancel(LABEL_NOTIF_DOWNLOAD,NOTIFICATION_ID_INBOUND);
@@ -82,6 +84,7 @@ public final class Notifications
 		{
 			notification=new PrivilegedAction<Notification>()
 			{
+				@TargetApi(11)
 				@Override
 				public Notification run()
 				{
@@ -100,7 +103,8 @@ public final class Notifications
     	final Notification fnotification=notification;
     	new Runnable()
     	{
-    		public void run() 
+    		@Override
+			public void run() 
     		{
     			service.startForeground(ONGOING_NOTIFICATION, fnotification);
     		}
@@ -277,6 +281,7 @@ public final class Notifications
 		{
 			new Runnable()
 			{
+				@Override
 				public void run() 
 				{
 			        mNotificationMgr.cancel(LABEL_NOTIF_DOWNLOAD,NOTIFICATION_ID_INBOUND);
@@ -295,6 +300,7 @@ public final class Notifications
 		{
 			new Runnable()
 			{
+				@Override
 				public void run() 
 				{
 			        mNotificationMgr.cancel(LABEL_NOTIF_DOWNLOAD,df.id);
@@ -371,6 +377,7 @@ public final class Notifications
 		{
 			new Runnable()
 			{
+				@Override
 				public void run() 
 				{
 				    mNotificationMgr.notify(LABEL_NOTIF_DOWNLOAD,df.id, notification);

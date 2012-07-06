@@ -1,9 +1,11 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
-import static org.remoteandroid.RemoteAndroidInfo.*;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
+import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.TAG_NFC;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.util.Arrays;
@@ -12,12 +14,11 @@ import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -30,13 +31,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.UninitializedMessageException;
 
+@TargetApi(9)
 public final class ConnectNFCFragment extends AbstractConnectFragment
 implements AbstractBodyFragment.OnNfcEvent
 {
@@ -63,7 +64,7 @@ implements AbstractBodyFragment.OnNfcEvent
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		setProgressBarIndeterminateVisibility(true);
-		mViewer = (View) inflater.inflate(R.layout.connect_nfc, container, false);
+		mViewer = inflater.inflate(R.layout.connect_nfc, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
 	}

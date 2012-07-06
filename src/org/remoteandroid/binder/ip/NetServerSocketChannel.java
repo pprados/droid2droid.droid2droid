@@ -2,21 +2,21 @@ package org.remoteandroid.binder.ip;
 
 import static org.remoteandroid.Constants.ETHERNET_KEEP_ALIVE;
 import static org.remoteandroid.Constants.ETHERNET_SO_TIMEOUT;
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.TAG_SERVER_BIND;
+import static org.remoteandroid.Constants.TLS_WANT_CLIENT_AUTH;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.ETHERNET_SO_LINGER;
 import static org.remoteandroid.internal.Constants.ETHERNET_SO_LINGER_TIMEOUT;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.TAG_SECURITY;
+import static org.remoteandroid.internal.Constants.TLS_IMPLEMENTATION_ALGORITHM;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -38,6 +38,7 @@ import org.remoteandroid.internal.socket.ip.NetworkSocketChannel;
 import org.remoteandroid.login.LoginImpl;
 import org.remoteandroid.service.RemoteAndroidService;
 
+import android.annotation.TargetApi;
 import android.os.Process;
 import android.util.Log;
 
@@ -57,16 +58,19 @@ final class NetServerSocketChannel implements Runnable
 			{ 
 				new X509TrustManager()
 				{
+					@Override
 					public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
 					{
 						if (V) Log.v(TAG_SECURITY,"check client trusted");
 					}
 		
+					@Override
 					public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
 					{
 						if (V) Log.v(TAG_SECURITY,"check server trusted");
 					}
 		
+					@Override
 					public X509Certificate[] getAcceptedIssuers()
 					{
 						return new X509Certificate[0];
@@ -79,7 +83,7 @@ final class NetServerSocketChannel implements Runnable
     	mHandler=handler;
     	try
     	{
-	    	final SSLContext sslcontext = SSLContext.getInstance(TLS);
+	    	final SSLContext sslcontext = SSLContext.getInstance(TLS_IMPLEMENTATION_ALGORITHM);
 			final KeyManager[] keyManagers=RAApplication.getKeyManager(); 
 			sslcontext.init(
 				keyManagers,
@@ -141,9 +145,14 @@ final class NetServerSocketChannel implements Runnable
 				if (mExecutors.isShutdown()) return;
 				mExecutors.execute(new Runnable()
 				{
+					@TargetApi(14)
 					@Override
 					public void run()
 					{
+//				    	if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+//				    	{
+//				    		TrafficStats.setThreadStatsTag(ETHERNET_SOCKET_TAG);
+//				    	}
 						final int id=System.identityHashCode(socket);
 						final NetworkSocketChannel channel=new NetworkSocketChannel(socket);
 						PublicKey clientPublicKey;
@@ -170,11 +179,12 @@ final class NetServerSocketChannel implements Runnable
 								if (D) Log.d(TAG_SERVER_BIND,PREFIX_LOG+"IP Receive msg...");
 								mExecutors.execute(new Runnable()
 								{
+									@Override
 									public void run()
 									{
 									    try
 										{
-											mHandler.messageReceived(clientKey,id,(Msg)msg,channel);
+											mHandler.messageReceived(clientKey,id,msg,channel);
 										}
 										catch (Exception e)
 										{
@@ -204,6 +214,10 @@ final class NetServerSocketChannel implements Runnable
 							finally
 							{
 								LoginImpl.globalUnlock();
+//						    	if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+//						    	{
+//						    		TrafficStats.clearThreadStatsTag();
+//						    	}
 							}
 						}
 					}

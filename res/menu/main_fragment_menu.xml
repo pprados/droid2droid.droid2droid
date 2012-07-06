@@ -12,7 +12,7 @@
     	  android:icon="@android:drawable/ic_menu_help"
           android:visible="true"
           android:showAsAction="ifRoom"/>           
-    <item android:id="@+id/menu_item_share"
+    <item android:id="@+id/share"
         android:showAsAction="ifRoom"
         android:title="@string/main_ic_menu_share"
         android:actionProviderClass="com.actionbarsherlock.widget.ShareActionProvider"

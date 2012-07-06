@@ -1,7 +1,7 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.Constants.BT;
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.BUMP;
 import static org.remoteandroid.Constants.HACK_UUID;
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
@@ -33,8 +33,11 @@ import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.ETHERNET;
 import static org.remoteandroid.internal.Constants.ETHERNET_ONLY_IPV4;
+import static org.remoteandroid.internal.Constants.KEYPAIR_ALGORITHM;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
+import static org.remoteandroid.internal.Constants.SECURE_RANDOM_ALGORITHM;
 import static org.remoteandroid.internal.Constants.SHARED_LIB;
+import static org.remoteandroid.internal.Constants.SIGNATURE_ALGORITHM;
 import static org.remoteandroid.internal.Constants.USE_SHAREDLIB;
 import static org.remoteandroid.internal.Constants.V;
 
@@ -44,18 +47,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
-import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -69,7 +68,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509KeyManager;
 import javax.security.auth.x500.X500Principal;
 
@@ -89,6 +87,7 @@ import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.contacts.AbstractSMSFragment;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -111,7 +110,6 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.provider.Settings.Secure;
 import android.util.Log;
-import android.util.Pair;
 import android.view.inputmethod.InputMethodManager;
 
 // La stratégie de gestion des paramètres est la suivante:
@@ -175,7 +173,7 @@ public final class RAApplication extends android.app.Application
     {
     	try
 		{
-			sRandom=SecureRandom.getInstance("SHA1PRNG");
+			sRandom=SecureRandom.getInstance(SECURE_RANDOM_ALGORITHM);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -306,12 +304,14 @@ public final class RAApplication extends android.app.Application
 			certGen.setNotAfter(expiryDate);
 			certGen.setSubjectDN(dnName); // note: same as issuer
 			certGen.setPublicKey(pair.getPublic());
-			certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+			certGen.setSignatureAlgorithm(SIGNATURE_ALGORITHM);
 	
 			// FIXME: This method is deprecated, but Android Eclair does not provide the
 			// generate() methods.
-			//X509Certificate cert = certGen.generateX509Certificate(pair.getPrivate(), "BC");
-			return  certGen.generate(pair.getPrivate(), sr);
+			if (Build.VERSION.SDK_INT<Build.VERSION_CODES.GINGERBREAD)
+				return certGen.generateX509Certificate(pair.getPrivate(), "BC");
+			else
+				return  certGen.generate(pair.getPrivate(), sr);
 		}
 		catch (Exception e)
 		{
@@ -349,6 +349,7 @@ public final class RAApplication extends android.app.Application
 		sName = name;
 		new Thread()
 		{
+			@Override
 			public void run()
 			{
 				if (name==null)
@@ -364,6 +365,7 @@ public final class RAApplication extends android.app.Application
 		sBackName = backname;
 		new Thread()
 		{
+			@Override
 			public void run()
 			{
 				getPreferences().edit().putString(PREFERENCES_BACKNAME, backname).commit();
@@ -626,6 +628,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 		{ 
 			Contacts.DISPLAY_NAME 
 		};
+	@TargetApi(14)
 	private static String getUserName()
 	{
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -705,7 +708,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 				else
 					sUuid = UUID.randomUUID();
 				if (V) Log.v(TAG,PREFIX_LOG+"Generate key pair..."); // FIXME: Ca prend du temps lors du premier lancement. Ajouter boite d'attente.
-				sKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+				sKeyPair = KeyPairGenerator.getInstance(KEYPAIR_ALGORITHM).generateKeyPair();
 				if (editor == null)
 					editor = preferences.edit();
 				editor.putString(PREFERENCES_UUID, sUuid.toString());
@@ -719,7 +722,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 			{
 				if (V) Log.v(TAG,PREFIX_LOG+"Load key pair...");
 				sUuid = UUID.fromString(strUuid);
-				KeyFactory rsaFactory = KeyFactory.getInstance("RSA");
+				KeyFactory rsaFactory = KeyFactory.getInstance(KEYPAIR_ALGORITHM);
 
 				byte[] pubBytes=hexStringToBytes(preferences.getString(PREFERENCES_PUBLIC_KEY, ""));
 				X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(pubBytes);
@@ -842,7 +845,8 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 	{
     	new Thread()
     	{
-    		public void run() 
+    		@Override
+			public void run() 
     		{
     			editor.commit();
     		}
@@ -898,6 +902,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 //			Log.d("INFO","--------------------------");
 //		}		
 	}
+	@TargetApi(14)
 	@Override
 	public void onTrimMemory(int level)
 	{
@@ -916,6 +921,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 				RAApplication.getPreferences();
 				return null;
 			}
+			@Override
 			protected void onPostExecute(Void result) 
 			{
 				final Context context=sAppContext;

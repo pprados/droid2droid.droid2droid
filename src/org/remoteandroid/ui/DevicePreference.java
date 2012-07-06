@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
 import org.remoteandroid.internal.Compatibility;
@@ -208,7 +208,7 @@ public final class DevicePreference extends Preference
 					{
 						String uri=mInfo.uris.get(i);
 	    				long cookie=
-	    						RAApplication.sDiscover.getCookie(RemoteAndroidManager.FLAG_PROPOSE_PAIRING,uri,Type.CONNECT_FOR_COOKIE);
+	    						RAApplication.sDiscover.getCookie(RemoteAndroidManager.FLAG_FORCE_PAIRING,uri,Type.CONNECT_FOR_COOKIE);
 	    				if (cookie!=COOKIE_EXCEPTION && cookie!=COOKIE_NO && cookie!=COOKIE_SECURITY)
 	    					break;
 					}
@@ -260,7 +260,7 @@ public final class DevicePreference extends Preference
 							if (driver==null)
 								throw new MalformedURLException("Unknown "+uri);
 							binder=driver.factoryBinder(RAApplication.sAppContext,RAApplication.getManager(),uri);
-							binder.connect(Type.CONNECT_FOR_COOKIE, RemoteAndroidManager.FLAG_PROPOSE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
+							binder.connect(Type.CONNECT_FOR_COOKIE, RemoteAndroidManager.FLAG_REMOVE_PAIRING,-1l,ETHERNET_TRY_TIMEOUT);
 							return null;
 						}
 						catch (SecurityException e)

@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.ui.expose.ExposeQRCodeFragment;
 
+import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -100,6 +101,7 @@ public final class RemoteAndroidProvider extends ContentProvider
 		}
 		return null;
 	}
+	@TargetApi(11)
 	@Override
 	public AssetFileDescriptor openTypedAssetFile(Uri uri, String mimeTypeFilter, Bundle opts)
 			throws FileNotFoundException
@@ -116,6 +118,7 @@ public final class RemoteAndroidProvider extends ContentProvider
 		}
 		PipeDataWriter<Void> pm=new PipeDataWriter<Void>()
 		{
+			@Override
 			public void writeDataToPipe(ParcelFileDescriptor output, 
 					Uri uri, 
 					String mimeType,

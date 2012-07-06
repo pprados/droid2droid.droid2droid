@@ -1,20 +1,21 @@
 package org.remoteandroid.ui.expose;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
+import static org.remoteandroid.Constants.PREFERENCES_ANO_QRCODE;
+import static org.remoteandroid.Constants.QRCODE_BYTE_MODE_ENCODING;
+import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.Hashtable;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
-import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.pairing.Trusted;
@@ -38,7 +39,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.Writer;
@@ -84,7 +84,10 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 //		layoutParams.screenBrightness=WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL;
 //		layoutParams.flags|=LayoutParams.FLAG_KEEP_SCREEN_ON;
 //		getActivity().getWindow().setAttributes(layoutParams);
-		boolean anoQRCode=getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("ano.qrcode", false);
+		boolean XXanoQRCode=RAApplication.getPreferences()
+				.getBoolean(PREFERENCES_ANO_ACTIVE, false);
+		boolean anoQRCode=RAApplication.getPreferences()
+				.getBoolean(PREFERENCES_ANO_QRCODE, false);
 		if (anoQRCode)
 			Pairing.enableTemporaryAcceptAnonymous();
 		mImg.requestFocus();

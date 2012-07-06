@@ -6,8 +6,8 @@
 	<string name="editpreference_description">Accept or refuse some connection from others
 		devices.</string>
 
-	<string name="settings_label">Remote Android Settings</string>
-	<string name="settings_remote_android">Remote Android</string>
+	<string name="settings_label">RemoteAndroid Settings</string>
+	<string name="settings_remote_android">RemoteAndroid</string>
 
     <string name="remote_control">Accept remote control</string>
     <string name="explain">Share this device with others Android.</string>

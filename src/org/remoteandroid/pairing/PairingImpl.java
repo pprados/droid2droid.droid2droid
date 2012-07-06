@@ -1,9 +1,9 @@
 package org.remoteandroid.pairing;
 
 import static org.remoteandroid.Constants.LOCK_ASK_PAIRING;
-import static org.remoteandroid.Constants.PAIR_ANTI_SPOOF;
+import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.Constants.TIMEOUT_ASK_PAIR;
-import static org.remoteandroid.internal.Constants.COOKIE_NO;
+import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -89,7 +89,6 @@ import com.google.protobuf.ByteString;
 // TODO: eviter en BT/secure, eviter l'authent serveur en HTTPS
 public final class PairingImpl extends Pairing
 {
-    private static final String HASH_ALGORITHM="SHA-256";
     private static final int NONCE_BYTES_NEEDED=5;
 
     private long mChallenge;

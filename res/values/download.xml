@@ -5,7 +5,7 @@
 	<string name="incoming_apk_toast_backup">TODO: extraire des sources incoming_apk_toast en plusieurs langues</string>
 
 	<!--  Dialogue affiché lors de la proposition du téléchargement d'un APK -->
-    <string name="ask_download_apk_title">Remote Android</string>
+    <string name="ask_download_apk_title">RemoteAndroid</string>
     <string name="ask_download_apk_describe_wifi">\u0022<xliff:g id="sender">%1$s</xliff:g>\u0022 wants to install <xliff:g id="apk">%2$s</xliff:g> (<xliff:g id="size">%3$s</xliff:g>). \n\nAccept to download the application ? </string>
     <string name="ask_download_apk_describe">\u0022<xliff:g id="sender">%1$s</xliff:g>\u0022 wants to install <xliff:g id="apk">%2$s</xliff:g> (<xliff:g id="size">%3$s</xliff:g>). Download now may shorten your battery life and/or result in excessive usage of your mobile data connection, which can lead to charges by your mobile operator, depending on your data plan.\n\nAccept to download the application ? </string>
     <string name="ask_download_apk_accept">Accept</string>    

@@ -1,8 +1,7 @@
 package org.remoteandroid.ui.connect;
 
-import org.remoteandroid.RAApplication;
-import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
@@ -15,9 +14,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.hardware.Camera;
 import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -58,6 +55,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			new ConnectTicketFragment.Provider(), 
 		};	
 
+	@Override
 	protected FeatureTab[] getFeatureTabs()
 	{
 		return (mBroadcast) ? sTabsBroadcast : sTabsConnect;
@@ -317,7 +315,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		if ((mDisplaySet & ActionBar.DISPLAY_SHOW_TITLE)!=0)
+		if (((mDisplaySet & ActionBar.DISPLAY_SHOW_TITLE)!=0) && isBroadcast())
 		{
 			return super.onCreateOptionsMenu(menu);
 		}

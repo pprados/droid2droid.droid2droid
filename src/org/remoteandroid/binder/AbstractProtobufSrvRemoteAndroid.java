@@ -6,6 +6,7 @@ import static org.remoteandroid.Constants.PAIR_CHECK_WIFI_ANONYMOUS;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.TAG_SERVER_BIND;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_REMOVE_PAIRING;
 import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
@@ -16,8 +17,8 @@ import static org.remoteandroid.internal.Constants.V;
 
 import java.security.PublicKey;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.ConnectionType;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext.State;
 import org.remoteandroid.internal.AbstractRemoteAndroidImpl;
@@ -39,7 +40,6 @@ import android.net.wifi.WifiManager;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.Pair;
 
 import com.google.protobuf.ByteString;
 
@@ -87,20 +87,9 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             else if (type==Type.CONNECT_FOR_BROADCAST)
             {
             	RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(mContext,msg.getIdentity());
-            	// Est-ce que j'accept un broadcast si je n'accepte pas les anonymes ? C'est ensuite que cela sera traité
-//            	if (Trusted.getBonded(info.uuid.toString())==null && !acceptAnonymous)
-//            	{
-//            		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"<- Refuse anonymous");
-//	    			return Msg.newBuilder()
-//							.setType(msg.getType())
-//							.setThreadid(msg.getThreadid())
-//							.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
-//							.build();
-//            	}
             		
     			if (!PendingBroadcastRequest.notify(msg.getCookie(),info))
     			{
-    				//Discover.getDiscover().discover(info);
             		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"== Broadcast discover new RA");
     				Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
     				intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
@@ -163,27 +152,12 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
     	    						}
     	    				}
         				}
-//	        				if (SECURITY && !acceptAnonymous && !Trusted.isBonded(conContext.mClientInfo))
-//	        				{
-//	        					if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Reject anonymous call from '"+conContext.mClientInfo.getName()+'\'');
-//	        					return Msg.newBuilder()
-//	        						.setType(msg.getType())
-//	        						.setThreadid(msg.getThreadid())
-//	        						.setStatus(AbstractRemoteAndroidImpl.STATUS_REFUSE_ANONYMOUS)
-//	        						.setIdentity(ProtobufConvs.toIdentity(Trusted.getInfo(mContext)))
-//	        						.build();
-//	        				}
-
         			}
         		}
         		
     			if (SECURITY && (type==Type.CONNECT_FOR_COOKIE) && !acceptAnonymous && conContext.mLogin==null)
     			{
     				RAApplication.removeCookie(conContext.mClientInfo.uuid.toString()); // FIXME
-//    				if (msg.getPairing() && conContext.mPairing==null)
-//    				{
-//    					conContext.mPairing=new PairingImpl();
-//    				}
     				if (!isTrusted)
     				{
             			if (conContext.mLogin==null)
@@ -220,6 +194,15 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
                 		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Register login context");
         				conContext.mLogin=new LoginImpl(clientKey);
         			}
+        			if ((msg.getFlags() & FLAG_REMOVE_PAIRING)!=0)
+        			{
+        				Trusted.unregisterDevice(RAApplication.sAppContext,conContext.mClientInfo);
+        				return Msg.newBuilder()
+        						.setType(type)
+        						.setThreadid(Thread.currentThread().getId())
+        						.setRc(true)
+        						.build();
+        			}
     				if (msg.getPairing() && conContext.mPairing==null)
     				{
     					conContext.mPairing=new PairingImpl();
@@ -231,7 +214,7 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             			return conContext.mPairing.server(conContext,msg,cookie);
             		}
             		else
-            			return conContext.mLogin.server(conContext,msg,cookie,acceptAnonymous);
+            			return conContext.mLogin.server(conContext,msg,cookie,Pairing.isTemporaryAcceptAnonymous() | acceptAnonymous);
         		}
         		conContext.mLogin=null;
         		conContext.mPairing=null;
@@ -246,8 +229,6 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
             		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"Connection state:connected");
 	            	conContext.mState=State.CONNECTED;
         		}
-//        		if (type==Type.CONNECT_FOR_PAIRING)
-//        			conContext.mState=State.CONNECTED_FOR_PAIRING;
         		if (!SECURITY)
         			conContext.mState=State.CONNECTED;
         		if (V) Log.v(TAG_SERVER_BIND,PREFIX_LOG+"<- OK");
@@ -258,17 +239,6 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
 					.setRc(true)
 					.build();
             }
-//            else if (type==Type.PAIRING_CHALENGE)
-//            {
-//            	if (conContext.mState!=State.CONNECTED_FOR_PAIRING)
-//            	{
-//            		if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Not connected for pairing");
-//            		close();
-//            		return null;
-//            	}
-//    			final long cookie=getCookie(conContext);
-//            	return transactPairingChalenge(connid,msg,cookie);
-//            }
             if (conContext==null)
             {
         		if (E) Log.e(TAG_SECURITY,PREFIX_LOG+"Invalide state");
@@ -387,7 +357,8 @@ public abstract class AbstractProtobufSrvRemoteAndroid extends AbstractSrvRemote
     	return cookie;
     }
     
-    protected ConnectionType getType()
+    @Override
+	protected ConnectionType getType()
     {
     	return ConnectionType.ETHERNET;
     }

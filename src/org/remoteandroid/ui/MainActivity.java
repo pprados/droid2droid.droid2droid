@@ -1,32 +1,29 @@
 package org.remoteandroid.ui;
 
 
-import java.io.File;
-
-import static org.remoteandroid.Constants.*;
 import static org.remoteandroid.RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS;
 import static org.remoteandroid.RemoteAndroidManager.FLAG_PROPOSE_PAIRING;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.TAG_INSTALL;
 
-import org.remoteandroid.RAApplication;
+import java.io.File;
+
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.RemoteAndroidNfcHelper;
 import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
-import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
 import org.remoteandroid.ui.connect.ConnectActivity;
 import org.remoteandroid.ui.expose.ExposeActivity;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -91,7 +88,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 		// Share menu
 	    try
 	    {
-		    MenuItem item = menu.findItem(R.id.menu_item_share);
+		    MenuItem item = menu.findItem(R.id.share);
 	        
 		    PackageManager pm=getPackageManager();
 		    ApplicationInfo info=pm.getApplicationInfo(getPackageName(), 0);
@@ -110,7 +107,7 @@ implements MainFragment.CallBack,OnNfcDiscover
 		catch (NameNotFoundException e)
 		{
 			// Ignore
-			if (E) Log.e(TAG_INSTALL,"Impossible to share Remote Android");
+			if (E) Log.e(TAG_INSTALL,"Impossible to share RemoteAndroid");
 		}
 		return true;
 	}

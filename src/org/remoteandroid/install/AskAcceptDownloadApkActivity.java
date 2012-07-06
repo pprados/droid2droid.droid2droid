@@ -34,7 +34,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 	
 	private static final int	DIALOG_IMPORT	= 1;
 
-	private Handler				mHandler		= new Handler();
+	private final Handler				mHandler		= new Handler();
 
 	private int					mId;
 
@@ -52,7 +52,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 		public void run()
 		{
 			CommunicationWithLock.putResult(LOCK_ASK_DOWNLOAD + mId,
-					new Boolean(false));
+					Boolean.FALSE);
 			AskAcceptDownloadApkActivity activity = mActivity.get();
 			if (activity != null)
 				activity.finish();

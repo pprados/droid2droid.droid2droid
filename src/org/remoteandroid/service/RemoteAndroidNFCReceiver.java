@@ -14,6 +14,7 @@ import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NdefMessage;
@@ -28,6 +29,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 // Activity to broadcast the RemoteAndroidInfo from a NFC tag.
 /** @deprecated */
+@Deprecated
 public final class RemoteAndroidNFCReceiver extends Activity
 {
 	NfcAdapter mNfcAdapter;
@@ -41,6 +43,7 @@ public final class RemoteAndroidNFCReceiver extends Activity
 		overridePendingTransition(0, 0);
 	}
 	
+	@TargetApi(10)
 	private void checkNdefDiscovered()
 	{
 		if (NFC)

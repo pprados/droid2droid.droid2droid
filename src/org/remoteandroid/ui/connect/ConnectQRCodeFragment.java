@@ -1,25 +1,21 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.TAG_CONNECT;
 import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_CAMERA;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.internal.Constants.E;
-import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
-import org.remoteandroid.binder.AbstractSrvRemoteAndroid;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
-import org.remoteandroid.ui.connect.qrcode.CaptureHandler;
 import org.remoteandroid.ui.connect.qrcode.QRCodeScannerView;
 
 import android.os.Bundle;
@@ -151,7 +147,6 @@ implements QRCodeScannerView.QRCodeResult
 	@Override
 	public void onQRCode(Result rawResult)
 	{
-		if (I) Log.i( TAG_CONNECT, "handle valide decode " + rawResult);
 		Messages.Candidates candidates;
 		try
 		{

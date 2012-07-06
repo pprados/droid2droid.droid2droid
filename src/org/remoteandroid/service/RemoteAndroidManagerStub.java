@@ -11,8 +11,8 @@ import static org.remoteandroid.internal.Constants.W;
 import java.io.IOException;
 import java.util.List;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.IRemoteAndroidManager;
@@ -21,6 +21,7 @@ import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -31,7 +32,7 @@ import android.util.Log;
 public final class RemoteAndroidManagerStub extends IRemoteAndroidManager.Stub
 implements Discover.Listener
 {
-	private Context mContext;
+	private final Context mContext;
 	private long mDiscoverMaxTimeout=0L;
 	
 	
@@ -107,6 +108,7 @@ implements Discover.Listener
 			RAApplication.addCookie(info.uris.get(i), cookie);
 		}
 	}
+	@Override
 	public void removeCookie(String uri)
 	{
 		RAApplication.removeCookie(uri);
@@ -157,6 +159,7 @@ implements Discover.Listener
 		return Trusted.isBonded(info);
 	}
 	
+	@TargetApi(9)
 	@Override
 	public NdefMessage createNdefMessage()
 	{

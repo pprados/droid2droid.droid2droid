@@ -1,17 +1,19 @@
 package org.remoteandroid.ui.connect;
 
+import static org.remoteandroid.Constants.TAG_DISCOVERY;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.RemoteAndroidManager.DISCOVER_BEST_EFFORT;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_ACCEPT_ANONYMOUS;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_PROPOSE_PAIRING;
+import static org.remoteandroid.internal.Constants.D;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.RemoteAndroidManager;
-import static org.remoteandroid.RemoteAndroidManager.*;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.NetworkTools;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
@@ -23,7 +25,6 @@ import org.remoteandroid.ui.connect.nfc.WriteNfcActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;

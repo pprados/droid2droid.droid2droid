@@ -1,12 +1,13 @@
 package org.remoteandroid.login;
 
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.RemoteAndroidManager.FLAG_PROPOSE_PAIRING;
+import static org.remoteandroid.internal.Constants.CIPHER_ALGORITHM;
+import static org.remoteandroid.internal.Constants.COOKIE_SECURITY;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
 import static org.remoteandroid.internal.Constants.TAG_SECURITY;
 import static org.remoteandroid.internal.Constants.V;
-import static org.remoteandroid.RemoteAndroidManager.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -45,9 +46,9 @@ public final class LoginImpl extends Login
 
     private byte[] mHa;
 	private byte[] mNonceA;
-    private byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
+    private final byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
 
-    private PublicKey mClientKey;
+    private final PublicKey mClientKey;
 
 	public LoginImpl(PublicKey clientKey)
 	{
@@ -92,7 +93,7 @@ public final class LoginImpl extends Login
 				PublicKey pubKey=android.getPeerPublicKey();
 				String uuid=android.getPeerUUID();
 				RemoteAndroidInfoImpl info=Trusted.getBonded(uuid);
-				if (!info.getPublicKey().equals(pubKey))
+				if (info!=null && !info.getPublicKey().equals(pubKey))
 					throw new SecurityException("Invalid public key");
 
 				return new Pair<RemoteAndroidInfoImpl,Long>(remoteInfo,resp.getCookie());
@@ -171,7 +172,8 @@ public final class LoginImpl extends Login
 								.setThreadid(msg.getThreadid())
 								.setChallengestep(4)
 								.setIdentity(ProtobufConvs.toIdentity(RAApplication.sDiscover.getInfo()))
-								.setCookie(msg.getPairing() ? (isBound||acceptAnonymous ? cookie : 0) : cookie) // Too early to publish cookie ?
+//								.setCookie(msg.getPairing() ? (isBound||acceptAnonymous ? cookie : COOKIE_NO) : cookie) // Too early to publish cookie ?
+								.setCookie(cookie)
 								.build();
 					}
 
@@ -219,13 +221,13 @@ public final class LoginImpl extends Login
 
 	private byte[] cipher(byte[] challenge,PublicKey key) throws GeneralSecurityException
 	{
-		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, key);
         return cipher.doFinal(challenge);
 	}
 	private byte[] uncipher(byte[] challenge,PrivateKey key) throws GeneralSecurityException
 	{
-		Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, key);
 		return cipher.doFinal(challenge);
 	}

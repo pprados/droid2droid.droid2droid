@@ -1,9 +1,11 @@
 package org.remoteandroid;
 
 import static org.remoteandroid.internal.Constants.E;
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.Log;
 
+@TargetApi(8)
 public final class LogMarket
 {
 	interface WTF

@@ -2,6 +2,8 @@ package org.remoteandroid.ui;
 
 import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.Constants.PREFERENCES_ACTIVE;
+import static org.remoteandroid.Constants.PREFERENCES_ANO_ACTIVE;
+import static org.remoteandroid.Constants.PREFERENCES_ANO_QRCODE;
 import static org.remoteandroid.Constants.PREFERENCES_ANO_WIFI_LIST;
 import static org.remoteandroid.Constants.PREFERENCES_EXPOSE;
 import static org.remoteandroid.Constants.PREFERENCES_NAME;
@@ -27,19 +29,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
 import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.Compatibility;
 import org.remoteandroid.internal.Messages;
+import org.remoteandroid.internal.Pairing;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.service.RemoteAndroidService;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -87,14 +91,11 @@ implements Discover.Listener
 	
 	// No persistante preference
 	private static final String PREFERENCES_ANO					="ano";
-	private static final String PREFERENCES_SHARE_PROXIMITY		="ano.active";
-	private static final String PREFERENCES_SHARE_WIFI			="ano.select_wifi";
-//	private static final String PREFERENCES_SHARE_QRCODE		="ano.qrcode";
-//	private static final String PREFERENCES_SHARE_NFC			="ano.nfc";
-	private static final String PREFERENCES_KNOWN				="known";
+	public static final String PREFERENCES_SHARE_NFC				="ano.nfc";
+	private static final String PREFERENCES_KNOWN					="known";
 
 	private static final String PREFERENCE_DEVICE_LIST			="lan.list";
-	private static final String PREFERENCE_SCAN 				= "scan";
+	private static final String PREFERENCE_SCAN 					= "scan";
 
 	private static final String ALL_WIFI="#ALL#";
 
@@ -107,7 +108,7 @@ implements Discover.Listener
 	private NfcAdapter mNfcAdapter;
 
 	private MultiSelectListPreference mListEthernet;
-	private BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
+	private final BroadcastReceiver mNetworkStateReceiver=new BroadcastReceiver() 
     {
 		
         @Override
@@ -201,7 +202,7 @@ implements Discover.Listener
         }
     };
     
-    private BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
+    private final BroadcastReceiver mBluetoothReceiver=new BroadcastReceiver()
     {
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -214,7 +215,7 @@ implements Discover.Listener
 			
 		}
     };
-	private BroadcastReceiver mNfcReceiver = new BroadcastReceiver()
+	private final BroadcastReceiver mNfcReceiver = new BroadcastReceiver()
 	{
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -224,7 +225,7 @@ implements Discover.Listener
 		}
 	};
     
-	private BroadcastReceiver mAirPlane = new BroadcastReceiver() 
+	private final BroadcastReceiver mAirPlane = new BroadcastReceiver() 
 	{
 	      @Override
 	      public void onReceive(Context context, Intent intent) 
@@ -234,7 +235,7 @@ implements Discover.Listener
 	      }
 	};
 
-	private BroadcastReceiver mRemoteAndroidReceiver=new BroadcastReceiver()
+	private final BroadcastReceiver mRemoteAndroidReceiver=new BroadcastReceiver()
 	{
 		@Override
 		public void onReceive(Context context, Intent intent)
@@ -274,7 +275,7 @@ implements Discover.Listener
     private ProgressGroup mDeviceList;
 	private List<RemoteAndroidInfoImpl> mDiscovered;
 	
-	private HashMap<UUID, DevicePreference> mDevicePreferenceMap = new HashMap<UUID, DevicePreference>();
+	private final HashMap<UUID, DevicePreference> mDevicePreferenceMap = new HashMap<UUID, DevicePreference>();
 	
 	static class Cache
 	{
@@ -285,7 +286,7 @@ implements Discover.Listener
 	}
 	private String mLastValue;
 
-	private Handler mHandler=new Handler();
+	private final Handler mHandler=new Handler();
 	
     void clearEthernet()
     {
@@ -319,6 +320,7 @@ implements Discover.Listener
 		}
     }
     
+	@Override
 	public Object onRetainNonConfigurationInstance() 
 	{
 		Cache cache=new Cache();
@@ -355,6 +357,7 @@ implements Discover.Listener
 		mName.setSummary(RAApplication.getName());
 		new Thread()
 		{
+			@Override
 			public void run() 
 			{
 				initAsync(intent);
@@ -362,6 +365,7 @@ implements Discover.Listener
 		}.start();
 	}
 	
+	@TargetApi(14)
 	private void nfcExpose()
 	{
 		// Check for available NFC Adapter
@@ -373,6 +377,7 @@ implements Discover.Listener
 	        	mNfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
 	        	{
 
+					@TargetApi(14)
 					@Override
 					public NdefMessage createNdefMessage(NfcEvent event)
 					{
@@ -384,8 +389,10 @@ implements Discover.Listener
 	        }
 		}
 	}
-    private void nfcUnregister()
+    @TargetApi(10)
+	private void nfcUnregister()
     {
+    	if (Build.VERSION.SDK_INT<Build.VERSION_CODES.GINGERBREAD_MR1) return;
     	if (NFC && mNfcAdapter!=null)
     	{
     		mNfcAdapter.disableForegroundDispatch(this);
@@ -453,13 +460,14 @@ implements Discover.Listener
 			public boolean onPreferenceChange(Preference preference, final Object newValue)
 			{
 				RAApplication.clearCookies();
+				Pairing.clearTemporaryAcceptAnonymous();
 				return true;
 			}
 			
 		};
-		findPreference(PREFERENCES_SHARE_PROXIMITY).setOnPreferenceChangeListener(clearCookies);
-		findPreference(PREFERENCES_SHARE_WIFI).setOnPreferenceChangeListener(clearCookies);
-//		findPreference(PREFERENCES_SHARE_QRCODE).setOnPreferenceChangeListener(clearCookies);
+		findPreference(PREFERENCES_ANO_ACTIVE).setOnPreferenceChangeListener(clearCookies);
+		findPreference(PREFERENCES_ANO_WIFI_LIST).setOnPreferenceChangeListener(clearCookies);
+		findPreference(PREFERENCES_ANO_QRCODE).setOnPreferenceChangeListener(clearCookies);
 //		findPreference(PREFERENCES_SHARE_NFC).setOnPreferenceChangeListener(clearCookies);
 		
 		// Device name
@@ -590,7 +598,7 @@ implements Discover.Listener
 			{
 				RemoteAndroidInfoImpl info=(RemoteAndroidInfoImpl)inf;
 				info.clearDiscover();
-				addInfo((RemoteAndroidInfoImpl)info);
+				addInfo(info);
 			}
     	}
     }
@@ -623,9 +631,10 @@ implements Discover.Listener
     	
     	nfcCheckDiscovered();
     }
+	@TargetApi(10)
 	private void nfcCheckDiscovered()
 	{
-		if (Build.VERSION.SDK_INT<Build.VERSION_CODES.HONEYCOMB) return;
+		if (Build.VERSION.SDK_INT<Build.VERSION_CODES.GINGERBREAD_MR1) return;
 		NfcManager nfcManager=(NfcManager)getSystemService(NFC_SERVICE);
 		if (NFC && nfcManager!=null)
 		{
@@ -850,6 +859,7 @@ implements Discover.Listener
 	
 	private void updateDiscoverExposeButton()
 	{
+// FIXME		
 //		new AsyncTask<Void, Void, Boolean>()
 //		{
 //			@Override

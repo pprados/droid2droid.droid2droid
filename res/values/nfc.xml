@@ -2,8 +2,8 @@
 <resources>
 
     <string name="nfc_title">Write NFC Tag</string>
-    <string name="nfc_waiting">Present NFC tag...</string>
-    <string name="nfc_write">Write...</string>
+    <string name="nfc_waiting">Present NFC tag&#8230;</string>
+    <string name="nfc_write">Write&#8230;</string>
     <string name="nfc_writed">Writed</string>
     <string name="nfc_error">Error</string>
     <string name="nfc_error_unknown_format">Unknwown format</string>

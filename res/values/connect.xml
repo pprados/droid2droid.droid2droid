@@ -85,7 +85,7 @@ Then, select one discovered device to try to connect.
 	<string name="connect_nfc_help_airplane">Remove airplane mode.</string>
 	<string name="connect_nfc_help_nfc">Activate NFC.</string>
 		<string name="connect_nfc_help">In the remote device\n
-		<li>&#160;Start the application \'Remote Android\';\n</li>
+		<li>&#160;Start the application \'RemoteAndroid\';\n</li>
 		<li>&#160;Select \'Expose the device\';\n</li>
 		<li>&#160;Approch the two devices.\n</li>
     </string>
@@ -97,7 +97,7 @@ Then, select one discovered device to try to connect.
 	<!-- ******* -->	    
 	<string name="connect_qrcode">QRCode</string>
 	<string name="connect_qrcode_description">Scan QRCode from remote device.</string>
-	<string name="connect_qrcode_help">Place a qrcode from Remote Android inside the viewfinder rectangle without reflexion to scan it.</string>
+	<string name="connect_qrcode_help">Place a qrcode from RemoteAndroid inside the viewfinder rectangle without reflexion to scan it.</string>
 	<string name="connect_qrcode_help_airplane">Remove airplane mode.</string>
 	<string name="connect_qrcode_help_ip_bt">Activate local network.</string>
 <!-- 	<string name="connect_qrcode_help_ip_bt">Activate local network or bluetooth.</string> -->
@@ -137,7 +137,7 @@ Then, select one discovered device to try to connect.
     <!-- ******* -->	    
    	<string name="connect_ticket">Ticket</string>
 	<string name="connect_ticket_help">In the remote device\n
-		<li>&#160;Start the application \'Remote Android\';\n</li>
+		<li>&#160;Start the application \'RemoteAndroid\';\n</li>
 		<li>&#160;Select \'Expose\';\n</li>
 		<li>&#160;Select tab \'Input\';\n</li>
 		Then, enter here the displayed code and validate to initiate a connection.

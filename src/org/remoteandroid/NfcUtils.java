@@ -11,21 +11,22 @@ import java.io.IOException;
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
 import org.remoteandroid.pairing.Trusted;
-import org.remoteandroid.ui.AbstractFeatureTabActivity;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
 import android.nfc.Tag;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.tech.Ndef;
 import android.os.Build;
 import android.util.Log;
 
+@TargetApi(10)
 public class NfcUtils
 {
 	public static int writeTag(Context context,Tag tag,RemoteAndroidInfo info) throws IOException, FormatException

@@ -53,7 +53,7 @@
 			android:title="@string/proximity_active_qrcode_title" 
 			android:summary="@string/proximity_active_qrcode_summary" 
 			android:persistent="true" 
-			android:defaultValue="true" 
+			android:defaultValue="false" 
 			android:enabled="true" 
 			android:selectable="true"/>
 <!--        	<CheckBoxPreference  -->

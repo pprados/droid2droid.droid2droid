@@ -107,6 +107,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     
     <!-- For SMS -->
     <uses-permission android:name="android.permission.SEND_SMS" />
@@ -136,7 +137,7 @@
     	
     	android:backupAgent=".service.RemoteAndroidBackup"
     	android:allowBackup="true"
-	android:restoreAnyVersion="false"
+		android:restoreAnyVersion="false"
     >
     	 
    	<meta-data android:name="com.google.android.backup.api_key"
@@ -350,16 +351,25 @@
         />
         
          <!-- Write RemoteAndroidInfo on NFC -->
+         <!--  TODO: Lequel est le bon ? -->
+<!--          <activity  -->
+<!--              android:launchMode="standard"  -->
+<!--              android:name=".ui.connect.nfc.WriteNfcActivity" -->
+<!--              android:exported="false"> -->
+<!-- 		    <intent-filter> -->
+<!-- 			    <action android:name="android.nfc.action.TAG_DISCOVERED"/> -->
+<!-- 			    <category android:name="android.intent.category.DEFAULT"/> -->
+<!-- 		    </intent-filter> -->
+<!--          </activity> -->
          <activity 
-             android:launchMode="standard" 
-             android:name=".ui.connect.nfc.WriteNfcActivity"
-             android:exported="false">
-		    <intent-filter>
-			    <action android:name="android.nfc.action.TAG_DISCOVERED"/>
-			    <category android:name="android.intent.category.DEFAULT"/>
-		    </intent-filter>
-         </activity>
-
+             android:enabled="true"
+             android:launchMode="singleTop" 
+             android:exported="false"
+             android:noHistory="true"
+             android:excludeFromRecents="true"
+             android:theme="@android:style/Theme.Dialog"
+             android:name=".ui.connect.nfc.WriteNfcActivity"/>
+         
          <!-- Propagate Remote android discoved when tag is presented. -->
 <!--          <activity  -->
 <!--              android:launchMode="standard"  -->
@@ -398,14 +408,7 @@
 <!--                 <action android:name="org.remoteandroid.action.test.QRCODE" /> -->
 <!--             </intent-filter> -->
 <!--          </activity> -->
-         <activity 
-             android:enabled="true"
-             android:launchMode="singleTop" 
-             android:exported="false"
-             android:noHistory="true"
-             android:excludeFromRecents="true"
-             android:theme="@android:style/Theme.Dialog"
-             android:name=".ui.connect.nfc.WriteNfcActivity"/>
+
          
     </application>
 

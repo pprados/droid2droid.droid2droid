@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="main_description">Remote Android</string>
+	<string name="main_description">RemoteAndroid</string>
 	<string name="main_expose">Expose&#8230;</string>
 	<string name="main_connect">Connect&#8230;</string>
 	

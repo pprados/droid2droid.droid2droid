@@ -19,9 +19,7 @@ package org.remoteandroid.ui.connect.qrcode;
 import static android.hardware.Camera.Parameters.ANTIBANDING_60HZ;
 import static android.hardware.Camera.Parameters.ANTIBANDING_AUTO;
 import static android.hardware.Camera.Parameters.ANTIBANDING_OFF;
-import static android.hardware.Camera.Parameters.EFFECT_MONO;
 import static android.hardware.Camera.Parameters.EFFECT_NONE;
-import static android.hardware.Camera.Parameters.FLASH_MODE_AUTO;
 import static android.hardware.Camera.Parameters.FLASH_MODE_OFF;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_AUTO;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
@@ -45,8 +43,6 @@ import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -54,6 +50,7 @@ import java.util.List;
 import org.remoteandroid.R;
 import org.remoteandroid.internal.Compatibility;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
@@ -82,7 +79,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -117,11 +113,11 @@ implements SurfaceHolder.Callback
 	public static final int msg_decode_failed=6;
 	
 	// View with surface for camera previous
-	private SurfaceView mSurfaceView;
+	private final SurfaceView mSurfaceView;
 	// The surface holder
-	private SurfaceHolder mHolder;
+	private final SurfaceHolder mHolder;
 	// View overlow of camera previous
-	private AnimView mAnimView;
+	private final AnimView mAnimView;
 
 	// The selected camera size
 	private Size mCameraSize;
@@ -133,7 +129,7 @@ implements SurfaceHolder.Callback
 	private boolean mOptimizeSize;
 
 	private Rect mCameraRect;
-	private Rect mRect = new Rect(); // Working rect
+	private final Rect mRect = new Rect(); // Working rect
 	/*package*/Rect mFramingRectInPreview;
 	
 	private QRCodeResult mCallBack;
@@ -167,10 +163,11 @@ implements SurfaceHolder.Callback
 
 	private Long mStartTime = 0L;
 
-	private BeepManager mBeepManager;
+	private final BeepManager mBeepManager;
 	
-	private Runnable mUpdateTimeTask = new Runnable()
+	private final Runnable mUpdateTimeTask = new Runnable()
 	{
+		@Override
 		public void run()
 		{
 			++mAnimPos;
@@ -438,6 +435,7 @@ implements SurfaceHolder.Callback
 		}
 	}
 
+	@TargetApi(8)
 	private final int getWindowRotation()
 	{
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO)
@@ -905,7 +903,7 @@ setCameraDisplayOrientation(mRotation);
 
 		private static final float BEEP_VOLUME = 0.10f;
 
-		private Context mContext;
+		private final Context mContext;
 
 		private MediaPlayer mMediaPlayer;
 
@@ -974,6 +972,7 @@ setCameraDisplayOrientation(mRotation);
 			// When the beep has finished playing, rewind to queue up another one.
 			mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
 			{
+				@Override
 				public void onCompletion(MediaPlayer player)
 				{
 					player.seekTo(0);

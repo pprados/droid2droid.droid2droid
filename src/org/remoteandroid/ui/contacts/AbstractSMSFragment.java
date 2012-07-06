@@ -13,10 +13,11 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.ui.connect.AbstractConnectFragment;
 
+import android.annotation.TargetApi;
 import android.content.ComponentCallbacks2;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -86,7 +87,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 
 	// --------- Manage image download ----------------
 	private static HashMap<Long, Reference<Bitmap>> sBitmapCache = new HashMap<Long, Reference<Bitmap>>();;	
-	private ImageFetchHandler mHandler=new ImageFetchHandler();
+	private final ImageFetchHandler mHandler=new ImageFetchHandler();
 	private class ImageFetchHandler extends Handler
 	{
 		@Override
@@ -101,7 +102,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 				case FETCH_IMAGE_MSG:
 				{
 					final QuickContactBadge imageView = (QuickContactBadge) message.obj;
-					final long contactId=(long)message.arg1<<16|(long)message.arg2;
+					final long contactId=(long)message.arg1<<16|message.arg2;
 					if (imageView == null)
 						break;
 					final Reference<Bitmap> photoRef = sBitmapCache.get(contactId);
@@ -143,6 +144,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 			mImageView = imageView;
 		}
 
+		@Override
 		public void run()
 		{
 			if (getActivity().isFinishing())
@@ -228,6 +230,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 			sImageFetchThreadPool.execute(new ImageDbFetcher(contactId, imageView));
 		}
 	}
+	@TargetApi(11)
 	private void setDefaultImage(QuickContactBadge imageView)
 	{
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
@@ -318,6 +321,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 	}
 	
 	// --------- Manage loader ----------------
+	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args)
 	{
 		Uri baseUri;
@@ -339,6 +343,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 				Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
 	}
 
+	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data)
 	{
 		// Swap the new cursor in. (The framework will take care of closing the
@@ -349,6 +354,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 		mList.setVisibility(View.VISIBLE);
 	}
 	
+	@Override
 	public void onLoaderReset(Loader<Cursor> loader)
 	{
 		// This is called when the last Cursor provided to onLoadFinished()

@@ -2,7 +2,9 @@ package org.remoteandroid.ui;
 
 import org.remoteandroid.R;
 
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -38,7 +40,18 @@ public final class MainFragment extends Fragment
 	{
 		mViewer =inflater.inflate(R.layout.main_expose_connect, container, false);
 		
-		((Button)mViewer.findViewById(R.id.main_expose)).setOnClickListener(new Button.OnClickListener()
+		final Button btnExpose=((Button)mViewer.findViewById(R.id.main_expose));
+		final PackageManager pm=getActivity().getPackageManager();
+		boolean fakeTouch=false;
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+			fakeTouch=pm.hasSystemFeature(PackageManager.FEATURE_FAKETOUCH);
+		if (
+				!pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN) &&
+				!fakeTouch)
+		{
+			btnExpose.requestFocus();
+		}
+		btnExpose.setOnClickListener(new Button.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)

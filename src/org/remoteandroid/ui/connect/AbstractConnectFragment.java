@@ -1,16 +1,20 @@
 package org.remoteandroid.ui.connect;
 
-import static org.remoteandroid.Constants.*;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.Constants.DELAY_SHOW_TERMINATE;
+import static org.remoteandroid.Constants.ETHERNET_TRY_TIMEOUT;
+import static org.remoteandroid.Constants.TAG_CONNECT;
+import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
 import static org.remoteandroid.internal.Constants.COOKIE_NO;
+import static org.remoteandroid.internal.Constants.COOKIE_SECURITY;
 import static org.remoteandroid.internal.Constants.TIMEOUT_CONNECT_WIFI;
+import static org.remoteandroid.internal.Constants.V;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
 import org.remoteandroid.internal.Driver;
 import org.remoteandroid.internal.Messages.Type;
@@ -23,6 +27,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.widget.Toast;
 
 public abstract class AbstractConnectFragment extends AbstractBodyFragment
@@ -59,6 +64,7 @@ implements ConnectDialogFragment.OnConnected
 	public void onPause()
 	{
 		super.onPause();
+		dismissDialog();
 	}
 	@Override
 	public void onConnected(final RemoteAndroidInfoImpl info)
@@ -77,6 +83,10 @@ implements ConnectDialogFragment.OnConnected
 				}
 			}, DELAY_SHOW_TERMINATE);
 		}
+		else
+		{
+			getConnectActivity().onConnected(info);
+		}
 	}
 
 	@Override
@@ -89,6 +99,7 @@ implements ConnectDialogFragment.OnConnected
 	public void onFailed(int err)
 	{
 		dismissDialog(); // Wait ok ?
+		if (V) Log.v(TAG_CONNECT,"err="+err);
 		Toast.makeText(getActivity(), err, Toast.LENGTH_LONG).show();
 	}
 	
@@ -133,7 +144,7 @@ implements ConnectDialogFragment.OnConnected
 				if (binder.connect(Type.CONNECT_FOR_BROADCAST, 0,0,ETHERNET_TRY_TIMEOUT))
 					return ProgressJobs.OK; // Hack, simulate normal connection
 				else
-					throw new IOException();
+					throw new IOException("Connection impossible");
 			}
 			finally
 			{

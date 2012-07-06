@@ -1,10 +1,8 @@
 package org.remoteandroid;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
 
 public abstract class AsyncTaskWithException<Params,Progress,Result>
@@ -51,6 +49,7 @@ public abstract class AsyncTaskWithException<Params,Progress,Result>
 		{
 			AsyncTaskWithException.this.onCancelled();
 		}
+		@Override
 		protected void onProgressUpdate(Progress... values)
 		{
 			AsyncTaskWithException.this.onProgressUpdate(values);
@@ -60,7 +59,7 @@ public abstract class AsyncTaskWithException<Params,Progress,Result>
 			publishProgress(values);
 		}
 	};
-	private Wrapper mAsync=new Wrapper();
+	private final Wrapper mAsync=new Wrapper();
 	
 	protected abstract Result doInBackground(Params... params) throws Exception;
 	protected abstract void onException(Throwable e);
@@ -91,6 +90,7 @@ public abstract class AsyncTaskWithException<Params,Progress,Result>
 	{
 		mAsync.execute(params);
 	}
+	@TargetApi(11)
 	public final AsyncTaskWithException<Params, Progress, Result>	 executeOnExecutor(Executor exec, Params... params)
 	{
 		mAsync.executeOnExecutor(exec, params);
