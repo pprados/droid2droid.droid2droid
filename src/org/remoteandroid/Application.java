@@ -71,6 +71,7 @@ import org.remoteandroid.service.RemoteAndroidManagerStub;
 import org.remoteandroid.service.RemoteAndroidService;
 import org.remoteandroid.ui.contacts.AbstractSMSFragment;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -510,6 +511,7 @@ public final class Application extends android.app.Application
 		{ 
 			Contacts.DISPLAY_NAME 
 		};
+	@TargetApi(14)
 	private static String getUserName()
 	{
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -778,6 +780,7 @@ public final class Application extends android.app.Application
 //			Log.d("INFO","--------------------------");
 //		}		
 	}
+	@TargetApi(14)
 	@Override
 	public void onTrimMemory(int level)
 	{
