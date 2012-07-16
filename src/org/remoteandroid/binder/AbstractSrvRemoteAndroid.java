@@ -70,9 +70,9 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 {
 	public static final String CANCEL="cancel";
 	protected Context mContext;
-	private Random mRandom=new Random();
+	private final Random mRandom=new Random();
 	
-    private Notifications mNotifications;
+    private final Notifications mNotifications;
     
 	private ConnectionListener mListener;
     interface ConnectionListener
@@ -85,6 +85,8 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 	{
 		IBinder binder;
 		int refcnt;
+		ServiceConnection serviceConnection;
+		int	serviceConnectionOID;
 	}
 
 	public static class ConnectionContext
@@ -103,11 +105,11 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 		public ConnectionType mType;
 		
 		// All reference to binder for this connexion
-		private SparseArray<RefBinder> mActiveBinder = new SparseArray<RefBinder>();
+		private final SparseArray<RefBinder> mActiveBinder = new SparseArray<RefBinder>();
 	}
 	
-	private ReadWriteLock mLock=new ReentrantReadWriteLock();
-	private SparseArray<ConnectionContext> mConnectionContext = new SparseArray<ConnectionContext>(); 
+	private final ReadWriteLock mLock=new ReentrantReadWriteLock();
+	private final SparseArray<ConnectionContext> mConnectionContext = new SparseArray<ConnectionContext>(); 
 	
 	protected ConnectionContext getContext(int connid)
 	{
@@ -225,8 +227,9 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 			{
 				case AbstractProtoBufRemoteAndroid.BIND_OID:
 					ComponentName[] name=new ComponentName[1];
+					int connServOid=data.readInt();
 					Intent intent=NormalizeIntent.readIntent(data);
-					i=bindOID(connid,intent,data.readInt(),name,timeout);
+					i=bindOID(connid,connServOid,intent,data.readInt(),name,timeout);
 					reply.writeNoException();
 					reply.writeParcelable(name[0], 0);
 					reply.writeInt(i);
@@ -239,6 +242,11 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 					bool=isBinderAlive(connid,data.readInt(),timeout);
 					reply.writeNoException();
 					reply.writeByte((byte)(bool?1:0));
+					return true;
+				case AbstractProtoBufRemoteAndroid.UNBIND_SRV:
+					int serviceConnectionOID=data.readInt();
+					unbindService(connid,serviceConnectionOID,timeout);
+					reply.writeNoException();
 					return true;
 				case AbstractProtoBufRemoteAndroid.PING_BINDER:
 					bool=pingBinder(connid,data.readInt(),timeout);
@@ -304,39 +312,42 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 	}
 	
 	@Override
-	public final int bindOID(int connid,final Intent intent,final int flags,final ComponentName[] name,long timeout)
+	public final int bindOID(int connid,final int serviceConnectionOID,final Intent intent,final int flags,final ComponentName[] name,long timeout)
 	{
 		if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"bind(" + intent + ")");
 		final ConnectionContext context=mConnectionContext.get(connid);
 		final AtomicReference<IBinder> ref=new AtomicReference<IBinder>();
+		ServiceConnection sc=new ServiceConnection() // Handler de connection
+		{
+			// Connection
+			@Override
+			public void onServiceConnected(ComponentName className,
+					IBinder service)
+			{
+				if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"Service connected " + className);
+				name[0]=className;
+				// Keep service
+				ref.set(service);
+				synchronized (ref)
+				{
+
+					ref.notify();
+				}
+				if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"notify...");
+			}
+
+			// Deconnection
+			@Override
+			public void onServiceDisconnected(ComponentName className)
+			{
+				if (E) Log.e(TAG_SERVER_BIND, PREFIX_LOG+"Service disconnected " + className); //TODO: Signaler au parent
+			}
+		};
 		synchronized (ref)
 		{
 			if (mContext.bindService(
 				intent, // Nom du service, à ajouter dans le filtre du remote
-				new ServiceConnection() // Handler de connection
-				{
-					// Connection
-					public void onServiceConnected(ComponentName className,
-							IBinder service)
-					{
-						if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"Service connected " + className);
-						name[0]=className;
-						// Keep service
-						ref.set(service);
-						synchronized (ref)
-						{
-
-							ref.notify();
-						}
-						if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"notify...");
-					}
-
-					// Deconnection
-					public void onServiceDisconnected(ComponentName className)
-					{
-						if (E) Log.e(TAG_SERVER_BIND, PREFIX_LOG+"Service disconnected " + className); //TODO: Signaler au parent
-					}
-				}, flags))
+				sc, flags))
 			{
 				if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"bindService internal android for "+intent+" ok");
 			}
@@ -378,12 +389,36 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 					refBinder=new RefBinder();
 					refBinder.binder=binder;
 					refBinder.refcnt=1;
+					refBinder.serviceConnection=sc;
+					refBinder.serviceConnectionOID=serviceConnectionOID;
 					context.mActiveBinder.put(oid, refBinder);
 				}
 			}
 		}
 		if (V) Log.v(TAG_SERVER_BIND, PREFIX_LOG+"bind OID con=" + connid+" OID="+oid);
 		return oid;
+	}
+
+	private final void unbindService(int connid,int serviceConnectionOID,long timeout)
+	{
+		final ConnectionContext context=mConnectionContext.get(connid);
+		synchronized(this)
+		{
+			boolean isUnbinded=false;
+			for (int i=context.mActiveBinder.size()-1;i>=0;--i)
+			{
+				RefBinder refBinder=context.mActiveBinder.valueAt(i);
+				if (refBinder.serviceConnectionOID==serviceConnectionOID)
+				{
+					if (!isUnbinded)
+					{
+						isUnbinded=true;
+						mContext.unbindService(refBinder.serviceConnection);
+					}
+					context.mActiveBinder.remove(i);
+				}
+			}
+		}
 	}
 	
 	@Override

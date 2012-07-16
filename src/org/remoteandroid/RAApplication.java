@@ -406,9 +406,8 @@ public final class RAApplication extends android.app.Application
 
 		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ECLAIR)
 		{
-			BluetoothAdapter.getDefaultAdapter();
+			RemoteAndroidManagerImpl.getBluetoothAdapter();
 		}
-System.setProperty("javax.net.debug", "ssl"); // FIXME
 		enableStrictMode();
 		enableHttpResponseCache();
 		disableConnectionReuseIfNecessary();
@@ -659,7 +658,7 @@ System.setProperty("javax.net.debug", "ssl"); // FIXME
 			Login.sLogin=new LoginImpl(null);
 			Pairing.sPairing=new PairingImpl();
 			String adapterName=null;
-			BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
+			BluetoothAdapter adapter=RemoteAndroidManagerImpl.getBluetoothAdapter();
 			if (adapter!=null)
 				adapterName=adapter.getName();
 			String userName=getUserName();

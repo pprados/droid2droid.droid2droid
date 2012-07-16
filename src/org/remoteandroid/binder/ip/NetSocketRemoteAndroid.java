@@ -27,11 +27,10 @@ import android.util.Log;
 public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndroid
 {
 	RAApplication mContext;
-    private int mListenPort;
+    private final int mListenPort;
 
     private static NetServerSocketChannel sServerSocket;
     private static Thread sThread;
-//    private static IPV4SrvDiscoverAndroid sDiscoverAgent;
     
     static AbstractSrvRemoteAndroid sDaemonNet;
     public static void startDaemon(final Context context,final Notifications notifications)
@@ -59,7 +58,7 @@ public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndro
     	return sDaemonNet!=null;
     }
     // Bridge between server channel and NetSocketRemoteAndroid
-    private UpstreamHandler mHandler=new UpstreamHandler()
+    private final UpstreamHandler mHandler=new UpstreamHandler()
     {
 
 		@Override
