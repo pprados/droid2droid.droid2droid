@@ -8,14 +8,9 @@ import static org.remoteandroid.internal.Constants.TAG_INSTALL;
 
 import java.io.File;
 
-import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RAApplication;
-import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.RemoteAndroidManager;
-import org.remoteandroid.RemoteAndroidNfcHelper;
-import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
-import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
 import org.remoteandroid.ui.connect.ConnectActivity;
 import org.remoteandroid.ui.expose.ExposeActivity;
 
@@ -38,9 +33,9 @@ import com.actionbarsherlock.widget.ShareActionProvider;
 
 // TODO: expose NFC tag
 public final class MainActivity extends SherlockFragmentActivity
-implements MainFragment.CallBack,OnNfcDiscover
+implements MainFragment.CallBack
 {
-	private RemoteAndroidNfcHelper mNfcIntegration;
+//	private RemoteAndroidNfcHelper mNfcIntegration; // FIXME
 	private FragmentManager	mFragmentManager;
 	private MainFragment	mFragment;
 
@@ -56,28 +51,28 @@ implements MainFragment.CallBack,OnNfcDiscover
 		mFragmentManager = getSupportFragmentManager(); // getSupportFragmentManager();
 		mFragment = (MainFragment) mFragmentManager.findFragmentById(R.id.fragment);
 		RAApplication.startService();
-		mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
+//		mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
 	}
 
 	@Override
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		mNfcIntegration.onNewIntent(this, intent);
+//		mNfcIntegration.onNewIntent(this, intent);
 	}	
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		mFragment.setCallBack(this);
-		NfcUtils.onResume(this, mNfcIntegration);
+//		NfcUtils.onResume(this, mNfcIntegration);
 	}
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
 		mFragment.setCallBack(null);
-		mNfcIntegration.onPause(this);
+//		mNfcIntegration.onPause(this);
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -137,11 +132,4 @@ implements MainFragment.CallBack,OnNfcDiscover
 				return super.onOptionsItemSelected(item);
 		}
 	}
-	@Override
-	public void onNfcDiscover(RemoteAndroidInfo info)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
 }

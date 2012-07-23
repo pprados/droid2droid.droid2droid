@@ -16,11 +16,13 @@
 
 package org.remoteandroid.ui.connect.qrcode;
 
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.QRCODE_DELAY_AFTER_AUTOFOCUS;
+import static org.remoteandroid.Constants.QRCODE_DELAY_RETRY_AUTOFOCUS_IF_ERROR;
+import static org.remoteandroid.Constants.QRCODE_MAX_ERROR_AUTOFOCUS;
 import static org.remoteandroid.Constants.QRCODE_SHOW_CURRENT_DECODE;
 import static org.remoteandroid.Constants.TAG_QRCODE;
-import static org.remoteandroid.internal.Constants.*;
 import static org.remoteandroid.internal.Constants.V;
+import static org.remoteandroid.internal.Constants.W;
 import static org.remoteandroid.ui.connect.qrcode.QRCodeScannerView.msg_auto_focus;
 import static org.remoteandroid.ui.connect.qrcode.QRCodeScannerView.msg_decode;
 import static org.remoteandroid.ui.connect.qrcode.QRCodeScannerView.msg_decode_failed;
@@ -45,14 +47,14 @@ import com.google.zxing.ResultPointCallback;
  * capture.
  * 
  * @author dswitkin@google.com (Daniel Switkin)
- * @author Yohann Melo
+ * @author Philippe Prados
  */
 public final class CaptureHandler extends Handler
 {
 	private boolean mStarted;
 	private boolean mWaitAutoFocus;
 	private boolean mWaitDecode;
-	private QRCodeScannerView mQRCodeScannerView;
+	private final QRCodeScannerView mQRCodeScannerView;
 	private int mErrorAutofocus;
 	
 	
@@ -94,6 +96,7 @@ public final class CaptureHandler extends Handler
 	private final Camera.AutoFocusCallback mAutoFocusCallback=new Camera.AutoFocusCallback()
 	{
 
+		@Override
 		@SuppressWarnings("unused")
 		public void onAutoFocus(boolean success, Camera camera)
 		{
@@ -108,6 +111,7 @@ public final class CaptureHandler extends Handler
 	@SuppressWarnings("unused")
 	private final ResultPointCallback mResultPointCallback = new ResultPointCallback()
 	{
+		@Override
 		public void foundPossibleResultPoint(ResultPoint point)
 		{
 			if (V) Log.v(TAG_QRCODE, "Found possible result point");

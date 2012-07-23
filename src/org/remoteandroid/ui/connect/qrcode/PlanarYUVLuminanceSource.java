@@ -30,14 +30,14 @@ import com.google.zxing.LuminanceSource;
  * planar and appears first, including YCbCr_420_SP and YCbCr_422_SP.
  * 
  * @author dswitkin@google.com (Daniel Switkin)
- * @author Yohann Melo
+ * @author Philippe Prados
  */
 final class PlanarYUVLuminanceSource extends LuminanceSource
 {
 	private final byte[] mYuvData;
 	private final int mDataWidth;
 	private final int mDataHeight;
-	private Rect mScanningRectInYuvData;
+	private final Rect mScanningRectInYuvData;
 	
 	public PlanarYUVLuminanceSource(
 			byte[] yuvData, int dataWidth,int dataHeight, 

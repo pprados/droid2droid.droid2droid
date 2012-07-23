@@ -9,8 +9,8 @@ import static org.remoteandroid.internal.Constants.V;
 import org.remoteandroid.AsyncTaskWithException;
 import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
-import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.internal.NetworkTools;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.pairing.Trusted;
 import org.remoteandroid.ui.AbstractBodyFragment;
 import org.remoteandroid.ui.FeatureTab;
@@ -33,7 +33,6 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 
 @TargetApi(10)
 public final class ExposeNFCFragment extends AbstractBodyFragment
-implements AbstractBodyFragment.OnNfcEvent
 {
 	TextView mUsage;
 	Button mWrite;
@@ -115,10 +114,13 @@ implements AbstractBodyFragment.OnNfcEvent
 	}
 	
 	@Override
-	public void onNfcDiscover(RemoteAndroidInfo info)
+	public void onDiscover(RemoteAndroidInfoImpl info)
 	{
-		// Detect a NFC tag. It's possible to write it with my current infos.
-		mWrite.setEnabled(true);
+		if (info.isDiscoverByNFC)
+		{
+			// Detect a NFC tag. It's possible to write it with my current infos.
+			mWrite.setEnabled(true);
+		}
 	}
 	
 }

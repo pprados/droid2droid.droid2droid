@@ -30,10 +30,10 @@ public final class Discover
 	{
 		return sDiscover;
 	}
-	private ArrayList<DiscoverAndroids> mDrivers=new ArrayList<DiscoverAndroids>();
-	private ArrayList<Listener> mCallBacks=new ArrayList<Listener>();
+	private final ArrayList<DiscoverAndroids> mDrivers=new ArrayList<DiscoverAndroids>();
+	private final ArrayList<Listener> mCallBacks=new ArrayList<Listener>();
 	private long mDiscoverMaxTimeout=0L;
-	private AtomicInteger mDiscoverCount=new AtomicInteger(0);
+	private final AtomicInteger mDiscoverCount=new AtomicInteger(0);
 
 	
 	Discover()

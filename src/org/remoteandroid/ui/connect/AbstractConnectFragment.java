@@ -29,7 +29,6 @@ import android.os.RemoteException;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.Toast;
-
 public abstract class AbstractConnectFragment extends AbstractBodyFragment
 implements ConnectDialogFragment.OnConnected
 {
@@ -64,7 +63,7 @@ implements ConnectDialogFragment.OnConnected
 	public void onPause()
 	{
 		super.onPause();
-		dismissDialog();
+//		dismissDialog();
 	}
 	@Override
 	public void onConnected(final RemoteAndroidInfoImpl info)
@@ -79,16 +78,23 @@ implements ConnectDialogFragment.OnConnected
 				public void run()
 				{
 					dismissDialog();
-					getConnectActivity().onConnected(info);
+					if (getConnectActivity()!=null)
+						getConnectActivity().onConnected(info);
 				}
 			}, DELAY_SHOW_TERMINATE);
 		}
 		else
 		{
-			getConnectActivity().onConnected(info);
+			if (getConnectActivity()!=null)
+				getConnectActivity().onConnected(info);
 		}
 	}
-
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		super.onSaveInstanceState(outState);
+		mDlg=null;
+	}
 	@Override
 	public void onCancel()
 	{
@@ -98,9 +104,10 @@ implements ConnectDialogFragment.OnConnected
 	@Override
 	public void onFailed(int err)
 	{
-		dismissDialog(); // Wait ok ?
+		dismissDialog(); // TODO: Wait ok ?
 		if (V) Log.v(TAG_CONNECT,"err="+err);
-		Toast.makeText(getActivity(), err, Toast.LENGTH_LONG).show();
+		if (getActivity()!=null)
+			Toast.makeText(getActivity(), err, Toast.LENGTH_LONG).show();
 	}
 	
 	@Override
@@ -131,6 +138,7 @@ implements ConnectDialogFragment.OnConnected
 	@Override
 	public Object onTryConnect(String uri,int flags) throws IOException, RemoteException
 	{
+		if (getConnectActivity()==null) return null;
 		if (getConnectActivity().isBroadcast())
 		{
 			AbstractProtoBufRemoteAndroid binder=null;

@@ -1,6 +1,5 @@
 package org.remoteandroid;
 
-import static org.remoteandroid.Constants.NFC;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
@@ -10,17 +9,12 @@ import java.io.IOException;
 
 import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.ProtobufConvs;
-import org.remoteandroid.pairing.Trusted;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Build;
@@ -72,44 +66,30 @@ public class NfcUtils
 			}
 		}
 	}
+	@TargetApi(14)
 	public static NdefMessage createNdefMessage(Context context,RemoteAndroidInfo info)
 	{
 		Messages.Identity msg=ProtobufConvs.toIdentity(info);
 		byte[] payload=msg.toByteArray();
-		return new NdefMessage(
-			new NdefRecord[]
-			{
-				new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
-				//NdefRecord.createUri("www.remoteandroid.org")
-				NdefRecord.createApplicationRecord("org.remoteandroid"),
-			}
-		);
-		
-	}
-	
-	// Register a listener when another device ask my tag
-	public static void onResume(final Activity activity,RemoteAndroidNfcHelper helper)
-	{
-		final Context context=activity.getApplicationContext();
-		if (NFC && Build.VERSION.SDK_INT>=Build.VERSION_CODES.GINGERBREAD)
-		{
-			NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
-			nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
-	        if (nfcAdapter != null) 
-	        {
-	        	nfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
-	        	{
 
-					@Override
-					public NdefMessage createNdefMessage(NfcEvent event)
-					{
-						return NfcUtils.createNdefMessage(
-							context,Trusted.getInfo(context));
-					}
-	        		
-	        	}, activity);
-	        }
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
+			return new NdefMessage(
+				new NdefRecord[]
+				{
+					new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
+					//NdefRecord.createUri("www.remoteandroid.org")
+					NdefRecord.createApplicationRecord("org.remoteandroid"),
+				});
 		}
-		helper.onResume(activity);
+		else
+		{
+			return new NdefMessage(
+				new NdefRecord[]
+				{
+					new NdefRecord(NdefRecord.TNF_MIME_MEDIA, NDEF_MIME_TYPE, new byte[0], payload),
+				});
+		}
+		
 	}
 }

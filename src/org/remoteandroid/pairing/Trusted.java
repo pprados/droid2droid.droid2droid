@@ -172,9 +172,9 @@ public final class Trusted
 		getBonded().add(info);
 
 		if (type==ConnectionType.ETHERNET)
-			info.isDiscoverEthernet=true;
+			info.isDiscoverByEthernet=true;
 		if (type==ConnectionType.BT)
-			info.isDiscoverBT=true;
+			info.isDiscoverByBT=true;
 		Discover.getDiscover().discover(info);
 	}
 	
@@ -275,7 +275,7 @@ public final class Trusted
 					info.removeUrisWithScheme(SCHEME_TCP);
 					if (addr==null)
 					{
-						info.isDiscoverEthernet=false;
+						info.isDiscoverByEthernet=false;
 						info.removeUrisWithScheme(SCHEME_TCP);
 					}
 					else

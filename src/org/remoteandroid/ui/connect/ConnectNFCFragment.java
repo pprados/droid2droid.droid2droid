@@ -3,30 +3,17 @@ package org.remoteandroid.ui.connect;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NFC;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
-import static org.remoteandroid.internal.Constants.NDEF_MIME_TYPE;
-import static org.remoteandroid.internal.Constants.PREFIX_LOG;
-import static org.remoteandroid.internal.Constants.TAG_NFC;
-import static org.remoteandroid.internal.Constants.W;
-
-import java.util.Arrays;
 
 import org.remoteandroid.R;
 import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.internal.Messages;
 import org.remoteandroid.internal.NetworkTools;
-import org.remoteandroid.ui.AbstractBodyFragment;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.FeatureTab;
 import org.remoteandroid.ui.TabsAdapter;
 
 import android.annotation.TargetApi;
-import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,12 +21,9 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.UninitializedMessageException;
 
 @TargetApi(9)
 public final class ConnectNFCFragment extends AbstractConnectFragment
-implements AbstractBodyFragment.OnNfcEvent
 {
 	private View mViewer;
 	private TextView mUsage;
@@ -63,7 +47,6 @@ implements AbstractBodyFragment.OnNfcEvent
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		setProgressBarIndeterminateVisibility(true);
 		mViewer = inflater.inflate(R.layout.connect_nfc, container, false);
 		mUsage = (TextView)mViewer.findViewById(R.id.usage);
 		return mViewer;
@@ -90,15 +73,19 @@ implements AbstractBodyFragment.OnNfcEvent
 		}
 	}
 	private RemoteAndroidInfo mPendingInfo;
+	
 	@Override
-	public void onNfcDiscover(RemoteAndroidInfo info)
+	public void onDiscover(RemoteAndroidInfoImpl info)
 	{
-		if (getConnectActivity()==null)
+		if (info.isDiscoverByNFC)
 		{
-			mPendingInfo=info;
+			if (getConnectActivity()==null)
+			{
+				mPendingInfo=info;
+			}
+			else
+				showConnect(info.getUris(),getConnectActivity().mFlags,null);
 		}
-		else
-			showConnect(info.getUris(),getConnectActivity().mFlags,null);
 	}
 	@Override
 	public void onResume()
@@ -110,40 +97,5 @@ implements AbstractBodyFragment.OnNfcEvent
 			mPendingInfo=null;
 		}
 	}
-	private Messages.Identity nfcCheckDiscovered(Intent intent)
-	{
-		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) 
-		{
-			Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-	        if (rawMsgs != null) 
-	        {
-	        	for (int i = 0; i < rawMsgs.length; i++) 
-	            {
-	        		NdefMessage msg = (NdefMessage) rawMsgs[i];
-	        		for (NdefRecord record:msg.getRecords())
-	        		{
-	        			if ((record.getTnf()==NdefRecord.TNF_MIME_MEDIA) 
-	        					&& Arrays.equals(NDEF_MIME_TYPE, record.getType()))
-	        			{
-	        				try
-							{
-		        				return Messages.Identity.newBuilder().mergeFrom(record.getPayload()).build();
-							}
-							catch (InvalidProtocolBufferException e)
-							{
-								if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
-							}
-	        				catch (UninitializedMessageException e)
-	        				{
-								if (W) Log.d(TAG_NFC,PREFIX_LOG+"Invalide data");
-	        				}
-	        			}
-	        		}
-	            }
-	        }
-		}
-		return null;
-	}
-    
 	
 }

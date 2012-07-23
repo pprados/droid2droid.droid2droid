@@ -1,8 +1,12 @@
 package org.remoteandroid.ui.connect;
 
+import static org.remoteandroid.internal.Constants.D;
+import static org.remoteandroid.internal.Constants.TAG_NFC;
+
 import org.remoteandroid.R;
 import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidManager;
+import org.remoteandroid.discovery.Discover;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.ui.AbstractFeatureTabActivity;
 import org.remoteandroid.ui.FeatureTab;
@@ -14,8 +18,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
@@ -25,6 +29,9 @@ import com.actionbarsherlock.view.Window;
 
 public final class ConnectActivity extends AbstractFeatureTabActivity
 {
+	public static final String EXTRA_INFO="rainfo";
+	
+	public static boolean sIsConnect=false;
 	private boolean mIsLight;
 	private int mDisplaySet;
 	protected int mFlags;
@@ -35,7 +42,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		{
 			new ConnectDiscoverFragment.Provider(),
 			new ConnectSMSFragment.Provider(), 
-			new ConnectQRCodeFragment.Provider(), 
+	//			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 
@@ -46,7 +53,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 		{
 			new ConnectDiscoverFragment.Provider(),
 			new ConnectSMSFragment.Provider(), 
-			new ConnectQRCodeFragment.Provider(), 
+	//			new ConnectQRCodeFragment.Provider(), 
 //			new ConnectSoundFragment.Provider(),
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 
@@ -55,6 +62,30 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			new ConnectTicketFragment.Provider(), 
 		};	
 
+	private final Discover.Listener mDiscover=new Discover.Listener()
+	{
+		
+		@Override
+		public void onDiscoverStop()
+		{
+		}
+		
+		@Override
+		public void onDiscoverStart()
+		{
+		}
+		
+		@Override
+		public void onDiscover(RemoteAndroidInfoImpl info)
+		{
+			if (info.isDiscoverByNFC)
+			{
+				if (D) Log.d(TAG_NFC,"Discover NFC info");
+				ConnectActivity.this.onDiscover(info);
+			}
+		}
+	};
+	
 	@Override
 	protected FeatureTab[] getFeatureTabs()
 	{
@@ -299,18 +330,37 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 				actionBar.setLogo(icon);
 		}
 		RAApplication.startService();
+		RemoteAndroidInfoImpl info=getIntent().getParcelableExtra(EXTRA_INFO);
+		if (info!=null)
+		{
+			onDiscover(info);
+		}
 		
 	}
-
+	@Override
+	protected void onStart()
+	{
+		super.onStart();
+		// Register listener for NFC
+		Discover.getDiscover().registerListener(mDiscover);
+	}
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		// UnRegister listener for NFC
+		Discover.getDiscover().unregisterListener(mDiscover);
+	}
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		Intent intent=getIntent();
-		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()))
-		{
-			mNfcIntegration.onNewIntent(ConnectActivity.this, intent);
-		}
+		sIsConnect=!mBroadcast;
+
+//		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction()))
+//		{
+//			mNfcIntegration.onNewIntent(ConnectActivity.this, intent);
+//		}
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -346,6 +396,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 			result.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
 			setResult(RESULT_OK,result);
 		}
+		sIsConnect=false;
 		finish();
 	}
 }

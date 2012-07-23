@@ -39,6 +39,7 @@ import static org.remoteandroid.Constants.TAG_QRCODE;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
 import static org.remoteandroid.internal.Constants.I;
+import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.V;
 import static org.remoteandroid.internal.Constants.W;
 
@@ -194,9 +195,11 @@ implements SurfaceHolder.Callback
 	
 	private class AnimView extends View
 	{
+		private Point mPoint=new Point();
 		AnimView(Context context)
 		{
 			super(context);
+			mPossibleResultPoints = new ArrayList<ResultPoint>(5);
 		}
 		@Override
 		protected void onDraw(Canvas canvas) 
@@ -296,7 +299,7 @@ implements SurfaceHolder.Callback
 				}
 				else
 				{
-					mPossibleResultPoints = new ArrayList<ResultPoint>(5);
+					mPossibleResultPoints.clear();
 					mLastPossibleResultPoints = currentPossible;
 					mPaint.setAlpha(CURRENT_POINT_OPACITY);
 					mPaint.setColor(mResultPointColor);
@@ -305,13 +308,12 @@ implements SurfaceHolder.Callback
 						for (ResultPoint point : currentPossible)
 						{			mAnimView.invalidate();
 
-							Point p = new Point();
-							p.x = (int) point.getX();
-							p.y = (int) point.getY();
-							p = scaledRotatePoint(p, mRotation , previewFrame.width(), previewFrame.height());
+							mPoint.x = (int) point.getX();
+							mPoint.y = (int) point.getY();
+							mPoint = scaledRotatePoint(mPoint, mRotation , previewFrame.width(), previewFrame.height());
 							canvas.drawCircle(
-								frame.left + (int) (p.x * scaleX),
-								frame.top + (int) (p.y * scaleY), 6.0f,
+								frame.left + (int) (mPoint.x * scaleX),
+								frame.top + (int) (mPoint.y * scaleY), 6.0f,
 								mPaint);
 						}
 					}
@@ -445,6 +447,7 @@ implements SurfaceHolder.Callback
 	}
 
 	// ---- Hack compatibility
+	@TargetApi(8)
 	private void setCameraDisplayOrientation(int rotation)
 	{
 		if (mCamera==null) 
@@ -554,7 +557,7 @@ implements SurfaceHolder.Callback
 	
 	private Point scaledRotatePoint(Point p, int rotation, int canvasW, int canvasH)
 	{
-		Point tmp = new Point();
+		Point tmp = new Point(); // FIXME: Eviter la création de l'instance.
 		if (D) Log.d(TAG_QRCODE, "rotating result points to match the device orientation (rotation: " + rotation + "°)");
 		switch(rotation){
 			case 90:
@@ -656,6 +659,7 @@ implements SurfaceHolder.Callback
 		canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
 	}
 
+	@TargetApi(15)
 	private Camera.Parameters getCameraParameters()
 	{
 		Camera.Parameters parameters = mCamera.getParameters();
@@ -687,9 +691,11 @@ implements SurfaceHolder.Callback
 		parameters.setAntibanding(ANTIBANDING_AUTO);
 		if ((Build.VERSION.SDK_INT>=Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) && parameters.isVideoStabilizationSupported())
 			parameters.setVideoStabilization(true);
-		if (parameters.isZoomSupported())
-			parameters.setZoom(0);
-		
+		if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO)
+		{
+			if (parameters.isZoomSupported())
+				parameters.setZoom(0);
+		}		
 		if (D)
 		{
 			Log.d(TAG_QRCODE,"--------------");
@@ -709,12 +715,21 @@ implements SurfaceHolder.Callback
 	 * @param cameraId Camera.CameraInfo.CAMERA_* or -1
 	 * @throws IOException
 	 */
+	@TargetApi(9)
 	public final void setCamera(int cameraId) throws IOException
 	{
 		if (mCamera!=null)
 		{
 			mCamera.stopPreview();
-			mCamera.cancelAutoFocus();
+			try
+			{
+				mCamera.cancelAutoFocus();
+			}
+			catch (RuntimeException e)
+			{
+				//Ignore
+				if (D) Log.d(TAG_QRCODE,PREFIX_LOG+"Cancel autofocus error",e);
+			}
 			mCamera.release();
 			mCamera=null;
 		}

@@ -1,11 +1,12 @@
 package org.remoteandroid.pairing;
 
 import static org.remoteandroid.Constants.LOCK_ASK_PAIRING;
-import static org.remoteandroid.Constants.*;
+import static org.remoteandroid.Constants.PAIR_ANTI_SPOOF;
 import static org.remoteandroid.Constants.TIMEOUT_ASK_PAIR;
-import static org.remoteandroid.internal.Constants.*;
+import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
+import static org.remoteandroid.internal.Constants.HASH_ALGORITHM;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_INSTALL;
 import static org.remoteandroid.internal.Constants.TAG_PAIRING;
@@ -21,9 +22,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.CommunicationWithLock;
 import org.remoteandroid.ConnectionType;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.RemoteAndroidInfo;
 import org.remoteandroid.binder.AbstractSrvRemoteAndroid.ConnectionContext;
 import org.remoteandroid.internal.AbstractProtoBufRemoteAndroid;
@@ -296,11 +297,11 @@ public final class PairingImpl extends Pairing
 				conContext.mClientInfo=ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,msg.getIdentity());
 				if (conContext.mType==ConnectionType.BT)
 				{
-					conContext.mClientInfo.isDiscoverBT=true;
+					conContext.mClientInfo.isDiscoverByBT=true;
 				}
 				if (conContext.mType==ConnectionType.ETHERNET)
 				{
-					conContext.mClientInfo.isDiscoverEthernet=true;
+					conContext.mClientInfo.isDiscoverByEthernet=true;
 				}
 				if (rc && msg.getRc())
 					Trusted.registerDevice(RAApplication.sAppContext,conContext);

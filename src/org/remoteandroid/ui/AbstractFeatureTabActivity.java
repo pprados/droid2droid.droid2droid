@@ -1,13 +1,9 @@
 package org.remoteandroid.ui;
 
-import org.remoteandroid.NfcUtils;
 import org.remoteandroid.R;
 import org.remoteandroid.RAApplication;
-import org.remoteandroid.RemoteAndroidInfo;
-import org.remoteandroid.RemoteAndroidNfcHelper;
-import org.remoteandroid.RemoteAndroidNfcHelper.OnNfcDiscover;
-import org.remoteandroid.internal.RemoteAndroidNfcHelperImpl;
-import org.remoteandroid.ui.AbstractBodyFragment.OnNfcEvent;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
+import org.remoteandroid.ui.connect.ConnectNFCFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,16 +17,14 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 public abstract class AbstractFeatureTabActivity extends AbstractNetworkEventActivity
-implements OnNfcDiscover
 {
 	
-	protected RemoteAndroidNfcHelper mNfcIntegration;
+	//protected RemoteAndroidNfcHelper mNfcIntegration; // FIXME
 	
-	//protected NfcAdapter mNfcAdapter;
-	protected ViewPager  mViewPager;
-	protected TabsAdapter mTabsAdapter;
-	protected FragmentManager mFragmentManager;
-	protected ActionBar mActionBar;
+	protected ViewPager  		mViewPager;
+	protected TabsAdapter 		mTabsAdapter;
+	protected FragmentManager 	mFragmentManager;
+	protected ActionBar 		mActionBar;
     
 	protected abstract FeatureTab[] getFeatureTabs();
     
@@ -42,7 +36,7 @@ implements OnNfcDiscover
         
         super.onCreate(savedInstanceState);
 
-        mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
+        //mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
         
     	mFragmentManager = getSupportFragmentManager();
 
@@ -85,13 +79,13 @@ implements OnNfcDiscover
     {
     	super.onResume();
     	RAApplication.hideSoftKeyboard(this);
-    	NfcUtils.onResume(this, mNfcIntegration);
+//    	NfcUtils.onResume(this, mNfcIntegration);
     }
 	@Override
 	protected void onPause()
 	{
 		super.onPause();	// Register a listener when another device ask my tag
-		mNfcIntegration.onPause(this);
+//		mNfcIntegration.onPause(this);
 	}
     
 	// Invoked when NFC tag detected
@@ -99,7 +93,7 @@ implements OnNfcDiscover
 	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
-		mNfcIntegration.onNewIntent(this, intent);
+//		mNfcIntegration.onNewIntent(this, intent);
 	}
 
 	public final TabsAdapter getTabsAdapter()
@@ -107,16 +101,18 @@ implements OnNfcDiscover
 		return mTabsAdapter;
 	}
 // ----------------------------------------
-	@Override
-	public void onNfcDiscover(RemoteAndroidInfo info)
+	public void onDiscover(RemoteAndroidInfoImpl info)
 	{
-		for (int i=0;i<mTabsAdapter.getCount();++i)
+		if (info.isDiscoverByNFC)
 		{
-			AbstractBodyFragment fragment=(AbstractBodyFragment)mTabsAdapter.getItem(i);
-			if (fragment instanceof OnNfcEvent)
+			for (int i=0;i<mTabsAdapter.getCount();++i)
 			{
-				mTabsAdapter.onPageSelected(i);
-				((OnNfcEvent)fragment).onNfcDiscover(info);
+				AbstractBodyFragment fragment=(AbstractBodyFragment)mTabsAdapter.getItem(i);
+				if (fragment instanceof ConnectNFCFragment)
+				{
+					mTabsAdapter.onPageSelected(i);
+					fragment.onDiscover(info);
+				}
 			}
 		}
 	}

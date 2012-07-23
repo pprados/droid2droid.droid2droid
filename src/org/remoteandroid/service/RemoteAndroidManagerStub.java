@@ -3,6 +3,7 @@ package org.remoteandroid.service;
 import static org.remoteandroid.internal.Constants.COOKIE_EXCEPTION;
 import static org.remoteandroid.internal.Constants.COOKIE_NO;
 import static org.remoteandroid.internal.Constants.COOKIE_SECURITY;
+import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.I;
 import static org.remoteandroid.internal.Constants.PREFIX_LOG;
 import static org.remoteandroid.internal.Constants.TAG_CLIENT_BIND;
@@ -20,6 +21,7 @@ import org.remoteandroid.internal.Messages.Type;
 import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 import org.remoteandroid.internal.RemoteAndroidManagerImpl;
 import org.remoteandroid.pairing.Trusted;
+import org.remoteandroid.ui.connect.ConnectActivity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -95,7 +97,8 @@ implements Discover.Listener
 			}
 			catch (IOException e)
 			{
-				if (W) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+((e!=null) ? e.getMessage() : "null") +")");
+				if (W && !D) Log.w(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible ("+((e!=null) ? e.getMessage() : "null") +"). Remote device is shared ?");
+				if (D) Log.d(TAG_CLIENT_BIND,PREFIX_LOG+"Connection for cookie impossible. Remote device is shared ?",e);
 				return -1;
 			}			
 		}
@@ -186,22 +189,31 @@ implements Discover.Listener
 	@Override
 	public void onDiscoverStop()
 	{
-		if (mDiscoverMaxTimeout!=0)
-		{
+//		if (mDiscoverMaxTimeout!=0)
+//		{
 			mContext.sendBroadcast(new Intent(RemoteAndroidManager.ACTION_STOP_DISCOVER_ANDROID),
 				RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
-		}
+//		}
 	}
 	
 	@Override
 	public void onDiscover(RemoteAndroidInfoImpl info)
 	{
-		if (mDiscoverMaxTimeout!=0)
+		if (ConnectActivity.sIsConnect) return;
+		if (Discover.getDiscover().isDiscovering())
 		{
 			Intent intent=new Intent(RemoteAndroidManager.ACTION_DISCOVER_ANDROID);
 			intent.putExtra(RemoteAndroidManager.EXTRA_DISCOVER, info);
 			intent.putExtra(RemoteAndroidManager.EXTRA_UPDATE, info);
 			RAApplication.sAppContext.sendBroadcast(intent,RemoteAndroidManager.PERMISSION_DISCOVER_RECEIVE);
+		}
+		else
+		{
+			Intent intent=new Intent(RAApplication.sAppContext,ConnectActivity.class)
+				.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+				.putExtra(ConnectActivity.EXTRA_INFO, info);
+			
+			RAApplication.sAppContext.startActivity(intent);
 		}
 	}
 

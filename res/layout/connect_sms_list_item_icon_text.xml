@@ -14,7 +14,7 @@
         android:layout_height="fill_parent"
         style="@*android:style/Widget.QuickContactBadge.WindowMedium"
         android:background="@null" />
-    />
+
 
     <TextView
         android:id="@+id/name"

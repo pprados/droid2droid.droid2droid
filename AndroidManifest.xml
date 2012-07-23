@@ -133,7 +133,7 @@
     	android:icon="@drawable/ic_launcher_remoteandroid" 
     	android:description="@string/app_description" 
     	android:hardwareAccelerated="true"
-    	android:theme="@style/Theme"
+    	android:theme="@style/MyTheme"
     	
     	android:backupAgent=".service.RemoteAndroidBackup"
     	android:allowBackup="true"
@@ -264,11 +264,11 @@
 			android:configChanges="orientation|screenSize"
 			android:windowSoftInputMode="adjustPan"
         >
-			<intent-filter>
-  				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-  				<category android:name="android.intent.category.DEFAULT"/>
-  				<data android:mimeType="application/org.remoteandroid"/>
-  			</intent-filter>
+<!-- 			<intent-filter> -->
+<!--   				<action android:name="android.nfc.action.NDEF_DISCOVERED"/> -->
+<!--   				<category android:name="android.intent.category.DEFAULT"/> -->
+<!--   				<data android:mimeType="application/org.remoteandroid"/> -->
+<!--   			</intent-filter> -->
         </activity-alias>
         
         <!--  Activity to parameter service -->
@@ -371,21 +371,21 @@
              android:name=".ui.connect.nfc.WriteNfcActivity"/>
          
          <!-- Propagate Remote android discoved when tag is presented. -->
-<!--          <activity  -->
-<!--              android:launchMode="standard"  -->
-<!--              android:name=".service.RemoteAndroidNFCReceiver" -->
-<!--              android:exported="true" -->
-<!--              android:noHistory="true" -->
-<!-- 			 android:excludeFromRecents="true" -->
-			 
-<!--              android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" -->
-<!--              android:configChanges="orientation|screenSize"> -->
-<!-- 			<intent-filter> -->
-<!--   				<action android:name="android.nfc.action.NDEF_DISCOVERED"/> -->
-<!--   				<category android:name="android.intent.category.DEFAULT"/> -->
-<!--   				<data android:mimeType="application/org.remoteandroid"/> -->
-<!--   			</intent-filter> -->
-<!-- 		</activity> -->
+         <activity 
+             android:launchMode="standard" 
+             android:name=".service.RemoteAndroidNFCReceiver"
+             android:exported="true"
+             android:noHistory="true"
+			 android:excludeFromRecents="true"
+			 android:taskAffinity=""
+			 android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+             android:configChanges="orientation|screenSize">
+			<intent-filter>
+  				<action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+  				<category android:name="android.intent.category.DEFAULT"/>
+  				<data android:mimeType="application/org.remoteandroid"/>
+  			</intent-filter>
+		</activity>
          
 <!-- Tests activities -->
 

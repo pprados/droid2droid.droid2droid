@@ -1,7 +1,7 @@
 package org.remoteandroid.ui.connect;
 
 import static org.remoteandroid.Constants.TAG_CONNECT;
-import static org.remoteandroid.RemoteAndroidInfo.*;
+import static org.remoteandroid.RemoteAndroidInfo.FEATURE_NET;
 import static org.remoteandroid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.remoteandroid.internal.Constants.D;
 import static org.remoteandroid.internal.Constants.E;
@@ -12,8 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 
-import org.remoteandroid.RAApplication;
 import org.remoteandroid.R;
+import org.remoteandroid.RAApplication;
 import org.remoteandroid.internal.Base64;
 import org.remoteandroid.internal.Constants;
 import org.remoteandroid.internal.Messages;
@@ -134,12 +134,6 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 		{
 			mUsage.setText(R.string.connect_ticket_help_internet);
 		}
-	}
-	
-	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
 	}
 	
 	@Override

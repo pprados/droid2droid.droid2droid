@@ -28,8 +28,7 @@ import android.util.Log;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 // Activity to broadcast the RemoteAndroidInfo from a NFC tag.
-/** @deprecated */
-@Deprecated
+@TargetApi(10)
 public final class RemoteAndroidNFCReceiver extends Activity
 {
 	NfcAdapter mNfcAdapter;
@@ -43,7 +42,6 @@ public final class RemoteAndroidNFCReceiver extends Activity
 		overridePendingTransition(0, 0);
 	}
 	
-	@TargetApi(10)
 	private void checkNdefDiscovered()
 	{
 		if (NFC)
@@ -72,7 +70,7 @@ public final class RemoteAndroidNFCReceiver extends Activity
 			        				try
 									{
 										RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,Messages.Identity.newBuilder().mergeFrom(record.getPayload()).build());
-										info.isDiscoverNFC=true;
+										info.isDiscoverByNFC=true;
 										info.isBonded=Trusted.isBonded(info);
 										Discover.getDiscover().discover(info);
 									}

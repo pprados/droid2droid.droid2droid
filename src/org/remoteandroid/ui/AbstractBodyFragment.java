@@ -1,7 +1,7 @@
 package org.remoteandroid.ui;
 
 
-import org.remoteandroid.RemoteAndroidInfo;
+import org.remoteandroid.internal.RemoteAndroidInfoImpl;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -12,10 +12,6 @@ import com.actionbarsherlock.app.SherlockFragment;
 
 public abstract class AbstractBodyFragment extends SherlockFragment
 {
-	public interface OnNfcEvent
-	{
-		public void onNfcDiscover(RemoteAndroidInfo info);
-	};
 	protected ContentResolver mContentResolver;
 	
 	protected AbstractBodyFragment()
@@ -71,5 +67,8 @@ public abstract class AbstractBodyFragment extends SherlockFragment
 	{
 		
 	}
-
+	protected void onDiscover(RemoteAndroidInfoImpl info)
+	{
+		
+	}
 }

@@ -291,7 +291,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 							if (info!=null)
 							{
 								if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"IP Connection anonymously to '"+dnsInfo.getName()+"' done");
-								info.isDiscoverEthernet=true;
+								info.isDiscoverByEthernet=true;
 								mDiscover.discover(info);
 							}
 					    	else
@@ -301,7 +301,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 						{
 							if (bondedInfo!=null)
 							{
-								bondedInfo.isDiscoverEthernet=true;
+								bondedInfo.isDiscoverByEthernet=true;
 								if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP '"+bondedInfo.getName()+"' has Ips address.");
 								mDiscover.discover(bondedInfo);
 								
@@ -335,7 +335,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 						if (info!=null)
 						{
 							if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP "+info.getName()+" is stopped.");
-							info.isDiscoverEthernet=false;
+							info.isDiscoverByEthernet=false;
 							mDiscover.discover(info);
 							
 						}
@@ -748,7 +748,7 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 			{
 				RemoteAndroidInfoImpl info = ProtobufConvs.toRemoteAndroidInfo(RAApplication.sAppContext,resp.getIdentity());
 				if (V) Log.v(TAG_DISCOVERY,PREFIX_LOG+"IP device "+uri+" return info ("+info.name+")");
-				info.isDiscoverEthernet=true;
+				info.isDiscoverByEthernet=true;
 				info.isBonded=Trusted.isBonded(info);
 				// I find it !
 				//if (I) Log.i(TAG_DISCOVERY,PREFIX_LOG+"IP Device "+info.getName()+" found ("+uri+")");

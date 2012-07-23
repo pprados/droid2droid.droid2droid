@@ -296,7 +296,7 @@ implements Discover.Listener
 			mListEthernet.setEnabled(false);
 			for (DevicePreference preference:mDevicePreferenceMap.values())
 			{
-				preference.mInfo.isDiscoverEthernet=false;
+				preference.mInfo.isDiscoverByEthernet=false;
 				preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
 				if (!preference.mInfo.isBonded)
 				{
@@ -307,7 +307,7 @@ implements Discover.Listener
 				}
 				else
 				{
-					preference.mInfo.isDiscoverEthernet=false;
+					preference.mInfo.isDiscoverByEthernet=false;
 					preference.mInfo.removeUrisWithScheme(SCHEME_TCP);
 					preference.onDeviceAttributesChanges();
 				}
@@ -664,7 +664,7 @@ implements Discover.Listener
 				        				//if (bmsg.getType()==Messages.BroadcastMsg.Type.CONNECT)
 				        				{
 											RemoteAndroidInfoImpl info=ProtobufConvs.toRemoteAndroidInfo(this,bmsg.getIdentity());
-											info.isDiscoverNFC=true;
+											info.isDiscoverByNFC=true;
 											info.isBonded=Trusted.isBonded(info);
 											onDiscover(info);
 				        				}
