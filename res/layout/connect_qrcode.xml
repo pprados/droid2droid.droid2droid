@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
 
-        <org.remoteandroid.ui.connect.qrcode.QRCodeScannerView
+        <org.droid2droid.ui.connect.qrcode.QRCodeScannerView
             android:id="@+id/qrcode"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

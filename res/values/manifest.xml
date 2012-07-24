@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Application name -->
-	<string name="app_name">RemoteAndroid</string>
+	<string name="app_name">Droid2Droid</string>
 	<!-- User name for this application -->
-	<string name="shared_user">RemoteAndroid</string>
-	<string name="app_title">RemoteAndroid</string>
+	<string name="shared_user">Droid2Droid</string>
+	<string name="app_title">Droid2Droid</string>
 	<string name="app_description">Share Androids</string>
 	<string name="app_summary">Manage the security for share the device</string>
-<!--   <style name="Theme.Translucent" parent="android:Theme"> -->
-<!--     <item name="android:windowIsTranslucent">true</item> -->
-<!--     <item name="android:windowBackground">@android:color/transparent</item> -->
-<!--     <item name="android:windowContentOverlay">@null</item> -->
-<!--     <item name="android:windowNoTitle">true</item> -->
-<!--     <item name="android:windowIsFloating">true</item> -->
-<!--     <item name="android:backgroundDimEnabled">false</item> -->
-<!--   </style> -->
 </resources>

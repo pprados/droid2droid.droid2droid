@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources
+  xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
 >
-    <string name="explain">Share this device with others Android.\nAnother device can use it for a better experience.</string>
+    <string name="explain">Share this device with others Android&#8482;.\nAnother device can use it for a better experience.</string>
     <string name="proximity_active_summary">Accept anonymous connections from same WIFI network or bluetooths devices.</string>
-    <string name="remote_control_summary">Accept to share this device. Another Android can invoke local application.</string>
+    <string name="remote_control_summary">Accept to share this device. Another Android&#8482; can invoke local application.</string>
     <string name="accept_all_3G_summary">Accept to download all proposed applications before check to install. Can consume data.</string>
 </resources>

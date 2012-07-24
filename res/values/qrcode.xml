@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="qrcode_msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
+	<string name="qrcode_msg_camera_framework_bug">Sorry, the camera encountered a problem. You may need to restart the device.</string>
 <!-- 	<string name="button_ok">OK</string> -->
     <string name="qrcode_context_title">Select scan mode</string>
     <string name="qrcode_flash">Flash</string>
@@ -10,10 +10,7 @@
 	<!-- Color -->
 	<color name="transparent">#00000000</color>
 	<color name="qrcode_result_color">#b0000000</color>
-<!-- 	<color name="qrcode_status_text">#ffffffff</color> -->
-	<!-- <color name="qrcode_possible_result_points">#c0ffff00</color> -->
 	<color name="qrcode_possible_result_points">#c0ff0000</color>
-<!-- 	<color name="qrcode_result_points">#c000ff00</color> -->
 	<color name="qrcode_result_points">#c0ff0000</color>
 	<color name="qrcode_frame_color">#ff000000</color>
 	<color name="qrcode_laser">#ffff0000</color>

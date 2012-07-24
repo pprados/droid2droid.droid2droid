@@ -3,14 +3,13 @@
 >
     
 	<string name="editpreference_label">Edit preference</string>
-	<string name="editpreference_description">Accept or refuse some connection from others
-		devices.</string>
+	<string name="editpreference_description">Accept or refuse some connection from others devices.</string>
 
-	<string name="settings_label">RemoteAndroid Settings</string>
-	<string name="settings_remote_android">RemoteAndroid</string>
+	<string name="settings_label">Droid2Droid Settings</string>
+	<string name="settings_remote_android">Droid2Droid</string>
 
     <string name="remote_control">Accept remote control</string>
-    <string name="explain">Share this device with others Android.</string>
+    <string name="explain">Share this device with others Android&#8482;.</string>
 
 	<string name="device_name">Device name</string>
     <string name="device_name_title">Device Name</string>
@@ -19,9 +18,9 @@
 	<string name="anonymous">Anonymous</string>
     <string name="proximity_active_title">Share with proximity</string>
     <string name="proximity_active_summary">Accept anonymous connections.</string>
-    <string name="proximity_active_qrcode_title">If start with QRCode</string>
+    <string name="proximity_active_qrcode_title">If start with QRCode.</string>
     <string name="proximity_active_qrcode_summary">Accept anonymous connections initiated with QRCODE.</string>
-    <string name="proximity_active_nfc_title">If start with NFC</string>
+    <string name="proximity_active_nfc_title">If start with NFC.</string>
     <string name="proximity_active_nfc_summary">Accept anonymous connections initiated with NFC.</string>
     <string name="dialog_title_wifi_preference">Only some WIFI Network</string>
     <string name="all_key">&lt;all&gt;</string>

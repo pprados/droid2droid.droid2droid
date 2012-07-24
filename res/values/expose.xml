@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+  xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+>
 	<integer name="expose_qrcode_maxsize">0</integer>
 
 	<string name="expose">Expose</string>
 	<string name="expose_label">Expose</string>
-	<string name="expose_description">Expose remote android</string>
+	<string name="expose_description">Expose remote Android&#8482;</string>
 		
 	<!-- TODO -->
 	<string name="expose_help0_wifi">Check if the devices shared the same WIFI network;\n</string>
-	<string name="expose_help0_bt">Check if the devices activate the Bluetooth;\n</string>
-	<string name="expose_help0_wifi_bt">Check if the devices shared the same WIFI network or activate the Bluetooth;\n</string>
+<!-- 	<string name="expose_help0_bt">Check if the devices activate the Bluetooth;\n</string> -->
+<!-- 	<string name="expose_help0_wifi_bt">Check if the devices shared the same WIFI network or activate the Bluetooth;\n</string> -->
 		
     <string name="expose_title">Expose the device</string>
 	<string name="expose_summary">For connect with another</string>
@@ -33,7 +35,7 @@
 In other device, select connect/Ticket and enter this value.\n</string>
 	<string name="expose_ticket_help_airplane">To use this approach, you must turn off Airplane mode.\n</string>
 	<string name="expose_ticket_help_internet">To use this approach, you must use a network with an access to internet.\n</string>
-	<string name="expose_ticket_message">%1$s</string>		
+	<string name="expose_ticket_message"><xliff:g id="ticket">%1$s</xliff:g></string>		
 	<string name="expose_ticket_wait">&#8230;</string>
 	
 	<string name="expose_nfc">NFC</string>
@@ -46,15 +48,16 @@ In other device, select connect/Ticket and enter this value.\n</string>
 	<string name="expose_nfc_error_no_writable">NFC no writable.</string>
 	<string name="expose_nfc_error_unknown_format">Format unknown.</string>
 					
+	<!-- TODO -->
 	<string name="expose_bump">Bump</string>
 	<string name="expose_bump_help">Bump the devices.</string>
 
+	<!-- TODO -->
 	<string name="expose_wifi_direct">Wifi direct</string>
 	<string name="expose_wifi_direct_help">Connect Wifi Direct.</string>
 						
+	<!-- TODO -->
 	<string name="expose_sound">Sound</string>
 	<string name="expose_sound_help">Listen.</string>
 
-	<string name="expose_arround">Arround</string>
-	<string name="expose_arround_help">Arround.</string>
 </resources>

@@ -4,14 +4,14 @@
 >
     <!-- If system/app, signal download is finish -->
     <string name="autoinstall_caption">Installing&#8230;</string>
-    <string name="autoinstall_ticket">Installing %1$s.</string>
+    <string name="autoinstall_ticket">Installing <xliff:g id="app_name">%1$s</xliff:g>.</string>
     
     <!-- If system/app, signal application is successufull installed -->
     <string name="installed_success_caption">Installed.</string>
-    <string name="installed_success_ticket">%1$s installed.</string>
+    <string name="installed_success_ticket"><xliff:g id="app_name">%1$s</xliff:g> installed.</string>
     
     <!-- If system/app, signal application is not installed -->
     <string name="installed_fail_caption">Not installed.</string>
-    <string name="installed_fail_ticket">%1$s not installed.</string>
+    <string name="installed_fail_ticket"><xliff:g id="app_name">%1$s</xliff:g> not installed.</string>
     
 </resources>

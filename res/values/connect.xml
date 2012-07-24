@@ -3,7 +3,7 @@
 
 	<string name="connect">Connect</string>
 	<string name="connect_label">Connect</string>
-	<string name="connect_description">Connect remote android</string>
+	<string name="connect_description">Connect remote Android&#8482;</string>
 		    
 	<!-- Hack for Honneycomb combatility -->
 	<style name="activated"/>
@@ -41,43 +41,20 @@
 	<string name="connect_arround_help_internet">TODO</string>
 				
 	<!-- ******* -->	    
-	<string name="connect_bump">Bump</string>
-	<string name="connect_bump_description">TODO</string>
-	<string name="connect_bump_help">TODO</string>
-	<string name="connect_bump_help_airplane">TODO</string>
-	<string name="connect_bump_help_internet">TODO</string>
-					
-	<!-- ******* -->	    
-	<string name="connect_wifi_direct">Wifi Direct</string>
-	<string name="connect_wifi_direct_description">TODO</string>
-	<string name="connect_wifi_direct_help">TODO</string>
-	<string name="connect_wifi_direct_help_airplane">TODO</string>
-	<string name="connect_wifi_direct_help_wifi_direct">TODO</string>
-					
-		<!-- ******* -->	    
-    <string name="connect_dtmf">Sounds</string>
-	<string name="connect_dtmf_description">Listen a special sound.</string>
-	<string name="connect_dtmf_help">Listen a sound with the connection informations.</string>
-	<string name="connect_dtmf_execute">Start</string>
-	<string name="connect_dtmf_empty_help">
-        <font fgcolor="#ffffffff"><b>Sounds</b></font> propose to analyse a sound from a remote device.\n\n
-	</string>
-	
-	<!-- ******* -->	    
 	<string name="connect_discover">Discover</string>
 	<string name="connect_discover_description">Discovers devices in proximity.</string>
 	<string name="connect_discover_help">Discover the devices if they are connected in the same local network.\n
 Then, select one discovered device to try to connect.
     </string>
-<!-- 	<string name="connect_discover_help">Discover the devices if they are connected in the same local network or have the bluetooth activated.\n -->
-<!-- Then, select one discovered device to try to connect. -->
-<!--     </string> -->
 	<string name="connect_discover_help_airplane">To discover the device at proximity, you must desactivate the airplane mode.</string>
 	<string name="connect_discover_help_wifi_or_bt">To discover the device at proximity, you must activate WIFI.</string>
 <!-- 	<string name="connect_discover_help_wifi_or_bt">To discover the device at proximity, you must activate WIFI or bluetooth.</string> -->
 	<string name="connect_discover_empty_help">
-        <p><b>Discovers</b> devices proximity (WIFI and Bluetooth).\n\n</p>
+        <p><b>Discovers</b> devices proximity (WIFI).\n\n</p>
 	</string>
+<!-- 	<string name="connect_discover_empty_help"> -->
+<!--         <p><b>Discovers</b> devices proximity (WIFI and Bluetooth).\n\n</p> -->
+<!-- 	</string> -->
 	
 	<!-- ******* -->	    
 	<string name="connect_nfc">NFC</string>
@@ -85,7 +62,7 @@ Then, select one discovered device to try to connect.
 	<string name="connect_nfc_help_airplane">Remove airplane mode.</string>
 	<string name="connect_nfc_help_nfc">Activate NFC.</string>
 		<string name="connect_nfc_help">In the remote device\n
-		<li>&#160;Start the application \'RemoteAndroid\';\n</li>
+		<li>&#160;Start the application \'Droid2Droid\';\n</li>
 		<li>&#160;Select \'Expose the device\';\n</li>
 		<li>&#160;Approch the two devices.\n</li>
     </string>
@@ -97,23 +74,20 @@ Then, select one discovered device to try to connect.
 	<!-- ******* -->	    
 	<string name="connect_qrcode">QRCode</string>
 	<string name="connect_qrcode_description">Scan QRCode from remote device.</string>
-	<string name="connect_qrcode_help">Place a qrcode from RemoteAndroid inside the viewfinder rectangle without reflexion to scan it.</string>
+	<string name="connect_qrcode_help">Place a qrcode from Droid2Droid inside the viewfinder rectangle without reflexion to scan it.</string>
 	<string name="connect_qrcode_help_airplane">Remove airplane mode.</string>
 	<string name="connect_qrcode_help_ip_bt">Activate local network.</string>
 <!-- 	<string name="connect_qrcode_help_ip_bt">Activate local network or bluetooth.</string> -->
 	<string name="connect_qrcode_empty_help">
         <b>QRCode</b> propose to connect two devices with the camera and a QRCode. One device expose the QRCode and this one scan the code.\n\n
 	</string>
-<!-- 	<string name="connect_qrcode_empty_help"> -->
-<!--         <li><font fgcolor="#ffffffff"><b>Scan QRCode</b></font> propose to connect two devices with an image with black and white dot (QRCode). One device present the QRCode, the other scan the code.\n\n</li> -->
-<!-- 	</string> -->
 
 	<!-- ******* -->	    
 	<string name="connect_sms">Short messages</string>
 	<string name="connect_sms_help">Send an message to another device.</string>
 	<string name="connect_sms_help_airplane">Remove airplane mode.</string>
-	<string name="connect_sms_help_activate">Activate Remote android in configuration.</string>
-	<string name="connect_sms_description">Receive an SMS to remote device.</string>
+	<string name="connect_sms_help_activate">Activate Droid2Droid in configuration.</string>
+	<string name="connect_sms_description">Receive an SMS from remote device.</string>
 	<string name="connect_sms_error_invalides_sms">Impossible to received short messages.</string>
 	<!-- Title for the sms disambiguation dialog -->
 	<string name="connect_sms_disambig_title">Using</string>
@@ -127,17 +101,10 @@ Then, select one discovered device to try to connect.
     <dimen name="connect_sms_left_margin">0dp</dimen>
     <dimen name="connect_sms_right_margin">0dp</dimen>
 
-	<!-- ******* -->	    
-	<string name="connect_sound">Sound</string>
-	<string name="connect_sound_description">Discovers devices in proximity with geolocation.</string>
-	<string name="connect_sound_help">TODO</string>
-	<string name="connect_sound_help_airplane">TODO</string>
-	<string name="connect_sound_help_network">TODO</string>
-					
     <!-- ******* -->	    
    	<string name="connect_ticket">Ticket</string>
 	<string name="connect_ticket_help">In the remote device\n
-		<li>&#160;Start the application \'RemoteAndroid\';\n</li>
+		<li>&#160;Start the application \'Droid2Droid\';\n</li>
 		<li>&#160;Select \'Expose\';\n</li>
 		<li>&#160;Select tab \'Input\';\n</li>
 		Then, enter here the displayed code and validate to initiate a connection.
@@ -153,4 +120,34 @@ Then, select one discovered device to try to connect.
 	<string name="connect_ticket_message_error_get_format">Invalid ticket. Check case and try again.</string>
 	<string name="connect_ticket_enter_code">Enter ticket</string>
 				
+	<!-- ******* TODO -->	    
+	<string name="connect_bump">Bump</string>
+	<string name="connect_bump_description">TODO</string>
+	<string name="connect_bump_help">TODO</string>
+	<string name="connect_bump_help_airplane">TODO</string>
+	<string name="connect_bump_help_internet">TODO</string>
+					
+	<!-- ******* TODO -->	    
+	<string name="connect_wifi_direct">Wifi Direct</string>
+	<string name="connect_wifi_direct_description">TODO</string>
+	<string name="connect_wifi_direct_help">TODO</string>
+	<string name="connect_wifi_direct_help_airplane">TODO</string>
+	<string name="connect_wifi_direct_help_wifi_direct">TODO</string>
+					
+	<!-- ******* TODO -->	    
+    <string name="connect_dtmf">Sounds</string>
+	<string name="connect_dtmf_description">Listen a special sound.</string>
+	<string name="connect_dtmf_help">Listen a sound with the connection informations.</string>
+	<string name="connect_dtmf_execute">Start</string>
+	<string name="connect_dtmf_empty_help">
+        <font fgcolor="#ffffffff"><b>Sounds</b></font> propose to analyse a sound from a remote device.\n\n
+	</string>
+	
+	<!-- ******* TODO -->	    
+	<string name="connect_sound">Sound</string>
+	<string name="connect_sound_description">Discovers devices in proximity with geolocation.</string>
+	<string name="connect_sound_help">TODO</string>
+	<string name="connect_sound_help_airplane">TODO</string>
+	<string name="connect_sound_help_network">TODO</string>				
+		
 </resources>

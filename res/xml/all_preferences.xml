@@ -38,7 +38,7 @@
 			android:enabled="true" 
 			android:selectable="true"/>
 			
-       <org.remoteandroid.ui.MultiSelectListPreference 
+       <org.droid2droid.ui.MultiSelectListPreference 
            	android:key="ano.select_wifi"
 			android:dependency="ano.active" 
        	   	android:defaultValue="#ALL#"
@@ -86,7 +86,7 @@
         android:key="scan"
         android:title="@string/preference_scan_title" />
 
-	<org.remoteandroid.ui.ProgressGroup
+	<org.droid2droid.ui.ProgressGroup
         android:key="lan.list"
         android:title="@string/detected_devices"
         android:orderingFromXml="false" />
