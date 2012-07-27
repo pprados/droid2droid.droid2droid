@@ -300,7 +300,7 @@ implements OnItemClickListener, OnItemLongClickListener
 	}
 
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (mListInfo == null)
 			return;
@@ -332,6 +332,18 @@ implements OnItemClickListener, OnItemLongClickListener
 	public void onPageSelected()
 	{
 		super.onPageSelected();
+		startScan();
+	}
+	@Override
+	public void onPageReSelected()
+	{
+		super.onPageReSelected();
+		startScan();
+	}
+
+
+	private void startScan()
+	{
 		if (RAApplication.sDiscover.isDiscovering())
 			setProgressBarIndeterminateVisibility(true);
 		if (mListInfo != null && !RAApplication.sDiscover.isDiscovering())
@@ -340,7 +352,6 @@ implements OnItemClickListener, OnItemLongClickListener
 				FLAG_ACCEPT_ANONYMOUS, DISCOVER_BEST_EFFORT);
 		}
 	}
-
 	@Override
 	public void onPageUnselected()
 	{

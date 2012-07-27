@@ -29,6 +29,9 @@ import static org.droid2droid.ui.connect.qrcode.QRCodeScannerView.msg_decode_fai
 import static org.droid2droid.ui.connect.qrcode.QRCodeScannerView.msg_decode_succeeded;
 import static org.droid2droid.ui.connect.qrcode.QRCodeScannerView.msg_request_frame;
 import static org.droid2droid.ui.connect.qrcode.QRCodeScannerView.msg_show_frame;
+
+import java.io.IOException;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -54,6 +57,7 @@ public final class CaptureHandler extends Handler
 	private boolean mStarted;
 	private boolean mWaitAutoFocus;
 	private boolean mWaitDecode;
+	private boolean mScan;
 	private final QRCodeScannerView mQRCodeScannerView;
 	private int mErrorAutofocus;
 	
@@ -63,7 +67,7 @@ public final class CaptureHandler extends Handler
 		@Override
 		public void onPreviewFrame(byte[] data, Camera camera)
 		{
-			Point previousSize = mQRCodeScannerView.mPreviousSize;
+			final Point previousSize = mQRCodeScannerView.mPreviousSize;
 			if (!mStarted)
 			{
 				// Warning: Start autofocus AFTER the first preview frame.
@@ -100,6 +104,8 @@ public final class CaptureHandler extends Handler
 		@SuppressWarnings("unused")
 		public void onAutoFocus(boolean success, Camera camera)
 		{
+if (!mScan) //FIXME
+	return;
 			mWaitAutoFocus=false;
 			if (QRCODE_DELAY_AFTER_AUTOFOCUS==0)
 				sendEmptyMessage(msg_request_frame);
@@ -137,7 +143,7 @@ public final class CaptureHandler extends Handler
 		switch (message.what)
 		{
 			case msg_auto_focus:
-				if (camera!=null && !mWaitAutoFocus)
+				if (camera!=null && !mWaitAutoFocus && mScan)
 				{
 					if (V) Log.v(TAG_QRCODE, "1 ask auto focus...");
 					try
@@ -217,23 +223,36 @@ public final class CaptureHandler extends Handler
 
 	public final void startScan()
 	{
+		if (V) Log.v(TAG_QRCODE, "Start scan");
 		final Camera camera=getCamera();
-		if (camera!=null)
+		if (camera!=null)//FIXME && !mScan)
 		{
-			mStarted=false;
-			camera.setOneShotPreviewCallback(mPreviewCallback);
+			mScan=true;
+if (V) Log.v(TAG_QRCODE,"mScan=true");			
+			
+			try
+			{
+				camera.setPreviewDisplay(mQRCodeScannerView.getHolder());
+			}
+			catch (IOException e)
+			{
+				if (W) Log.w(TAG_QRCODE,"Impossible to set preview display",e);
+			}
 			camera.startPreview();
+			restartPreviewAndDecode();			
 		}
 
 	}
 	public final void stopScan()
 	{
-		mStarted=false;
+		if (V) Log.v(TAG_QRCODE, "Stop scan");
 		final Camera camera=getCamera();
-		if (camera!=null)
+		if (mScan && camera!=null)
 		{
 			camera.stopPreview();
 		}
+		mScan=false;
+		if (V) Log.v(TAG_QRCODE,"mScan=true");			
 	}
 
 	private void restartPreviewAndDecode()

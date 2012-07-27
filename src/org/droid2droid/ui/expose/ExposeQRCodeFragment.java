@@ -39,6 +39,7 @@ import java.util.Hashtable;
 import org.droid2droid.R;
 import org.droid2droid.RAApplication;
 import org.droid2droid.internal.Messages;
+import org.droid2droid.internal.NetworkTools;
 import org.droid2droid.internal.Pairing;
 import org.droid2droid.pairing.Trusted;
 import org.droid2droid.ui.AbstractBodyFragment;
@@ -98,7 +99,8 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 	private TextView mUsage;
 	private ImageView mImg;
 	//private float mScreenBrightness;
-
+	private int mOldActiveNetwork=-1;
+	private final Point mTempPoint=new Point();
 	private int mMax;
 
 	@Override
@@ -138,12 +140,10 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 		return main;
 	}
 
-	int mOldActiveNetwork;
-	private final Point mTempPoint=new Point();
 	@SuppressWarnings("deprecation")
 	@TargetApi(13)
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (V) Log.v(TAG_QRCODE,"ExposeQRCodeFragment.updateHelp...");
 		if (mUsage==null) // Not yet initialized
@@ -152,13 +152,24 @@ public final class ExposeQRCodeFragment extends AbstractBodyFragment
 			return;
 		mOldActiveNetwork=activeNetwork;
 		boolean airplane=Settings.System.getInt(getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-		if (airplane)
+		if ((activeNetwork & NetworkTools.ACTIVE_DROID2DROID)==0)
+		{
+			mUsage.setText(R.string.expose_qrcode_help_active);
+			mImg.setVisibility(View.VISIBLE);
+		}
+		else if (airplane)
 		{
 			mUsage.setText(R.string.expose_qrcode_help_airplane);
 			mImg.setVisibility(View.GONE);
 		}
+		else if ((activeNetwork & NetworkTools.ACTIVE_NETWORK)==0)
+		{
+			mUsage.setText(R.string.expose_qrcode_help_network);
+			mImg.setVisibility(View.VISIBLE);
+		}
 		else
 		{
+			
 			mUsage.setText(R.string.expose_qrcode_help);
 			mImg.setVisibility(View.VISIBLE);
 			

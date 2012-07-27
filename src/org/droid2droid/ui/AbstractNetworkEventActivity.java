@@ -60,7 +60,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public abstract class AbstractNetworkEventActivity extends SherlockFragmentActivity
 {
-	private int mActiveNetwork;
+	private int mActiveNetwork=-1;
 
 	private static final String NFC_ACTION_ADAPTER_STATE_CHANGED = "android.nfc.action.ADAPTER_STATE_CHANGED";
 	
@@ -146,7 +146,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 			filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
 			registerReceiver(mBluetoothReceiver, filter);
 		}
-		int activeNetwork=RemoteAndroidService.isActive()? NetworkTools.ACTIVE_REMOTE_ANDROID : 0;
+		int activeNetwork=RemoteAndroidService.isActive() ? NetworkTools.ACTIVE_DROID2DROID : 0;
 		if (activeNetwork!=mActiveNetwork)
 		{
 			mActiveNetwork=activeNetwork;
@@ -171,9 +171,9 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 	protected void onReceiveRemoteAndroidEvent(Context context, Intent intent)
 	{
 		if (ACTION_START_REMOTE_ANDROID.equals(intent.getAction()))
-			mActiveNetwork|=NetworkTools.ACTIVE_REMOTE_ANDROID;
+			mActiveNetwork|=NetworkTools.ACTIVE_DROID2DROID;
 		else
-			mActiveNetwork&=~NetworkTools.ACTIVE_REMOTE_ANDROID;
+			mActiveNetwork&=~NetworkTools.ACTIVE_DROID2DROID;
 		onUpdateActiveNetwork();		
 	}
 	@TargetApi(10)

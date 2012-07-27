@@ -73,7 +73,7 @@ public final class ConnectSoundFragment extends AbstractConnectFragment
 	}
 	
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (mUsage==null)
 			return;

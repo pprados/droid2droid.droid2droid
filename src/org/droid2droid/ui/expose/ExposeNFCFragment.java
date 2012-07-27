@@ -118,7 +118,7 @@ public final class ExposeNFCFragment extends AbstractBodyFragment
 	}
 	
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (V) Log.v(TAG_QRCODE,"ExposeQRCodeFragment.updateHelp...");
 		if (mUsage==null) // Not yet initialized

@@ -21,6 +21,8 @@
 
 	<string name="expose_qrcode">QRCode</string>
 	<string name="expose_qrcode_help">Scan this code with another device.</string>
+	<string name="expose_qrcode_help_active">To use this approach, you must share the device. Select parameters.</string>
+	<string name="expose_qrcode_help_network">To use this approach, you must activate WIFI or Ethernet.</string><!-- TODO -->
 	<string name="expose_qrcode_help_airplane">To use this approach, you must turn off Airplane mode.</string>
 				
 	<string name="expose_sms">Short Message</string>

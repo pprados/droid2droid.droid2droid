@@ -24,19 +24,19 @@
 package org.droid2droid.ui;
 
 import org.droid2droid.R;
+import org.droid2droid.internal.NetworkTools;
 
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-public final class MainFragment extends Fragment
+public final class MainFragment extends AbstractBodyFragment
 {
 	interface CallBack
 	{
@@ -45,12 +45,15 @@ public final class MainFragment extends Fragment
 	}
 	
 	private CallBack mCallBack;
+	private int mOldActiveNetwork=-1;
 	
 	void setCallBack(CallBack callBack)
 	{
 		mCallBack=callBack;
 	}
 	Drawable mDrawable;
+	Button mButtonExpose;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -64,7 +67,7 @@ public final class MainFragment extends Fragment
 	{
 		mViewer =inflater.inflate(R.layout.main_expose_connect, container, false);
 		
-		final Button btnExpose=((Button)mViewer.findViewById(R.id.main_expose));
+		mButtonExpose=((Button)mViewer.findViewById(R.id.main_expose));
 		final PackageManager pm=getActivity().getPackageManager();
 		boolean fakeTouch=false;
 		if (VERSION.SDK_INT>=VERSION_CODES.HONEYCOMB)
@@ -73,9 +76,9 @@ public final class MainFragment extends Fragment
 				!pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN) &&
 				!fakeTouch)
 		{
-			btnExpose.requestFocus();
+			mButtonExpose.requestFocus();
 		}
-		btnExpose.setOnClickListener(new Button.OnClickListener()
+		mButtonExpose.setOnClickListener(new Button.OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
@@ -93,4 +96,13 @@ public final class MainFragment extends Fragment
 		});
 		return mViewer;
 	}	
+	@Override
+	protected void onUpdateActiveNetwork(int activeNetwork)
+	{
+		if (mOldActiveNetwork!=activeNetwork)
+		{
+			mOldActiveNetwork=activeNetwork;
+			mButtonExpose.setEnabled((activeNetwork & NetworkTools.ACTIVE_DROID2DROID|NetworkTools.ACTIVE_NETWORK)==(NetworkTools.ACTIVE_DROID2DROID|NetworkTools.ACTIVE_NETWORK));
+		}
+	}
 }

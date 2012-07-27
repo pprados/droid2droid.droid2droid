@@ -81,7 +81,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
 
@@ -117,16 +116,17 @@ implements SurfaceHolder.Callback
 	// View with surface for camera previous
 	private final SurfaceView mSurfaceView;
 	// The surface holder
-	private final SurfaceHolder mHolder;
+	private /*final*/ SurfaceHolder mHolder;
 	// View overlow of camera previous
 	private final AnimView mAnimView;
 
 	// The selected camera size
 	private Size mCameraSize;
 	/*private*/ Point mPreviousSize;
-	
+	private final Point mTmpPoint = new Point(); // FIXME: Eviter la création de l'instance.
+
 	/*private*/ Camera mCamera;
-	private int mCameraId;
+	private int mCameraId=-1;
 	/*private*/ int mRotation;
 	private boolean mOptimizeSize;
 
@@ -186,7 +186,7 @@ implements SurfaceHolder.Callback
 			90,		// Surface.ROTATION_270
 			
 		};
-	private static final int[] sSurfaceRotationToCameraDegreeForPortraitDefaut=
+	private static final int[] sSurfaceRotationToCameraDegreeForPortraitDefault=
 		{
 			90,		// Surface.ROTATION_0
 			0, 		// Surface.ROTATION_90
@@ -363,7 +363,8 @@ implements SurfaceHolder.Callback
 		// underlying surface is created and destroyed.
 		mHolder = mSurfaceView.getHolder();
 		mHolder.addCallback(this);
-		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		if (VERSION.SDK_INT<VERSION_CODES.GINGERBREAD)
+			mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 		// Initialize these once for performance rather than calling them every
 		// time in onDraw().
@@ -472,6 +473,7 @@ implements SurfaceHolder.Callback
 		parameters.set("rotation",rotation);
 		mCamera.setParameters(parameters);
 	}
+	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
@@ -556,30 +558,28 @@ implements SurfaceHolder.Callback
 		}
 	}
 	
-	
 	private Point scaledRotatePoint(Point p, int rotation, int canvasW, int canvasH)
 	{
-		Point tmp = new Point(); // FIXME: Eviter la création de l'instance.
 		if (D) Log.d(TAG_QRCODE, "rotating result points to match the device orientation (rotation: " + rotation + "°)");
 		switch(rotation){
 			case 90:
-				tmp.x = canvasW - p.y;
-				tmp.y = p.x;
+				mTmpPoint.x = canvasW - p.y;
+				mTmpPoint.y = p.x;
 			break;
 			case 0:
-				tmp.x = p.x;
-				tmp.y = p.y;
+				mTmpPoint.x = p.x;
+				mTmpPoint.y = p.y;
 				break;
 			case 270:
-				tmp.x = p.y;
-				tmp.y = canvasH - p.x;
+				mTmpPoint.x = p.y;
+				mTmpPoint.y = canvasH - p.x;
 			break;
 			case 180:
-				tmp.x = canvasW - p.x;
-				tmp.y = canvasH - p.y; 
+				mTmpPoint.x = canvasW - p.x;
+				mTmpPoint.y = canvasH - p.y; 
 			break;
 		}
-		return tmp;
+		return mTmpPoint;
 	}
 
 	/*package*/ void handlePrevious(Result rawResult, Bitmap barcode)
@@ -631,14 +631,14 @@ implements SurfaceHolder.Callback
 				paint.setStrokeWidth(4.0f);
 				drawLine(canvas, paint, points[0], points[1]);
 			}
-			else if (points.length == 4 && (rawResult.getBarcodeFormat().equals(
-				BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat().equals(
-				BarcodeFormat.EAN_13)))
-			{
-				// Hacky special case -- draw two lines, for the barcode and metadata
-				drawLine(canvas, paint, points[0], points[1]);
-				drawLine(canvas, paint, points[2], points[3]);
-			}
+//			else if (points.length == 4 && (rawResult.getBarcodeFormat().equals(
+//				BarcodeFormat.UPC_A) || rawResult.getBarcodeFormat().equals(
+//				BarcodeFormat.EAN_13)))
+//			{
+//				// Hacky special case -- draw two lines, for the barcode and metadata
+//				drawLine(canvas, paint, points[0], points[1]);
+//				drawLine(canvas, paint, points[2], points[3]);
+//			}
 			else
 			{
 				
@@ -698,16 +698,16 @@ implements SurfaceHolder.Callback
 			if (parameters.isZoomSupported())
 				parameters.setZoom(0);
 		}		
-		if (D)
+		if (V)
 		{
-			Log.d(TAG_QRCODE,"--------------");
-			Log.d(TAG_QRCODE,"White balance="+parameters.getWhiteBalance());
-			Log.d(TAG_QRCODE,"Scene        ="+parameters.getSceneMode());
-			Log.d(TAG_QRCODE,"Color effect ="+parameters.getColorEffect());
-			Log.d(TAG_QRCODE,"Flash mode   ="+parameters.getFlashMode());
-			Log.d(TAG_QRCODE,"Anti-banding ="+parameters.getAntibanding());
-			Log.d(TAG_QRCODE,"Zoom         ="+parameters.getZoom());
-			Log.d(TAG_QRCODE,"--------------");
+			Log.v(TAG_QRCODE,"--------------");
+			Log.v(TAG_QRCODE,"White balance="+parameters.getWhiteBalance());
+			Log.v(TAG_QRCODE,"Scene        ="+parameters.getSceneMode());
+			Log.v(TAG_QRCODE,"Color effect ="+parameters.getColorEffect());
+			Log.v(TAG_QRCODE,"Flash mode   ="+parameters.getFlashMode());
+			Log.v(TAG_QRCODE,"Anti-banding ="+parameters.getAntibanding());
+			Log.v(TAG_QRCODE,"Zoom         ="+parameters.getZoom());
+			Log.v(TAG_QRCODE,"--------------");
 		}
 		return parameters;
 	}
@@ -720,6 +720,8 @@ implements SurfaceHolder.Callback
 	@TargetApi(9)
 	public final void setCamera(int cameraId) throws IOException
 	{
+		if (mCameraId==cameraId)
+			return;
 		if (mCamera!=null)
 		{
 			mCamera.stopPreview();
@@ -758,6 +760,10 @@ implements SurfaceHolder.Callback
 	{
 		return mCamera;
 	}
+	public final SurfaceHolder getHolder()
+	{
+		return mHolder;
+	}
 	private int getDeviceDefaultOrientation()
 	{
 
@@ -790,7 +796,7 @@ implements SurfaceHolder.Callback
 		if (defaultOrientation==Configuration.ORIENTATION_LANDSCAPE)
 			rotation=sSurfaceRotationToCameraDegreeForLandscapeDefault[displayRotation];
 		else
-			rotation=sSurfaceRotationToCameraDegreeForPortraitDefaut[displayRotation];
+			rotation=sSurfaceRotationToCameraDegreeForPortraitDefault[displayRotation];
 		if (mCamera!=null && rotation!=mRotation)
 		{
 			try
@@ -808,9 +814,8 @@ implements SurfaceHolder.Callback
 			mCamera.startPreview();
 			requestLayout();
 		}
-setCameraDisplayOrientation(mRotation);
+		setCameraDisplayOrientation(mRotation);
 		mFramingRectInPreview=null;
-		mCaptureHandler.startScan();
 	}
 	
 	@Override
@@ -837,11 +842,17 @@ setCameraDisplayOrientation(mRotation);
 	{
 		if (mCamera!=null)
 			mCamera.setParameters(getCameraParameters());
-		
-		mCaptureHandler.startScan();
 		requestLayout();
 	}
 
+	public void stopScan()
+	{
+		mCaptureHandler.stopScan();
+	}
+	public void startScan()
+	{
+		mCaptureHandler.startScan();
+	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder)
@@ -851,6 +862,7 @@ setCameraDisplayOrientation(mRotation);
 		{
 			mCamera.stopPreview();
 		}
+		mHolder=null;
 	}
 	
 	private Size getOptimalCameraPreviewSize(List<Size> sizes, int w, int h)
@@ -945,7 +957,7 @@ setCameraDisplayOrientation(mRotation);
 			{
 				// The volume on STREAM_SYSTEM is not adjustable, and users found it too loud,
 				// so we now play on the music stream.
-				// FIXME: Volume
+				// TODO: Volume
 //				WindowManager wm=(WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
 //				wm.getDefaultDisplay().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 				mMediaPlayer = buildMediaPlayer(mContext);

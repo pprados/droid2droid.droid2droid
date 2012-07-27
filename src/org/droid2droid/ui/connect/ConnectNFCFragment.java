@@ -76,7 +76,7 @@ public final class ConnectNFCFragment extends AbstractConnectFragment
 	}
 	
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (mUsage==null)
 			return;

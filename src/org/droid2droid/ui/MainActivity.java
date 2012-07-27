@@ -46,7 +46,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -55,7 +54,7 @@ import com.actionbarsherlock.widget.ShareActionProvider;
 
 
 // TODO: expose NFC tag
-public final class MainActivity extends SherlockFragmentActivity
+public final class MainActivity extends AbstractNetworkEventActivity
 implements MainFragment.CallBack
 {
 //	private RemoteAndroidNfcHelper mNfcIntegration; // FIXME
@@ -154,5 +153,11 @@ implements MainFragment.CallBack
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	protected AbstractBodyFragment getActiveFragment()
+	{
+		return mFragment;
 	}
 }

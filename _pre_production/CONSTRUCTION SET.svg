@@ -14,7 +14,7 @@
    height="297mm"
    id="svg6169"
    version="1.1"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="CONSTRUCTION SET.svg">
   <defs
      id="defs6171">
@@ -391,7 +391,7 @@
      inkscape:cx="372.04724"
      inkscape:cy="624.64773"
      inkscape:document-units="px"
-     inkscape:current-layer="layer5"
+     inkscape:current-layer="g3260"
      showgrid="false"
      inkscape:window-width="1144"
      inkscape:window-height="912"
@@ -424,6 +424,23 @@
        y="163.70078"
        ry="86.216629"
        inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/remote-android/_pre_production/buzzer.png"
+       inkscape:export-xdpi="92"
+       inkscape:export-ydpi="92" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g3252"
+     inkscape:label="Fond Launcher disable"
+     style="display:inline">
+    <rect
+       style="fill:#e3dbdb;fill-opacity:1;stroke:none;display:inline"
+       id="rect3254"
+       width="480.02484"
+       height="480.02484"
+       x="141.54579"
+       y="163.70078"
+       ry="86.216629"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_connect_disable.png"
        inkscape:export-xdpi="92"
        inkscape:export-ydpi="92" />
   </g>
@@ -465,7 +482,7 @@
      inkscape:groupmode="layer"
      id="g4187"
      inkscape:label="Fond Launcher pressed"
-     style="display:inline">
+     style="display:none">
     <rect
        style="fill:#771da1;fill-opacity:1;stroke:none;display:inline"
        id="rect4189"
@@ -584,12 +601,12 @@
      inkscape:label="Launcher Base back"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline">
+     style="display:none">
     <g
        id="g6949"
        transform="matrix(-0.69080027,-0.72304563,0.72304563,-0.69080027,585.35849,1135.5725)"
        clip-path="url(#clipPath5438)"
-       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/remote-android/_pre_production/launcher.png"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_expose_disable.png"
        inkscape:export-xdpi="92"
        inkscape:export-ydpi="92">
       <path
@@ -745,6 +762,20 @@
     </g>
   </g>
   <g
+     style="display:inline"
+     inkscape:label="Fleche from disable"
+     id="g3260"
+     inkscape:groupmode="layer">
+    <path
+       style="fill:#e3dbdb;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;display:inline"
+       id="path3262"
+       d="m 407.61635,267.26996 63.52904,39.14688 -112.94747,98.9354 71.44017,66.34926 90.33088,-119.94031 40.40837,57.38382 24.51554,-176.24633 -177.27653,34.37128 z"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_connect_disable.png"
+       inkscape:export-xdpi="92"
+       inkscape:export-ydpi="92" />
+  </g>
+  <g
      inkscape:groupmode="layer"
      id="layer11"
      inkscape:label="Fleche from"
@@ -756,10 +787,24 @@
        style="fill:#6699ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;display:inline" />
   </g>
   <g
+     style="display:none"
+     inkscape:label="Fleche to disable"
+     id="g3256"
+     inkscape:groupmode="layer">
+    <path
+       style="fill:#c8b7b7;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;display:inline"
+       id="path3258"
+       d="m 293.3482,385.76348 63.52904,39.14688 -112.94747,98.9354 71.44017,66.34926 90.33088,-119.94031 40.40837,57.38382 24.51554,-176.24633 -177.27653,34.37128 z"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_expose_disable.png"
+       inkscape:export-xdpi="92"
+       inkscape:export-ydpi="92" />
+  </g>
+  <g
      inkscape:groupmode="layer"
      id="layer9"
      inkscape:label="Fleche to"
-     style="display:inline">
+     style="display:none">
     <path
        inkscape:connector-curvature="0"
        d="m 293.3482,385.76348 63.52904,39.14688 -112.94747,98.9354 71.44017,66.34926 90.33088,-119.94031 40.40837,57.38382 24.51554,-176.24633 -177.27653,34.37128 z"
@@ -770,13 +815,13 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Launcher Base front"
-     style="display:none">
+     style="display:inline">
     <g
        style="display:inline"
        id="g6981"
        transform="matrix(0.68460608,0.72891324,-0.72891324,0.68460608,513.0166,39.319433)"
        clip-path="url(#clipPath5442-2)"
-       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/remote-android/_pre_production/launcher.png"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_connect_disable.png"
        inkscape:export-xdpi="92"
        inkscape:export-ydpi="92">
       <g
@@ -1626,7 +1671,7 @@
        x="141.54579"
        y="163.70078"
        ry="11.135824"
-       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/remote-android/_pre_production/buzzer.png"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_connect_disable.png"
        inkscape:export-xdpi="92"
        inkscape:export-ydpi="92" />
     <rect
@@ -1637,7 +1682,7 @@
        x="141.54579"
        y="163.70078"
        ry="86.216629"
-       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/remote-android/_pre_production/buzzer.png"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_connect_disable.png"
        inkscape:export-xdpi="92"
        inkscape:export-ydpi="92" />
   </g>
@@ -1657,7 +1702,7 @@
        id="path3808-4-6-5"
        style="color:#000000;fill:url(#radialGradient7687);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        sodipodi:type="arc"
-       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/remote-android/_pre_production/buzzer.png"
+       inkscape:export-filename="/home/pprados/workspace.remoteandroid/root/droid2droid/_pre_production/home_connect_disable.png"
        inkscape:export-xdpi="92"
        inkscape:export-ydpi="92" />
   </g>

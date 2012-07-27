@@ -189,7 +189,7 @@ public final class ExposeTicketFragment extends AbstractBodyFragment
 		return main;
 	}
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (mUsage==null) // Not yet initialized
 			return;

@@ -207,7 +207,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 		if (V) Log.v(TAG_SMS,"Sending "+nbStep+" sms done.");
 	}
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (mUsage==null) // Not yet initialized
 			return;
@@ -218,7 +218,7 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 		}
 		else
 		{
-			if ((activeNetwork & NetworkTools.ACTIVE_REMOTE_ANDROID)==0)
+			if ((activeNetwork & NetworkTools.ACTIVE_DROID2DROID)==0)
 			{
 				mUsage.setText(R.string.connect_sms_help_activate);
 				mEditText.setVisibility(View.GONE);

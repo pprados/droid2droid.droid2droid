@@ -87,7 +87,7 @@ implements QRCodeScannerView.QRCodeResult
 	}
 
 	@Override
-	protected void updateStatus(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
 		if (mUsage==null)
 			return;
@@ -121,7 +121,7 @@ implements QRCodeScannerView.QRCodeResult
 	public void onResume()
 	{
 		super.onResume();
-		openCamera();
+		openCamera();		
 	}
 
 	@Override
@@ -131,14 +131,32 @@ implements QRCodeScannerView.QRCodeResult
 		closeCamera();
 	}
 
+	@Override
+	public void onPageSelected()
+	{
+		super.onPageSelected();
+		mQRCodeScanner.startScan();
+	}
+	@Override
+	public void onPageReSelected()
+	{
+		super.onPageReSelected();
+		mQRCodeScanner.startScan();
+	}
+	@Override
+	public void onPageUnselected()
+	{
+		super.onPageUnselected();
+		mQRCodeScanner.stopScan();
+	}
 	private void openCamera()
 	{
 		try
 		{
 			if (V) Log.v(TAG_QRCODE,"open camera...");
-			mQRCodeScanner.setCamera(sDefaultCamera);
 			Window window = getActivity().getWindow();
 			window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+			mQRCodeScanner.setCamera(sDefaultCamera);
 		}
 		catch (IOException e)
 		{
@@ -170,6 +188,7 @@ implements QRCodeScannerView.QRCodeResult
 	@Override
 	public void onQRCode(Result rawResult)
 	{
+		mQRCodeScanner.stopScan();
 		Messages.Candidates candidates;
 		try
 		{
@@ -219,5 +238,4 @@ implements QRCodeScannerView.QRCodeResult
 			throw new StringIndexOutOfBoundsException();
 		}
 	}
-
 }

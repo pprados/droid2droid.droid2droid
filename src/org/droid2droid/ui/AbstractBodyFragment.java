@@ -55,7 +55,7 @@ public abstract class AbstractBodyFragment extends SherlockFragment
 	public void onResume()
 	{
 		super.onResume();
-		updateStatus(((AbstractNetworkEventActivity)getSherlockActivity()).getActiveNetwork());
+		onUpdateActiveNetwork(((AbstractNetworkEventActivity)getSherlockActivity()).getActiveNetwork());
 	}
 //	public void onReceiveNetworkEvent(Context context,Intent intent,int activeNetwork)
 //	{
@@ -69,29 +69,24 @@ public abstract class AbstractBodyFragment extends SherlockFragment
 //	{
 //		updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
 //	}
-	public void onReceiveAirplaneEvent(Context context,Intent intent)
+	protected void onReceiveAirplaneEvent(Context context,Intent intent)
 	{
 		if (getActivity()!=null)
-			updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
+			onUpdateActiveNetwork(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
 	}
-	public void onUpdateActiveNetwork(int activeNetwork)
+	protected void onUpdateActiveNetwork(int activeNetwork)
 	{
-		updateStatus(activeNetwork);
 	}
-	public void onPageSelected()
+	protected void onPageSelected()
 	{
 		if (getActivity()!=null)
-			updateStatus(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
+			onUpdateActiveNetwork(((AbstractNetworkEventActivity)getActivity()).getActiveNetwork());
 	}
-	public void onPageReSelected()
+	protected void onPageReSelected()
 	{
 	}
-	public void onPageUnselected()
+	protected void onPageUnselected()
 	{
-	}
-	protected void updateStatus(int activeNetwork)
-	{
-		
 	}
 	protected void onDiscover(RemoteAndroidInfoImpl info)
 	{

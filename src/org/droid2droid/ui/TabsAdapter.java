@@ -117,9 +117,7 @@ public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager
 	public void onPageSelected(int position)
 	{
 		if (mActionBar!=null)
-			mActionBar.setSelectedNavigationItem(position);
-		if (mTabs!=null)
-			mTabs.get(position).mFragment.onPageSelected();
+			mActionBar.setSelectedNavigationItem(position); // onPageSelected() invoked by side effect
 	}
 
 	@Override
