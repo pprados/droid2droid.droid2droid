@@ -118,9 +118,9 @@ public final class PairingImpl extends Pairing
     private long mChallenge;
 
 	private final MessageDigest mDigest;
-	byte[] mHa;
-    byte[] mNonceA;
-    byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
+	private byte[] mHa;
+	private byte[] mNonceA;
+	private byte[] mNonceB = new byte[NONCE_BYTES_NEEDED];
 
 
 	public PairingImpl()

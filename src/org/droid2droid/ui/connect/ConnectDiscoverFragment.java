@@ -30,6 +30,7 @@ import static org.droid2droid.Droid2DroidManager.FLAG_PROPOSE_PAIRING;
 import static org.droid2droid.RemoteAndroidInfo.FEATURE_NET;
 import static org.droid2droid.RemoteAndroidInfo.FEATURE_SCREEN;
 import static org.droid2droid.internal.Constants.D;
+import static org.droid2droid.internal.Constants.PREFIX_LOG;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,7 @@ implements OnItemClickListener, OnItemLongClickListener
 				position).hashCode();
 		}
 
-		class Tag
+		private class Tag
 		{
 			TextView mText1;
 
@@ -212,7 +213,7 @@ implements OnItemClickListener, OnItemLongClickListener
 			int flags=getConnectActivity().mFlags;
 			if (!remoteAndroidInfo.isBonded && (flags & (FLAG_ACCEPT_ANONYMOUS|FLAG_PROPOSE_PAIRING))==0)
 			{
-				if (D) Log.d(TAG_DISCOVERY,"Refuse "+remoteAndroidInfo);
+				if (D) Log.d(TAG_DISCOVERY,PREFIX_LOG+"Refuse "+remoteAndroidInfo);
 				return;
 			}
 			for (int i = mListInfo.size() - 1; i >= 0; --i)

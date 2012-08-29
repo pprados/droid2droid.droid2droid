@@ -49,8 +49,8 @@ public final class Constants
 	public static final String TAG_DISCOVERY								="Discovery";
 	public static final String TAG_MDNS									="MDNS";
 	public static final String TAG_SERVER_BIND							="Server";
-	public static final String TAG_CONNECT								="Connect";
 	public static final String TAG_EXPOSE									="Expose";
+	public static final String TAG_CONNECT								="Connect";
 	public static final String TAG_SMS									="Sms"; //TAG_CONNECT;
 	public static final String TAG_DTMF									="DTMF"; // TAG_CONNECT
 	public static final String TAG_QRCODE									="QRCode"; // TAG_CONNECT;

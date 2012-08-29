@@ -100,7 +100,7 @@ LoaderManager.LoaderCallbacks<Cursor>
 
 	private ContentResolver mContentResolver;
 	private View mMain;
-	protected TextView mUsage;
+	public TextView mUsage;
 	protected EditText mEditText;
 	protected ListView mList;
 	private byte[] mSendedData;

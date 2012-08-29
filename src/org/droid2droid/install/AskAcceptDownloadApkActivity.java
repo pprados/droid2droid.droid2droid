@@ -57,7 +57,7 @@ public final class AskAcceptDownloadApkActivity extends FragmentActivity impleme
 	
 	private static final int	DIALOG_IMPORT	= 1;
 
-	private final Handler				mHandler		= new Handler();
+	private final Handler			mHandler		= new Handler();
 
 	private int					mId;
 

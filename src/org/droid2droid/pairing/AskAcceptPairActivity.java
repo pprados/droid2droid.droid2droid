@@ -57,8 +57,8 @@ public final class AskAcceptPairActivity extends FragmentActivity implements
 
 	private final Handler				mHandler		= new Handler();
 
-	FinishRunnable				mFinisher;
-	class FinishRunnable implements Runnable
+	private FinishRunnable				mFinisher;
+	private class FinishRunnable implements Runnable
 	{
 
 		boolean	mIsFinish;

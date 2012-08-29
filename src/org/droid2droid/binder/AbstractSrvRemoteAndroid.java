@@ -92,7 +92,7 @@ import android.widget.Toast;
 
 public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 {
-	public static final String CANCEL="cancel";
+	private static final String CANCEL="cancel";
 	protected Context mContext;
 	private final Random mRandom=new Random();
 	
@@ -566,25 +566,31 @@ public abstract class AbstractSrvRemoteAndroid implements IRemoteAndroid
 	
 	// -----------------------------------------------------------------------------------------------------
    // Tools pour vérifier la signature. De toute facon, jette ensuite lors de l'installation si ca matche pas.
-	int checkSignaturesLP(Signature[] s1, Signature[] s2) {
-        if (s1 == null) {
+	int checkSignaturesLP(Signature[] s1, Signature[] s2) 
+	{
+        if (s1 == null) 
+        {
             return s2 == null
                     ? PackageManager.SIGNATURE_NEITHER_SIGNED
                     : PackageManager.SIGNATURE_FIRST_NOT_SIGNED;
         }
-        if (s2 == null) {
+        if (s2 == null) 
+        {
             return PackageManager.SIGNATURE_SECOND_NOT_SIGNED;
         }
         HashSet<Signature> set1 = new HashSet<Signature>();
-        for (Signature sig : s1) {
+        for (Signature sig : s1) 
+        {
             set1.add(sig);
         }
         HashSet<Signature> set2 = new HashSet<Signature>();
-        for (Signature sig : s2) {
+        for (Signature sig : s2) 
+        {
             set2.add(sig);
         }
         // Make sure s2 contains all signatures in s1.
-        if (set1.equals(set2)) {
+        if (set1.equals(set2)) 
+        {
             return PackageManager.SIGNATURE_MATCH;
         }
         return PackageManager.SIGNATURE_NO_MATCH;

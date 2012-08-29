@@ -57,8 +57,8 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 @TargetApi(10)
 public final class ExposeNFCFragment extends AbstractBodyFragment
 {
-	TextView mUsage;
-	Button mWrite;
+	private TextView mUsage;
+	private Button mWrite;
 	public static class Provider extends FeatureTab
 	{
 		Provider()

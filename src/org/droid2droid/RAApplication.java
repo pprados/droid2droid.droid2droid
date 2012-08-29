@@ -151,7 +151,7 @@ import android.view.inputmethod.InputMethodManager;
 public final class RAApplication extends android.app.Application
 {
 
-	static String			TAG			= "Application";
+	private static String			TAG			= "Application";
 
 	public static Context	sAppContext;
 
@@ -159,9 +159,9 @@ public final class RAApplication extends android.app.Application
 	
 	private static KeyPair	sKeyPair;
 
-	static String			sName;
+	private static String			sName;
 
-	static String			sBackName	= "Unknown";
+	private static String			sBackName	= "Unknown";
 
 	public static String	sDeviceId;
 

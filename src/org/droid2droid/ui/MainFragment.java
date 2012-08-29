@@ -38,7 +38,7 @@ import android.widget.Button;
 
 public final class MainFragment extends AbstractBodyFragment
 {
-	interface CallBack
+	public interface CallBack
 	{
 		void onExpose();
 		void onConnect();
@@ -51,16 +51,15 @@ public final class MainFragment extends AbstractBodyFragment
 	{
 		mCallBack=callBack;
 	}
-	Drawable mDrawable;
-	Button mButtonExpose;
-	
+	private Drawable mDrawable;
+	private Button mButtonExpose;
+	private View mViewer;
+		
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 	}
-	
-	View mViewer;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -96,6 +95,7 @@ public final class MainFragment extends AbstractBodyFragment
 		});
 		return mViewer;
 	}	
+	
 	@Override
 	protected void onUpdateActiveNetwork(int activeNetwork)
 	{

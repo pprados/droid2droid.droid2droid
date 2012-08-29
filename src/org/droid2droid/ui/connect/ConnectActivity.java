@@ -63,7 +63,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 	public static boolean sIsConnect=false;
 	private boolean mIsLight;
 	private int mDisplaySet;
-	protected int mFlags;
+	/*package*/ int mFlags;
 	/*package*/ boolean mBroadcast;
 	
 	// To broadcast my infos
@@ -76,7 +76,7 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 
 //			new ConnectBumpFragment.Provider(), 
-			new ConnectTicketFragment.Provider(), 
+//			new ConnectTicketFragment.Provider(), 
 		};	
 	private static final FeatureTab[] sTabsConnect=
 		{
@@ -87,7 +87,6 @@ public final class ConnectActivity extends AbstractFeatureTabActivity
 //			new ConnectWifiDirectFragment.Provider(),
 			new ConnectNFCFragment.Provider(), 
 //			new ConnectBumpFragment.Provider(), 
-//			new ConnectArroundFragment.Provider(), // Retourner un essemble de info
 			new ConnectTicketFragment.Provider(), 
 		};	
 

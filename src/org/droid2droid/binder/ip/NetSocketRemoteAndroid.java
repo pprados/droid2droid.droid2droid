@@ -55,7 +55,7 @@ public final class NetSocketRemoteAndroid extends AbstractProtobufSrvRemoteAndro
     private static NetServerSocketChannel sServerSocket;
     private static Thread sThread;
     
-    static AbstractSrvRemoteAndroid sDaemonNet;
+    private static AbstractSrvRemoteAndroid sDaemonNet;
     public static void startDaemon(final Context context,final Notifications notifications)
     {
         if (!ETHERNET) return;

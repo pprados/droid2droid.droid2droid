@@ -28,7 +28,7 @@ import com.actionbarsherlock.app.ActionBar;
 // TODO: meme classe que Expose ?
 public abstract class FeatureTab
 {
-	public long mFeature;
+	protected final long mFeature;
 
 	protected FeatureTab(long feature)
 	{

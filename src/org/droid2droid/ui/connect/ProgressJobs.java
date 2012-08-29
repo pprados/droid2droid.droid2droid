@@ -35,7 +35,7 @@ public abstract class ProgressJobs<Params,Result> extends AsyncTask<Params,Integ
 	public static final Object OK=new Object();
 	public static final Object CANCEL=new Object();
 	
-	Timer mTimer=new Timer();
+	private final Timer mTimer=new Timer();
 	private long[] mEstimation;
 	private long mProgress;
 	

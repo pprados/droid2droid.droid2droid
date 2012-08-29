@@ -185,11 +185,11 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
 		}
 	}
 	public static volatile MultipleJmDNS sDNS;
-	static MulticastLock sLock; 
-	static volatile boolean sIsDiscovering;
-	static ServiceInfo	sServiceInfo = null;
+	private static MulticastLock sLock; 
+	private static volatile boolean sIsDiscovering;
+	private static ServiceInfo	sServiceInfo = null;
 
-	static int sOldNetworkType=-1;
+	private static int sOldNetworkType=-1;
 	private static BroadcastReceiver sNetworkStateReceiver=new BroadcastReceiver() 
     {
     	
@@ -251,12 +251,12 @@ public final class IPDiscoverAndroids implements DiscoverAndroids
         }
     };
 
-	static HashMap<String,Long> mPending=new HashMap<String,Long>();
-	static void clearPending()
+    private static HashMap<String,Long> mPending=new HashMap<String,Long>();
+    private static void clearPending()
 	{
 		mPending.clear();
 	}
-    static final ServiceListener sListener=new ServiceListener()
+	private static final ServiceListener sListener=new ServiceListener()
 	{
 		@Override
 		public void serviceAdded(final ServiceEvent event)

@@ -116,7 +116,7 @@ implements Discover.Listener
 {
 	// No persistante preference
 	private static final String PREFERENCES_ANO					="ano";
-	public static final String PREFERENCES_SHARE_NFC				="ano.nfc";
+	private static final String PREFERENCES_SHARE_NFC				="ano.nfc";
 	private static final String PREFERENCES_KNOWN					="known";
 
 	private static final String PREFERENCE_DEVICE_LIST			="lan.list";
@@ -302,7 +302,7 @@ implements Discover.Listener
 	
 	private final HashMap<UUID, DevicePreference> mDevicePreferenceMap = new HashMap<UUID, DevicePreference>();
 	
-	static class Cache
+	private static class Cache
 	{
 		String mValue;
 		CharSequence[] mEntries;

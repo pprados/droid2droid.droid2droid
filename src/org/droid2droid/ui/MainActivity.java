@@ -57,7 +57,6 @@ import com.actionbarsherlock.widget.ShareActionProvider;
 public final class MainActivity extends AbstractNetworkEventActivity
 implements MainFragment.CallBack
 {
-//	private RemoteAndroidNfcHelper mNfcIntegration; // FIXME
 	private FragmentManager	mFragmentManager;
 	private MainFragment	mFragment;
 
@@ -73,28 +72,19 @@ implements MainFragment.CallBack
 		mFragmentManager = getSupportFragmentManager(); // getSupportFragmentManager();
 		mFragment = (MainFragment) mFragmentManager.findFragmentById(R.id.fragment);
 		RAApplication.startService();
-//		mNfcIntegration=new RemoteAndroidNfcHelperImpl(this);
 	}
 
-	@Override
-	protected void onNewIntent(Intent intent)
-	{
-		super.onNewIntent(intent);
-//		mNfcIntegration.onNewIntent(this, intent);
-	}	
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		mFragment.setCallBack(this);
-//		NfcUtils.onResume(this, mNfcIntegration);
 	}
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
 		mFragment.setCallBack(null);
-//		mNfcIntegration.onPause(this);
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)

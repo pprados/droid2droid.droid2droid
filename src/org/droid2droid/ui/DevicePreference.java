@@ -86,9 +86,9 @@ public final class DevicePreference extends Preference
 
 
 	
-	private static int					sDimAlpha			= Integer.MIN_VALUE;
+	private static int				sDimAlpha			= Integer.MIN_VALUE;
 
-	private final CharSequence				mPairing;
+	private final CharSequence			mPairing;
 
 	public DevicePreference(Context context)
 	{

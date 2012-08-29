@@ -51,7 +51,7 @@ import android.widget.Toast;
 // FIXME: la boite de dialogue n'est pas conforme ICS
 public final class ConnectDialogFragment extends DialogFragment
 {
-	interface OnConnected
+	public interface OnConnected
 	{
 		Object doTryConnect(ProgressJobs<?,?> progressJobs,ConnectDialogFragment fragment,String[] uris,int flags,Bundle param);
 		public Object onTryConnect(String uri,int flags) throws IOException, RemoteException;

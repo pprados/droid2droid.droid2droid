@@ -61,7 +61,7 @@ import com.google.zxing.Result;
 public final class ConnectQRCodeFragment extends AbstractConnectFragment 
 implements QRCodeScannerView.QRCodeResult
 {
-	public static int sDefaultCamera = 0; // API >=9 Camera.CameraInfo.CAMERA_FACING_BACK;
+	private static int sDefaultCamera = 0; // API >=9 Camera.CameraInfo.CAMERA_FACING_BACK;
 	
 	private LinearLayout mViewer;
 

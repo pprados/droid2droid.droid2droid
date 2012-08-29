@@ -141,7 +141,7 @@ implements SurfaceHolder.Callback
 
 	private final Paint mPaint=new Paint();
 
-	/*private*/ CaptureHandler mCaptureHandler;
+	/*package*/ final CaptureHandler mCaptureHandler;
 	
 	private Bitmap mResultBitmap;
 

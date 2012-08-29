@@ -63,7 +63,7 @@ DialogInterface.OnDismissListener
     private static final int MESSAGE_POST_INSTALL = 0x4;
     
     // Receive progress dialog
-    public static final int DIALOG_RECEIVE_ONGOING = 1;
+    private static final int DIALOG_RECEIVE_ONGOING = 1;
 
     public static WeakReference<DownloadApkActivity> sMe;
 
@@ -75,9 +75,9 @@ DialogInterface.OnDismissListener
 	private TextView mLine3;
 	private TextView mLine5;
     
-    volatile AbstractSrvRemoteAndroid.DownloadFile mTransInfo;
+	private volatile AbstractSrvRemoteAndroid.DownloadFile mTransInfo;
 
-    public volatile boolean mCancel=false;
+	public volatile boolean mCancel=false;
     static class AsyncTaskResult
     {
     	AsyncTaskResult(DownloadApkActivity activity)

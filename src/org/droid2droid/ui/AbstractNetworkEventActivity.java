@@ -113,7 +113,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 		}
 	};
 
-	void onReceivePhoneEvent(Context context, Intent intent)
+	private void onReceivePhoneEvent(Context context, Intent intent)
 	{
 		if (intent.getAction().equals(
 			TelephonyManager.ACTION_PHONE_STATE_CHANGED))
@@ -212,12 +212,12 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 				case ConnectivityManager.TYPE_MOBILE_MMS:
 				case ConnectivityManager.TYPE_MOBILE_SUPL:
 				case ConnectivityManager.TYPE_WIMAX:
-					mActiveNetwork &= ~NetworkTools.ACTIVE_LOCAL_NETWORK;
+					mActiveNetwork &= ~NetworkTools.ACTIVE_LOCAL_NETWORK|NetworkTools.ACTIVE_NETWORK;
 					break;
 				case ConnectivityManager.TYPE_BLUETOOTH:
 				case ConnectivityManager.TYPE_ETHERNET:
 				case ConnectivityManager.TYPE_WIFI:
-					mActiveNetwork |= NetworkTools.ACTIVE_LOCAL_NETWORK;
+					mActiveNetwork |= NetworkTools.ACTIVE_LOCAL_NETWORK|NetworkTools.ACTIVE_NETWORK;
 					break;
 				default:
 					if (W)
@@ -225,7 +225,7 @@ public abstract class AbstractNetworkEventActivity extends SherlockFragmentActiv
 							TAG_DISCOVERY, PREFIX_LOG + "Unknown network type " + type);
 					break;
 			}
-			mActiveNetwork &= ~NetworkTools.ACTIVE_INTERNET_NETWORK;
+
 			if (info.isConnected())
 			{
 				// Check if the connection is linked to Internet or only intranet

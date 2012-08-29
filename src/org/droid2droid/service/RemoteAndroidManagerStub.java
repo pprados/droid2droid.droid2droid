@@ -67,7 +67,6 @@ implements Discover.Listener
 	private final Context mContext;
 	private long mDiscoverMaxTimeout=0L;
 	
-	
 	public RemoteAndroidManagerStub(Context context)
 	{
 		mContext=context.getApplicationContext();
@@ -86,6 +85,7 @@ implements Discover.Listener
 	{
 		return getCookie(flags,uri,Type.CONNECT_FOR_COOKIE);
 	}
+	
 	public long getCookie(int flags,String uri,
 			Type type // FIXME: Pourquoi est-ce encore nécessaire ?
 			)

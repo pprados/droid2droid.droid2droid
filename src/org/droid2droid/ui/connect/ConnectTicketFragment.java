@@ -30,6 +30,7 @@ import static org.droid2droid.internal.Constants.D;
 import static org.droid2droid.internal.Constants.E;
 import static org.droid2droid.internal.Constants.I;
 import static org.droid2droid.internal.Constants.PREFIX_LOG;
+import static org.droid2droid.ui.connect.AbstractConnectFragment.ESTIMATION_CONNEXION_3G;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -71,7 +72,7 @@ public final class ConnectTicketFragment extends AbstractConnectFragment
 
 	private View mViewer;
 	private TextView mUsage;
-	EditText mEdit;
+	private EditText mEdit;
 	
 	public static class Provider extends FeatureTab
 	{

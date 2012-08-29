@@ -42,7 +42,7 @@ import com.actionbarsherlock.app.ActionBar;
 @Deprecated
 public final class ExposeWifiDirectFragment extends AbstractBodyFragment
 {
-	protected static final String KEY_WIFI_DIRECT="WifiDirect";
+	private static final String KEY_WIFI_DIRECT="WifiDirect";
 	public static class Provider extends FeatureTab
 	{
 		Provider()

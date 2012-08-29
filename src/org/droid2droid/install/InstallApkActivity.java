@@ -43,7 +43,7 @@ import android.os.Bundle;
 import android.util.Log;
 public final class InstallApkActivity extends Activity
 {
-	public static final String EXTRA_FILENAME="filename";
+	private static final String EXTRA_FILENAME="filename";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)

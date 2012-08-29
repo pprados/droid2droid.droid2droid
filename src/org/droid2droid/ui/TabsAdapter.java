@@ -55,7 +55,7 @@ public final class TabsAdapter extends FragmentPagerAdapter implements ViewPager
 
 	private final ViewPager mViewPager;
 	
-	static final class TabInfo
+	private static final class TabInfo
 	{
 		private final Class<?> mClss;
 

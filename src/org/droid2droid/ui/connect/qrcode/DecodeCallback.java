@@ -45,7 +45,7 @@ import com.google.zxing.qrcode.QRCodeReader;
 
 final class DecodeCallback 
 {
-	public static final String BARCODE_BITMAP = "barcode_bitmap";
+	/*package*/ static final String BARCODE_BITMAP = "barcode_bitmap";
 	//private QRCodeScannerView mScannerView;
 
 	private final Reader mReader;

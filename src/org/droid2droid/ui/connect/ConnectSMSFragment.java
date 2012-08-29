@@ -33,6 +33,7 @@ import static org.droid2droid.RemoteAndroidInfo.FEATURE_TELEPHONY;
 import static org.droid2droid.internal.Constants.D;
 import static org.droid2droid.internal.Constants.PREFIX_LOG;
 import static org.droid2droid.internal.Constants.V;
+import static org.droid2droid.ui.connect.AbstractConnectFragment.ESTIMATION_CONNEXION_3G;
 
 import java.util.Arrays;
 
@@ -63,7 +64,8 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 	private static final long ESTIMATION_SEND_SMS=1000;
 	private static final long ESTIMATION_WAIT_CALLBACK=60000;
 	private static final String KEY_PHONE_NUMBER="phone";
-	
+	private RemoteAndroidInfoImpl mCallBackInfo; 
+		
 	public static class Provider extends FeatureTab
 	{
 		Provider()
@@ -80,8 +82,6 @@ implements PendingBroadcastRequest.OnBroadcastReceive
 		}
 	}	
 
-	private RemoteAndroidInfoImpl mCallBackInfo; 
-	
 	@Override
 	public void sendData(final String receiver)
 	{

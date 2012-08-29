@@ -54,7 +54,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 @TargetApi(10)
 public final class RemoteAndroidNFCReceiver extends Activity
 {
-	NfcAdapter mNfcAdapter;
+	private NfcAdapter mNfcAdapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)

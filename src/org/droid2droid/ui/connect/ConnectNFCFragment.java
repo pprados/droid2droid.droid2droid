@@ -50,7 +50,8 @@ public final class ConnectNFCFragment extends AbstractConnectFragment
 {
 	private View mViewer;
 	private TextView mUsage;
-	
+	private RemoteAndroidInfo mPendingInfo;
+		
 	public static class Provider extends FeatureTab
 	{
 		Provider()
@@ -95,8 +96,6 @@ public final class ConnectNFCFragment extends AbstractConnectFragment
 			mUsage.setText(R.string.connect_nfc_help_nfc);
 		}
 	}
-	private RemoteAndroidInfo mPendingInfo;
-	
 	@Override
 	public void onDiscover(RemoteAndroidInfoImpl info)
 	{

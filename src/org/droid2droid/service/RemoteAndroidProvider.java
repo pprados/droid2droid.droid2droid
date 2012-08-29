@@ -48,9 +48,9 @@ import android.util.Log;
 
 public final class RemoteAndroidProvider extends ContentProvider
 {
-	static final String AUTHORITY="content://org.droid2droid";
-	public static final String QRCODE="/qrcode";
-	public static final String MIME_TYPE="image/png";
+	private static final String AUTHORITY="content://org.droid2droid";
+	private static final String QRCODE="/qrcode";
+	private static final String MIME_TYPE="image/png";
 	private static final String[] MIME_TYPES=new String[]{ MIME_TYPE};
 	
 	@Override
@@ -151,7 +151,8 @@ public final class RemoteAndroidProvider extends ContentProvider
 		        FileOutputStream out = new FileOutputStream(output.getFileDescriptor());
 				Bitmap bitmap=ExposeQRCodeFragment.buildQRCode(getContext(),100);
 //				FileOutputStream out = getContext().openFileOutput("qrcode.png", Context.MODE_PRIVATE);
-			    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+			    if (bitmap!=null)
+			    	bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 			}
 		};
 		return new AssetFileDescriptor(

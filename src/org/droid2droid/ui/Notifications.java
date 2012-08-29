@@ -48,14 +48,14 @@ public final class Notifications
 {
 	public static final String LABEL_NOTIF_DOWNLOAD="download";
 	private final Context mContext;
-    public NotificationManager mNotificationMgr;
-    int mInboundSuccNumber;
-    int mInboundFailNumber;
+	public final NotificationManager mNotificationMgr;
+	private int mInboundSuccNumber;
+	private int mInboundFailNumber;
     
-    public static final String EXTRA_ID="id";
-	public static final int ONGOING_NOTIFICATION=-1000001;
-    public static int NOTIFICATION_ID_INBOUND=-1000006;
-    public static int NOTIFICATION_INSTALL=-1000007;
+	public static final String EXTRA_ID="id";
+	private static final int ONGOING_NOTIFICATION=-1000001;
+	private static int NOTIFICATION_ID_INBOUND=-1000006;
+	private static int NOTIFICATION_INSTALL=-1000007;
     
     /**
      * Helper function to build the progress text.

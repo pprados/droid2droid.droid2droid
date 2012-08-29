@@ -68,7 +68,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 // Warning: stateless instance
 public final class RemoteAndroidSMSReceiver extends BroadcastReceiver
 {
-	static class SmsPaquet
+	private static class SmsPaquet
 	{
 		int max = -1;
 

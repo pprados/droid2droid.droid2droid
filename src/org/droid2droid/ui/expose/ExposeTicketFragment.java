@@ -67,12 +67,12 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 
 public final class ExposeTicketFragment extends AbstractBodyFragment
 {
-	public static final String GOOGLE_SHORTEN_API="https://www.googleapis.com/urlshortener/v1/url";
+	private static final String GOOGLE_SHORTEN_API="https://www.googleapis.com/urlshortener/v1/url";
 	public static final String GOOGLE_SHORTEN="http://goo.gl/";
 	public static final String BASE_SHORTEN="http://www.droid2droid.org/";
 
-	TextView mUsage;
-	TextView mTicket;
+	private TextView mUsage;
+	private TextView mTicket;
 
 	public static class Provider extends FeatureTab
 	{
@@ -92,7 +92,7 @@ public final class ExposeTicketFragment extends AbstractBodyFragment
 		}
 	}
 	
-	static final Pattern sPattern=Pattern.compile(" *\"(.*)\": *\"(.*)\".*");
+	private static final Pattern sPattern=Pattern.compile(" *\"(.*)\": *\"(.*)\".*");
 	//http://code.google.com/intl/fr-FR/apis/urlshortener/v1/getting_started.html#APIKey
 	class ShortenURL extends AsyncTaskWithException<Void, Void, String>
 	{

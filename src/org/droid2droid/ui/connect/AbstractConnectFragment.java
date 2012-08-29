@@ -56,8 +56,9 @@ import android.widget.Toast;
 public abstract class AbstractConnectFragment extends AbstractBodyFragment
 implements ConnectDialogFragment.OnConnected
 {
-	public static final long ESTIMATION_CONNEXION_3G=TIMEOUT_CONNECT_WIFI;
+	/*package*/ static final long ESTIMATION_CONNEXION_3G=TIMEOUT_CONNECT_WIFI;
 	private ConnectDialogFragment mDlg;
+	
 	protected void setProgressBarIndeterminateVisibility(boolean value)
 	{
 		ConnectActivity activity=(ConnectActivity)getActivity();
